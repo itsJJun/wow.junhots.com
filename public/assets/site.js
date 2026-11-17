@@ -62,8 +62,8 @@
     if (!k) return Promise.resolve(null);
     // raw bytes, not text: Auctionator.lua holds binary (CBOR) strings that a text round-trip would break
     return file.arrayBuffer().then(function (data) {
-      var rec = { key: k.key, name: file.name, at: Date.now(), size: data.byteLength, data: data };
-      return putRec(rec).then(function () { setMeta(k.key, { name: rec.name, at: rec.at }); drawDots(); return rec; });
+      var rec = { key: k.key, name: file.name, at: Date.now(), mod: file.lastModified || 0, size: data.byteLength, data: data };
+      return putRec(rec).then(function () { setMeta(k.key, { name: rec.name, at: rec.at, mod: rec.mod }); drawDots(); return rec; });
     });
   }
 
@@ -82,6 +82,91 @@
     ls.set(fedKey(k.key), String(rec.at));
     return true;
   }
+
+  // ---- WoW folder, linked once (17 Nov). Chrome/Edge: the folder handle is kept in IndexedDB, so later visits
+  // re-read the newest save files by themselves (or after one click when the browser asks again).
+  // Other browsers: pick the WTF folder each time (input webkitdirectory). Only the three save files are read. ----
+  var FSA = typeof window.showDirectoryPicker === 'function';
+  var NAMES = { 'auctionator.lua': 'ah', 'tradeskillmaster.lua': 'tsm', 'gearsnapshot.lua': 'snap' };
+  var SKIP = /^(interface|data|cache|logs|errors|screenshots|fonts|utils|_retail_|_classic_|_classic_era_|_ptr_|_beta_)$/i;
+  var dirRec = null;
+  function getDir() { return dirRec ? Promise.resolve(dirRec) : getRec('dir').then(function (r) { dirRec = r || null; return dirRec; }, function () { return null; }); }
+  // newest copy of each save file under a folder: works from _forever_, WTF, Account, an account or a SavedVariables folder
+  function scanDir(dir) {
+    var best = {};
+    function walk(d, depth, inSV) {
+      var subs = [], files = [];
+      return (async function () { for await (const e of d.values()) (e.kind === 'directory' ? subs : files).push(e); })().then(function () {
+        var jobs = [];
+        if (inSV) files.forEach(function (f) {
+          var k = NAMES[f.name.toLowerCase()];
+          if (k) jobs.push(f.getFile().then(function (file) { if (!best[k] || file.lastModified > best[k].lastModified) best[k] = file; }));
+        });
+        if (depth < 6) {
+          var only = subs.filter(function (x) { return /^(wtf|account)$/i.test(x.name); });
+          (only.length ? only : subs).forEach(function (x) {
+            if (!SKIP.test(x.name)) jobs.push(walk(x, depth + 1, /^savedvariables$/i.test(x.name)));
+          });
+        }
+        return Promise.all(jobs);
+      });
+    }
+    return walk(dir, 0, /^savedvariables$/i.test(dir.name)).then(function () { return best; });
+  }
+  function takeFiles(best, quiet) {
+    var m = meta(), got = [], jobs = [];
+    KINDS.forEach(function (k) {
+      var f = best[k.key]; if (!f) return;
+      if (quiet && m[k.key] && m[k.key].mod && f.lastModified <= m[k.key].mod) return;   // nothing new since last time
+      jobs.push(save(f, k.key).then(function (rec) { if (rec) { got.push(k.label); if (!quiet) feed(k, rec); } }));
+    });
+    return Promise.all(jobs).then(function () { return got; });
+  }
+  // quiet: page load (no prompts); otherwise a click, which may ask the browser for permission
+  function syncFolder(quiet) {
+    if (!FSA) return Promise.resolve(null);
+    return getDir().then(function (r) {
+      if (!r || !r.handle) return null;
+      var h = r.handle;
+      return h.queryPermission({ mode: 'read' }).then(function (st) {
+        if (st === 'granted') return st;
+        return quiet ? st : h.requestPermission({ mode: 'read' });
+      }).then(function (st) {
+        r.ok = st === 'granted';
+        if (!r.ok) return null;
+        return scanDir(h).then(function (best) { return takeFiles(best, quiet); });
+      });
+    }).catch(function () { return null; });
+  }
+  function linkFolder() {
+    window.showDirectoryPicker({ id: 'wow', mode: 'read', startIn: 'desktop' }).then(function (h) {
+      return scanDir(h).then(function (best) {
+        if (!Object.keys(best).length) { toast('No WoW save files in “' + esc(h.name) + '”. Pick <b>_forever_</b> or the <b>WTF</b> folder in it.', true); return; }
+        dirRec = { key: 'dir', handle: h, name: h.name, ok: true };
+        return putRec(dirRec).then(function () { ls.set('ws.dir', h.name); return takeFiles(best, false); })
+          .then(function (got) { toast('✓ Linked “' + esc(h.name) + '”: ' + esc(got.join(', ')) + '.'); drawPop(); });
+      });
+    }, function () {});
+  }
+  function unlinkFolder() { dirRec = null; ls.set('ws.dir', ''); return tx('readwrite', function (s) { s.delete('dir'); }).then(drawPop); }
+  function refreshFolder() {
+    syncFolder(false).then(function (got) {
+      if (got === null) toast('Could not open your WoW folder. Pick it again.', true);
+      else toast(got.length ? '✓ Refreshed: ' + esc(got.join(', ')) + '.' : 'No newer files. In game, type /reload first.');
+      drawPop();
+    });
+  }
+  // other browsers: a whole folder picked with <input webkitdirectory>
+  function pickedFolder(list) {
+    var best = {};
+    Array.prototype.forEach.call(list, function (f) {
+      var k = NAMES[f.name.toLowerCase()];
+      if (k && /savedvariables/i.test(f.webkitRelativePath || '') && (!best[k] || f.lastModified > best[k].lastModified)) best[k] = f;
+    });
+    if (!Object.keys(best).length) { toast('No WoW save files there. Pick the <b>WTF</b> folder inside _forever_.', true); return; }
+    takeFiles(best, false).then(function (got) { toast('✓ Loaded: ' + esc(got.join(', ')) + '.'); drawPop(); });
+  }
+  window.wsFiles = { sync: function () { return syncFolder(false); }, get: getRec, linked: function () { return !!ls.get('ws.dir'); } };
   // the newest Horde auction scan uploaded on /admin/: used when the visitor has not loaded their own Auctionator.lua
   var SITE_SCAN = 'Auctionator (Horde site scan).lua';
   function siteScan() {
@@ -136,7 +221,19 @@
   var when = function (ms) { return new Date(ms).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); };
   function drawPop() {
     var pop = $('#wsPop'), m = meta(), site = siteMeta();
-    pop.innerHTML = KINDS.map(function (k) {
+    var dname = ls.get('ws.dir');
+    var stat = KINDS.map(function (k) {
+      var i = m[k.key];
+      return '<span class="ws-st' + (i ? ' ok' : '') + '">' + (i ? '✓ ' + esc(k.label) + ', ' + esc(when(i.at)) : '– ' + esc(k.label) + ': in game, ' + esc(k.pre)) + '</span>';
+    }).join('');
+    var top = FSA ? (dname
+        ? '<div class="ws-fold"><b>WoW folder linked</b> <code>' + esc(dname) + '</code><div class="ws-fstats">' + stat + '</div>' +
+          '<button type="button" class="ws-fbtn main ws-big" data-ws-refresh>↻ Refresh</button> <span class="ws-hint">after /reload in game</span></div>'
+        : '<div class="ws-fold"><b>Link your WoW folder once</b><p>Pick the <code>_forever_</code> folder (or <code>WTF</code> in it). The site finds your files itself.</p>' +
+          '<button type="button" class="ws-fbtn main ws-big" data-ws-link>Pick WoW folder</button></div>')
+      : '<div class="ws-fold"><b>Load your WoW files</b><p>Pick the <code>WTF</code> folder inside <code>_forever_</code>. Do it again after /reload in game.</p>' +
+        '<label class="ws-fbtn main ws-big">Pick WTF folder<input type="file" webkitdirectory data-ws-dir></label>' + (Object.keys(m).length ? '<div class="ws-fstats">' + stat + '</div>' : '') + '</div>';
+    pop.innerHTML = top + '<details class="ws-single"' + (FSA && !dname && Object.keys(m).length ? ' open' : '') + '><summary>Single files</summary>' + KINDS.map(function (k) {
       var i = m[k.key];
       return '<div class="ws-frow"><div><b>' + esc(k.label) + '</b> <code>' + esc(k.file) + '</code></div>' +
         '<span class="ws-acts2"><label class="ws-fbtn main">Load<input type="file" accept=".lua,.bak,text/plain" multiple data-ws-kind="' + k.key + '"></label>' +
@@ -145,8 +242,9 @@
           (k.key === 'ah' && site ? 'Using the site\'s Horde auction scan from ' + esc(when(site.scan ? site.scan * 1000 : site.at)) + '. Load yours for your own realm and faction.' : 'Not loaded. In game: ' + esc(k.pre))) + '</span></div>';
     }).join('') +
       (matchMedia('(max-width: 899px), (pointer: coarse)').matches ? '<div class="ws-tip ws-ptip"><b>On a phone?</b> These files are on your gaming PC, so load them there. Files are kept per browser.</div>' : '') +
-      '<div class="ws-tip">Load a file once and every tool on this site uses it. Files stay in this browser and are never uploaded. <a href="/setup/">How to set up</a>' +
-      (Object.keys(m).length ? ' <button type="button" data-ws-forget>Forget my files</button>' : '') + '</div>';
+      '</details><div class="ws-tip">Files stay in this browser. <a href="/setup/">Help</a>' +
+      (dname && FSA ? ' · <button type="button" data-ws-unlink>Unlink folder</button>' : '') +
+      (Object.keys(m).length ? ' · <button type="button" data-ws-forget>Forget my files</button>' : '') + '</div>';
   }
   var toastT;
   function toast(msg, err) {
@@ -214,14 +312,19 @@
       addEventListener('keydown', function (e) { if (e.key === 'Escape') open(false); });
       addEventListener('resize', function () { if (!pop.hidden) place(); });
       pop.addEventListener('change', function (e) {
+        var dirIn = e.target.closest('[data-ws-dir]');
+        if (dirIn) { e.stopPropagation(); var l = Array.prototype.slice.call(dirIn.files || []); dirIn.value = ''; if (l.length) pickedFolder(l); return; }
         var inp = e.target.closest('[data-ws-kind]'); if (!inp) return;
         e.stopPropagation();
         var files = Array.prototype.slice.call(inp.files || []); inp.value = '';
         if (files.length) loadPicked(files, inp.dataset.wsKind);
       });
       pop.addEventListener('click', function (e) {
+        if (e.target.closest('[data-ws-link]')) { linkFolder(); return; }
+        if (e.target.closest('[data-ws-refresh]')) { refreshFolder(); return; }
+        if (e.target.closest('[data-ws-unlink]')) { unlinkFolder(); return; }
         if (e.target.closest('[data-ws-forget]')) {
-          delAll().then(function () { ls.set('ws.files', '{}'); try { localStorage.removeItem('wf-ah'); } catch (e) {} drawDots(); drawPop(); toast('Your game files were removed from this browser.'); });
+          delAll().then(function () { dirRec = null; ls.set('ws.dir', ''); ls.set('ws.files', '{}'); try { localStorage.removeItem('wf-ah'); } catch (e) {} drawDots(); drawPop(); toast('Your game files were removed from this browser.'); });
         }
       });
     }
@@ -291,7 +394,7 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   // after the tool has set itself up
-  if (document.readyState === 'complete') setTimeout(autoFeed, 250);
-  else addEventListener('load', function () { setTimeout(autoFeed, 250); });
+  var start = function () { setTimeout(function () { syncFolder(true).then(autoFeed, autoFeed); }, 250); };
+  if (document.readyState === 'complete') start(); else addEventListener('load', start);
   addEventListener('storage', function (e) { if (e.key === 'ws.files') drawDots(); });
 })();
