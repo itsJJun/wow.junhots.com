@@ -125,6 +125,17 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
   font: 600 12px var(--body); cursor: pointer; }
 .ws-fbtn.main { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .ws-fbtn input { display: none; }
+.ws-fold { padding: 12px 10px 12px; }
+.ws-fold > b { font-weight: 600; font-size: 15px; }
+.ws-fold code { font: 12px var(--mono); color: var(--muted); }
+.ws-fold p { margin: 5px 0 10px; color: var(--muted); font-size: 13px; }
+.ws-fstats { display: grid; gap: 2px; margin: 8px 0 10px; font-size: 12.5px; color: var(--muted); }
+.ws-fstats .ok { color: var(--good); }
+.ws-fbtn.ws-big { height: 34px; padding: 0 14px; font-size: 14px; }
+.ws-hint { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.ws-single { border-top: 1px solid var(--line); }
+.ws-single > summary { cursor: pointer; padding: 8px 10px; color: var(--muted); font-size: 12px; }
+.ws-single > summary:hover { color: var(--ink); }
 .ws-tip { padding: 8px 10px 6px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
 .ws-tip button { all: unset; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .ws-tip a { color: var(--accent); }
@@ -217,6 +228,7 @@ html.ws-owner .ws-foot .ws-login { display: inline; }
 .own-lock input { font: 14px var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 10px; margin-left: 6px; }
 .own-lock button, .own-btn, .own-out, .own-fb button { font: 600 13.5px var(--body); border: 1px solid var(--line2); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
 .own-btn { background: var(--accent); color: var(--on-accent); border-color: var(--accent); display: inline-block; }
+.own-btn.own-alt { background: var(--panel); color: var(--ink); border-color: var(--line2); }
 .own-fb { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
 .own-fb li { border-left: 2px solid var(--line2); padding-left: 12px; }
 .own-fb p { margin: 2px 0 0; white-space: pre-wrap; }

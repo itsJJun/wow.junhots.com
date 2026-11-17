@@ -415,9 +415,19 @@ ADMIN_JS = r"""
   $('ownLock').addEventListener('submit', function (e) {
     e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('ownFile').addEventListener('change', function () {
-    var f = this.files[0], msg = $('ownMsg'); this.value = '';
-    if (!f) return;
+  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) upload(f); });
+  // one click: the newest Auctionator.lua from the WoW folder linked in Load game files (or the last one loaded there)
+  $('ownLatest').addEventListener('click', function () {
+    var msg = $('ownMsg'), W = window.wsFiles;
+    if (!W) { msg.textContent = 'Not ready yet, try again.'; return; }
+    msg.textContent = 'Reading your WoW folder…';
+    W.sync().then(function () { return W.get('ah'); }).then(function (rec) {
+      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Link your WoW folder in Load game files (bottom left) first.'; return; }
+      upload(new File([rec.data], rec.name, { lastModified: rec.mod || rec.at }));
+    }, function (e) { msg.textContent = 'Could not read it: ' + e.message; });
+  });
+  function upload(f) {
+    var msg = $('ownMsg');
     msg.textContent = 'Reading ' + f.name + '…';
     f.arrayBuffer().then(function (buf) {
       var rec = window.WFAH.parse(new Uint8Array(buf));   // same parser the pages use: refuse a file they cannot read
@@ -426,7 +436,7 @@ ADMIN_JS = r"""
         msg.textContent = 'Done. ' + rec.items.toLocaleString() + ' prices from ' + when(rec.scan * 1000) + ' are live (visitors see them within 5 minutes).'; scanInfo();
       });
     }).catch(function (e) { msg.textContent = 'Not uploaded: ' + e.message; });
-  });
+  }
   $('ownFb').addEventListener('click', function (e) {
     var b = e.target.closest('[data-del]'); if (!b) return;
     b.disabled = true; api('/api/admin/feedback/' + encodeURIComponent(b.dataset.del), { method: 'DELETE' }).then(reports);
@@ -468,10 +478,10 @@ def build_setup():
             '<li><b>Gear and recipes:</b> open each profession window once, then <code>/reload</code>.</li>'
             '<li><b>Bags and bank:</b> open your bank, then <code>/reload</code>.</li></ul>'
             '<h2>3. Load them on this site</h2>'
-            '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on small screens) and pick the files. '
-            'They are in <code>World of Warcraft\\_forever_\\WTF\\Account\\&lt;your account&gt;\\SavedVariables\\</code>: '
-            '<code>Auctionator.lua</code> and <code>TradeSkillMaster.lua</code> there, and <code>GearSnapshot.lua</code> one level deeper, in '
-            '<code>&lt;realm&gt;\\&lt;character&gt;\\SavedVariables\\</code>. The menu has a Copy path button for each.</p>'
+            '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on phones), then <b>Pick WoW folder</b> '
+            'and choose <code>World of Warcraft\\_forever_</code> (or the <code>WTF</code> folder in it). The site finds the three files itself. '
+            'In Chrome or Edge it remembers the folder: pick <b>Allow on every visit</b> and new files load by themselves. '
+            'In other browsers, pick the <code>WTF</code> folder again after each <code>/reload</code>.</p>'
             '<p>Load a file once and every tool uses it. Files stay in your browser and are never uploaded. Load them again after you play, for fresh numbers.</p>'
             '<p><a class="ws-cta" href="#" data-ws-open-files>Load game files</a></p></div>' % rows)
     os.makedirs(os.path.join(PUB, 'setup'), exist_ok=True)
@@ -485,9 +495,9 @@ def build_admin():
             '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
             '<div id="ownBody" class="ws-prose" hidden>'
             '<h2>Auction prices</h2><p id="ownScan"></p>'
-            '<p>In game: Auctionator full scan at the auction house, then /reload. Then upload '
-            '<code>WTF\\Account\\&lt;ACCOUNT&gt;\\SavedVariables\\Auctionator.lua</code>. Visitors without their own file get these prices on every tool.</p>'
-            '<p><label class="own-btn">Upload Auctionator.lua<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
+            '<p>In game: Auctionator full scan, then /reload. Then press Upload latest scan.</p>'
+            '<p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> '
+            '<label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
             '<h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul>'
             '<p><button type="button" class="own-out" id="ownOut">Lock</button></p></div>'
             '<script>%s</script>' % ADMIN_JS)
