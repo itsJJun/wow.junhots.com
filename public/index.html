@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" class="ws-site">
+<head>
+<style>@view-transition { navigation: auto; }</style>
+<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WoW Forever tools · junhots</title>
+<meta name="ws-prices" content="1794749899">
+<link rel="canonical" href="https://wow.junhots.com/">
+<meta name="description" content="Free WoW Forever tools: gear upgrades for every class, cheapest profession leveling, enchanting and tailoring gold, class guides.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="junhots WoW tools">
+<meta property="og:title" content="WoW Forever tools · junhots">
+<meta property="og:description" content="Free WoW Forever tools: gear upgrades for every class, cheapest profession leveling, enchanting and tailoring gold, class guides.">
+<meta property="og:url" content="https://wow.junhots.com/">
+<meta property="og:image" content="https://wow.junhots.com/assets/og/default.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
+<!--wf-theme-->
+<style id="wf-theme">
+:root { color-scheme: dark; --bg: #141413; --panel: #1c1b19; --raised: #242320; --panel2: #242320; --sunken: #100f0e; --hover: #2d2b28; --line: #302e2a; --line2: #46433d; --ink: #ecebe6; --muted: #a39f96; --gold: #e0a54c; --accent: #e0a54c; --on-accent: #1c1406; --fel: #5bbf86; --good: #5bbf86; --on-good: #0c1a10; --warn: #e0a54c; --bad: #e2685b; --q1: #e8e6e1; --q2: #4fd157; --q3: #5aa9ff; --q4: #b77cf5; --wowgold: #f2c94c; --silver: #c3c8cf; --copper: #cd8a57; --shade: #000000; --tipbg: #18171c; --elev: 0 1px 2px rgba(0,0,0,.35);
+  --display: "Inter", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f2ed; --panel: #fdfcfa; --raised: #f3f0ea; --panel2: #f3f0ea; --sunken: #ebe7df; --hover: #e8e3d9; --line: #e2ddd2; --line2: #cbc4b6; --ink: #1f1d1a; --muted: #6b665d; --gold: #b06c10; --accent: #b06c10; --on-accent: #ffffff; --fel: #237a49; --good: #237a49; --on-good: #ffffff; --warn: #a8670f; --bad: #bf4130; --q1: #1f1d1a; --q2: #1f8516; --q3: #1c66c4; --q4: #7c3cc6; --wowgold: #966f00; --silver: #66707c; --copper: #9c5a27; --shade: #6f6555; --tipbg: #fdfcfa; --elev: 0 1px 2px rgba(60,48,30,.06), 0 1px 1px rgba(60,48,30,.04); }
+body { background: var(--bg) !important; color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; letter-spacing: -.01em; text-transform: none; font-variant: normal; }
+h1 { color: var(--ink) !important; letter-spacing: -.02em; }
+h2 { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline-color: var(--accent); }
+input, select, textarea { color-scheme: inherit; }
+.card, .panel { box-shadow: var(--elev); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--accent); } }
+.wf-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px;
+  font: 600 12px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line2);
+  border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-toggle:hover { background: var(--hover); }
+/* inside the Hub every file is loaded from its "Load files" menu, so the pages' own loaders are hidden */
+.wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
+#wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
+  font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+#wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
+#wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
+#wf-path code i { font-style: normal; color: var(--accent); }
+#wf-path form { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#wf-path form label { font-size: 12px; color: var(--muted); }
+#wf-path form span { display: flex; gap: 6px; }
+#wf-path form input { flex: 1; min-width: 0; font: 12px var(--mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); }
+#wf-path form button { font: 600 12px var(--body); padding: 4px 10px; border-radius: 6px; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+#wf-path form small { color: var(--bad); font-size: 12px; }
+#wf-path form small:empty { display: none; }
+#wf-path a { color: var(--accent); margin-left: 4px; }
+.wf-toggle svg { width: 14px; height: 14px; }
+/* tables: alternating rows and a hover highlight (Jun, 15 Nov). :where() keeps these weaker than any page's own row
+   colours (picked or warning rows keep theirs); the hover on cards is a tint laid over their own background. */
+:where(table tbody tr:nth-child(even)) > td { background-color: color-mix(in srgb, var(--ink) 4%, transparent); }
+:where(table tbody tr:hover) > td { background-color: color-mix(in srgb, var(--accent) 11%, transparent); }
+:where(table tbody tr) > td { transition: background-color .1s ease; }
+.wf-more-card:hover:not(.wf-open), .wf-row-hover:hover { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)); }
+
+/* click-to-open cards (WF_MORE): hint on hover, accent edge when open */
+.wf-more-card { cursor: pointer; }
+.wf-more-card:hover { border-color: var(--line2) !important; }
+.wf-more-card.wf-open { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)) !important; }
+/* hover preview unrolls downward (clip-path animates on the GPU, no layout work per frame) */
+.wf-more-card { transition: background-color .12s ease, border-color .12s ease; }
+.wf-peek { animation: wf-unroll .16s cubic-bezier(.2, .7, .3, 1); }
+@keyframes wf-unroll { from { clip-path: inset(0 -40px calc(100% - var(--wf-h0, 100%)) -40px); } to { clip-path: inset(0 -40px -40px -40px); } }
+@media (prefers-reduced-motion: reduce) { .wf-peek { animation: none; } }
+.wf-peek { position: relative; z-index: 20; border-color: var(--line2) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--shade) 35%, transparent) !important; }
+
+/* ---- design v2 ---- */
+body { line-height: 1.5; }
+.wf-head { display: grid; gap: 6px; margin: 6px 0 2px; max-width: 760px; }
+.wf-head h1 { font-size: 26px !important; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; margin: 0; color: var(--ink) !important; }
+.wf-lead { margin: 0; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 78%, var(--muted)); max-width: 66ch; }
+.wf-start { list-style: none; counter-reset: wfs; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.wf-start li { counter-increment: wfs; display: inline-flex; align-items: center; gap: 8px; }
+.wf-start li::before { content: counter(wfs); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  font: 600 11px var(--body); color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line2); }
+.wf-start li:first-child::before { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.wf-sub { margin: 2px 0 0; font-size: 13px; font-weight: 400; color: var(--muted); max-width: 90ch; }
+.wf-answer { margin: 0; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink); max-width: 86ch; }
+.wf-answer::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line2); transform: translateY(-1px); }
+.wf-answer.good::before { background: var(--good); }
+.wf-more { all: unset; cursor: pointer; font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.wf-more:hover { color: var(--ink); text-decoration-color: currentColor; }
+.wf-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+/* calmer labels: sentence case instead of spaced capitals */
+:is(th, .field > span, .lbl, .tile .k, .wf-jump > span) { text-transform: none !important; letter-spacing: 0 !important; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wf-jump > span { font-size: 12px; }
+:is(.card .k, .mini .when, .dbr, .stat span, .buyrow .lbl, .bis .sl, .filters .lab, .find .lab, .pick .rank, .mat.head, .lim .h) {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; }
+:is(.pill, .badge, .status) { text-transform: none !important; letter-spacing: 0 !important; }
+/* one hierarchy: page title, then section titles; headings in ink, never amber */
+h1 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em !important; line-height: 1.15; color: var(--ink) !important; }
+h2 { font-size: 16px; color: var(--ink) !important; }
+.wf-lead { display: block; }
+header .wf-start, .hero .wf-start { margin-top: 8px; }
+
+.wf-stale { display: inline-block; font: 600 11.5px/1.5 var(--body); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: 99px; padding: 0 7px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+.wf-stale-line { display: inline-block; color: var(--ink); border-left: 3px solid var(--warn); padding-left: 8px; margin: 2px 0 4px; }
+
+@media (max-width: 700px) {
+  body :where(div, section, header, main, article, nav, aside, form, ul, ol, li, p, h1, h2, h3, details, fieldset, footer) { min-width: 0; }
+  body { overflow-wrap: break-word; }
+  :where(input, select, textarea) { max-width: 100%; }
+  .wf-start { gap: 4px 14px; }
+  header.hero { flex-direction: column; align-items: flex-start !important; }
+  .hero-icons { flex: none; }
+}
+
+[hidden] { display: none !important; }
+.wf-addon { font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; margin: 0 6px; white-space: nowrap; }
+.wf-addon:hover { color: var(--ink); text-decoration-color: currentColor; }
+.ahrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ahrow label.btn { font: 500 12.5px var(--body); background: var(--panel2, var(--panel)); color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ahrow label.btn:hover { border-color: var(--accent); }
+.ahrow #msg:empty { display: none; }
+
+abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%, transparent); text-underline-offset: 3px; cursor: help; }
+/* phones (review 16 Nov): small buttons and ticks get a finger-sized hit area without changing how they look much */
+@media (pointer: coarse) {
+  button:not(.wf-toggle):not(.wf-fold), select, .btn, .chip { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label:has(> input[type="checkbox"]) { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; }
+  button.mac, button.cp, button.star { min-width: 34px; }
+}
+.wf-tapTip { position: fixed; z-index: 200; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--bg); font: 500 13px/1.4 var(--body); padding: 7px 10px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-theme', root = document.documentElement;
+  var ICON = { dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+               light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' };
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromParent() { try { return window.parent !== window && window.parent.wfTheme ? window.parent.wfTheme.get() : null; } catch (e) { return null; } }
+  var inHub = !!fromParent();
+  if (inHub) root.classList.add('wf-in-hub');
+  function label() {
+    var t = root.dataset.theme, other = t === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.innerHTML = ICON[other] + '<span>' + (other === 'light' ? 'Light' : 'Dark') + '</span>';
+      b.title = 'Switch to ' + other + ' mode';
+    });
+  }
+  function set(t, save) {
+    root.dataset.theme = t;
+    if (save) try { localStorage.setItem(KEY, t); } catch (e) {}
+    document.querySelectorAll('iframe').forEach(function (f) { try { f.contentDocument.documentElement.dataset.theme = t; } catch (e) {} });
+    label();
+  }
+  window.wfTheme = { get: function () { return root.dataset.theme; }, set: set };
+  set(fromParent() || stored() || 'dark', false);
+  addEventListener('storage', function (e) { if (e.key === KEY && e.newValue) set(e.newValue, false); });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!inHub && !document.querySelector('[data-wf-toggle]')) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-toggle'; b.setAttribute('data-wf-toggle', '');
+      document.body.appendChild(b);
+    }
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { if (inHub) { window.parent.wfTheme.set(t, true); return; } } catch (e) {}
+        set(t, true);
+      });
+    });
+    label();
+  });
+})();
+</script>
+<script>
+(function () {
+  var FILES = {"file": "ah", "hubFile": "ah", "bagFile": "tsm", "hubTsm": "tsm", "gearfile": "snap", "knownFile": "snap", "hubSnap": "snap"}, COPY = {".kn-copy": "snap", "#copyPath": "ah", "#copyTsm": "tsm", "[data-wf-copy=ah]": "ah", "[data-wf-copy=snap]": "snap", "[data-wf-copy=tsm]": "tsm"}, KEY = 'wf-wow', timer;
+  var NAME = { ah: 'Auctionator.lua', tsm: 'TradeSkillMaster.lua', snap: 'GearSnapshot.lua' };
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } }
+  // Any path inside WTF\Account\<account> (a file or a folder) -> { acct: '...\\Account\\<account>\\', char: '<realm>\\<character>\\' }
+  function parse(t) {
+    t = String(t || '').trim().replace(/^"|"$/g, ''); var sep = t.indexOf('\\') >= 0 ? '\\' : '/';
+    var m = new RegExp('^(.*?[\\\\/]WTF[\\\\/]Account[\\\\/][^\\\\/]+)(?:[\\\\/](.*))?$', 'i').exec(t); if (!m) return null;
+    var out = { acct: m[1] + sep }, rest = (m[2] || '').split(/[\\/]/).filter(Boolean);
+    if (rest.length >= 2 && !/^savedvariables$/i.test(rest[0]) && !/\.lua$/i.test(rest[1])) out.char = rest[0] + sep + rest[1] + sep;
+    return out;
+  }
+  function set(t) {
+    var p = parse(t); if (!p) return false;
+    var old = get(); if (!p.char && old.char && old.acct === p.acct) p.char = old.char;
+    try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+    return true;
+  }
+  function path(k) {
+    var w = get(); if (!w.acct) return null; var sep = w.acct.slice(-1);
+    if (k === 'snap') return w.char ? w.acct + w.char + 'SavedVariables' + sep + NAME.snap : null;
+    return w.acct + 'SavedVariables' + sep + NAME[k];
+  }
+  // Where the file lives, for anyone (no personal folder names)
+  function where(k) {
+    return 'World of Warcraft\\_forever_\\WTF\\Account\\<i>your account</i>\\' + (k === 'snap' ? '<i>realm</i>\\<i>character</i>\\' : '') + 'SavedVariables\\' + NAME[k];
+  }
+  window.wfWow = { get: get, set: set, path: path, where: where, parse: parse };
+  function copy(t) {
+    var ok = false, a = document.activeElement, ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); try { a && a.focus && a.focus(); } catch (e) {}
+    if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
+    return ok;
+  }
+  function toast(html, el, keep) {
+    var d = document.getElementById('wf-path');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });
+    }
+    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
+    if (r && r.width) {
+      var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
+      if (y + d.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - d.offsetHeight - 6);
+      d.style.left = x + 'px'; d.style.top = y + 'px';
+    }
+    var f = d.querySelector('form');
+    if (f) f.onsubmit = function (e) {
+      e.preventDefault(); var v = f.querySelector('input').value;
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
+    };
+    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+  }
+  function help(k, el) {
+    var p = path(k), name = NAME[k];
+    if (p && copy(p)) return toast('<b>' + name + '</b> path copied. In the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> (File name box), <kbd>Ctrl</kbd>+<kbd>V</kbd>, <kbd>Enter</kbd>. <a href="#" data-wf-wow-reset>Change folder</a>', el);
+    var w = get();
+    toast('<b>' + name + '</b> is in <code>' + where(k) + '</code>' +
+      '<form data-k="' + k + '"><label>Save time next load: paste the ' + (k === 'snap' && w.acct ? 'character' : 'account') + ' folder path once (copy it from the Open window\'s address bar).</label>' +
+      '<span><input type="text" spellcheck="false" placeholder="' + (k === 'snap' ? '...\\WTF\\Account\\NAME\\Realm\\Character' : '...\\WTF\\Account\\NAME') + '"><button type="submit">Save</button></span><small></small></form>', el, true);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-wf-wow-reset]')) { e.preventDefault(); try { localStorage.removeItem(KEY); } catch (x) {} var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; return; }
+    for (var sel in COPY) { var b = t.closest(sel); if (b) { e.preventDefault(); e.stopImmediatePropagation(); help(COPY[sel], b); return; } }
+    if (t.tagName !== 'INPUT' || t.type !== 'file' || !FILES[t.id]) return;
+    help(FILES[t.id], (t.labels && t.labels[0]) || t);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var d = document.getElementById('wf-path');
+    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+  }, true);
+})();
+
+window.wfAge = function (when) {
+  var t = when instanceof Date ? when.getTime() : typeof when === 'number' ? (when < 1e11 ? when * 1000 : when)
+        : Date.parse(/^\d{4}-\d\d-\d\d$/.test(String(when)) ? when + 'T12:00:00' : when);
+  return isNaN(t) ? null : Math.max(0, Math.floor((Date.now() - t) / 864e5));
+};
+window.wfStale = function (when, maxDays, what) {
+  var d = wfAge(when); if (d == null || d <= maxDays) return '';
+  return ' <span class="wf-stale" title="' + (what || 'This data is') + ' ' + d + ' days old, so it may have changed since.">' + d + ' days old</span>';
+};
+
+(function () {
+  var KEY = 'wf-char', subs = [];
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function set(patch) {
+    var c = get(), ch = false;
+    for (var k in patch) if (patch[k] !== undefined && patch[k] !== null && patch[k] !== '' && c[k] !== patch[k]) { c[k] = patch[k]; ch = true; }
+    if (ch) { c.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} }
+    return c;
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) subs.forEach(function (f) { try { f(get()); } catch (x) {} }); });
+  window.WFCHAR = { get: get, set: set, on: function (f) { subs.push(f); } };
+})();
+
+(function () {
+  var G = [
+    ['Gear score', 'How good an item is for your class and spec: its stats times the stat weights of the Forever Leveling BiS addon. Higher is better.'],
+    ["Merchant's Favor", "A Forever currency for rare patterns and formulas, earned by turning in Waylaid Supplies crates (a Journeyman Fabrics crate gives 20)."],
+    ['Sayaad', 'The Succubus (or Incubus), a Warlock demon.'],
+    ['BUY line', 'What to buy for one step, with a small safety margin, after what is already in your bags.'],
+    ['sale rate', 'How often an item actually sells, from TradeSkillMaster data (0.1 = about 1 in 10 listings sell).'],
+    ['Stuck', 'Listings are piling up faster than the rest of the auction house, or sellers are cutting the price hard.'],
+    ['disenchant', 'Destroying a green or blue item with Enchanting to get dust, essences or shards.'],
+    ['Big crowd', 'Many Horde players are at the levels that can use this item right now.']
+  ];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|ABBR|CODE|SVG|TITLE|LABEL)$/;
+  var done = {};
+  function scan() {
+    var root = document.querySelector('main') || document.body; if (!root) return;
+    var left = G.filter(function (g) { return !done[g[0]]; }); if (!left.length) return;
+    var re = new RegExp('\\b(' + left.map(function (g) { return g[0].replace(/[.*+?^${}()|[\]\\']/g, '\\$&'); }).join('|') + ')s?\\b');
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      for (var e = n.parentNode; e && e !== root; e = e.parentNode) { if (SKIP.test(e.nodeName) || e.hidden || (e.classList && (e.classList.contains('gl') || e.classList.contains('mkt')))) return NodeFilter.FILTER_REJECT; }
+      return re.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; } });
+    var hits = []; for (var n = w.nextNode(); n; n = w.nextNode()) hits.push(n);
+    hits.forEach(function (n) {
+      var m = n.nodeValue.match(re); if (!m || done[m[1]]) return;
+      var g = G.filter(function (x) { return x[0] === m[1]; })[0]; done[m[1]] = 1;
+      var a = document.createElement('abbr'); a.className = 'gl'; a.title = g[1]; a.tabIndex = 0;
+      var rest = n.splitText(m.index); rest.splitText(m[0].length); a.textContent = rest.nodeValue; rest.parentNode.replaceChild(a, rest);
+    });
+  }
+  var t = 0; function later() { clearTimeout(t); t = setTimeout(scan, 400); }
+  addEventListener('load', function () { scan(); if (window.MutationObserver) new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); });
+  // phones: tap a tag or term to read its title
+  if (window.matchMedia && matchMedia('(hover: none)').matches) {
+    var tip;
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('abbr[title], .gl, .mkt[title], .pill[title], .mv[title], [data-tip]');
+      if (tip) { tip.remove(); tip = null; }
+      if (!el) return;
+      var txt = el.getAttribute('title') || el.getAttribute('data-tip'); if (!txt) return;
+      tip = document.createElement('div'); tip.className = 'wf-tapTip'; tip.setAttribute('role', 'tooltip'); tip.textContent = txt; document.body.appendChild(tip);
+      var r = el.getBoundingClientRect(), x = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left));
+      tip.style.left = x + 'px'; tip.style.top = (r.bottom + 6 + tip.offsetHeight > innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+    }, true);
+    addEventListener('scroll', function () { if (tip) { tip.remove(); tip = null; } }, { passive: true });
+  }
+})();
+
+(function () {
+  var KEY = 'wf-ah', cache, subs = [];
+  function findBytes(buf, str, from) {
+    var pat = str.split('').map(function (c) { return c.charCodeAt(0); });
+    outer: for (var i = from || 0; i <= buf.length - pat.length; i++) { for (var j = 0; j < pat.length; j++) if (buf[i + j] !== pat[j]) continue outer; return i; }
+    return -1;
+  }
+  function luaString(buf, i) {
+    var out = [], map = { 110: 10, 114: 13, 116: 9, 92: 92, 34: 34, 39: 39, 10: 10, 97: 7, 98: 8, 102: 12, 118: 11 }; i++;
+    while (i < buf.length) {
+      var c = buf[i];
+      if (c === 92) {
+        var n = buf[i + 1];
+        if (n >= 48 && n <= 57) { var k = i + 1, d = ''; while (k < i + 4 && buf[k] >= 48 && buf[k] <= 57) { d += String.fromCharCode(buf[k]); k++; } out.push(parseInt(d, 10)); i = k; continue; }
+        if (n === 13 && buf[i + 2] === 10) { out.push(10); i += 3; continue; }
+        out.push(map[n] !== undefined ? map[n] : n); i += 2; continue;
+      }
+      if (c === 34) return { bytes: new Uint8Array(out), end: i + 1 };
+      out.push(c); i++;
+    }
+    throw new Error('unterminated string');
+  }
+  function cbor(bytes) {
+    var p = 0, dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    function str(n) { var s = ''; for (var k = 0; k < n; k++) s += String.fromCharCode(bytes[p + k]); p += n; return s; }
+    function len(ai) { if (ai < 24) return ai; if (ai === 24) return bytes[p++]; if (ai === 25) { var v = dv.getUint16(p); p += 2; return v; } if (ai === 26) { v = dv.getUint32(p); p += 4; return v; } if (ai === 27) { v = Number(dv.getBigUint64(p)); p += 8; return v; } throw new Error('bad length'); }
+    function item() {
+      var b = bytes[p++], mt = b >> 5, ai = b & 31, n, k, o, a, v;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2 || mt === 3) return str(len(ai));
+      if (mt === 4) { n = len(ai); a = []; for (k = 0; k < n; k++) a.push(item()); return a; }
+      if (mt === 5) { n = len(ai); o = {}; for (k = 0; k < n; k++) { var key = item(); o[key] = item(); } return o; }
+      if (mt === 6) { len(ai); return item(); }
+      if (mt === 7) {
+        if (ai === 20) return false; if (ai === 21) return true; if (ai === 22 || ai === 23) return null;
+        if (ai === 25) { var h = dv.getUint16(p); p += 2; var e = (h >> 10) & 31, f = h & 1023; v = e === 0 ? f * Math.pow(2, -24) : e === 31 ? (f ? NaN : Infinity) : (1 + f / 1024) * Math.pow(2, e - 15); return h & 0x8000 ? -v : v; }
+        if (ai === 26) { v = dv.getFloat32(p); p += 4; return v; }
+        if (ai === 27) { v = dv.getFloat64(p); p += 8; return v; }
+      }
+      throw new Error('unsupported CBOR');
+    }
+    return item();
+  }
+  function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
+  function parse(buf) {
+    var text = ascii(buf, 0, Math.min(buf.length, buf.length));
+    var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
+    if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
+    if (mm[1] === 'nil') throw new Error('Auctionator has not saved any prices yet. Do a full scan at the auction house, then /reload');
+    var i = mm.index + mm[0].length, realms = {};
+    while (i < buf.length) {
+      while (buf[i] === 10 || buf[i] === 13 || buf[i] === 32 || buf[i] === 9 || buf[i] === 44) i++;
+      if (buf[i] === 125) break;
+      if (buf[i] !== 91 || buf[i + 1] !== 34) throw new Error('unexpected format in the price database');
+      var kEnd = findBytes(buf, '"]', i + 2), key = ascii(buf, i + 2, kEnd);
+      i = kEnd + 2; while (buf[i] === 32 || buf[i] === 61) i++;
+      if (buf[i] === 34) { var s = luaString(buf, i); i = s.end; if (key !== '__dbversion') realms[key] = s.bytes; }
+      else if (buf[i] === 123) throw new Error('this Auctionator version stores prices in an older format. Update Auctionator and scan again');
+      else { while (buf[i] !== 44 && buf[i] !== 10) i++; }
+    }
+    var best = null, bestN = -1;
+    Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
+    if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
+    var out = {};
+    Object.keys(best).forEach(function (id) {
+      var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
+      var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
+      out[id] = [e.m, a];
+    });
+    var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
+    if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
+    return { scan: scan, items: bestN, p: out };
+  }
+  function get() {
+    if (cache !== undefined) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function fire(err, name) { subs.forEach(function (f) { try { f(get(), err, name); } catch (e) { if (window.console) console.error(e); } }); }
+  function load(file) {
+    return file.arrayBuffer().then(function (ab) {
+      var rec = parse(new Uint8Array(ab)); rec.name = file.name; rec.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(rec)); } catch (e) {}
+      cache = rec; fire(null, file.name); return rec;
+    }, function (e) { throw e; }).catch(function (e) { fire(e, file.name); throw e; });
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) { cache = undefined; fire(null); } });
+  // every page's own #file loader (and the Hub / website feeding it) fills the shared store
+  document.addEventListener('change', function (e) {
+    var el = e.target; if (!el || el.id !== 'file' || !el.files) return;
+    Array.prototype.forEach.call(el.files, function (f) { if (!/tradeskillmaster|gearsnapshot/i.test(f.name)) load(f).catch(function () {}); });
+  }, true);
+  window.WFAH = { parse: parse, get: get, load: load, on: function (f) { subs.push(f); },
+    // "Prices from ..." label for a page: whose scan it is and how old
+    label: function (rec) { var d = new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      return /site scan/i.test(rec.name) ? 'Horde auction house scan (PvP realm), ' + d : 'your Auctionator scan (' + rec.name + '), ' + d; } };
+})();
+window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
+(function () {
+  var ZIP = window.WF_SNAPZIP || '';
+  if (!ZIP) return;
+  var TIP = 'Unzip it into World of Warcraft\\_forever_\\Interface\\AddOns\\ and tick Gear Snapshot in the AddOns list at character select.';
+  function add() {
+    document.querySelectorAll('label[for="gearfile"], .kn-btn').forEach(function (el) {
+      if (el.parentElement.querySelector('.wf-addon')) return;
+      var a = document.createElement('a'); a.className = 'wf-addon'; a.href = ZIP; a.download = 'GearSnapshot.zip'; a.title = TIP;
+      a.textContent = 'Get the Gear Snapshot addon'; el.insertAdjacentElement('afterend', a);
+    });
+    document.querySelectorAll('[data-wf-addon]').forEach(function (a) { a.href = ZIP; a.download = 'GearSnapshot.zip'; });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  var q = 0;  // pages redraw often: check at most once per frame
+  new MutationObserver(function () { if (q) return; q = 1; requestAnimationFrame(function () { q = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+<!--/wf-theme-->
+</head>
+<body>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" aria-current="page" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span><i class="ws-ind" aria-hidden="true"></i></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Tailoring &amp; Enchanting"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Tailoring &amp; Enchanting</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/" aria-current="page">Home<i class="ws-tab" aria-hidden="true"></i></a><a href="/gear-upgrades/">Gear</a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div></div>
+<div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
+<main class="ws-main">
+<div class="ws-hero"><h1>WoW Forever tools</h1><p>Free guides and planners that tell you what to do next: what gear to get, how to level professions and make gold, and how to play your class. What you enter is saved in your own browser.</p></div>
+<section class="ws-sec"><h2>New here? Start with these</h2><div class="ws-grid ws-steps"><a class="ws-card" href="/gear-upgrades/"><b>Find gear upgrades</b><span>Better gear for your class, and where to get it</span></a><a class="ws-card" href="/setup/"><b>Set up once</b><span>Three addons, then load your files: your own gear, bags and prices</span></a><a class="ws-card" href="/profession-leveling/"><b>Level Tailoring &amp; Enchanting</b><span>The cheapest way, step by step</span></a></div></section>
+<section class="ws-sec"><h2>Character</h2><div class="ws-grid"><a class="ws-card" href="/gear-upgrades/"><img src="/assets/icons/inv_crown_01.webp" alt="" width="40" height="40"><b>Gear upgrades</b><span>Gear that beats what you wear, and the cheapest way to get it.</span></a></div></section>
+<section class="ws-sec"><h2>Professions</h2><div class="ws-grid"><a class="ws-card" href="/profession-leveling/"><img src="/assets/icons/trade_engraving.webp" alt="" width="40" height="40"><b>Tailoring &amp; Enchanting</b><span>The cheapest way to level Tailoring and Enchanting.</span></a><a class="ws-card" href="/enchants/"><img src="/assets/icons/trade_engraving.webp" alt="" width="40" height="40"><b>Enchants</b><span>Which enchants players ask for most, and where to learn them.</span></a><a class="ws-card" href="/enchant-macros/"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="40" height="40"><b>Enchant macros</b><span>Copy-paste macros for enchanting other players&#x27; gear.</span></a></div></section>
+<section class="ws-sec"><h2>Gold</h2><div class="ws-grid"><a class="ws-card" href="/tailoring-finder/"><img src="/assets/icons/trade_tailoring.webp" alt="" width="40" height="40"><b>Tailoring finder</b><span>Which Tailoring crafts sell for a profit right now.</span></a><a class="ws-card" href="/mat-timing/"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="40" height="40"><b>Mat timing</b><span>Buy materials now, or wait for prices to drop?</span></a><a class="ws-card" href="/sell-spare-mats/"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="40" height="40" loading="lazy"><b>Sell spare mats</b><span>Spare materials in your bags: sell, vendor or keep.</span></a></div></section>
+<section class="ws-sec"><h2>Class guides</h2><div class="ws-grid"><a class="ws-card" href="/warlock-guide/"><img src="/assets/icons/classicon_warlock.webp" alt="" width="40" height="40" loading="lazy"><b>Warlock: Orc, Demonology</b><span>Orc Demonology Warlock (Horde): what to do at your level, talents, spells, dungeons and gear.</span></a><a class="ws-card" href="/demon-trainer/"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="40" height="40" loading="lazy"><b>Warlock demons</b><span>Which demon spell books to buy, and when.</span></a></div></section><section class="ws-sec"><h2>Latest updates</h2><div class="ws-ups"><article class="ws-up"><img src="/assets/updates/2026-11-16-launch.webp" alt="" width="168" height="94" loading="lazy"><div><time datetime="2026-11-16">Nov 16, 2026</time><h3>The site is live</h3><p>All WoW Forever tools now have their own pages: gear upgrades for every class, Tailoring &amp; Enchanting leveling, enchants, tailoring gold, mat timing and the Warlock guide. Load your game files once and every tool uses them; without them you get a recent Horde auction house scan. Something wrong? Use Report a problem. <a href="/">See all tools</a></p></div></article></div><a href="/updates/" style="color:var(--muted);font-size:13px">All updates</a></section>
+</main>
+<div class="ws-foot" role="contentinfo"><div><span>Made by junhots for the WoW Forever realm.</span><a href="/updates/">Updates</a><a href="/about/">Data sources</a><button type="button" data-ws-feedback>Report a problem</button><a href="https://junhots.com">Heroes of the Storm site</a><span class="ws-social"><a href="https://www.twitch.tv/junhots_" rel="me noopener" target="_blank">Twitch</a><a href="https://www.youtube.com/@junhots" rel="me noopener" target="_blank">YouTube</a><a href="https://x.com/junhots_" rel="me noopener" target="_blank">Twitter</a></span><span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. Files you load stay in your browser and are never uploaded.</span></div></div>
+</body>
+</html>

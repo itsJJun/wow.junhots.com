@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en" class="ws-site">
+<head>
+<style>@view-transition { navigation: auto; }</style>
+<script>window.wsHash0 = location.hash;</script>
+<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warlock: Orc, Demonology · WoW Forever · junhots</title>
+<style>/* compacted v1 (Jun 13 Nov: easy to see, not big) */
+
+:root {
+  /* Layout: sticky level bar on top; "At your level" dashboard first; then talent trees, level road, pets, trainer, racials, tips. */
+  --bg: #0f0c14;
+  --panel: var(--panel);
+  --raised: #221b2d;
+  --line: #352b44;
+  --ink: #ede7f5;
+  --muted: #a99db8;
+  --gold: #f2c85b;
+  --wowgold: var(--wowgold);
+  --aff: #9a63e6;
+  --demo: #e05a44;
+  --dest: #ec8f2e;
+  --fel: #7ed957;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: radial-gradient(1100px 520px at 50% -160px, var(--bg) 0%, var(--bg) 70%) var(--bg); color: var(--ink); font: 14px/1.4 var(--body); }
+a { color: var(--gold); }
+h1, h2 { font-family: var(--display); letter-spacing: .02em; text-wrap: balance; margin: 0; }
+h2 { font-size: 19px; color: var(--gold); }
+h3 { margin: 0; font-size: 15px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 11px 40px; display: grid; gap: 14px; }
+
+/* Header */
+header.hero { display: flex; gap: 10px; align-items: center; padding-top: 16px; }
+.hero-icons { display: flex; }
+.hero-icons img { width: 54px; height: 54px; border-radius: 8px; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line2), 0 6px 18px #0008; }
+.hero-icons img + img { margin-left: -9px; }
+h1 { font-size: clamp(23px, 4.4vw, 35px); color: var(--gold); line-height: 1.1; }
+.sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+/* Sticky level bar */
+.bar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); margin: 0 -11px; padding: 6px 11px; display: grid; gap: 5px; }
+.bar-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.bar label { font-weight: 700; }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.stepper button { background: var(--raised); color: var(--ink); border: 0; width: 32px; height: 32px; font-size: 18px; cursor: pointer; }
+.stepper button:hover { background: var(--hover); }
+.stepper input { width: 45px; height: 32px; text-align: center; background: var(--sunken); color: var(--gold); border: 0; font: 700 18px var(--body); font-variant-numeric: tabular-nums; }
+input[type=range] { flex: 1; min-width: 160px; accent-color: var(--gold); }
+nav.oldchips { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+nav.oldchips a { flex: none; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; padding: 3px 7px; border: 1px solid var(--line); border-radius: 74px; }
+nav.oldchips a:hover { color: var(--ink); border-color: var(--line2); }
+button:focus-visible, a:focus-visible, input:focus-visible, .tile:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 10px; scroll-margin-top: 88px; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+
+/* WoW-style icons */
+.ic { display: inline-block; border-radius: 4px; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line2); vertical-align: middle; background: #000; }
+.ic.s { width: 24px; height: 24px; border-radius: 4px; }
+.ic.m { width: 34px; height: 34px; }
+.ic.l { width: 47px; height: 47px; }
+.ic.xl { width: 60px; height: 60px; border-radius: 7px; }
+
+/* Now dashboard */
+.now { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(198px, 100%), 1fr)); gap: 9px; }
+.card { background: var(--raised); border: 1px solid var(--line); border-radius: 9px; padding: 10px; display: grid; gap: 6px; align-content: start; border-top: 3px solid var(--c, var(--gold)); }
+.card .k { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--c, var(--gold)); }
+.big { display: flex; gap: 7px; align-items: center; }
+.big h3 { font-size: 17px; }
+.big .r { color: var(--muted); font-weight: 600; font-size: 12px; }
+.desc { color: var(--wowgold); font-size: 12px; }
+.next-list { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.next-list div { display: flex; gap: 5px; align-items: center; }
+.buy { display: flex; flex-wrap: wrap; gap: 5px; }
+.buy span { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 5px 2px 2px; }
+.milestone { display: flex; gap: 7px; align-items: center; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--panel)), var(--panel)); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 9px; padding: 7px 9px; }
+.milestone b { color: var(--gold); }
+.milestone[hidden] { display: none; }
+
+/* Rotation strip */
+.rot { display: flex; flex-wrap: wrap; gap: 4px; align-items: stretch; }
+.rot-step { display: grid; justify-items: center; gap: 2px; width: 77px; text-align: center; font-size: 11px; line-height: 1.25; position: relative; }
+.rot-step b { font-size: 11px; }
+.rot-step small { color: var(--muted); font-size: 11px; }
+.rot-step .n { position: absolute; top: -6px; left: 14px; background: var(--gold); color: var(--on-accent); font-weight: 700; font-size: 11px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+
+.rules { margin: 0; padding-left: 11px; display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.rules b { color: var(--ink); }
+.bands { display: grid; gap: 6px; }
+.band { display: grid; grid-template-columns: 79px 1fr; gap: 9px; align-items: start; padding: 7px 9px; background: var(--raised); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; text-align: left; color: inherit; font: inherit; width: 100%; }
+.band.current { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.band.past { opacity: .55; }
+.band .lv { font-family: var(--display); color: var(--gold); font-size: 18px; line-height: 1.1; }
+.band .lv small { display: block; font-family: var(--body); font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.band .strip { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; margin-bottom: 4px; }
+.band .strip .arr { color: var(--muted); font-size: 11px; }
+.band ul { margin: 0; padding-left: 11px; font-size: 12px; color: var(--muted); display: grid; gap: 2px; }
+.band ul b { color: var(--ink); }
+@media (max-width: 560px) { .band { grid-template-columns: 1fr; gap: 4px; } }
+
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(189px, 100%), 1fr)); gap: 5px; }
+.dun { display: flex; justify-content: space-between; gap: 6px; align-items: center; padding: 6px 7px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+.dun b { font-weight: 600; }
+.dun span { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; white-space: nowrap; }
+.dun.now { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.dun.now span { color: var(--gold); }
+.dun.past { opacity: .45; }
+
+/* Talent trees */
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.toggle button { background: transparent; color: var(--muted); border: 0; padding: 4px 7px; font: 700 11px var(--body); cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--gold); color: var(--on-accent); }
+.trees { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.tree { border-radius: 9px; border: 1px solid var(--line); overflow: hidden; background: var(--tbg); }
+.tree-h { display: flex; justify-content: space-between; align-items: center; padding: 6px 7px; background: color-mix(in srgb, var(--shade) 18%, transparent); font-weight: 700; }
+.tree-h span:last-child { font-variant-numeric: tabular-nums; color: var(--gold); }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 4px; padding: 9px 6px 10px; justify-items: center; }
+.tile { position: relative; width: 37px; height: 37px; cursor: pointer; background: none; border: 0; padding: 0; }
+.tile img { width: 37px; height: 37px; border-radius: 4px; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line2); filter: grayscale(1) brightness(.45); }
+.tile.on img { filter: none; box-shadow: 0 0 0 2px var(--fel); }
+.tile.max img { box-shadow: 0 0 0 2px var(--wowgold); }
+.tile .rk { position: absolute; right: -6px; bottom: -6px; background: #000; border-radius: 4px; padding: 0 2px; font-size: 11px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tile.on .rk { color: var(--fel); }
+.tile.max .rk { color: var(--wowgold); }
+.tile.new img { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--gold), 0 0 14px var(--gold); } }
+
+/* Level road */
+.road { display: grid; grid-template-columns: repeat(51, 1fr); gap: 2px; }
+.road button { height: 25px; border: 0; padding: 0; border-radius: 3px; background: var(--c); cursor: pointer; }
+.road button.future { opacity: .22; }
+.road button.now { outline: 2px solid var(--gold); outline-offset: 1px; }
+.ticks { display: grid; grid-template-columns: repeat(51, 1fr); font-size: 11px; color: var(--muted); }
+.ticks span { grid-column: span 10; }
+.ticks span:last-child { grid-column: span 1; text-align: right; }
+.steps { display: grid; gap: 4px; }
+.step { display: grid; grid-template-columns: 67px 34px 1fr auto; gap: 7px; align-items: center; padding: 5px 7px; border-radius: 8px; background: var(--raised); border: 1px solid var(--line); border-left: 4px solid var(--c); cursor: pointer; }
+.step.done { opacity: .5; }
+.step.current { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.step .lv { font-weight: 700; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.step h3 { font-size: 14px; }
+.step p { font-size: 11px; color: var(--muted); }
+.pips { display: flex; gap: 2px; }
+.pip { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--c); }
+.pip.on { background: var(--c); }
+.status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 5px; border-radius: 74px; background: var(--gold); color: var(--on-accent); margin-left: 4px; vertical-align: 2px; }
+
+/* Cards rows */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(189px, 100%), 1fr)); gap: 7px; }
+.mini { background: var(--raised); border: 1px solid var(--line); border-radius: 9px; padding: 9px; display: grid; grid-template-columns: auto 1fr; gap: 2px 7px; align-items: start; align-content: start; }
+.mini.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.mini .ic { grid-row: span 3; }
+.mini .when { font-size: 11px; font-weight: 700; color: var(--c, var(--gold)); text-transform: uppercase; letter-spacing: .06em; }
+.mini p { font-size: 12px; color: var(--muted); grid-column: 2; }
+
+/* Trainer table */
+.trainer { display: grid; gap: 4px; }
+.tr { display: grid; grid-template-columns: 55px 1fr; gap: 7px; align-items: center; padding: 5px 7px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; }
+.tr.next { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.tr.past { opacity: .5; }
+.tr .lv { font-family: var(--display); color: var(--gold); font-size: 18px; text-align: center; }
+
+ul.tips { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+ul.tips li { display: grid; grid-template-columns: 34px 1fr; gap: 7px; align-items: center; }
+.note { border-left: 4px solid var(--fel); background: color-mix(in srgb, var(--good) 10%, var(--panel)); padding: 7px 9px; border-radius: 0 8px 8px 0; font-size: 13px; }
+footer { font-size: 11px; color: var(--muted); display: grid; gap: 4px; }
+
+/* WoW tooltip */
+#tip { position: fixed; z-index: 50; max-width: 300px; pointer-events: none; background: var(--tipbg); border: 1px solid var(--line2); border-radius: 4px; padding: 6px 7px; font-size: 12px; line-height: 1.4; box-shadow: 0 8px 24px #000a; display: none; }
+#tip .t { color: #fff; font-weight: 700; font-size: 13px; }
+#tip .s { color: var(--muted); font-size: 11px; }
+#tip .d { color: var(--wowgold); margin-top: 2px; }
+#tip .e { color: var(--fel); margin-top: 2px; font-size: 11px; }
+
+@media (max-width: 820px) {
+  .trees { grid-template-columns: 1fr; }
+  .grid { gap: 7px 6px; }
+}
+@media (max-width: 560px) {
+  .step { grid-template-columns: 34px 1fr; }
+  .step .lv { grid-column: 1 / -1; }
+  .step .pips { display: none; }
+  .road button { height: 20px; }
+  .rot-step { width: 64px; }
+  header.hero { align-items: flex-start; }
+  .hero-icons img { width: 40px; height: 40px; }
+}
+
+/* Tabs */
+nav.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+nav.tabs button { flex: none; display: inline-flex; align-items: center; gap: 4px; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 2px 7px 2px 2px; font: 700 12px var(--body); cursor: pointer; }
+nav.tabs button img { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #000; filter: saturate(.5) brightness(.75); }
+nav.tabs button:hover { color: var(--ink); border-color: var(--line2); }
+nav.tabs button[aria-selected="true"] { color: var(--on-accent); background: var(--gold); border-color: var(--gold); }
+nav.tabs button[aria-selected="true"] img { filter: none; }
+.panel[hidden] { display: none; }
+.h2i { display: flex; align-items: center; gap: 6px; }
+.h2i img { width: 29px; height: 29px; border-radius: 5px; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line2); }
+.panel { box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent) inset, 0 10px 30px #0006; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; background: var(--raised); border: 1px solid var(--line); border-radius: 74px; padding: 2px 7px 2px 2px; }
+.tag img { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #000; }
+.tag em { font-style: normal; color: var(--muted); font-weight: 600; }
+
+/* Dungeon timeline */
+.dtl { display: grid; gap: 2px; }
+.drow { display: grid; grid-template-columns: 198px 1fr 55px; gap: 7px; align-items: center; padding: 3px 6px; border-radius: 6px; font-size: 12px; }
+.drow:nth-child(even) { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+.drow b { font-weight: 600; }
+.drow.now { background: color-mix(in srgb, var(--accent) 12%, var(--panel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, var(--line)) inset; }
+.drow.now b { color: var(--gold); }
+.drow.past { opacity: .4; }
+.drow .rng { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.drow.now .rng { color: var(--gold); font-weight: 700; }
+.track { position: relative; height: 16px; background: var(--sunken); border-radius: 4px; }
+.track .seg { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; background: var(--line2); }
+.drow.now .seg { background: var(--gold); }
+.track .me { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--fel); border-radius: 1px; }
+.dscale { display: grid; grid-template-columns: 198px 1fr 55px; gap: 7px; padding: 0 6px; font-size: 11px; color: var(--muted); }
+.dscale .ax { position: relative; height: 16px; }
+.dscale .ax span { position: absolute; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.dbr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 6px 6px 2px; }
+.dempty { color: var(--muted); padding: 6px; }
+
+/* Wands */
+.wands { display: grid; gap: 4px; }
+.wand { display: grid; grid-template-columns: 40px 34px 1fr auto; gap: 7px; align-items: center; padding: 5px 7px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; }
+.wand .lv { font-family: var(--display); color: var(--gold); font-size: 18px; text-align: center; }
+.wand h3 { font-size: 14px; }
+.wand p { font-size: 11px; color: var(--muted); }
+.wand .why { font-size: 12px; color: var(--ink); text-align: right; max-width: 240px; }
+.wand.cur { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
+.wand.past { opacity: .45; }
+.q2 { color: var(--q2); } .q3 { color: var(--q3); } .q4 { color: var(--q4); }
+.star { color: var(--gold); }
+.pill { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 5px; border-radius: 74px; background: var(--gold); color: var(--on-accent); margin-left: 4px; vertical-align: 2px; }
+.pill.next { background: transparent; color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+
+/* Stats */
+.stats { display: grid; gap: 4px; }
+.stat { display: grid; grid-template-columns: 29px 34px 1fr; gap: 7px; align-items: center; padding: 5px 7px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; }
+.stat .no { font-family: var(--display); font-size: 19px; color: var(--gold); text-align: center; }
+.stat:nth-child(n+4) .no { color: var(--muted); }
+.stat h3 { font-size: 14px; }
+.stat p { font-size: 12px; color: var(--muted); }
+
+/* Boxes and item lists */
+.cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(206px, 100%), 1fr)); gap: 7px; }
+#campCards { grid-template-columns: repeat(auto-fit, minmax(min(258px, 100%), 1fr)); }
+#cDun { grid-column: 1 / -1; }
+.dchips { display: flex; flex-wrap: wrap; gap: 5px; }
+.dchips span { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px 2px 2px; }
+.dchips em { font-style: normal; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.box { background: var(--raised); border: 1px solid var(--line); border-radius: 9px; padding: 9px; display: grid; gap: 6px; align-content: start; }
+.box > h3 { font-size: 13px; color: var(--gold); }
+.box > p { font-size: 12px; color: var(--muted); }
+.items { display: grid; gap: 5px; }
+.item { display: grid; grid-template-columns: 24px 1fr; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.item b { color: var(--ink); font-weight: 600; }
+.badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 2px 4px; border-radius: 74px; background: var(--fel); color: var(--on-good); margin-left: 2px; vertical-align: 1px; }
+.mini .badge { justify-self: start; }
+
+/* Spell power bars */
+.spc { display: grid; gap: 2px; }
+.spr { display: grid; grid-template-columns: 163px 1fr 55px; gap: 7px; align-items: center; font-size: 12px; padding: 2px 4px; border-radius: 4px; }
+.spr:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.spr .nm { display: flex; gap: 5px; align-items: center; }
+.spr .nm small { color: var(--muted); }
+.spr .sbar { height: 14px; border-left: 1px solid var(--line2); }
+.spr .sbar i { display: block; height: 100%; background: var(--aff); border-radius: 0 4px 4px 0; }
+.spr .v { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Macros */
+.macros { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(258px, 100%), 1fr)); gap: 7px; }
+.macro { background: var(--raised); border: 1px solid var(--line); border-radius: 9px; padding: 9px; display: grid; gap: 5px; align-content: start; }
+.macro .mh { display: flex; gap: 6px; align-items: center; }
+.macro h3 { font-size: 14px; }
+.macro p { font-size: 12px; color: var(--muted); }
+.macro pre { margin: 0; background: var(--sunken); border: 1px solid var(--line); border-radius: 6px; padding: 6px 7px; font: 11px/1.55 ui-monospace, Consolas, monospace; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+.copy { justify-self: start; background: var(--gold); color: var(--on-accent); border: 0; border-radius: 6px; padding: 4px 9px; font: 700 11px var(--body); cursor: pointer; }
+.copy.ok { background: var(--fel); }
+
+@media (max-width: 640px) {
+  .drow, .dscale { grid-template-columns: 1fr 48px; gap: 2px 6px; }
+  .drow .track { grid-column: 1 / -1; grid-row: 2; }
+  .dscale > :first-child, .dscale > :last-child { display: none; }
+  .dscale { grid-template-columns: 1fr; }
+  .wand { grid-template-columns: 34px 34px 1fr; }
+  .wand .why { grid-column: 1 / -1; text-align: left; max-width: none; }
+  .spr { grid-template-columns: 120px 1fr 45px; gap: 5px; }
+  .nav-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .tile.new img { animation: none; box-shadow: 0 0 0 3px var(--gold); } }
+
+/* compact page tweaks */
+h1 { font-size: clamp(20px, 3vw, 26px); } .hero-icons img { width: 44px; height: 44px; }
+</style>
+<!--wf-theme-->
+<style id="wf-theme">
+:root { color-scheme: dark; --bg: #141413; --panel: #1c1b19; --raised: #242320; --panel2: #242320; --sunken: #100f0e; --hover: #2d2b28; --line: #302e2a; --line2: #46433d; --ink: #ecebe6; --muted: #a39f96; --gold: #e0a54c; --accent: #e0a54c; --on-accent: #1c1406; --fel: #5bbf86; --good: #5bbf86; --on-good: #0c1a10; --warn: #e0a54c; --bad: #e2685b; --q1: #e8e6e1; --q2: #4fd157; --q3: #5aa9ff; --q4: #b77cf5; --wowgold: #f2c94c; --silver: #c3c8cf; --copper: #cd8a57; --shade: #000000; --tipbg: #18171c; --elev: 0 1px 2px rgba(0,0,0,.35);
+  --display: "Inter", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f2ed; --panel: #fdfcfa; --raised: #f3f0ea; --panel2: #f3f0ea; --sunken: #ebe7df; --hover: #e8e3d9; --line: #e2ddd2; --line2: #cbc4b6; --ink: #1f1d1a; --muted: #6b665d; --gold: #b06c10; --accent: #b06c10; --on-accent: #ffffff; --fel: #237a49; --good: #237a49; --on-good: #ffffff; --warn: #a8670f; --bad: #bf4130; --q1: #1f1d1a; --q2: #1f8516; --q3: #1c66c4; --q4: #7c3cc6; --wowgold: #966f00; --silver: #66707c; --copper: #9c5a27; --shade: #6f6555; --tipbg: #fdfcfa; --elev: 0 1px 2px rgba(60,48,30,.06), 0 1px 1px rgba(60,48,30,.04); }
+body { background: var(--bg) !important; color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; letter-spacing: -.01em; text-transform: none; font-variant: normal; }
+h1 { color: var(--ink) !important; letter-spacing: -.02em; }
+h2 { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline-color: var(--accent); }
+input, select, textarea { color-scheme: inherit; }
+.card, .panel { box-shadow: var(--elev); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--accent); } }
+.wf-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px;
+  font: 600 12px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line2);
+  border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-toggle:hover { background: var(--hover); }
+/* inside the Hub every file is loaded from its "Load files" menu, so the pages' own loaders are hidden */
+.wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
+#wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
+  font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+#wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
+#wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
+#wf-path code i { font-style: normal; color: var(--accent); }
+#wf-path form { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#wf-path form label { font-size: 12px; color: var(--muted); }
+#wf-path form span { display: flex; gap: 6px; }
+#wf-path form input { flex: 1; min-width: 0; font: 12px var(--mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); }
+#wf-path form button { font: 600 12px var(--body); padding: 4px 10px; border-radius: 6px; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+#wf-path form small { color: var(--bad); font-size: 12px; }
+#wf-path form small:empty { display: none; }
+#wf-path a { color: var(--accent); margin-left: 4px; }
+.wf-toggle svg { width: 14px; height: 14px; }
+/* tables: alternating rows and a hover highlight (Jun, 15 Nov). :where() keeps these weaker than any page's own row
+   colours (picked or warning rows keep theirs); the hover on cards is a tint laid over their own background. */
+:where(table tbody tr:nth-child(even)) > td { background-color: color-mix(in srgb, var(--ink) 4%, transparent); }
+:where(table tbody tr:hover) > td { background-color: color-mix(in srgb, var(--accent) 11%, transparent); }
+:where(table tbody tr) > td { transition: background-color .1s ease; }
+.wf-more-card:hover:not(.wf-open), .wf-row-hover:hover { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)); }
+
+/* click-to-open cards (WF_MORE): hint on hover, accent edge when open */
+.wf-more-card { cursor: pointer; }
+.wf-more-card:hover { border-color: var(--line2) !important; }
+.wf-more-card.wf-open { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)) !important; }
+/* hover preview unrolls downward (clip-path animates on the GPU, no layout work per frame) */
+.wf-more-card { transition: background-color .12s ease, border-color .12s ease; }
+.wf-peek { animation: wf-unroll .16s cubic-bezier(.2, .7, .3, 1); }
+@keyframes wf-unroll { from { clip-path: inset(0 -40px calc(100% - var(--wf-h0, 100%)) -40px); } to { clip-path: inset(0 -40px -40px -40px); } }
+@media (prefers-reduced-motion: reduce) { .wf-peek { animation: none; } }
+.wf-peek { position: relative; z-index: 20; border-color: var(--line2) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--shade) 35%, transparent) !important; }
+
+/* wand and stat lists: two columns of short rows instead of one wide row with a gap in the middle */
+.wands, .stats { grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr)); gap: 6px; }
+.wand .why { max-width: 190px; font-size: 11.5px; }
+.milestone { background: color-mix(in srgb, var(--accent) 9%, var(--panel)) !important; }
+.now { align-items: start; }
+.tree { background: var(--raised) !important; }
+.tree-h { background: color-mix(in srgb, var(--shade) 10%, transparent) !important; }
+.hero-icons img { box-shadow: 0 0 0 1px var(--line2); }
+.stepper input { background: var(--sunken); }
+
+/* ---- design v2 ---- */
+body { line-height: 1.5; }
+.wf-head { display: grid; gap: 6px; margin: 6px 0 2px; max-width: 760px; }
+.wf-head h1 { font-size: 26px !important; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; margin: 0; color: var(--ink) !important; }
+.wf-lead { margin: 0; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 78%, var(--muted)); max-width: 66ch; }
+.wf-start { list-style: none; counter-reset: wfs; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.wf-start li { counter-increment: wfs; display: inline-flex; align-items: center; gap: 8px; }
+.wf-start li::before { content: counter(wfs); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  font: 600 11px var(--body); color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line2); }
+.wf-start li:first-child::before { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.wf-sub { margin: 2px 0 0; font-size: 13px; font-weight: 400; color: var(--muted); max-width: 90ch; }
+.wf-answer { margin: 0; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink); max-width: 86ch; }
+.wf-answer::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line2); transform: translateY(-1px); }
+.wf-answer.good::before { background: var(--good); }
+.wf-more { all: unset; cursor: pointer; font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.wf-more:hover { color: var(--ink); text-decoration-color: currentColor; }
+.wf-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+/* calmer labels: sentence case instead of spaced capitals */
+:is(th, .field > span, .lbl, .tile .k, .wf-jump > span) { text-transform: none !important; letter-spacing: 0 !important; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wf-jump > span { font-size: 12px; }
+:is(.card .k, .mini .when, .dbr, .stat span, .buyrow .lbl, .bis .sl, .filters .lab, .find .lab, .pick .rank, .mat.head, .lim .h) {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; }
+:is(.pill, .badge, .status) { text-transform: none !important; letter-spacing: 0 !important; }
+/* one hierarchy: page title, then section titles; headings in ink, never amber */
+h1 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em !important; line-height: 1.15; color: var(--ink) !important; }
+h2 { font-size: 16px; color: var(--ink) !important; }
+.wf-lead { display: block; }
+header .wf-start, .hero .wf-start { margin-top: 8px; }
+
+/* cards: one accent, labels in muted sentence case (talent-tree colours stay on the talent steps) */
+.card { border-top: 1px solid var(--line) !important; }
+.card .k, .mini .when { color: var(--muted) !important; }
+.hero .sub.wf-lead { font-size: 15px; }
+
+.wf-stale { display: inline-block; font: 600 11.5px/1.5 var(--body); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: 99px; padding: 0 7px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+.wf-stale-line { display: inline-block; color: var(--ink); border-left: 3px solid var(--warn); padding-left: 8px; margin: 2px 0 4px; }
+
+@media (max-width: 700px) {
+  body :where(div, section, header, main, article, nav, aside, form, ul, ol, li, p, h1, h2, h3, details, fieldset, footer) { min-width: 0; }
+  body { overflow-wrap: break-word; }
+  :where(input, select, textarea) { max-width: 100%; }
+  .wf-start { gap: 4px 14px; }
+  header.hero { flex-direction: column; align-items: flex-start !important; }
+  .hero-icons { flex: none; }
+}
+
+[hidden] { display: none !important; }
+.wf-addon { font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; margin: 0 6px; white-space: nowrap; }
+.wf-addon:hover { color: var(--ink); text-decoration-color: currentColor; }
+.ahrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ahrow label.btn { font: 500 12.5px var(--body); background: var(--panel2, var(--panel)); color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ahrow label.btn:hover { border-color: var(--accent); }
+.ahrow #msg:empty { display: none; }
+
+abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%, transparent); text-underline-offset: 3px; cursor: help; }
+/* phones (review 16 Nov): small buttons and ticks get a finger-sized hit area without changing how they look much */
+@media (pointer: coarse) {
+  button:not(.wf-toggle):not(.wf-fold), select, .btn, .chip { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label:has(> input[type="checkbox"]) { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; }
+  button.mac, button.cp, button.star { min-width: 34px; }
+}
+.wf-tapTip { position: fixed; z-index: 200; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--bg); font: 500 13px/1.4 var(--body); padding: 7px 10px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-theme', root = document.documentElement;
+  var ICON = { dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+               light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' };
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromParent() { try { return window.parent !== window && window.parent.wfTheme ? window.parent.wfTheme.get() : null; } catch (e) { return null; } }
+  var inHub = !!fromParent();
+  if (inHub) root.classList.add('wf-in-hub');
+  function label() {
+    var t = root.dataset.theme, other = t === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.innerHTML = ICON[other] + '<span>' + (other === 'light' ? 'Light' : 'Dark') + '</span>';
+      b.title = 'Switch to ' + other + ' mode';
+    });
+  }
+  function set(t, save) {
+    root.dataset.theme = t;
+    if (save) try { localStorage.setItem(KEY, t); } catch (e) {}
+    document.querySelectorAll('iframe').forEach(function (f) { try { f.contentDocument.documentElement.dataset.theme = t; } catch (e) {} });
+    label();
+  }
+  window.wfTheme = { get: function () { return root.dataset.theme; }, set: set };
+  set(fromParent() || stored() || 'dark', false);
+  addEventListener('storage', function (e) { if (e.key === KEY && e.newValue) set(e.newValue, false); });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!inHub && !document.querySelector('[data-wf-toggle]')) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-toggle'; b.setAttribute('data-wf-toggle', '');
+      document.body.appendChild(b);
+    }
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { if (inHub) { window.parent.wfTheme.set(t, true); return; } } catch (e) {}
+        set(t, true);
+      });
+    });
+    label();
+  });
+})();
+</script>
+<script>
+(function () {
+  var FILES = {"file": "ah", "hubFile": "ah", "bagFile": "tsm", "hubTsm": "tsm", "gearfile": "snap", "knownFile": "snap", "hubSnap": "snap"}, COPY = {".kn-copy": "snap", "#copyPath": "ah", "#copyTsm": "tsm", "[data-wf-copy=ah]": "ah", "[data-wf-copy=snap]": "snap", "[data-wf-copy=tsm]": "tsm"}, KEY = 'wf-wow', timer;
+  var NAME = { ah: 'Auctionator.lua', tsm: 'TradeSkillMaster.lua', snap: 'GearSnapshot.lua' };
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } }
+  // Any path inside WTF\Account\<account> (a file or a folder) -> { acct: '...\\Account\\<account>\\', char: '<realm>\\<character>\\' }
+  function parse(t) {
+    t = String(t || '').trim().replace(/^"|"$/g, ''); var sep = t.indexOf('\\') >= 0 ? '\\' : '/';
+    var m = new RegExp('^(.*?[\\\\/]WTF[\\\\/]Account[\\\\/][^\\\\/]+)(?:[\\\\/](.*))?$', 'i').exec(t); if (!m) return null;
+    var out = { acct: m[1] + sep }, rest = (m[2] || '').split(/[\\/]/).filter(Boolean);
+    if (rest.length >= 2 && !/^savedvariables$/i.test(rest[0]) && !/\.lua$/i.test(rest[1])) out.char = rest[0] + sep + rest[1] + sep;
+    return out;
+  }
+  function set(t) {
+    var p = parse(t); if (!p) return false;
+    var old = get(); if (!p.char && old.char && old.acct === p.acct) p.char = old.char;
+    try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+    return true;
+  }
+  function path(k) {
+    var w = get(); if (!w.acct) return null; var sep = w.acct.slice(-1);
+    if (k === 'snap') return w.char ? w.acct + w.char + 'SavedVariables' + sep + NAME.snap : null;
+    return w.acct + 'SavedVariables' + sep + NAME[k];
+  }
+  // Where the file lives, for anyone (no personal folder names)
+  function where(k) {
+    return 'World of Warcraft\\_forever_\\WTF\\Account\\<i>your account</i>\\' + (k === 'snap' ? '<i>realm</i>\\<i>character</i>\\' : '') + 'SavedVariables\\' + NAME[k];
+  }
+  window.wfWow = { get: get, set: set, path: path, where: where, parse: parse };
+  function copy(t) {
+    var ok = false, a = document.activeElement, ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); try { a && a.focus && a.focus(); } catch (e) {}
+    if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
+    return ok;
+  }
+  function toast(html, el, keep) {
+    var d = document.getElementById('wf-path');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });
+    }
+    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
+    if (r && r.width) {
+      var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
+      if (y + d.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - d.offsetHeight - 6);
+      d.style.left = x + 'px'; d.style.top = y + 'px';
+    }
+    var f = d.querySelector('form');
+    if (f) f.onsubmit = function (e) {
+      e.preventDefault(); var v = f.querySelector('input').value;
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
+    };
+    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+  }
+  function help(k, el) {
+    var p = path(k), name = NAME[k];
+    if (p && copy(p)) return toast('<b>' + name + '</b> path copied. In the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> (File name box), <kbd>Ctrl</kbd>+<kbd>V</kbd>, <kbd>Enter</kbd>. <a href="#" data-wf-wow-reset>Change folder</a>', el);
+    var w = get();
+    toast('<b>' + name + '</b> is in <code>' + where(k) + '</code>' +
+      '<form data-k="' + k + '"><label>Save time next load: paste the ' + (k === 'snap' && w.acct ? 'character' : 'account') + ' folder path once (copy it from the Open window\'s address bar).</label>' +
+      '<span><input type="text" spellcheck="false" placeholder="' + (k === 'snap' ? '...\\WTF\\Account\\NAME\\Realm\\Character' : '...\\WTF\\Account\\NAME') + '"><button type="submit">Save</button></span><small></small></form>', el, true);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-wf-wow-reset]')) { e.preventDefault(); try { localStorage.removeItem(KEY); } catch (x) {} var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; return; }
+    for (var sel in COPY) { var b = t.closest(sel); if (b) { e.preventDefault(); e.stopImmediatePropagation(); help(COPY[sel], b); return; } }
+    if (t.tagName !== 'INPUT' || t.type !== 'file' || !FILES[t.id]) return;
+    help(FILES[t.id], (t.labels && t.labels[0]) || t);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var d = document.getElementById('wf-path');
+    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+  }, true);
+})();
+
+window.wfAge = function (when) {
+  var t = when instanceof Date ? when.getTime() : typeof when === 'number' ? (when < 1e11 ? when * 1000 : when)
+        : Date.parse(/^\d{4}-\d\d-\d\d$/.test(String(when)) ? when + 'T12:00:00' : when);
+  return isNaN(t) ? null : Math.max(0, Math.floor((Date.now() - t) / 864e5));
+};
+window.wfStale = function (when, maxDays, what) {
+  var d = wfAge(when); if (d == null || d <= maxDays) return '';
+  return ' <span class="wf-stale" title="' + (what || 'This data is') + ' ' + d + ' days old, so it may have changed since.">' + d + ' days old</span>';
+};
+
+(function () {
+  var KEY = 'wf-char', subs = [];
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function set(patch) {
+    var c = get(), ch = false;
+    for (var k in patch) if (patch[k] !== undefined && patch[k] !== null && patch[k] !== '' && c[k] !== patch[k]) { c[k] = patch[k]; ch = true; }
+    if (ch) { c.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} }
+    return c;
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) subs.forEach(function (f) { try { f(get()); } catch (x) {} }); });
+  window.WFCHAR = { get: get, set: set, on: function (f) { subs.push(f); } };
+})();
+
+(function () {
+  var G = [
+    ['Gear score', 'How good an item is for your class and spec: its stats times the stat weights of the Forever Leveling BiS addon. Higher is better.'],
+    ["Merchant's Favor", "A Forever currency for rare patterns and formulas, earned by turning in Waylaid Supplies crates (a Journeyman Fabrics crate gives 20)."],
+    ['Sayaad', 'The Succubus (or Incubus), a Warlock demon.'],
+    ['BUY line', 'What to buy for one step, with a small safety margin, after what is already in your bags.'],
+    ['sale rate', 'How often an item actually sells, from TradeSkillMaster data (0.1 = about 1 in 10 listings sell).'],
+    ['Stuck', 'Listings are piling up faster than the rest of the auction house, or sellers are cutting the price hard.'],
+    ['disenchant', 'Destroying a green or blue item with Enchanting to get dust, essences or shards.'],
+    ['Big crowd', 'Many Horde players are at the levels that can use this item right now.']
+  ];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|ABBR|CODE|SVG|TITLE|LABEL)$/;
+  var done = {};
+  function scan() {
+    var root = document.querySelector('main') || document.body; if (!root) return;
+    var left = G.filter(function (g) { return !done[g[0]]; }); if (!left.length) return;
+    var re = new RegExp('\\b(' + left.map(function (g) { return g[0].replace(/[.*+?^${}()|[\]\\']/g, '\\$&'); }).join('|') + ')s?\\b');
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      for (var e = n.parentNode; e && e !== root; e = e.parentNode) { if (SKIP.test(e.nodeName) || e.hidden || (e.classList && (e.classList.contains('gl') || e.classList.contains('mkt')))) return NodeFilter.FILTER_REJECT; }
+      return re.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; } });
+    var hits = []; for (var n = w.nextNode(); n; n = w.nextNode()) hits.push(n);
+    hits.forEach(function (n) {
+      var m = n.nodeValue.match(re); if (!m || done[m[1]]) return;
+      var g = G.filter(function (x) { return x[0] === m[1]; })[0]; done[m[1]] = 1;
+      var a = document.createElement('abbr'); a.className = 'gl'; a.title = g[1]; a.tabIndex = 0;
+      var rest = n.splitText(m.index); rest.splitText(m[0].length); a.textContent = rest.nodeValue; rest.parentNode.replaceChild(a, rest);
+    });
+  }
+  var t = 0; function later() { clearTimeout(t); t = setTimeout(scan, 400); }
+  addEventListener('load', function () { scan(); if (window.MutationObserver) new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); });
+  // phones: tap a tag or term to read its title
+  if (window.matchMedia && matchMedia('(hover: none)').matches) {
+    var tip;
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('abbr[title], .gl, .mkt[title], .pill[title], .mv[title], [data-tip]');
+      if (tip) { tip.remove(); tip = null; }
+      if (!el) return;
+      var txt = el.getAttribute('title') || el.getAttribute('data-tip'); if (!txt) return;
+      tip = document.createElement('div'); tip.className = 'wf-tapTip'; tip.setAttribute('role', 'tooltip'); tip.textContent = txt; document.body.appendChild(tip);
+      var r = el.getBoundingClientRect(), x = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left));
+      tip.style.left = x + 'px'; tip.style.top = (r.bottom + 6 + tip.offsetHeight > innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+    }, true);
+    addEventListener('scroll', function () { if (tip) { tip.remove(); tip = null; } }, { passive: true });
+  }
+})();
+
+(function () {
+  var KEY = 'wf-ah', cache, subs = [];
+  function findBytes(buf, str, from) {
+    var pat = str.split('').map(function (c) { return c.charCodeAt(0); });
+    outer: for (var i = from || 0; i <= buf.length - pat.length; i++) { for (var j = 0; j < pat.length; j++) if (buf[i + j] !== pat[j]) continue outer; return i; }
+    return -1;
+  }
+  function luaString(buf, i) {
+    var out = [], map = { 110: 10, 114: 13, 116: 9, 92: 92, 34: 34, 39: 39, 10: 10, 97: 7, 98: 8, 102: 12, 118: 11 }; i++;
+    while (i < buf.length) {
+      var c = buf[i];
+      if (c === 92) {
+        var n = buf[i + 1];
+        if (n >= 48 && n <= 57) { var k = i + 1, d = ''; while (k < i + 4 && buf[k] >= 48 && buf[k] <= 57) { d += String.fromCharCode(buf[k]); k++; } out.push(parseInt(d, 10)); i = k; continue; }
+        if (n === 13 && buf[i + 2] === 10) { out.push(10); i += 3; continue; }
+        out.push(map[n] !== undefined ? map[n] : n); i += 2; continue;
+      }
+      if (c === 34) return { bytes: new Uint8Array(out), end: i + 1 };
+      out.push(c); i++;
+    }
+    throw new Error('unterminated string');
+  }
+  function cbor(bytes) {
+    var p = 0, dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    function str(n) { var s = ''; for (var k = 0; k < n; k++) s += String.fromCharCode(bytes[p + k]); p += n; return s; }
+    function len(ai) { if (ai < 24) return ai; if (ai === 24) return bytes[p++]; if (ai === 25) { var v = dv.getUint16(p); p += 2; return v; } if (ai === 26) { v = dv.getUint32(p); p += 4; return v; } if (ai === 27) { v = Number(dv.getBigUint64(p)); p += 8; return v; } throw new Error('bad length'); }
+    function item() {
+      var b = bytes[p++], mt = b >> 5, ai = b & 31, n, k, o, a, v;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2 || mt === 3) return str(len(ai));
+      if (mt === 4) { n = len(ai); a = []; for (k = 0; k < n; k++) a.push(item()); return a; }
+      if (mt === 5) { n = len(ai); o = {}; for (k = 0; k < n; k++) { var key = item(); o[key] = item(); } return o; }
+      if (mt === 6) { len(ai); return item(); }
+      if (mt === 7) {
+        if (ai === 20) return false; if (ai === 21) return true; if (ai === 22 || ai === 23) return null;
+        if (ai === 25) { var h = dv.getUint16(p); p += 2; var e = (h >> 10) & 31, f = h & 1023; v = e === 0 ? f * Math.pow(2, -24) : e === 31 ? (f ? NaN : Infinity) : (1 + f / 1024) * Math.pow(2, e - 15); return h & 0x8000 ? -v : v; }
+        if (ai === 26) { v = dv.getFloat32(p); p += 4; return v; }
+        if (ai === 27) { v = dv.getFloat64(p); p += 8; return v; }
+      }
+      throw new Error('unsupported CBOR');
+    }
+    return item();
+  }
+  function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
+  function parse(buf) {
+    var text = ascii(buf, 0, Math.min(buf.length, buf.length));
+    var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
+    if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
+    if (mm[1] === 'nil') throw new Error('Auctionator has not saved any prices yet. Do a full scan at the auction house, then /reload');
+    var i = mm.index + mm[0].length, realms = {};
+    while (i < buf.length) {
+      while (buf[i] === 10 || buf[i] === 13 || buf[i] === 32 || buf[i] === 9 || buf[i] === 44) i++;
+      if (buf[i] === 125) break;
+      if (buf[i] !== 91 || buf[i + 1] !== 34) throw new Error('unexpected format in the price database');
+      var kEnd = findBytes(buf, '"]', i + 2), key = ascii(buf, i + 2, kEnd);
+      i = kEnd + 2; while (buf[i] === 32 || buf[i] === 61) i++;
+      if (buf[i] === 34) { var s = luaString(buf, i); i = s.end; if (key !== '__dbversion') realms[key] = s.bytes; }
+      else if (buf[i] === 123) throw new Error('this Auctionator version stores prices in an older format. Update Auctionator and scan again');
+      else { while (buf[i] !== 44 && buf[i] !== 10) i++; }
+    }
+    var best = null, bestN = -1;
+    Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
+    if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
+    var out = {};
+    Object.keys(best).forEach(function (id) {
+      var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
+      var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
+      out[id] = [e.m, a];
+    });
+    var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
+    if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
+    return { scan: scan, items: bestN, p: out };
+  }
+  function get() {
+    if (cache !== undefined) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function fire(err, name) { subs.forEach(function (f) { try { f(get(), err, name); } catch (e) { if (window.console) console.error(e); } }); }
+  function load(file) {
+    return file.arrayBuffer().then(function (ab) {
+      var rec = parse(new Uint8Array(ab)); rec.name = file.name; rec.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(rec)); } catch (e) {}
+      cache = rec; fire(null, file.name); return rec;
+    }, function (e) { throw e; }).catch(function (e) { fire(e, file.name); throw e; });
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) { cache = undefined; fire(null); } });
+  // every page's own #file loader (and the Hub / website feeding it) fills the shared store
+  document.addEventListener('change', function (e) {
+    var el = e.target; if (!el || el.id !== 'file' || !el.files) return;
+    Array.prototype.forEach.call(el.files, function (f) { if (!/tradeskillmaster|gearsnapshot/i.test(f.name)) load(f).catch(function () {}); });
+  }, true);
+  window.WFAH = { parse: parse, get: get, load: load, on: function (f) { subs.push(f); },
+    // "Prices from ..." label for a page: whose scan it is and how old
+    label: function (rec) { var d = new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      return /site scan/i.test(rec.name) ? 'Horde auction house scan (PvP realm), ' + d : 'your Auctionator scan (' + rec.name + '), ' + d; } };
+})();
+window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
+(function () {
+  var ZIP = window.WF_SNAPZIP || '';
+  if (!ZIP) return;
+  var TIP = 'Unzip it into World of Warcraft\\_forever_\\Interface\\AddOns\\ and tick Gear Snapshot in the AddOns list at character select.';
+  function add() {
+    document.querySelectorAll('label[for="gearfile"], .kn-btn').forEach(function (el) {
+      if (el.parentElement.querySelector('.wf-addon')) return;
+      var a = document.createElement('a'); a.className = 'wf-addon'; a.href = ZIP; a.download = 'GearSnapshot.zip'; a.title = TIP;
+      a.textContent = 'Get the Gear Snapshot addon'; el.insertAdjacentElement('afterend', a);
+    });
+    document.querySelectorAll('[data-wf-addon]').forEach(function (a) { a.href = ZIP; a.download = 'GearSnapshot.zip'; });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  var q = 0;  // pages redraw often: check at most once per frame
+  new MutationObserver(function () { if (q) return; q = 1; requestAnimationFrame(function () { q = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+<style id="wf-qol">
+.wf-fold { all: unset; cursor: pointer; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 8px; border-radius: 5px;
+  color: var(--muted); border: 1px solid var(--line); vertical-align: middle; flex: none; }
+.wf-fold:hover { color: var(--ink); border-color: var(--line2); background: var(--hover); }
+.wf-fold svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.wf-folded .wf-fold svg { transform: rotate(-90deg); }
+.wf-fold-h { cursor: pointer; }
+.wf-folded > :not(.wf-fold-head) { display: none !important; }
+.wf-folded { padding-bottom: 8px !important; }
+.wf-folded > .wf-fold-head .hint, .wf-folded > .wf-fold-head > p { display: none; }
+.wf-sec { scroll-margin-top: 44px; }
+.wf-jump { position: sticky; top: 0; z-index: 40; display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none;
+  margin: 0 0 8px; padding: 5px 0; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line); }
+.wf-jump::-webkit-scrollbar { display: none; }
+.wf-jump > span { font: 600 10.5px var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 0 4px 0 2px; flex: none; }
+.wf-jump button { all: unset; cursor: pointer; flex: none; font: 500 12px var(--body); color: var(--muted); padding: 3px 9px; border-radius: 99px; border: 1px solid transparent; white-space: nowrap; }
+.wf-jump button:hover { color: var(--ink); background: var(--hover); }
+.wf-jump button.on { color: var(--ink); border-color: var(--line2); background: var(--panel); }
+.wf-jump button.folded { opacity: .6; }
+.wf-top { position: fixed; right: 12px; bottom: 50px; z-index: 60; display: none; align-items: center; gap: 4px; font: 600 12px var(--body); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line2); border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-in-hub .wf-top { bottom: 12px; }
+.wf-top.show { display: inline-flex; }
+.wf-top:hover { background: var(--hover); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-fold:' + location.pathname.split('/').pop() + ':' + (document.title || ''), state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  var secs = [], bar = null, topBtn = null;
+  function name(h) { return (h.dataset.wfName || h.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function setFold(sec, on, remember) {
+    sec.el.classList.toggle('wf-folded', on);
+    sec.btn.setAttribute('aria-expanded', !on); sec.btn.title = on ? 'Show this section' : 'Fold this section away';
+    if (remember) { state[sec.key] = on ? 1 : 0; save(); }
+    if (bar) paintBar();
+  }
+  function scan() {
+    var found = false;
+    document.querySelectorAll('h2').forEach(function (h) {
+      if (h.dataset.wfq) { if (h._wfBtn && !h.contains(h._wfBtn)) h.appendChild(h._wfBtn); return; }
+      var el = h.closest('section, .card');
+      if (!el || el.tagName === 'DETAILS' || el.closest('details:not([open])')) return;
+      var head = h; while (head.parentElement && head.parentElement !== el) head = head.parentElement;
+      if (head.parentElement !== el) return;
+      var others = [].filter.call(el.children, function (c) { return c !== head; });
+      if (!others.length) return;
+      h.dataset.wfq = '1'; found = true;
+      var key = name(h).slice(0, 60);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-fold'; b.innerHTML = CHEV;
+      h.appendChild(b); h._wfBtn = b;
+      head.classList.add('wf-fold-head'); h.classList.add('wf-fold-h'); el.classList.add('wf-sec');
+      var sec = { el: el, h: h, btn: b, key: key };
+      secs = secs.filter(function (s) { return s.el !== el; }); secs.push(sec);
+      function toggle(e) { e.preventDefault(); e.stopPropagation(); setFold(sec, !el.classList.contains('wf-folded'), true); }
+      b.addEventListener('click', toggle); h.addEventListener('click', toggle);
+      var start = state[key] !== undefined ? state[key] === 1 : el.getAttribute('data-wf-fold') === 'closed';
+      setFold(sec, start, false);
+    });
+    secs = secs.filter(function (s) { return s.el.isConnected && s.h.isConnected; });
+    secs.sort(function (a, b) { return a.el.compareDocumentPosition(b.el) & 2 ? 1 : -1; });
+    if (found) buildBar();
+  }
+  function buildBar() {
+    if (document.querySelector('nav') || secs.length < 3) { if (bar) { bar.remove(); bar = null; } return; }
+    if (!bar) {
+      bar = document.createElement('div'); bar.className = 'wf-jump'; bar.setAttribute('role', 'navigation'); bar.setAttribute('aria-label', 'Jump to section');
+      var first = secs[0].el;  // sits in the content column, right above the first section
+      first.parentElement.insertBefore(bar, first);
+    }
+    bar.innerHTML = '<span>Jump to</span>' + secs.map(function (s, i) { return '<button type="button" data-i="' + i + '">' + name(s.h).replace(/[&<>]/g, '').slice(0, 30) + '</button>'; }).join('');
+    bar.querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () { var s = secs[+b.dataset.i]; if (!s) return; if (s.el.classList.contains('wf-folded')) setFold(s, false, true); s.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+    });
+    paintBar(); setTimeout(paintBar, 1500);
+  }
+  function paintBar() {
+    if (!bar) return;
+    bar.querySelectorAll('button').forEach(function (b) { var s = secs[+b.dataset.i]; b.hidden = !!(s && s.el.closest('[hidden]')); });  // sections a page hid
+    var cur = -1, y = (bar.getBoundingClientRect().bottom || 0) + 12;
+    secs.forEach(function (s, i) { if (s.el.getBoundingClientRect().top <= y) cur = i; });
+    bar.querySelectorAll('button').forEach(function (b) { var i = +b.dataset.i, s = secs[i]; b.classList.toggle('on', i === cur); b.classList.toggle('folded', !!(s && s.el.classList.contains('wf-folded'))); });
+  }
+  var ticking = false;
+  addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; paintBar(); if (topBtn) topBtn.classList.toggle('show', (document.scrollingElement || document.documentElement).scrollTop > 700); });
+  }, { passive: true });
+  function init() {
+    scan();
+    var hasTop = [].some.call(document.querySelectorAll('button, a'), function (b) { return /^\s*(back to )?top\s*$/i.test(b.textContent) && !b.classList.contains('wf-top'); });
+    if (!hasTop && !topBtn) {
+      topBtn = document.createElement('button'); topBtn.type = 'button'; topBtn.className = 'wf-top'; topBtn.innerHTML = '<span aria-hidden="true">↑</span> Top';
+      topBtn.onclick = function () { scrollTo({ top: 0, behavior: 'smooth' }); };
+      document.body.appendChild(topBtn);
+    }
+    var t = null;
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 250); }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); }); else setTimeout(init, 0);
+})();
+</script>
+<!--/wf-theme-->
+<meta name="ws-prices" content="1794749899">
+<link rel="canonical" href="https://wow.junhots.com/warlock-guide/">
+<meta name="description" content="Orc Demonology Warlock leveling guide (Horde start): what to do at your level, talents, rotation, dungeons, gear, demons and macros.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="junhots WoW tools">
+<meta property="og:title" content="Warlock: Orc, Demonology · WoW Forever · junhots">
+<meta property="og:description" content="Orc Demonology Warlock leveling guide (Horde start): what to do at your level, talents, rotation, dungeons, gear, demons and macros.">
+<meta property="og:url" content="https://wow.junhots.com/warlock-guide/">
+<meta property="og:image" content="https://wow.junhots.com/assets/og/warlock-guide.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Tailoring &amp; Enchanting"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Tailoring &amp; Enchanting</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" aria-current="page" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span><i class="ws-ind" aria-hidden="true"></i></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/" aria-current="page">Classes<i class="ws-tab" aria-hidden="true"></i></a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div><div class="ws-sub" role="navigation" aria-label="Class guides"><div><a href="/warlock-guide/" aria-current="page"><img src="/assets/icons/classicon_warlock.webp" alt="" width="18" height="18">Warlock: Orc, Demonology</a><a href="/demon-trainer/"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="18" height="18">Warlock demons</a></div></div></div>
+<div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-icons"><img data-icon="achievement_character_orc_male" alt=""><img data-icon="classicon_warlock" alt=""></div>
+    <div>
+      <h1>Orc Warlock leveling guide</h1>
+      <p class="sub wf-lead">What to do at every level: which talent to take, which demon to use, what to cast and where to go next.</p>
+      <ol class="wf-start"><li>Set your level below</li><li>Follow the cards for that level</li><li>Come back each time you level up</li></ol>
+      <div class="hero-tags">
+        <span class="tag"><img data-icon="spell_shadow_gathershadows" alt="">Demonology <em>20/31/0</em></span>
+        <span class="tag"><img data-icon="spell_shadow_summonsuccubus" alt="">Main demon <em>Succubus (Sayaad) from 20</em></span>
+        <span class="tag"><img data-icon="spell_shadow_shadowpower" alt="">Best stat <em>Spell Power</em></span>
+        <span class="tag"><img data-icon="trade_tailoring" alt="">Professions <em>Tailoring + Enchanting</em></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="bar-row">
+      <label for="lvlNum">My level</label>
+      <div class="stepper">
+        <button type="button" id="minus" aria-label="Level down">−</button>
+        <input id="lvlNum" type="number" min="1" max="60" value="10" inputmode="numeric">
+        <button type="button" id="plus" aria-label="Level up">+</button>
+      </div>
+      <input type="range" id="lvl" min="1" max="60" value="10" aria-label="Level slider">
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Guide sections">
+      <button type="button" role="tab" data-go="now"><img data-icon="classicon_warlock" alt="">My level</button>
+      <button type="button" role="tab" data-go="rotation"><img data-icon="spell_shadow_lifedrain02" alt="">Rotation</button>
+      <button type="button" role="tab" data-go="talents"><img data-icon="inv_misc_book_09" alt="">Talents</button>
+      <button type="button" role="tab" data-go="dungeons"><img data-icon="inv_misc_bone_humanskull_01" alt="">Dungeons</button>
+      <button type="button" role="tab" data-go="gear"><img data-icon="inv_wand_04" alt="">Gear &amp; buffs</button>
+      <button type="button" role="tab" data-go="demons"><img data-icon="spell_shadow_summonsuccubus" alt="">Demons &amp; spells</button>
+      <button type="button" role="tab" data-go="macros"><img data-icon="inv_misc_note_01" alt="">Macros</button>
+      <button type="button" role="tab" data-go="orc"><img data-icon="achievement_character_orc_male" alt="">Orc &amp; tips</button>
+    </nav>
+  </div>
+
+  <section class="panel" data-tab="now" id="now" aria-labelledby="h-now">
+    <div class="panel-head"><h2 id="h-now" class="h2i"><img data-icon="classicon_warlock" alt="">At level <span class="lvlTxt">10</span></h2><span class="muted" id="ptsTxt"></span></div>
+    <div class="milestone" id="milestone" hidden></div>
+    <div class="now">
+      <div class="card" id="cTalent"></div>
+      <div class="card" id="cPet"></div>
+      <div class="card" id="cTrainer" style="--c:var(--fel)"></div>
+      <div class="card" id="cWand" style="--c:#3a9bff"></div>
+      <div class="card" id="cDun" style="--c:var(--demo)"></div>
+    </div>
+    <div class="card" style="--c:var(--aff)">
+      <div class="panel-head">
+        <span class="k">Your rotation at level <span class="lvlTxt">10</span> · <span id="bandName"></span></span>
+        <div class="toggle" role="group" aria-label="Fight type">
+          <button type="button" data-mode="one" aria-pressed="true">One enemy</button>
+          <button type="button" data-mode="two" aria-pressed="false">Two enemies</button>
+          <button type="button" data-mode="pack" aria-pressed="false">Dungeon pack</button>
+        </div>
+      </div>
+      <div class="rot" id="rot"></div>
+      <ul class="rules" id="rules"></ul>
+    </div>
+  </section>
+
+  <section class="panel" data-tab="rotation" id="rotation" aria-labelledby="h-rotation">
+    <div class="panel-head"><h2 id="h-rotation" class="h2i"><img data-icon="spell_shadow_lifedrain02" alt="">Rotation by level</h2><span class="muted">Tap a stage to jump to it</span></div>
+    <p class="muted" style="font-size:14px">As Demonology your demon does a big share of the damage. You brand its target with Searing Pain (from 26), keep Soul Link on (from 31), add Bane of Agony and Corruption on enemies that live long enough, and fill with your wand or Drain Life. Stop casting when the damage already on an enemy will kill it.</p>
+    <div class="bands" id="bands"></div>
+    <div class="note" style="border-color:var(--gold);background:color-mix(in srgb, var(--accent) 9%, var(--panel))"><b>Demonic Pact routine (41+):</b> out of combat, summon the demon whose buff you want, press <b>Demonic Sacrifice</b>, then summon your Succubus and recast <b>Soul Link</b>. The buff lasts 2 hours, but summoning the same demon type again cancels it. <b>Voidwalker</b> = 2% of your mana every 4 sec (apienw's pick for long solo sessions). <b>Felhunter</b> = 3% of your health every 4 sec (WoW Campfire's pick). <b>Imp</b> = 15% more Shadow damage.</div>
+  </section>
+
+  <section class="panel" data-tab="rotation" id="scaling" aria-labelledby="h-scaling">
+    <div class="panel-head"><h2 id="h-scaling" class="h2i"><img data-icon="spell_shadow_shadowpower" alt="">Which spells gain most from Spell Power</h2><span class="muted">Share of your Spell Power added over a full cast or full DoT</span></div>
+    <div class="spc" id="spc"></div>
+    <p class="muted" style="font-size:14px">Example: 100 Spell Power adds about <b style="color:var(--ink)">160 damage</b> to a full Bane of Agony and <b style="color:var(--ink)">80</b> to a full Corruption. That is why Bane of Agony is worth it on anything that lives long, and why Spell Power is your best stat. DoT numbers only count if every tick lands. Values are Mobalytics' rank 1 beta records, so use them as a guide, not exact damage.</p>
+  </section>
+
+  <section class="panel" data-tab="talents" id="trees" aria-labelledby="h-trees">
+    <div class="panel-head">
+      <h2 id="h-trees" class="h2i"><img data-icon="inv_misc_book_09" alt="">Talent trees</h2>
+      <div class="toggle" role="group" aria-label="Which build to show">
+        <button type="button" id="tMine" aria-pressed="true">At my level</button>
+        <button type="button" id="tFull" aria-pressed="false">Full 60 build</button>
+      </div>
+    </div>
+    <div class="trees" id="treeWrap"></div>
+    <p class="muted" style="font-size:14px">Hover or tap an icon to read it. Bright icons are talents you have, the pulsing one is this level's pick, grey ones you skip. Press <b>N</b> in game to open your talents.</p>
+    <div class="note" style="border-color:var(--gold);background:color-mix(in srgb, var(--accent) 9%, var(--panel))"><b>Where this build comes from:</b> two Demonology videos that end on the same 31 Demonology points (Unholy Power, Demonic Energies, Fel Vitality, Master Summoner, Improved Sayaad, Demonic Brand, Fel Domination, Demonic Sacrifice, Soul Link, Demonic Knowledge, 1 Demonic Embrace, Master Demonologist, Demonic Pact). The order here is <b>WoW Campfire's</b>: one point in Improved Corruption, then straight Demonology. <b>apienw</b> levels with 5 points in Improved Corruption first, resets into Demonology at 26 after training Searing Pain rank 2, and gets Soul Link at 30. Both reach Demonic Pact at 41. In Affliction, apienw takes 4 Malevolence and 1 Amplify Curse instead of 5 Malevolence. Amplify Curse lets your next Bane of Agony hit 50% harder, so either works.</div>
+  </section>
+
+  <section class="panel" data-tab="talents" id="road" aria-labelledby="h-road">
+    <h2 id="h-road" class="h2i"><img data-icon="spell_shadow_abominationexplosion" alt="">Level by level</h2>
+    <div>
+      <div class="road" id="roadBar"></div>
+      <div class="ticks" aria-hidden="true"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div>
+    </div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section class="panel" data-tab="dungeons" id="dungeons" aria-labelledby="h-dungeons">
+    <div class="panel-head"><h2 id="h-dungeons" class="h2i"><img data-icon="inv_misc_bone_humanskull_01" alt="">Dungeons by level (Horde)</h2>
+      <div class="toggle" role="group" aria-label="Which dungeons to show"><button type="button" data-dshow="all" aria-pressed="true">All</button><button type="button" data-dshow="mine" aria-pressed="false">My level</button></div></div>
+    <p class="muted" style="font-size:14px">Dungeon quests give a huge amount of experience and strong gear, and some of it is good enough to wear at 60. Pick up the quests before you go in. The green line is your level; gold rows fit you now. In groups use the "Dungeon pack" rotation: Corruption on every mob, then Hellfire from 30.</p>
+    <div class="dtl" id="dgrid"></div>
+  </section>
+
+  <section class="panel" data-tab="gear" id="wands" aria-labelledby="h-wands">
+    <div class="panel-head"><h2 id="h-wands" class="h2i"><img data-icon="inv_wand_04" alt="">Wand upgrades (Horde)</h2><span class="muted">Gold = your best wand now · ★ = worth going out of your way for</span></div>
+    <p class="muted" style="font-size:14px">Until your 30s the wand is a big part of your damage, and it costs no mana. After that Drain Life takes over, so look for wands with Spell Power and stats rather than the highest DPS. Any drop that beats what you have is fine: you don't need to follow this list exactly.</p>
+    <div class="wands" id="wandRows"></div>
+    <div class="box"><h3>Staves for your main hand</h3><p>Most Warlocks use a staff with spell damage. These come up in WoW Campfire's video, in rough level order. The Gear upgrades page scores exact items for you.</p><div class="items" id="staffRows"></div></div>
+  </section>
+
+  <section class="panel" data-tab="gear" id="stats" aria-labelledby="h-stats">
+    <div class="panel-head"><h2 id="h-stats" class="h2i"><img data-icon="spell_holy_magicalsentry" alt="">Stats to look for on gear</h2><span class="muted">Best first</span></div>
+    <div class="stats" id="statRows"></div>
+  </section>
+
+  <section class="panel" data-tab="gear" id="consumables" aria-labelledby="h-cons">
+    <div class="panel-head"><h2 id="h-cons" class="h2i"><img data-icon="inv_potion_25" alt="">Food, elixirs and stones</h2><span class="muted">Nice to have, not required</span></div>
+    <div class="cols2" id="consBoxes"></div>
+  </section>
+
+  <section class="panel" data-tab="gear" id="camp" aria-labelledby="h-camp">
+    <div class="panel-head"><h2 id="h-camp" class="h2i"><img data-icon="spell_fire_fire" alt="">Professions and campfire buffs</h2></div>
+    <div class="cards" id="profCards"></div>
+    <p class="muted" style="font-size:14px"><b style="color:var(--ink)">Campfires are new on Forever.</b> Anyone with Cooking can build one. Up to three players with the right professions can each add one piece to it. Sit or craft next to the fire for 60 seconds to get the buffs. A camp buff and the matching class buff (for example Fish Bowl and Blessing of Kings) don't stack.</p>
+    <div class="cards" id="campCards"></div>
+  </section>
+
+  <section class="panel" data-tab="demons" id="pets" aria-labelledby="h-pets">
+    <h2 id="h-pets" class="h2i"><img data-icon="spell_shadow_summonsuccubus" alt="">Which demon to use</h2>
+    <div class="cards" id="petCards"></div>
+    <p class="muted" style="font-size:14px">Since the 10 November hotfix every demon has about 15% more health, and the Imp's early Firebolt hits harder. Always send your pet in first, then cast. If a quest keeps killing you, bring the Voidwalker back for it. Orc's Command racial makes every demon hit 5% harder.</p>
+    <div class="note" style="border-color:#e0609f;background:color-mix(in srgb, #e0609f 9%, var(--panel))"><b>Pet buttons:</b> right-click a pet ability on the pet bar to switch its auto-cast on or off. Most can stay on, but set the Voidwalker's <b>Torment</b> to manual so you choose who it taunts (see the Voidwalker taunt macro). The Imp is not worth using after 10 on Affliction: it has little health and runs out of mana.</div>
+  </section>
+
+  <section class="panel" data-tab="demons" id="trainer" aria-labelledby="h-trainer">
+    <div class="panel-head"><h2 id="h-trainer" class="h2i"><img data-icon="spell_shadow_shadowbolt" alt="">When to visit the trainer</h2><span class="muted">Razor Hill · Orgrimmar, Cleft of Shadow</span></div>
+    <p class="muted" style="font-size:14px">Until 20, train whenever you're in town. After that, these trips cover everything. A number in brackets is the level that rank first shows up. Buy your demon's new spells from the Demon Trainer next door.</p>
+    <div class="trainer" id="trainerRows"></div>
+  </section>
+
+  <section class="panel" data-tab="demons" id="utility" aria-labelledby="h-util">
+    <div class="panel-head"><h2 id="h-util" class="h2i"><img data-icon="spell_shadow_soulgem" alt="">Utility spells worth knowing</h2></div>
+    <div class="cards" id="utilCards"></div>
+  </section>
+
+  <section class="panel" data-tab="macros" id="macros" aria-labelledby="h-macros">
+    <div class="panel-head"><h2 id="h-macros" class="h2i"><img data-icon="inv_misc_note_01" alt="">Macros that make life easier</h2><span class="muted">Press Copy, then paste in game</span></div>
+    <p class="muted" style="font-size:14px">In game type <b style="color:var(--ink)">/macro</b>, press New, pick the question-mark icon and paste the text. Drag the macro to your action bar. <b style="color:var(--ink)">#showtooltip</b> makes the button show the right spell icon and cooldown.</p>
+    <div class="macros" id="macroCards"></div>
+  </section>
+
+  <section class="panel" data-tab="orc" id="orc" aria-labelledby="h-orc">
+    <h2 id="h-orc" class="h2i"><img data-icon="achievement_character_orc_male" alt="">Why Orc is a great Warlock</h2>
+    <div class="cards" id="orcCards"></div>
+  </section>
+
+  <section class="panel" data-tab="orc" id="tips" aria-labelledby="h-tips">
+    <h2 id="h-tips" class="h2i"><img data-icon="inv_misc_note_01" alt="">Beginner tips</h2>
+    <ul class="tips" id="tipList"></ul>
+    <div class="note"><b>What's different on WoW Forever:</b> talent trees were rebuilt, so old Classic guides point to talents that no longer exist. Damage curses became <b>Banes</b>, and you can keep one Bane and one Curse on the same enemy. Damage-over-time spells can crit. Life Tap scales with Spirit, and demons get stronger with your gear.</div>
+  </section>
+
+  <footer>
+    <p><b>Updated 15 November 2026</b> for Demonology: talent order from WoW Campfire's video "Leveling a WARLOCK in WoW Forever? Watch This First!", compared with apienw's Demo video and its Talents Forever milestone builds (same 20/31/0 end build). Dungeon levels (including 50–60), wand upgrades, stat priority, consumables, campfire buffs, macros and Spell Power coefficients come from Mobalytics' Forever Warlock leveling guide (12 November). Alliance-only wands are left out. Forever-only wands with no public icon use a matching wand icon as a stand-in.</p>
+    <p>Every talent is checked against the Forever talent tree, so each pick is allowed at the level listed. Blizzard hotfixes checked through 10 November (+15% base health for Imp, Voidwalker, Succubus and Incubus, not Felhunter). Spell levels are Forever's own. If something here doesn't match the game, trust the in-game tooltip.</p>
+    <p>Sources: <a href="https://www.youtube.com/watch?v=7Q_1uWwGCq4">WoW Campfire: Leveling a Warlock in WoW Forever</a> · apienw's Demonology video and its <a href="https://talentsforever.com/warlock/60/05500020134-0015003231201301351--UYXbZedagC1hTijCBJGKI-12?b=70888h&amp;d=261113">level 60 build</a> · <a href="https://www.wowhead.com/forever/guide/classes/warlock/affliction/dps-leveling-tips">Wowhead Affliction leveling guide</a> · <a href="https://wowtbc.gg/warcraftforever/talent-calculator/warlock/">Forever talent calculator (wowtbc.gg)</a> · <a href="https://www.warcrafttavern.com/forever/guides/warlock-leveling/">Warcraft Tavern</a> · <a href="https://www.warcrafttavern.com/forever/guides/orc-racials/">Orc racials</a> · <a href="https://mobalytics.gg/wow-forever/classes/warlock-leveling-guide">Mobalytics</a> · <a href="https://www.method.gg/wow-forever/wow-forever-warlock-leveling-guide-and-talents">Method</a> · <a href="https://foreverspec.com/classes/warlock/affliction/">ForeverSpec</a> · <a href="https://news.blizzard.com/en-us/article/24315281/wow-forever-hotfixes-november-10-2026">Blizzard Forever hotfixes (6–10 Nov)</a> · <a href="https://allthings.how/wow-forever-hotfixes-patch-notes/">hotfix log</a>. Icons are World of Warcraft game art © Blizzard Entertainment.</p>
+  </footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const ICON = {"ability_criticalstrike": "/assets/i/c422442e14a0a0.jpg", "ability_deathknight_hemorrhagicfever": "/assets/i/2db7807cba52cd.jpg", "ability_demonhunter_chaoticimprint_fire": "/assets/i/5de88e526346ae.jpg", "ability_mage_moltenarmor": "/assets/i/052120c1886e6d.jpg", "ability_marksmanship": "/assets/i/6e32d4f552825f.jpg", "ability_shootwand": "/assets/i/f7d0bda543991a.jpg", "ability_warlock_baneofhavoc": "/assets/i/fe8f6955290924.jpg", "ability_warlock_randomizesuccubusincubus": "/assets/i/19b96fcd4d3766.jpg", "ability_warrior_warcry": "/assets/i/36b8a93fbff1aa.jpg", "achievement_character_orc_male": "/assets/i/931b30c8db2438.jpg", "classicon_warlock": "/assets/i/d1f07b72a3b373.jpg", "inv_ability_soulharvesterwarlock_demonicsoul": "/assets/i/6614f1a1d08a95.jpg", "inv_ammo_firetar": "/assets/i/1114ead0a194cc.jpg", "inv_banner_03": "/assets/i/d4224a1af0a55e.jpg", "inv_drink_17": "/assets/i/aeaf63bd30f784.jpg", "inv_elemental_primal_shadow": "/assets/i/1927df8d9e91b7.jpg", "inv_helmet_23": "/assets/i/5e7471c342f45e.jpg", "inv_misc_bone_humanskull_01": "/assets/i/6fb65e178c73d4.jpg", "inv_misc_book_09": "/assets/i/b3f8bb71c07e7c.jpg", "inv_misc_candle_01": "/assets/i/ef025b80984cce.jpg", "inv_misc_fish_20": "/assets/i/01a28bb286bd10.jpg", "inv_misc_fish_32": "/assets/i/8aa101704ae7bd.jpg", "inv_misc_fish_50": "/assets/i/e2203804c262f8.jpg", "inv_misc_food_14": "/assets/i/01724b34285f29.jpg", "inv_misc_food_49": "/assets/i/1ae49571c599a6.jpg", "inv_misc_gem_amethyst_02": "/assets/i/871cff682510d0.jpg", "inv_misc_gem_sapphire_01": "/assets/i/7baad3fd8879bc.jpg", "inv_misc_note_01": "/assets/i/1c4c14eeeb0b1b.jpg", "inv_misc_pelt_wolf_01": "/assets/i/0cec349599981b.jpg", "inv_potion_06": "/assets/i/ef81f4c5bd5c6a.jpg", "inv_potion_10": "/assets/i/48f1e4678061a3.jpg", "inv_potion_11": "/assets/i/903aa2997324b7.jpg", "inv_potion_25": "/assets/i/aac1a91b7ca859.jpg", "inv_potion_26": "/assets/i/6a4b18ef71ffcc.jpg", "inv_potion_33": "/assets/i/21fd9bc2d9f4d1.jpg", "inv_potion_43": "/assets/i/5770d353e66cf6.jpg", "inv_potion_45": "/assets/i/e04902a169024f.jpg", "inv_potion_66": "/assets/i/9a7e587089111d.jpg", "inv_scroll_01": "/assets/i/3c52b5240f2d11.jpg", "inv_scroll_02": "/assets/i/ff0f27a129e0e5.jpg", "inv_scroll_03": "/assets/i/6ecdbe7690e21b.jpg", "inv_scroll_07": "/assets/i/eeaa7b18747f8a.jpg", "inv_staff_02": "/assets/i/baa992db7f2c66.jpg", "inv_staff_06": "/assets/i/791fb9d53114cb.jpg", "inv_staff_07": "/assets/i/ba9b2542488dfc.jpg", "inv_staff_08": "/assets/i/5f157aa9cf92a7.jpg", "inv_staff_09": "/assets/i/da93b48927486d.jpg", "inv_staff_10": "/assets/i/5a7dfc9670a067.jpg", "inv_staff_13": "/assets/i/9c3c35d336f6f2.jpg", "inv_stone_04": "/assets/i/3289f45e513054.jpg", "inv_torch_lit": "/assets/i/f1162a3fdfd54f.jpg", "inv_wand_01": "/assets/i/95caad7d96c2da.jpg", "inv_wand_04": "/assets/i/5c3bb901fa5944.jpg", "inv_wand_05": "/assets/i/b57567e6661a19.jpg", "inv_wand_06": "/assets/i/f23ef4166e4b74.jpg", "inv_wand_09": "/assets/i/f3970e8405466e.jpg", "inv_wand_11": "/assets/i/ec93481ef12b93.jpg", "inv_wand_12": "/assets/i/8276e8e059fd6a.jpg", "racial_orc_berserkerstrength": "/assets/i/39ed232d8bf399.jpg", "spell_fire_burnout": "/assets/i/97869e4768b1c2.jpg", "spell_fire_fire": "/assets/i/e570fe47edf069.jpg", "spell_fire_fireball": "/assets/i/09359cbf8064e0.jpg", "spell_fire_fireball02": "/assets/i/99d73bc97d410a.jpg", "spell_fire_immolation": "/assets/i/1a7930d2415d1f.jpg", "spell_fire_incinerate": "/assets/i/7fbd28b88798c7.jpg", "spell_fire_lavaspawn": "/assets/i/63b28ef71625fc.jpg", "spell_fire_meteorstorm": "/assets/i/622738f8dbe7ce.jpg", "spell_fire_playingwithfire": "/assets/i/27333edbae465e.jpg", "spell_fire_soulburn": "/assets/i/76f4e9e8e2dc34.jpg", "spell_fire_volcano": "/assets/i/d9abb90cd288e9.jpg", "spell_fire_windsofwoe": "/assets/i/618a6a623089a8.jpg", "spell_holy_divinespirit": "/assets/i/8f8ce8d85d8d74.jpg", "spell_holy_magicalsentry": "/assets/i/3522f6ef96fd72.jpg", "spell_holy_removecurse": "/assets/i/533e74aecc636c.jpg", "spell_holy_sealofsacrifice": "/assets/i/b90abe9018bbc8.jpg", "spell_holy_wordfortitude": "/assets/i/09563128274ded.jpg", "spell_nature_bloodlust": "/assets/i/a4dafd66a86ddf.jpg", "spell_nature_manaregentotem": "/assets/i/c6c2f1dbeb5e3d.jpg", "spell_nature_removecurse": "/assets/i/c6b7a16f45c878.jpg", "spell_nature_swiftness": "/assets/i/daf6314a5300e6.jpg", "spell_shadow_abominationexplosion": "/assets/i/25fd2802330c32.jpg", "spell_shadow_auraofdarkness": "/assets/i/5ab13ebd6f2299.jpg", "spell_shadow_burningspirit": "/assets/i/9dabbc4b0fb1fa.jpg", "spell_shadow_callofbone": "/assets/i/6f1e25379578d0.jpg", "spell_shadow_chilltouch": "/assets/i/7c1e0480940563.jpg", "spell_shadow_contagion": "/assets/i/ffc2345e9a26d7.jpg", "spell_shadow_corpseexplode": "/assets/i/cc447953a5833c.jpg", "spell_shadow_curse": "/assets/i/87463b90ecebf6.jpg", "spell_shadow_curseofsargeras": "/assets/i/516a4e99ddc32d.jpg", "spell_shadow_deathcoil": "/assets/i/f8159220435964.jpg", "spell_shadow_deathpact": "/assets/i/18ba2d374b7789.jpg", "spell_shadow_deathscream": "/assets/i/050f4e909ad74d.jpg", "spell_shadow_demonbreath": "/assets/i/efd38a7385086b.jpg", "spell_shadow_demonictactics": "/assets/i/54f1bc4ff5193a.jpg", "spell_shadow_felmending": "/assets/i/a0269f36c119a4.jpg", "spell_shadow_fingerofdeath": "/assets/i/ad9beeb122a01f.jpg", "spell_shadow_focusedpower": "/assets/i/b3ab8410c3e881.jpg", "spell_shadow_gathershadows": "/assets/i/17757f30dd51dc.jpg", "spell_shadow_grimward": "/assets/i/065ca1abf6970a.jpg", "spell_shadow_haunting": "/assets/i/7eb82159cbc33a.jpg", "spell_shadow_impphaseshift": "/assets/i/fe9508626f9d89.jpg", "spell_shadow_improvedvampiricembrace": "/assets/i/8e65f52e83725e.jpg", "spell_shadow_lifedrain": "/assets/i/59b1765ed1b730.jpg", "spell_shadow_lifedrain02": "/assets/i/6c4695a90da21d.jpg", "spell_shadow_metamorphosis": "/assets/i/9ae991b7ec9229.jpg", "spell_shadow_possession": "/assets/i/ca54076befd3ab.jpg", "spell_shadow_psychicscream": "/assets/i/10f7c85966ee9d.jpg", "spell_shadow_ragingscream": "/assets/i/5085d882db732d.jpg", "spell_shadow_requiem": "/assets/i/3b2f745c406ead.jpg", "spell_shadow_scourgebuild": "/assets/i/a10bdf91c7e2f4.jpg", "spell_shadow_shadetruesight": "/assets/i/00fc0ccf420d70.jpg", "spell_shadow_shadowbolt": "/assets/i/e1f2a39f44631d.jpg", "spell_shadow_shadowpact": "/assets/i/50462d736a66bd.jpg", "spell_shadow_shadowpower": "/assets/i/6f3874326c77f6.jpg", "spell_shadow_shadowworddominate": "/assets/i/ed797a4f2b921f.jpg", "spell_shadow_shadowwordpain": "/assets/i/4af3115cdad43a.jpg", "spell_shadow_soulgem": "/assets/i/94cced109b26a1.jpg", "spell_shadow_summonfelhunter": "/assets/i/a0b8c34ff52a62.jpg", "spell_shadow_summonimp": "/assets/i/4b4bc494d86fcb.jpg", "spell_shadow_summonsuccubus": "/assets/i/2ef33fc1de797d.jpg", "spell_shadow_summonvoidwalker": "/assets/i/0bada88b886e04.jpg", "spell_shadow_twilight": "/assets/i/30317928480ee5.jpg", "spell_shadow_unholystrength": "/assets/i/5a2b7b34808afc.jpg", "spell_shadow_unstableaffliction_2": "/assets/i/83c756a01dec90.jpg", "spell_shadow_unsummonbuilding": "/assets/i/64e6accc3e36fa.jpg", "trade_engraving": "/assets/i/1b77a8d84f28ba.jpg", "trade_fishing": "/assets/i/b327bcdf679ea3.jpg", "trade_leatherworking": "/assets/i/7f91c13455cfaf.jpg", "trade_tailoring": "/assets/i/5c0be240a58739.jpg"};
+const TALENTS = [{"name": "Improved Life Tap", "tree": "Affliction", "row": 1, "col": 1, "max": 2, "req": 0, "icon": "spell_shadow_burningspirit", "desc": "Increases the amount of Mana awarded by your Life Tap spell by 20%.", "active": false}, {"name": "Suppression", "tree": "Affliction", "row": 1, "col": 2, "max": 5, "req": 0, "icon": "spell_shadow_unsummonbuilding", "desc": "Improves your chance to hit by 5% and reduces all threat you generate by 20%.", "active": false}, {"name": "Improved Corruption", "tree": "Affliction", "row": 1, "col": 3, "max": 5, "req": 0, "icon": "spell_shadow_abominationexplosion", "desc": "Reduces the casting time of your Corruption spell by 2 sec and increases the damage it deals by 10%.", "active": false}, {"name": "Grim Reach", "tree": "Affliction", "row": 2, "col": 1, "max": 2, "req": 5, "icon": "spell_shadow_callofbone", "desc": "Increases the range of your Affliction spells by 20%.", "active": false}, {"name": "Soul Harvest", "tree": "Affliction", "row": 2, "col": 2, "max": 2, "req": 5, "icon": "inv_elemental_primal_shadow", "desc": "Killing a non-trivial target afflicted by your Drain Soul increases your Mana regeneration by 100% for 10 sec and allows 100% of normal Mana regeneration to continue while casting.", "active": false}, {"name": "Improved Drains", "tree": "Affliction", "row": 2, "col": 3, "max": 3, "req": 5, "icon": "spell_shadow_haunting", "desc": "Increases Health drained, damage done, or Mana drained by your Drain Life, Drain Soul, and Drain Mana spells by 20%.", "active": false}, {"name": "Improved Bane of Agony", "tree": "Affliction", "row": 3, "col": 1, "max": 2, "req": 10, "icon": "spell_shadow_curseofsargeras", "desc": "Increases the damage done by your Bane of Agony by 10%.", "active": false}, {"name": "Fel Concentration", "tree": "Affliction", "row": 3, "col": 2, "max": 3, "req": 10, "icon": "spell_shadow_fingerofdeath", "desc": "Gives your Drain Life, Drain Mana, Drain Soul, and Wrack spells a 70% chance to not lose casting time when you take damage.", "active": false}, {"name": "Amplify Curse", "tree": "Affliction", "row": 3, "col": 3, "max": 1, "req": 10, "icon": "spell_shadow_contagion", "desc": "Increases the effect of your next Curse of Weakness or Bane of Agony by 50%, or your next Curse of Exhaustion by 20%. Lasts 30 sec.", "active": true}, {"name": "Pandemic", "tree": "Affliction", "row": 3, "col": 4, "max": 3, "req": 10, "icon": "spell_shadow_unstableaffliction_2", "desc": "Increases the critical strike damage bonus of your Corruption, Bane of Agony, Bane of Doom, Drain Soul, Drain Life, Siphon Life, and Wrack spells by 100%.", "active": false}, {"name": "Malevolence", "tree": "Affliction", "row": 4, "col": 1, "max": 5, "req": 15, "icon": "spell_shadow_focusedpower", "desc": "Increases the critical effect chance of your Shadow spells by 5%.", "active": false}, {"name": "Nightfall", "tree": "Affliction", "row": 4, "col": 2, "max": 2, "req": 15, "icon": "spell_shadow_twilight", "desc": "Gives your Corruption, Drain Soul, Drain Life, and Wrack spells a 4% chance to cause you to enter a Shadow Trance after damaging the opponent. The Shadow Trance reduces the casting time of your next Shadow Bolt spell by 100%.", "active": false}, {"name": "Curse of Exhaustion", "tree": "Affliction", "row": 4, "col": 3, "max": 1, "req": 15, "icon": "spell_shadow_grimward", "desc": "Reduces the target's movement speed by 30% for 12 sec. Only one Curse per Warlock can be active on any one target.", "active": true}, {"name": "Siphon Life", "tree": "Affliction", "row": 5, "col": 2, "max": 1, "req": 20, "icon": "spell_shadow_requiem", "desc": "Transfers 11 health from the target to the caster every 3 sec. Lasts 30 sec.", "active": true}, {"name": "Soul Siphon", "tree": "Affliction", "row": 5, "col": 3, "max": 3, "req": 20, "icon": "spell_shadow_lifedrain02", "desc": "Increases the effect of your Drain Life, Drain Soul, and Wrack spells by 12% for each of your Corruption, Siphon Life, and Bane of Agony spells active on the target, up to a maximum of 36%.", "active": false}, {"name": "Shadow Mastery", "tree": "Affliction", "row": 6, "col": 3, "max": 5, "req": 25, "icon": "spell_shadow_shadetruesight", "desc": "Increases the damage dealt or life drained by your Shadow spells by 10%.", "active": false}, {"name": "Wrack", "tree": "Affliction", "row": 7, "col": 2, "max": 1, "req": 30, "icon": "ability_deathknight_hemorrhagicfever", "desc": "Tears the target apart from within for 6 sec, dealing Shadow damage every 1 sec. While channeling, your Siphon Life, Corruption, and Bane of Agony on the target deal their periodic damage 100% faster. (Updated 10 Nov 2026: 30% less damage.)", "active": true}, {"name": "Improved Health Funnel", "tree": "Demonology", "row": 1, "col": 1, "max": 2, "req": 0, "icon": "spell_shadow_lifedrain", "desc": "Increases the amount of health transferred by your Health Funnel spell by 40%, reduces its health cost by 30%, and reduces all threat your Health Funnel generates by 100%. Allows Health Funnel to be used regardless of your demon's health.", "active": false}, {"name": "Improved Imp", "tree": "Demonology", "row": 1, "col": 2, "max": 3, "req": 0, "icon": "spell_shadow_summonimp", "desc": "Increases the damage of your Imp's Firebolt spell by 30% and the effect of its Fire Shield spell by 30%.", "active": false}, {"name": "Demonic Embrace", "tree": "Demonology", "row": 1, "col": 3, "max": 5, "req": 0, "icon": "spell_shadow_metamorphosis", "desc": "Increases your total Stamina by 15%.", "active": false}, {"name": "Unholy Power", "tree": "Demonology", "row": 1, "col": 4, "max": 5, "req": 0, "icon": "spell_shadow_shadowworddominate", "desc": "Increases all damage done by your Imp, Voidwalker, Succubus, Incubus, and Felhunter pets by 10%.", "active": false}, {"name": "Demonic Aegis", "tree": "Demonology", "row": 2, "col": 1, "max": 2, "req": 5, "icon": "spell_shadow_ragingscream", "desc": "Increases the effectiveness of your Demon Skin and Demon Armor spells by 30%.", "active": false}, {"name": "Improved Voidwalker", "tree": "Demonology", "row": 2, "col": 2, "max": 3, "req": 5, "icon": "spell_shadow_summonvoidwalker", "desc": "Increases the effectiveness of your Voidwalker's Torment, Consume Shadows, Sacrifice, and Suffering spells by 30%.", "active": false}, {"name": "Fel Vitality", "tree": "Demonology", "row": 2, "col": 3, "max": 3, "req": 5, "icon": "spell_shadow_demonictactics", "desc": "Increases the maximum health and Mana of your Imp, Voidwalker, Succubus, Incubus, and Felhunter by 15%, and increases your maximum Mana by 15%.", "active": false}, {"name": "Demonic Energies", "tree": "Demonology", "row": 2, "col": 4, "max": 2, "req": 5, "icon": "spell_shadow_felmending", "desc": "You heal your pet for 15% of all spell damage you deal. When you gain Mana from Life Tap, your summoned demon gains 100% of the Mana you gain.", "active": false}, {"name": "Improved Sayaad", "tree": "Demonology", "row": 3, "col": 1, "max": 3, "req": 10, "icon": "ability_warlock_randomizesuccubusincubus", "desc": "Increases the effect of your Succubus' and Incubus' Lash of Pain and Soothing Kiss spells by 30%, and increases the duration of your Succubus' and Incubus' Seduction and Lesser Invisibility spells by 30%.", "active": false}, {"name": "Demonic Sacrifice", "tree": "Demonology", "row": 3, "col": 2, "max": 1, "req": 10, "icon": "spell_shadow_psychicscream", "desc": "When activated, sacrifices your summoned Demon to enhance the opposing aspect of your power, granting you an effect that lasts 2 hr. The effect is canceled if any Demon is summoned.\n\nImp: Increases your Shadow damage by 15%.\n\nVoidwalker: Restores 2% of your total Mana every 4 sec.\n\nSuccubus/Incubus: Increases your Fire damage by 15%.\n\nFelhunter: Restores 3% of your total Health every 4 sec.", "active": true}, {"name": "Master Summoner", "tree": "Demonology", "row": 3, "col": 3, "max": 2, "req": 10, "icon": "spell_shadow_impphaseshift", "desc": "Reduces the casting time of your Imp, Voidwalker, Succubus, Incubus, and Felhunter Summoning spells by 4 sec and the Mana cost by 40%.", "active": false}, {"name": "Decimation", "tree": "Demonology", "row": 4, "col": 1, "max": 2, "req": 15, "icon": "spell_fire_fireball02", "desc": "Reduces the cooldown of your Soul Fire spell by 90%. When you cast Shadow Bolt or Searing Pain on an enemy below 35% health, they deal 6% increased damage, and for the next 10 sec your Soul Fire spell has its cast time reduced by 40% and costs no Soul Shards.", "active": false}, {"name": "Fel Domination", "tree": "Demonology", "row": 4, "col": 3, "max": 1, "req": 15, "icon": "spell_nature_removecurse", "desc": "Your next Imp, Voidwalker, Succubus, Incubus, or Felhunter Summon spell has its casting time reduced by 5.5 sec and its Mana cost reduced by 50%.", "active": true}, {"name": "Demonic Brand", "tree": "Demonology", "row": 4, "col": 4, "max": 3, "req": 15, "icon": "ability_demonhunter_chaoticimprint_fire", "desc": "Your Searing Pain generates 50% less threat and brands the target for 10 sec. Your pet's next 6 attacks against the target deal X to X Fire or Shadow damage based on the pet. If Shadow damage is dealt, it has high threat.", "active": false}, {"name": "Improved Felhunter", "tree": "Demonology", "row": 5, "col": 1, "max": 3, "req": 20, "icon": "spell_shadow_summonfelhunter", "desc": "Increases the Attack Power reduction of your Felhunter's Tainted Blood, the healing of its Devour Magic, and the detection level of its Paranoia by 30%, and reduces the cooldown of its Spell Lock by 6 sec.", "active": false}, {"name": "Soul Link", "tree": "Demonology", "row": 5, "col": 2, "max": 1, "req": 20, "icon": "spell_shadow_gathershadows", "desc": "When active, 30% of all damage taken by the caster is taken by your Imp, Voidwalker, Succubus, Incubus, or Felhunter Demon instead. In addition, both the Demon and the master will inflict 3% more damage. Lasts as long as the Demon is active.", "active": true}, {"name": "Demonic Knowledge", "tree": "Demonology", "row": 5, "col": 3, "max": 3, "req": 20, "icon": "spell_shadow_improvedvampiricembrace", "desc": "Increases your spell damage and your Demon pet's spell damage by up to 100% of your level while you have a summoned Demon pet active.", "active": false}, {"name": "Master Demonologist", "tree": "Demonology", "row": 6, "col": 3, "max": 5, "req": 25, "icon": "spell_shadow_shadowpact", "desc": "Grants both the Warlock and the summoned demon an effect as long as that demon is active.\n\nImp - Increases Fire damage done by 10%.\n\nVoidwalker - Reduces Physical damage taken by 10%.\n\nSuccubus/Incubus - Increases Shadow damage done by 10%.\n\nFelhunter - Reduces Magic damage taken by 10%.", "active": false}, {"name": "Demonic Pact", "tree": "Demonology", "row": 7, "col": 2, "max": 1, "req": 30, "icon": "inv_ability_soulharvesterwarlock_demonicsoul", "desc": "Your Demonic Sacrifice effect is no longer cancelled by summoning a different Demon pet. Resummoning the sacrificed pet will still cancel the effect.", "active": false}, {"name": "Destructive Reach", "tree": "Destruction", "row": 1, "col": 1, "max": 2, "req": 0, "icon": "spell_shadow_corpseexplode", "desc": "Increases the range of your Destruction spells by 20%.", "active": false}, {"name": "Improved Shadow Bolt", "tree": "Destruction", "row": 1, "col": 2, "max": 5, "req": 0, "icon": "spell_shadow_shadowbolt", "desc": "Your Shadow Bolt critical strikes increase Shadow damage taken by the target from your attacks by 20% for 12 sec.", "active": false}, {"name": "Bane", "tree": "Destruction", "row": 1, "col": 3, "max": 5, "req": 0, "icon": "spell_shadow_deathpact", "desc": "Reduces the casting time of your Shadow Bolt, Immolate, and Incinerate spells by 0.5 sec and your Soul Fire spell by 2 sec.", "active": false}, {"name": "Molten Skin", "tree": "Destruction", "row": 2, "col": 1, "max": 5, "req": 5, "icon": "ability_mage_moltenarmor", "desc": "Reduces all damage taken by 10%.", "active": false}, {"name": "Cataclysm", "tree": "Destruction", "row": 2, "col": 2, "max": 3, "req": 5, "icon": "spell_fire_windsofwoe", "desc": "Reduces the Mana cost of your Destruction spells by 10%.", "active": false}, {"name": "Aftermath", "tree": "Destruction", "row": 2, "col": 3, "max": 5, "req": 5, "icon": "spell_fire_fire", "desc": "Increases the initial damage of your Immolate spell by 50% and your Conflagrate spell has a 100% chance to Daze the target, reducing the target's movement speed by 50% for 5 sec.", "active": false}, {"name": "Ruin", "tree": "Destruction", "row": 3, "col": 2, "max": 5, "req": 10, "icon": "spell_shadow_shadowwordpain", "desc": "Increases the critical strike damage bonus of your Destruction spells by 100%.", "active": false}, {"name": "Shadowburn", "tree": "Destruction", "row": 3, "col": 3, "max": 1, "req": 10, "icon": "spell_shadow_scourgebuild", "desc": "Instantly blasts the target for 66 Shadow damage. If a non-trivial target dies within 8 sec of being hit with Shadowburn, the caster gains a Soul Shard.", "active": true}, {"name": "Intensity", "tree": "Destruction", "row": 4, "col": 1, "max": 3, "req": 15, "icon": "spell_fire_lavaspawn", "desc": "Gives your Destruction spells a 70% chance to not lose casting time when you take damage.", "active": false}, {"name": "Agonizing Flames", "tree": "Destruction", "row": 4, "col": 2, "max": 3, "req": 15, "icon": "spell_fire_soulburn", "desc": "Increases the critical strike chance of your Searing Pain spell by 10% and the damage done by all your Destruction spells by 10%.", "active": false}, {"name": "Conflagrate", "tree": "Destruction", "row": 4, "col": 3, "max": 1, "req": 15, "icon": "spell_fire_fireball", "desc": "Ignites a target that is already afflicted by your Immolate spell, dealing 95 Fire damage and consuming your Immolate effect.", "active": true}, {"name": "Pyroclasm", "tree": "Destruction", "row": 5, "col": 1, "max": 2, "req": 20, "icon": "spell_fire_volcano", "desc": "Gives your Soul Fire spell a 26% chance to Stun the target for 3 sec, and your Rain of Fire and Hellfire spells a 26% chance over their duration to Stun targets they damage for 3 sec.", "active": false}, {"name": "Bane of Havoc", "tree": "Destruction", "row": 5, "col": 2, "max": 1, "req": 20, "icon": "ability_warlock_baneofhavoc", "desc": "Afflicts the target for 5 min, causing 15% of all damage done by the Warlock to other targets to also be dealt to the cursed target. Bane of Havoc is limited to 1 target, and only one Bane per Warlock can be active on any one target.", "active": true}, {"name": "Fire and Brimstone", "tree": "Destruction", "row": 5, "col": 3, "max": 3, "req": 20, "icon": "spell_fire_meteorstorm", "desc": "Increases the critical strike chance of your Conflagrate spell by 25%.", "active": false}, {"name": "Shadow and Flame", "tree": "Destruction", "row": 6, "col": 3, "max": 5, "req": 25, "icon": "spell_fire_playingwithfire", "desc": "Hitting an enemy with Conflagrate increases all Shadow damage you deal by 20% for 20 sec, and hitting an enemy with Shadowburn increases all Fire damage you deal by 20% for 20 sec. In addition, Conflagrate has a 100% chance not to consume Immolate, and Shadowburn has a 100% chance to instantly refund a Soul Shard.", "active": false}, {"name": "Incinerate", "tree": "Destruction", "row": 7, "col": 2, "max": 1, "req": 30, "icon": "spell_fire_burnout", "desc": "Deals 97 Fire damage to your target and an additional 25% damage if the target is afflicted by Immolate.", "active": true}];
+const TREES = [
+  { id: 'Affliction', color: 'var(--aff)', bg: 'linear-gradient(180deg,#24173a,#120d1c)' },
+  { id: 'Demonology', color: 'var(--demo)', bg: 'linear-gradient(180deg,#2c1414,#140c0e)' },
+  { id: 'Destruction', color: 'var(--dest)', bg: 'linear-gradient(180deg,#2e1d0c,#140d08)' }
+];
+const TCOLOR = Object.fromEntries(TREES.map(t => [t.id, t.color]));
+const TAL = Object.fromEntries(TALENTS.map(t => [t.name, t]));
+// Demonology leveling order (WoW Campfire video, Nov 2026; same 20/31/0 end build as apienw's video). Row requirements checked.
+const PLAN = [
+  [10, 10, 'Improved Corruption', 'One point so Corruption casts faster. The other 4 come at 42.'],
+  [11, 15, 'Unholy Power', 'Your demon deals up to 10% more damage.'],
+  [16, 17, 'Demonic Energies', 'Your spell damage heals your demon, and Life Tap gives it mana too.'],
+  [18, 20, 'Fel Vitality', 'More health and mana for your demon, and 15% more mana for you.'],
+  [21, 22, 'Master Summoner', 'Summons are 4 sec faster and 40% cheaper, so a dead demon is back quickly.'],
+  [23, 25, 'Improved Sayaad', 'Stronger Lash of Pain for your Succubus. Prefer the Voidwalker? Take Improved Voidwalker here instead.'],
+  [26, 28, 'Demonic Brand', 'Searing Pain brands the target, and your demon\'s next 6 hits on it deal bonus damage. The heart of the build.'],
+  [29, 29, 'Fel Domination', 'Emergency button: your next summon is almost instant.'],
+  [30, 30, 'Demonic Sacrifice', 'Needed to reach Soul Link. Don\'t press it yet: it uses up your demon. It becomes useful with Demonic Pact at 41.'],
+  [31, 31, 'Soul Link', 'Your demon takes 30% of the damage you take, and you both deal 3% more. The main reason to play Demonology. Recast it after every summon.'],
+  [32, 34, 'Demonic Knowledge', 'You and your demon gain spell damage equal to your level while it is out (34 at level 34, 50 at 50).'],
+  [35, 35, 'Demonic Embrace', 'One point: 3% more Stamina.'],
+  [36, 40, 'Master Demonologist', 'A bonus for you and your demon while it is out. With the Succubus: +10% Shadow damage.'],
+  [41, 41, 'Demonic Pact', 'Sacrifice one demon for its buff, summon another, and keep both. See the routine under Rotation.'],
+  [42, 45, 'Improved Corruption', 'Finishes it: Corruption is now instant, so you can cast it on the move.'],
+  [46, 50, 'Suppression', '+5% hit and 20% less threat. Fewer resists on tougher enemies.'],
+  [51, 53, 'Pandemic', 'Crits from Corruption, Bane of Agony and Drain Life hit harder.'],
+  [54, 55, 'Improved Bane of Agony', '10% more Bane of Agony damage.'],
+  [56, 60, 'Malevolence', '+5% Shadow crit. Or 4 here and 1 in Amplify Curse, like apienw.']
+].map(([from, to, name, why]) => ({ from, to, name, why, t: TAL[name] }));
+{ const seen = {}; PLAN.forEach(p => { p.off = seen[p.name] || 0; seen[p.name] = p.off + p.to - p.from + 1; }); }
+const byLevel = {};
+PLAN.forEach(p => { for (let l = p.from; l <= p.to; l++) byLevel[l] = { ...p, rank: p.off + l - p.from + 1 }; });
+
+const PETS = [
+  { from: 1, to: 9, name: 'Imp', icon: 'spell_shadow_summonimp', c: 'var(--dest)', when: 'Levels 1–9', text: 'Your starting demon. Throws fireballs from range.' },
+  { from: 10, to: 19, name: 'Voidwalker', icon: 'spell_shadow_summonvoidwalker', c: '#7d8ce8', when: 'Levels 10–19', text: "A tank that holds enemies off you. Quest: Gan'rul's Summons in Razor Hill." },
+  { from: 20, to: 60, name: 'Succubus or Incubus', icon: 'spell_shadow_summonsuccubus', c: '#e0609f', when: 'Level 20 onward', text: 'The Sayaad (Succubus or Incubus): your main demon in this build (Improved Sayaad, Master Demonologist +10% Shadow damage). Quest: Devourer of Souls in Orgrimmar.' },
+  { from: 99, to: 99, name: 'Felhunter', icon: 'spell_shadow_summonfelhunter', c: 'var(--fel)', when: 'Optional from 30', text: 'Interrupts and eats enemy magic, and its damage is not far behind the Succubus. Good against casters and in PvP. From 41 you can sacrifice it for health regen. Quest: Seeking Strahad in Orgrimmar.' }
+];
+const S = {
+  'Corruption': 'spell_shadow_abominationexplosion', 'Drain Life': 'spell_shadow_lifedrain02', 'Bane of Agony': 'spell_shadow_curseofsargeras',
+  'Life Tap': 'spell_shadow_burningspirit', 'Hellfire': 'spell_fire_incinerate', 'Fear': 'spell_shadow_possession', 'Create Spellstone': 'inv_misc_gem_sapphire_01',
+  'Summon Felsteed': 'spell_nature_swiftness', 'Howl of Terror': 'spell_shadow_deathscream', 'Curse of the Elements': 'spell_shadow_chilltouch',
+  'Siphon Life': 'spell_shadow_requiem', 'Immolate': 'spell_fire_immolation', 'Shadow Bolt': 'spell_shadow_shadowbolt', 'Wand': 'ability_shootwand',
+  'Drain Soul': 'spell_shadow_haunting', 'Health Funnel': 'spell_shadow_lifedrain', 'Torment': 'spell_shadow_gathershadows', 'Lash of Pain': 'spell_shadow_curse',
+  'Curse of Recklessness': 'spell_shadow_unholystrength', 'Death Coil': 'spell_shadow_deathcoil', 'Shadow Trance': 'spell_shadow_twilight', 'Demon Skin': 'spell_shadow_ragingscream', 'Wrack': 'ability_deathknight_hemorrhagicfever',
+  'Searing Pain': 'spell_fire_soulburn', 'Soul Link': 'spell_shadow_gathershadows', 'Demonic Sacrifice': 'spell_shadow_psychicscream'
+};
+// Rotation stages. Spell levels are WoW Forever's (Wowhead Forever trainer data, patch 1.60.1).
+const BANDS = [
+  { from: 1, to: 3, name: 'Starting out',
+    one: [['Immolate', 'pull with it'], ['Shadow Bolt', 'while Imp attacks'], ['Shadow Bolt', 'or melee to finish']],
+    notes: ['Keep <b>Demon Skin</b> on at all times.', 'Your Imp fights from range. Let it hit first.'] },
+  { from: 4, to: 7, name: 'Corruption + wand',
+    one: [['Immolate', 'pull'], ['Corruption', 'every mob'], ['Wand', 'or Shadow Bolt']],
+    notes: ['Buy a <b>Lesser Magic Wand</b> around 5. Wanding saves mana.', '<b>Life Tap</b> from 6: trade health for mana, then eat.'] },
+  { from: 8, to: 9, name: 'Bane of Agony',
+    one: [['Corruption', 'every mob'], ['Bane of Agony', 'long fights only'], ['Immolate', 'big mobs'], ['Wand', 'until it dies']],
+    notes: ['Bane of Agony starts weak and ramps up. Skip it on mobs that die fast.', '<b>Fear</b> (8) is your panic button on a bad pull.'] },
+  { from: 10, to: 19, name: 'Voidwalker',
+    one: [['Pet', 'send it in'], ['Corruption', 'every mob'], ['Bane of Agony', 'long fights'], ['Immolate', 'big mobs'], ['Wand', 'until it dies']],
+    notes: ['If a mob turns on you, <b>Torment</b> pulls it back to the Voidwalker.', '<b>Drain Soul</b> (10) as a mob dies when you need Soul Shards.', '<b>Health Funnel</b> (12) heals the Voidwalker between pulls.', 'Drain Life (14) is weak before 30. Use it only when you need health.'] },
+  { from: 20, to: 25, name: 'Succubus (Sayaad)',
+    one: [['Pet', 'send it in'], ['Corruption', 'every mob'], ['Bane of Agony', 'long fights'], ['Immolate', 'big mobs'], ['Wand', 'until it dies']],
+    notes: ['Switch to the <b>Succubus or Incubus</b>. Keep Lash of Pain trained from the Demon Trainer.', 'Don\'t spam <b>Searing Pain</b> yet: before Demonic Brand (26) it pulls enemies off your demon.', 'Optional: pull two at a time with the <b>Fear juggle</b> (Two enemies tab).'] },
+  { from: 26, to: 30, name: 'Demonic Brand',
+    one: [['Pet', 'send it in'], ['Searing Pain', 'brand its target'], ['Bane of Agony', 'long fights'], ['Corruption', 'every mob'], ['Wand', 'until it dies']],
+    notes: ['Use the <b>Pet attack + Searing Pain</b> macro (Macros tab): your demon attacks whatever you brand.', 'The brand lasts 10 sec or 6 demon hits. Refresh it on long fights, but not on an enemy that is about to die.', 'At 30: <b>Hellfire</b> for packs, the <b>Felhunter</b> quest, and Drain Life rank 3 now beats your wand.'] },
+  { from: 31, to: 40, name: 'Soul Link',
+    one: [['Soul Link', 'keep it on'], ['Pet', 'send it in'], ['Searing Pain', 'brand its target'], ['Bane of Agony', 'long fights'], ['Curse of the Elements', 'tough mobs'], ['Corruption', 'every mob'], ['Drain Life', 'or wand']],
+    notes: ['<b>Soul Link</b> moves 30% of your damage taken to your demon. Recast it after every new summon, and watch both health bars.', 'Bane of Agony and Curse of the Elements can go on the same enemy. Skip both on enemies that die fast.', 'Demon in trouble? <b>Fel Domination</b> + Master Summoner gets a new one out fast. Keep a Soul Shard for it.', '<b>Felsteed</b> at 40: your free mount, now with riding skill.'] },
+  { from: 41, to: 60, name: 'Demonic Pact',
+    one: [['Demonic Sacrifice', 'before you pull'], ['Soul Link', 'keep it on'], ['Pet', 'send it in'], ['Searing Pain', 'brand its target'], ['Bane of Agony', 'long fights'], ['Curse of the Elements', 'tough mobs'], ['Corruption', 'instant from 45'], ['Drain Life', 'or wand']],
+    notes: ['<b>Demonic Pact</b>: sacrifice a Voidwalker (mana) or Felhunter (health), then summon your Succubus. The buff stays for 2 hours.', '<b>Death Coil</b> (42): instant escape and self-heal for emergencies.', 'From 45 Corruption is instant again, so you can DoT the next enemy while you walk.'] }
+];
+const DUNGEONS = [
+  ['Ragefire Chasm', 13, 18], ['Ruins of Lordaeron', 15, 20], ['The Deadmines', 15, 22], ['Wailing Caverns', 17, 22],
+  ['Shadowfang Keep', 20, 26], ['Blackfathom Deeps', 22, 28], ['Excavation Site: Wetlands', 24, 29], ['City of Dalaran', 28, 33],
+  ['Gnomeregan', 29, 38], ['Razorfen Kraul', 29, 38], ['Scarlet Monastery: Graveyard', 30, 38], ['Scarlet Monastery: Library', 33, 41],
+  ['The Drowned City', 35, 40], ['Scarlet Monastery: Armory', 36, 44], ['Uldaman', 36, 45], ['Razorfen Downs', 37, 46],
+  ['Scarlet Monastery: Cathedral', 38, 46], ['Zul\'Farrak', 40, 47], ['Krol\'Dok Stronghold', 40, 45], ['Maraudon', 45, 51], ['Alcaz Island Prison', 48, 53],
+  ['Sunken Temple', 50, 55], ['Blackrock Depths', 52, 60], ['Blackmaw Hold', 55, 60], ['Lower Blackrock Spire', 57, 60],
+  ['Shaper\'s Terrace', 58, 60], ['Stratholme: Living', 58, 60], ['Stratholme: Undead', 58, 60], ['Scholomance', 58, 60],
+  ['Dire Maul: East', 58, 60], ['Dire Maul: West', 60, 60], ['Dire Maul: North', 60, 60], ['Upper Blackrock Spire', 60, 60]
+];
+const DBRACKETS = [[13, 29, 'Levels 13–29'], [30, 44, 'Levels 30–44'], [45, 57, 'Levels 45–57'], [58, 60, 'Level 58–60 and max level']];
+let dshow = 'all';
+const DMIN = 13, DSPAN = 60 - 13 + 1;
+const dx = l => ((l - DMIN) / DSPAN * 100).toFixed(2) + '%';
+const dungeonsAt = l => DUNGEONS.filter(([, a, b]) => l >= a && l <= b);
+function renderDungeons() {
+  const meX = L >= DMIN ? `<i class="me" style="left:${((L - DMIN + .5) / DSPAN * 100).toFixed(2)}%"></i>` : '';
+  const row = ([n, a, b]) => `<div class="drow ${L >= a && L <= b ? 'now' : ''} ${b < L ? 'past' : ''}" ${tipAttrs(n, 'Levels ' + (a === b ? a : a + '–' + b), L >= a && L <= b ? 'Good for your level now' : b < L ? 'Too low for you now' : 'Come back at ' + a)}>
+    <b>${n}</b><div class="track"><span class="seg" style="left:${dx(a)};width:${((b - a + 1) / DSPAN * 100).toFixed(2)}%"></span>${meX}</div><span class="rng">${a === b ? a : a + '–' + b}</span></div>`;
+  const scale = `<div class="dscale" aria-hidden="true"><span></span><div class="ax">${[15, 20, 30, 40, 50, 60].map(l => `<span style="left:${((l - DMIN + .5) / DSPAN * 100).toFixed(2)}%">${l}</span>`).join('')}</div><span></span></div>`;
+  let html;
+  if (dshow === 'mine') {
+    const d = dungeonsAt(L);
+    html = d.length ? scale + d.map(row).join('') : `<p class="dempty">No dungeon fits level ${L} yet. Your first is Ragefire Chasm at 13, inside Orgrimmar.</p>`;
+  } else {
+    html = scale + DBRACKETS.map(([lo, hi, label]) => `<div class="dbr">${label}</div>` + DUNGEONS.filter(([, a]) => a >= lo && a <= hi).map(row).join('')).join('');
+  }
+  document.getElementById('dgrid').innerHTML = html;
+}
+// Wand upgrades for a Horde Warlock (Mobalytics, Nov 2026). Alliance-only wands left out. q = item quality.
+const WANDS = [
+  [5, 'Lesser Magic Wand', 'inv_staff_02', 2, 'Enchanting or Auction House', '11 DPS. One of the biggest early upgrades.'],
+  [10, 'Branding Rod', 'inv_wand_05', 2, 'Quest: Isha Awak (Horde)', '21 DPS, +2 Intellect, +2 Spell Power'],
+  [13, 'Greater Magic Wand', 'inv_staff_07', 2, 'Enchanting or Auction House', '22 DPS, +2 Spell Power. Cheap and lasts a while.'],
+  [17, 'Cookie\'s Stirring Rod', 'inv_staff_02', 3, 'Cookie in the Deadmines', '22 DPS, +3 Spell Power'],
+  [18, 'Gravestone Scepter', 'inv_wand_04', 3, 'Quest: Blackfathom Villainy (Blackfathom Deeps)', '29 DPS, +3 Spirit, +6 Shadow damage. One of the best early wands.', 1],
+  [27, 'Wand of Mana Concentration', 'inv_wand_06', 3, 'Quest: Arcanic Enigma (City of Dalaran)', '31 DPS, +4 Intellect, 2 mana every 5 sec', 1],
+  [30, 'Necrotic Wand', 'inv_wand_04', 3, 'Azshir the Sleepless (Scarlet Monastery: Graveyard)', '33 DPS. Strong dungeon upgrade.'],
+  [37, 'Twisted Nether Wand', 'inv_wand_09', 2, 'Enchanting', '34 DPS, +6 Spell Power'],
+  [43, 'Dreambough Wand', 'inv_wand_12', 2, 'Enchanting', '39 DPS, +7 Spell Power'],
+  [49, 'Lesser Eternal Wand', 'inv_wand_01', 2, 'Enchanting', '45 DPS, +8 Spell Power'],
+  [55, 'Greater Eternal Wand', 'inv_wand_11', 2, 'Enchanting', '53 DPS, +9 Spell Power'],
+  [56, 'Stormrager', 'inv_wand_05', 3, 'Eastern Plaguelands quest', '62 DPS, +8 Stamina, +5 Intellect'],
+  [60, 'Torch of Light', 'inv_torch_lit', 4, 'Enchanting', '76 DPS, +11 Spirit, +6 Spell Power. A strong level 60 wand.']
+];
+const STAVES = [
+  ['inv_staff_08', 'Staff of Orgrimmar', 'Hidden Enemies quest chain (ends in Ragefire Chasm)'],
+  ['inv_staff_13', 'Emberstone Staff', 'Captain Greenskin in the Deadmines'],
+  ['inv_staff_09', 'Staff of Soran\'ruk (or the Orb)', 'Warlock quest from Doan Karhan, Barrens, at 20: fragments from Blackfathom Deeps and Shadowfang Keep'],
+  ['inv_staff_06', 'Rod of the Sleepwalker', 'Blackfathom Deeps'],
+  ['inv_staff_10', 'Spine of the Devourer', 'City of Dalaran'],
+  ['inv_wand_04', 'Illusionary Rod', 'Arcanist Doan, Scarlet Monastery: Library']
+];
+const wandIdx = l => { let i = -1; WANDS.forEach((w, k) => { if (w[0] <= l) i = k; }); return i; };
+function renderWands() {
+  const ci = wandIdx(L);
+  document.getElementById('staffRows').innerHTML = STAVES.map(([ic, n, src]) => `<div class="item">${img(ic, 's')}<span><b>${n}</b>: ${src}</span></div>`).join('');
+  document.getElementById('wandRows').innerHTML = WANDS.map(([lv, n, ic, q, src, why, star], k) => `<div class="wand ${k === ci ? 'cur' : ''} ${k < ci ? 'past' : ''}" ${tipAttrs(n, 'Wand · level ' + lv, why, src)}>
+    <div class="lv">${lv}</div>${img(ic, 'm')}<div><h3 class="q${q}">${n}${star ? ' <span class="star" aria-label="worth going out of your way for">★</span>' : ''}${k === ci ? '<span class="pill">Best now</span>' : k === ci + 1 ? '<span class="pill next">Next</span>' : ''}</h3><p>${src}</p></div><div class="why">${why}</div></div>`).join('');
+}
+const STATS = [
+  ['spell_shadow_shadowpower', 'Spell Power', 'Your strongest stat. It raises the damage of almost all your spells, and on Forever it shows up even on low-level gear. Take it on every piece you can.'],
+  ['ability_marksmanship', 'Hit chance', 'Fewer misses, so less wasted mana. In this build Suppression adds up to 5% from level 46.'],
+  ['spell_holy_magicalsentry', 'Intellect', 'Bigger mana pool and some crit chance. Your main primary stat.'],
+  ['spell_holy_wordfortitude', 'Stamina', 'More health, which matters when you drain-tank and Life Tap. Most gear has it anyway, so don\'t chase it.'],
+  ['ability_criticalstrike', 'Critical strike', 'Your DoTs, drains and Hellfire can crit on Forever. Malevolence and Pandemic (from 51) make crit better.'],
+  ['spell_holy_divinespirit', 'Spirit', 'Life Tap gives more mana with more Spirit. Nice, but don\'t pick it over Intellect or Stamina.'],
+  ['spell_nature_bloodlust', 'Haste', 'Only speeds up cast times. It does not make DoTs tick faster or speed up drains, so it is the least useful for you.']
+];
+const CONS = [
+  ['Weapon stone (make it yourself)', 'Coat your weapon with a stone, like a weapon oil.', [
+    ['inv_misc_gem_sapphire_01', '<b>Spellstone</b> <span class="badge">Use this</span><br>+21 Shadow damage and up to 2% spell haste. The Shadow damage is what you want.'],
+    ['inv_ammo_firetar', '<b>Firestone</b><br>+21 Fire damage and up to 2% spell crit. Only for a Fire build.']]],
+  ['Food: 5% more experience', 'Almost all food now gives a 5% experience buff from kills. Cheap low-level food works too. Sit and eat to get it.', [
+    ['inv_misc_fish_32', '<b>Longjaw Mud Snapper</b>'],
+    ['inv_misc_food_49', '<b>Twice-Spiced Raptor Slice</b>'],
+    ['inv_misc_fish_20', '<b>Smoked Sagefish</b>'],
+    ['inv_drink_17', '<b>Briny Seafood Stew</b> <span class="badge">Best</span><br>+14 Spell Power and 5% experience for 15 min.'],
+    ['inv_misc_fish_50', '<b>Sagefish Delight</b><br>+7 Spell Power and 5% experience for 15 min.']]],
+  ['Elixirs and potions', 'Buy them on the Auction House, no Alchemy needed. Most important first. Check for higher ranks every few levels.', [
+    ['inv_potion_25', '<b>Minor Arcane Elixir</b>: Spell Power, 30 min'],
+    ['inv_potion_45', '<b>Minor Mageblood Elixir</b>: mana regeneration, 30 min'],
+    ['inv_potion_11', '<b>Minor Troll\'s Blood Elixir</b>: health regeneration, 60 min'],
+    ['inv_potion_10', '<b>Elixir of Wisdom</b>: Intellect, 60 min'],
+    ['inv_potion_06', '<b>Elixir of Minor Spirit</b>: Spirit, 30 min'],
+    ['inv_potion_43', '<b>Elixir of Minor Fortitude</b>: Stamina, 60 min'],
+    ['inv_potion_66', '<b>Elixir of Minor Defense</b>: armor, 60 min'],
+    ['inv_potion_26', '<b>Minor Spellblasting Potion</b>: Spell Power for 30 sec, for bosses and elites'],
+    ['inv_potion_33', '<b>Elixir of Fire Power</b>: Fire damage only, so skip it as Affliction']]],
+  ['Scrolls', 'Not required, and they can get expensive. All last 30 min and come in higher ranks as you level.', [
+    ['inv_scroll_01', '<b>Scroll of Intellect</b>'],
+    ['inv_scroll_02', '<b>Scroll of Spirit</b>'],
+    ['inv_scroll_07', '<b>Scroll of Protection</b>: armor'],
+    ['inv_scroll_03', '<b>Scroll of Stamina</b>']]]
+];
+const PROFS = [
+  ['trade_tailoring', 'Tailoring', 'Your profession', 'Most of the best leveling gear for Warlocks is tailored, and the cloth drops from the enemies you kill. You can also place the Faction Banner at campfires.'],
+  ['trade_engraving', 'Enchanting', 'Pairs with Tailoring', 'Makes the Lesser (5) and Greater (13) Magic Wands, and most later wands. Disenchant the gear you craft and the greens you find.'],
+  ['spell_holy_sealofsacrifice', 'First Aid', 'Secondary, take it', 'Bandages from cloth heal you and your demon between fights. Keep it leveled as you go.']
+];
+const CAMP = [
+  ['inv_misc_pelt_wolf_01', 'Camp Chair', 'Skinning', '+2% spell crit. Your DoTs can crit, so this is good for you.', 'Same as Moonkin Form'],
+  ['inv_banner_03', 'Faction Banner', 'Tailoring', 'More Spirit, so more mana from Life Tap. You can place this one.', 'Same as Divine Spirit'],
+  ['inv_misc_candle_01', 'Incense Candle', 'Herbalism', 'More Intellect, so a bigger mana pool.', 'Same as Arcane Intellect'],
+  ['spell_nature_manaregentotem', 'Mana Well', 'Alchemy', 'Gives mana every 5 sec, on top of your drains and Life Tap.', 'Same as Blessing of Wisdom'],
+  ['trade_fishing', 'Fish Bowl', 'Fishing', '+8% to all stats. Very useful while leveling.', 'Same as Blessing of Kings'],
+  ['trade_leatherworking', 'Camp Tent', 'Leatherworking', 'Builds rested experience, up to 5% of a level. Does nothing if you already have more stored.', '']
+];
+const UTIL = [
+  ['spell_shadow_possession', 'Fear', 'Makes one enemy run away in fear. Damage can break it, so let DoT ticks do the work.'],
+  ['spell_shadow_deathscream', 'Howl of Terror', 'Fears every enemy close to you. Run into melee range and press it when a pull goes wrong.'],
+  ['spell_shadow_unholystrength', 'Curse of Recklessness', 'Stops a feared enemy from running away, so it runs back to you instead of into another group. Players call this fear juggling or "babysitting Fears".'],
+  ['spell_shadow_chilltouch', 'Curse of the Elements', 'The enemy takes up to 10% more spell damage. Save it for tough enemies and bosses.'],
+  ['spell_shadow_soulgem', 'Create Soulstone', 'Put it on yourself or a healer. If they die, they can come back right away, even in combat.'],
+  ['inv_stone_04', 'Create Healthstone', 'A free healing item. Make them for yourself and your group before a dungeon.'],
+  ['spell_shadow_demonbreath', 'Unending Breath', 'Lets you or a friend breathe underwater. Handy for underwater quests.']
+];
+const MACROS = [
+  ['spell_fire_soulburn', 'Pet attack + Searing Pain', 'The key Demonology button from 26: your demon attacks the enemy you brand. Both videos use it.', '#showtooltip\n/petattack\n/cast Searing Pain'],
+  ['spell_shadow_abominationexplosion', 'Mouseover DoT', 'Puts Corruption on whatever your mouse is over, without changing target. If nothing is under the mouse it hits your target. Make one for each DoT.', '#showtooltip\n/cast [@mouseover,harm,nodead][] Corruption'],
+  ['spell_shadow_lifedrain02', 'Drain Life without cutting it short', 'Pressing the button again won\'t restart Drain Life while it is already channeling. Copy it for Drain Soul too.', '#showtooltip Drain Life\n/cast [nochanneling:Drain Life] Drain Life'],
+  ['spell_shadow_summonsuccubus', 'Every demon on one button', 'Plain press: Succubus. Hold Alt: Imp. Hold Shift: Voidwalker. Hold Ctrl: Felhunter. The icon changes while you hold the key.', '#showtooltip\n/cast [mod:alt] Summon Imp; [mod:shift] Summon Voidwalker; [mod:ctrl] Summon Felhunter; Summon Succubus'],
+  ['spell_shadow_gathershadows', 'Voidwalker taunt', 'Taunts your target and sends the Voidwalker to attack it, so it keeps hitting the enemy it taunted. Set Torment to manual first.', '#showtooltip\n/cast Torment\n/petattack'],
+  ['spell_shadow_curse', 'Demon ability on one button', 'Casts the main ability of whichever demon is out. If you use the Incubus, change Succubus to Incubus.', '#showtooltip\n/cast [pet:Felhunter] Spell Lock; [pet:Voidwalker] Sacrifice; [pet:Succubus] Seduction'],
+  ['racial_orc_berserkerstrength', 'Orc burst button', 'Fires Blood Fury and both trinket slots at once for a tough fight (13 is your top trinket, 14 the bottom one). Add a /use line for a potion if you like.', '#showtooltip Blood Fury\n/cast Blood Fury\n/use 13\n/use 14'],
+  ['spell_shadow_curseofsargeras', 'Target and tag a rare', 'Targets an enemy by name and puts Bane of Agony on it the moment it shows up. Change the name to the enemy you are hunting.', '/tar Enemy Name\n/cast Bane of Agony']
+];
+// Spell Power coefficients (Mobalytics, WoW Forever beta records, rank 1). Total over a full cast or full DoT.
+const SPC = [
+  ['spell_shadow_auraofdarkness', 'Bane of Doom', 400, 'learned late'], ['spell_shadow_curseofsargeras', 'Bane of Agony', 159.6, 'per tick 13.3%'],
+  ['spell_fire_fireball02', 'Soul Fire', 100, 'learned late'], ['ability_deathknight_hemorrhagicfever', 'Wrack', 85.8, 'Affliction'],
+  ['spell_shadow_shadowbolt', 'Shadow Bolt', 85.7, ''], ['spell_fire_immolation', 'Immolate', 85, '20% hit + 13% per tick'],
+  ['spell_shadow_abominationexplosion', 'Corruption', 80, 'per tick 20%'], ['spell_shadow_lifedrain02', 'Drain Life', 50, 'per tick 10%'],
+  ['spell_shadow_haunting', 'Drain Soul', 50, 'per tick 10%'], ['spell_shadow_requiem', 'Siphon Life', 50, 'Affliction'],
+  ['spell_fire_soulburn', 'Searing Pain', 42.9, ''], ['spell_shadow_deathcoil', 'Death Coil', 21.4, '']
+];
+function renderGear() {
+  document.getElementById('statRows').innerHTML = STATS.map(([ic, n, t], i) => `<div class="stat"><div class="no">${i + 1}</div>${img(ic, 'm')}<div><h3>${n}</h3><p>${t}</p></div></div>`).join('');
+  document.getElementById('consBoxes').innerHTML = CONS.map(([h, p, items]) => `<div class="box"><h3>${h}</h3><p>${p}</p><div class="items">${items.map(([ic, t]) => `<div class="item">${img(ic, 's')}<span>${t}</span></div>`).join('')}</div></div>`).join('');
+  document.getElementById('profCards').innerHTML = PROFS.map(([ic, n, w, t], i) => `<div class="mini ${i === 0 ? 'active' : ''}" style="--c:${i === 2 ? 'var(--muted)' : 'var(--gold)'}">${img(ic, 'l')}<span class="when">${w}</span><h3>${n}</h3><p>${t}</p></div>`).join('');
+  document.getElementById('campCards').innerHTML = CAMP.map(([ic, n, prof, t, same]) => `<div class="mini ${prof === 'Tailoring' ? 'active' : ''}" style="--c:var(--dest)">${img(ic, 'l')}<span class="when">From ${prof}</span><h3>${n}</h3><p>${t}${same ? ` <span style="opacity:.75">${same}, so they don't stack.</span>` : ''}</p></div>`).join('');
+  const max = 400;
+  document.getElementById('spc').innerHTML = SPC.map(([ic, n, v, note]) => `<div class="spr" ${tipAttrs(n, v + '% of Spell Power', note ? note.replace('learned late', 'A late spell, not part of your leveling rotation').replace(/^Affliction$/, 'An Affliction talent, not in your Demonology build') : '', '')}><span class="nm">${img(ic, 's')}${n}${note === 'learned late' ? ' <small>(late)</small>' : note === 'Affliction' ? ' <small>(not in your build)</small>' : ''}</span><span class="sbar"><i style="width:${(v / max * 100).toFixed(1)}%"></i></span><span class="v">${v}%</span></div>`).join('');
+  document.getElementById('utilCards').innerHTML = UTIL.map(([ic, n, t]) => `<div class="mini" style="--c:var(--aff)">${img(ic, 'l')}<span class="when">Utility</span><h3>${n}</h3><p>${t}</p></div>`).join('');
+  document.getElementById('macroCards').innerHTML = MACROS.map(([ic, n, t, code], i) => `<div class="macro"><div class="mh">${img(ic, 'm')}<h3>${n}</h3></div><p>${t}</p><pre id="mac${i}">${code}</pre><button type="button" class="copy" data-copy="${i}">Copy</button></div>`).join('');
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    const text = MACROS[+b.dataset.copy][3];
+    try { await navigator.clipboard.writeText(text); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(document.getElementById('mac' + b.dataset.copy)); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); }
+    b.textContent = 'Copied!'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('ok'); }, 1500);
+  }));
+}
+const bandAt = l => BANDS.find(b => l >= b.from && l <= b.to);
+let mode = 'one';
+const spellIcon = (n, l) => n === 'Pet' ? petAt(l).icon : S[n];
+const petName = l => petAt(l).name.split(' ')[0];
+function fightSteps(l) {
+  const b = bandAt(l);
+  const filler = l >= 30 ? ['Drain Life', 'until it is low'] : ['Wand', 'until it dies'];
+  if (mode === 'one') return b.one.map(([n, s]) => [n === 'Pet' ? 'Send ' + petName(l) : n, s, spellIcon(n, l)]);
+  if (mode === 'two') {
+    if (l < 8) return null;
+    const st = [['Corruption', 'on mob 1'], ...(l >= 10 ? [['Bane of Agony', 'on mob 1']] : []), ['Fear', 'mob 1 runs'], ['Pet', 'on mob 2'], ['Corruption', 'on mob 2'], filler, ['Fear', 're-Fear mob 1'], ['Pet', 'finish mob 1']];
+    return st.map(([n, s]) => [n === 'Pet' ? 'Send ' + petName(l) : n, s, spellIcon(n, l)]);
+  }
+  if (l < 30) return [['Send ' + petName(l), "tank's target", spellIcon('Pet', l)], ['Corruption', 'on a few mobs', S['Corruption']], ['Wand', "tank's target", S['Wand']]];
+  return [['Send ' + petName(l), "tank's target", spellIcon('Pet', l)], ['Corruption', 'every mob', S['Corruption']], ['Hellfire', 'stand in the pack', S['Hellfire']], ['Corruption', 'recast', S['Corruption']], ['Life Tap', 'when low', S['Life Tap']]];
+}
+function fightRules(l) {
+  if (mode === 'one') return ['<b>Mana low, health high:</b> Life Tap (it also feeds your demon from 16). <b>Health low:</b> Drain Life.', '<b>Finish with your wand.</b> Don\'t start a new DoT or channel on a mob that is about to die.', ...bandAt(l).notes.slice(0, 1)];
+  if (mode === 'two') return l < 8 ? ['You get <b>Fear</b> at level 8. Until then, pull one mob at a time.'] :
+    ['Only one mob can be feared at a time. Re-Fear it every time Fear ends.', 'Don\'t hit the feared mob with Shadow Bolt or the first hit of Immolate. Big hits break Fear, small DoT ticks rarely do.', 'Make sure the feared mob won\'t run into another group.'];
+  return l < 30 ? ['Before <b>Hellfire</b> (30) you have no real AoE. Stick to the tank\'s target.', 'Let the tank build threat first.'] :
+    ['Tell your healer before you use <b>Hellfire</b>: it burns you too.', 'Let the tank build threat first or the pack turns on you.'];
+}
+const TRAINER = [
+  [24, [['Corruption'], ['Drain Life', 22]]],
+  [30, [['Drain Life'], ['Bane of Agony', 28], ['Life Tap', 26], ['Hellfire']]],
+  [36, [['Corruption', 34], ['Life Tap'], ['Fear', 32], ['Create Spellstone']]],
+  [40, [['Summon Felsteed'], ['Howl of Terror'], ['Bane of Agony', 38], ['Drain Life', 38], ['Curse of the Elements']]],
+  [44, [['Corruption'], ['Hellfire', 42]]],
+  [48, [['Bane of Agony'], ['Life Tap', 46], ['Drain Life', 46], ['Create Spellstone']]],
+  [54, [['Corruption'], ['Drain Life'], ['Hellfire'], ['Howl of Terror'], ['Curse of the Elements', 50]]],
+  [58, [['Bane of Agony'], ['Life Tap', 56], ['Fear', 56]]],
+  [60, [['Immolate'], ['Shadow Bolt'], ['Create Spellstone']]]
+];
+const MILESTONES = {
+  10: ['spell_shadow_summonvoidwalker', "First talent point (1 in Improved Corruption), and your Voidwalker. Do the quest <b>Gan'rul's Summons</b> in Razor Hill."],
+  20: ['spell_shadow_summonsuccubus', 'Get your Succubus (Sayaad) with <b>Devourer of Souls</b> in Orgrimmar and make it your main pet.'],
+  26: ['ability_demonhunter_chaoticimprint_fire', '<b>Demonic Brand</b>: open every fight with Searing Pain on your demon\'s target. Set up the Pet attack + Searing Pain macro.'],
+  30: ['spell_shadow_summonfelhunter', 'Felhunter quest, <b>Hellfire</b>, and Drain Life rank 3 beats your wand. Your point goes into Demonic Sacrifice (don\'t press it yet).'],
+  31: ['spell_shadow_gathershadows', '<b>Soul Link</b> unlocked. Cast it whenever your demon is out, and again after every summon.'],
+  40: ['spell_nature_swiftness', '<b>Summon Felsteed</b> at the trainer: your free mount. Master Demonologist is complete.'],
+  41: ['inv_ability_soulharvesterwarlock_demonicsoul', '<b>Demonic Pact</b>: sacrifice a Voidwalker or Felhunter, then summon your Succubus and keep both.'],
+  45: ['spell_shadow_abominationexplosion', 'Improved Corruption 5/5: <b>Corruption is instant</b> again.'],
+  60: ['classicon_warlock', '<b>Max level!</b> Time for dungeons and gear.']
+};
+const RACIALS = [
+  ['racial_orc_berserkerstrength', 'Blood Fury', 'Button', 'A short burst of extra Spell Power. On Forever it no longer lowers healing, so press it on tough fights.'],
+  ['ability_warrior_warcry', 'Command', 'Passive', 'Your demon deals 5% more damage, all the time. Extra good for Demonology.'],
+  ['inv_helmet_23', 'Hardiness', 'Passive', 'Stuns on you last 20% shorter. Mostly helps in PvP.'],
+  ['spell_holy_removecurse', 'Shatter Curse', 'Button, new', 'Immune to curses for a while, and you take less magic damage. Use it when a caster curses you.']
+];
+const TIPS = [
+  ['ability_shootwand', '<b>Get a wand early.</b> Lesser Magic Wand (level 5) or Greater Magic Wand (13) from the Auction House or an Enchanter. Before 30 it is your main filler.'],
+  ['spell_shadow_ragingscream', '<b>Keep your armor buff up.</b> Demon Skin early, then Demon Armor once you train it at 20 (it replaces Demon Skin). Free armor and health regen.'],
+  ['spell_shadow_burningspirit', '<b>Life Tap is free mana.</b> Low mana and high health: Life Tap. You almost never need to drink.'],
+  ['inv_misc_gem_amethyst_02', '<b>Soul Shards:</b> cast Drain Soul as an enemy dies. On Forever a kill under Drain Soul always gives a shard. Keep 3 to 5.'],
+  ['spell_shadow_gathershadows', '<b>Soul Link after every summon.</b> It drops when your demon dies or you swap demons. Both health bars matter: a low demon can die from its own damage plus the damage you send it.'],
+  ['inv_misc_book_09', '<b>Train your demon.</b> Pet spells come from the Demon Trainer and grimoires, not your class trainer. Check them every few levels; both videos call this a common mistake.'],
+  ['spell_shadow_curseofsargeras', '<b>Don\'t refresh Bane of Agony early.</b> It does most of its damage at the end, so let it run out first.'],
+  ['spell_shadow_soulgem', '<b>Soulstone yourself</b> before risky fights so you can get back up on the spot.'],
+  ['spell_shadow_abominationexplosion', '<b>Let your DoTs finish the job.</b> If the DoTs already on an enemy will kill it, don\'t spend mana on another spell: wand it or pull the next one.'],
+  ['spell_shadow_shadowbolt', '<b>Check your spellbook after training.</b> Make sure your action bars use the newest rank of each spell.'],
+  ['inv_misc_food_14', '<b>Carry food.</b> Drain-tanking spends your own health, so eat between fights when you are low.']
+];
+
+const img = (k, cls = 'm', alt = '') => `<img class="ic ${cls}" src="${ICON[k] || ''}" alt="${alt}">`;
+const esc = s => String(s).replace(/"/g, '&quot;');
+const tipAttrs = (title, sub, desc, extra) => `data-tt="${esc(title)}" data-ts="${esc(sub || '')}" data-td="${esc(desc || '')}" data-te="${esc(extra || '')}"`;
+document.querySelectorAll('img[data-icon]').forEach(i => i.src = ICON[i.dataset.icon]);
+
+let L = 10, full = false;
+function ranksAt(lvl) {
+  const r = {};
+  PLAN.forEach(p => { const n = Math.max(0, Math.min(lvl, p.to) - p.from + 1); if (n) r[p.name] = (r[p.name] || 0) + n; });
+  return r;
+}
+function treePoints(r) {
+  const o = { Affliction: 0, Demonology: 0, Destruction: 0 };
+  Object.entries(r).forEach(([n, v]) => o[TAL[n].tree] += v);
+  return o;
+}
+function petAt(l) { return PETS.find(p => l >= p.from && l <= p.to); }
+
+function renderNow() {
+  document.querySelectorAll('.lvlTxt').forEach(e => e.textContent = L);
+  const r = ranksAt(L), tp = treePoints(r);
+  const spent = Object.values(tp).reduce((a, b) => a + b, 0);
+  document.getElementById('ptsTxt').textContent = L >= 10 ? `${spent} points spent: ${tp.Affliction} / ${tp.Demonology} / ${tp.Destruction}` : 'Talents start at level 10';
+  const m = MILESTONES[L], ms = document.getElementById('milestone');
+  if (m) { ms.hidden = false; ms.innerHTML = img(m[0], 'l') + `<div>${m[1]}</div>`; } else ms.hidden = true;
+
+  const ct = document.getElementById('cTalent');
+  const t = byLevel[L];
+  if (t) {
+    ct.style.setProperty('--c', TCOLOR[t.t.tree]);
+    const upcoming = [];
+    for (let l = L + 1; l <= 60 && upcoming.length < 3; l++) if (byLevel[l]) upcoming.push([l, byLevel[l]]);
+    ct.innerHTML = `<span class="k">Talent point this level</span>
+      <div class="big" ${tipAttrs(t.name, t.t.tree + ' talent', t.t.desc)} tabindex="0">${img(t.t.icon, 'xl')}<div><h3>${t.name}</h3><div class="r">Rank ${t.rank} of ${t.t.max} · ${t.t.tree}</div></div></div>
+      <p class="muted" style="font-size:14px">${t.why}</p>
+      <div class="next-list"><b style="color:var(--ink);font-size:13px">Coming up</b>${upcoming.map(([l, u]) => `<div>${img(u.t.icon, 's')} Lvl ${l}: ${u.name} ${u.rank}/${u.t.max}</div>`).join('') || '<div>That was your last point. Build complete!</div>'}</div>`;
+  } else {
+    ct.style.setProperty('--c', 'var(--gold)');
+    ct.innerHTML = `<span class="k">Talent point this level</span><div class="big">${img('spell_shadow_abominationexplosion', 'xl')}<div><h3>No talents yet</h3><div class="r">First point at level 10: Improved Corruption</div></div></div>`;
+  }
+
+  const p = petAt(L);
+  const cp = document.getElementById('cPet');
+  cp.style.setProperty('--c', p.c);
+  cp.innerHTML = `<span class="k">Your demon</span><div class="big">${img(p.icon, 'xl')}<div><h3>${p.name}</h3><div class="r">${p.when}</div></div></div><p class="muted" style="font-size:14px">${p.text}</p>`;
+
+  const cr = document.getElementById('cTrainer');
+  const next = TRAINER.find(([lv]) => lv >= L);
+  if (L < 20) {
+    cr.innerHTML = `<span class="k">Trainer</span><h3>Train whenever you're in town</h3><p class="muted" style="font-size:14px">Most even levels add a new spell or rank until 20. Trainers: Nartok (Valley of Trials), Dhugru Gorelust in Razor Hill, and the Cleft of Shadow in Orgrimmar.</p><p class="muted" style="font-size:14px">First big stop after that: level 24.</p>`;
+  } else if (next) {
+    const [lv, buys] = next;
+    cr.innerHTML = `<span class="k">Next trainer visit</span><h3>${lv === L ? 'Go train now!' : 'At level ' + lv}</h3>
+      <div class="buy">${buys.map(([n, from]) => `<span ${tipAttrs(n, from ? 'New rank from level ' + from : 'Spell', '')}>${img(S[n], 's')}${n}${from ? ' <em class="muted">(' + from + ')</em>' : ''}</span>`).join('')}</div>`;
+  }
+
+  const wi = wandIdx(L), cw = document.getElementById('cWand');
+  if (wi < 0) cw.innerHTML = `<span class="k">Wand</span><div class="big">${img('ability_shootwand', 'xl')}<div><h3>Get a wand at 5</h3><div class="r">Lesser Magic Wand, Auction House or Enchanting</div></div></div>`;
+  else {
+    const w = WANDS[wi], nx = WANDS[wi + 1];
+    cw.innerHTML = `<span class="k">Best wand now</span><div class="big" ${tipAttrs(w[1], 'Wand · level ' + w[0], w[5], w[4])} tabindex="0">${img(w[2], 'xl')}<div><h3 class="q${w[3]}">${w[1]}</h3><div class="r">From level ${w[0]}</div></div></div>
+      <p class="muted" style="font-size:14px"><b style="color:var(--ink)">${w[4]}.</b> ${w[5]}</p>${nx ? `<div class="next-list"><div>${img(nx[2], 's')} Next at ${nx[0]}: <b class="q${nx[3]}" style="font-weight:600">${nx[1]}</b></div></div>` : ''}`;
+  }
+  const dn = dungeonsAt(L), cd = document.getElementById('cDun');
+  cd.innerHTML = `<span class="k">Dungeons for you</span>` + (dn.length ? `<div class="dchips">${dn.map(([n, a, b]) => `<span>${img('inv_misc_bone_humanskull_01', 's')}${n} <em>${a === b ? a : a + '–' + b}</em></span>`).join('')}</div>`
+    : `<h3>None yet</h3><p class="muted" style="font-size:14px">Your first dungeon is Ragefire Chasm at 13, inside Orgrimmar.</p>`);
+
+  document.getElementById('bandName').textContent = bandAt(L).name;
+  const fs = fightSteps(L);
+  document.getElementById('rot').innerHTML = fs ? fs.map(([n, sub, ic], i) => `<div class="rot-step" ${tipAttrs(n, sub, '')}><span class="n">${i + 1}</span>${img(ic, 'l')}<b>${n}</b><small>${sub}</small></div>`).join('') : '<p class="muted">Pull one enemy at a time until you learn Fear at level 8.</p>';
+  document.getElementById('rules').innerHTML = fightRules(L).map(r => `<li>${r}</li>`).join('');
+  document.querySelectorAll('.band').forEach(b => { const x = BANDS[+b.dataset.i]; b.classList.toggle('current', L >= x.from && L <= x.to); b.classList.toggle('past', x.to < L); });
+}
+
+function renderTrees() {
+  const lvl = full ? 60 : L;
+  const r = ranksAt(lvl), tp = treePoints(r);
+  const isNew = !full && byLevel[L] ? byLevel[L].name : null;
+  document.getElementById('treeWrap').innerHTML = TREES.map(tr => {
+    const list = TALENTS.filter(t => t.tree === tr.id);
+    const cells = list.map(t => {
+      const n = r[t.name] || 0;
+      const cls = ['tile', n ? 'on' : '', n && n === t.max ? 'max' : '', t.name === isNew ? 'new' : ''].join(' ');
+      const plans = PLAN.filter(p => p.name === t.name);
+      const extra = plans.length ? 'Take it at level ' + plans.map(p => p.from + (p.to > p.from ? '–' + p.to : '')).join(' and ') : 'Skip while leveling';
+      return `<button type="button" class="${cls}" style="grid-row:${t.row};grid-column:${t.col}" aria-label="${esc(t.name)} ${n} of ${t.max}" ${tipAttrs(t.name, `Rank ${n}/${t.max}${t.active ? ' · active ability' : ''}`, t.desc, extra)}><img src="${ICON[t.icon]}" alt=""><span class="rk">${n}/${t.max}</span></button>`;
+    }).join('');
+    return `<div class="tree" style="--tbg:${tr.bg}"><div class="tree-h"><span style="color:${tr.color}">${tr.id}</span><span>${tp[tr.id]}</span></div><div class="grid">${cells}</div></div>`;
+  }).join('');
+}
+
+function renderRoad() {
+  const bar = document.getElementById('roadBar');
+  if (!bar.children.length) {
+    for (let l = 10; l <= 60; l++) {
+      const t = byLevel[l], b = document.createElement('button');
+      b.type = 'button'; b.dataset.l = l; b.style.setProperty('--c', TCOLOR[t.t.tree]);
+      b.setAttribute('aria-label', `Level ${l}: ${t.name} ${t.rank}/${t.t.max}`);
+      b.dataset.tt = `Level ${l}`; b.dataset.ts = ''; b.dataset.td = `${t.name} ${t.rank}/${t.t.max}`; b.dataset.te = '';
+      b.addEventListener('click', () => setLevel(l));
+      bar.appendChild(b);
+    }
+    document.getElementById('steps').innerHTML = PLAN.map((p, i) => {
+      const pts = p.off + p.to - p.from + 1;
+      let pips = ''; for (let k = 1; k <= p.t.max; k++) pips += `<span class="pip${k <= pts ? ' on' : ''}"></span>`;
+      return `<div class="step" data-i="${i}" style="--c:${TCOLOR[p.t.tree]}" ${tipAttrs(p.name, p.t.tree, p.t.desc)}>
+        <div class="lv">Lvl ${p.from}${p.to > p.from ? '–' + p.to : ''}</div>${img(p.t.icon, 'm')}
+        <div><h3>${p.name} <span class="muted" style="font-weight:600;font-size:14px">${pts}/${p.t.max}</span><span class="status" hidden>Now</span></h3><p>${p.why}</p></div>
+        <div class="pips">${pips}</div></div>`;
+    }).join('');
+    document.querySelectorAll('.step').forEach(s => s.addEventListener('click', () => setLevel(PLAN[+s.dataset.i].from)));
+  }
+  bar.querySelectorAll('button').forEach(b => { const l = +b.dataset.l; b.classList.toggle('future', l > L); b.classList.toggle('now', l === L); });
+  document.querySelectorAll('.step').forEach(s => {
+    const p = PLAN[+s.dataset.i], cur = p.from <= L && L <= p.to;
+    s.classList.toggle('done', p.to < L); s.classList.toggle('current', cur);
+    s.querySelector('.status').hidden = !cur;
+  });
+}
+
+function renderStatic() {
+  document.getElementById('bands').innerHTML = BANDS.map((b, i) => `<button type="button" class="band" data-i="${i}">
+    <div class="lv">${b.from === b.to ? b.from : b.from + '–' + b.to}<small>${b.name}</small></div>
+    <div><div class="strip">${b.one.map(([n, sub]) => `<span ${tipAttrs(n === 'Pet' ? 'Send your demon' : n, sub, '')}>${img(spellIcon(n, n === 'Pet' ? b.from : b.from), 's')}</span>`).join('<span class="arr">›</span>')}</div>
+    <ul>${b.notes.map(n => `<li>${n}</li>`).join('')}</ul></div></button>`).join('');
+  document.querySelectorAll('.band').forEach(b => b.addEventListener('click', () => { setLevel(BANDS[+b.dataset.i].from); showTab('now'); }));
+  document.querySelectorAll('[data-mode]').forEach(btn => btn.addEventListener('click', () => {
+    mode = btn.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', String(x === btn)));
+    renderNow();
+  }));
+  document.getElementById('petCards').innerHTML = PETS.map(p => `<div class="mini" data-from="${p.from}" data-to="${p.to}" style="--c:${p.c}">${img(p.icon, 'l')}<span class="when">${p.when}</span><h3>${p.name}</h3><p>${p.text}</p></div>`).join('');
+  document.getElementById('trainerRows').innerHTML = TRAINER.map(([lv, buys]) => `<div class="tr" data-lv="${lv}"><div class="lv">${lv}</div><div class="buy">${buys.map(([n, from]) => `<span ${tipAttrs(n, from ? 'New rank from level ' + from : 'Spell', '')}>${img(S[n], 's')}${n}${from ? ' <em class="muted">(' + from + ')</em>' : ''}</span>`).join('')}</div></div>`).join('');
+  document.getElementById('orcCards').innerHTML = RACIALS.map(([ic, n, w, t]) => `<div class="mini" style="--c:var(--demo)">${img(ic, 'l')}<span class="when">${w}</span><h3>${n}</h3><p>${t}</p></div>`).join('');
+  renderGear();
+  document.querySelectorAll('[data-dshow]').forEach(btn => btn.addEventListener('click', () => {
+    dshow = btn.dataset.dshow;
+    document.querySelectorAll('[data-dshow]').forEach(x => x.setAttribute('aria-pressed', String(x === btn)));
+    renderDungeons();
+  }));
+  document.getElementById('tipList').innerHTML = TIPS.map(([ic, t]) => `<li>${img(ic, 'm')}<span>${t}</span></li>`).join('');
+}
+function renderMarks() {
+  document.querySelectorAll('#petCards .mini').forEach(m => m.classList.toggle('active', L >= +m.dataset.from && L <= +m.dataset.to));
+  const next = TRAINER.find(([lv]) => lv >= L);
+  document.querySelectorAll('.tr').forEach(r => { const lv = +r.dataset.lv; r.classList.toggle('next', L >= 20 && next && lv === next[0]); r.classList.toggle('past', lv < L); });
+}
+
+function setLevel(v) {
+  L = Math.max(1, Math.min(60, Math.round(+v) || 1));
+  document.getElementById('lvl').value = L;
+  document.getElementById('lvlNum').value = L;
+  renderNow(); renderTrees(); renderRoad(); renderMarks(); renderDungeons(); renderWands();
+  try { localStorage.setItem('wl-level', L); } catch (e) {}
+  if (window.WFCHAR) WFCHAR.set({ level: L });
+}
+document.getElementById('lvl').addEventListener('input', e => setLevel(e.target.value));
+document.getElementById('lvlNum').addEventListener('change', e => setLevel(e.target.value));
+document.getElementById('minus').addEventListener('click', () => setLevel(L - 1));
+document.getElementById('plus').addEventListener('click', () => setLevel(L + 1));
+document.getElementById('tMine').addEventListener('click', () => { full = false; tMine.setAttribute('aria-pressed', 'true'); tFull.setAttribute('aria-pressed', 'false'); renderTrees(); });
+document.getElementById('tFull').addEventListener('click', () => { full = true; tFull.setAttribute('aria-pressed', 'true'); tMine.setAttribute('aria-pressed', 'false'); renderTrees(); });
+
+// WoW-style tooltip
+const tip = document.getElementById('tip');
+function showTip(el, x, y) {
+  tip.innerHTML = `<div class="t">${el.dataset.tt}</div>${el.dataset.ts ? `<div class="s">${el.dataset.ts}</div>` : ''}${el.dataset.td ? `<div class="d">${el.dataset.td}</div>` : ''}${el.dataset.te ? `<div class="e">${el.dataset.te}</div>` : ''}`;
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let left = x + 14, top = y + 14;
+  if (left + w > innerWidth - 8) left = Math.max(8, x - w - 14);
+  if (top + h > innerHeight - 8) top = Math.max(8, y - h - 14);
+  tip.style.left = left + 'px'; tip.style.top = top + 'px';
+}
+function hideTip() { tip.style.display = 'none'; }
+document.addEventListener('pointermove', e => { const el = e.target.closest('[data-tt]'); if (el && e.pointerType === 'mouse') showTip(el, e.clientX, e.clientY); else if (e.pointerType === 'mouse') hideTip(); });
+document.addEventListener('click', e => { const el = e.target.closest('[data-tt]'); if (el && el.closest('.grid')) { const r = el.getBoundingClientRect(); showTip(el, r.left, r.bottom); } else if (!el) hideTip(); });
+document.addEventListener('focusin', e => { const el = e.target.closest('[data-tt]'); if (el) { const r = el.getBoundingClientRect(); showTip(el, r.left, r.bottom); } });
+document.addEventListener('focusout', hideTip);
+addEventListener('scroll', hideTip, { passive: true });
+
+// Tabs
+const TABS = [...document.querySelectorAll('[data-go]')].map(b => b.dataset.go);
+function showTab(t, scroll = true) {
+  if (!TABS.includes(t)) t = 'now';
+  document.querySelectorAll('[data-go]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === t)));
+  document.querySelectorAll('section[data-tab]').forEach(sec => sec.hidden = sec.dataset.tab !== t);
+  try { localStorage.setItem('wl-tab', t); } catch (e) {}
+  if (location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
+  hideTip();
+  if (scroll) { const bar = document.querySelector('.bar'); if (bar.getBoundingClientRect().top <= 0) scrollTo({ top: bar.offsetTop, behavior: 'instant' }); }
+}
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.go)));
+addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+
+renderStatic();
+let start = 10;
+try { start = (window.WFCHAR && WFCHAR.get().level) || +localStorage.getItem('wl-level') || 10; } catch (e) {}
+setLevel(start);
+let startTab = location.hash.slice(1);
+if (!TABS.includes(startTab)) { try { startTab = localStorage.getItem('wl-tab') || 'now'; } catch (e) { startTab = 'now'; } }
+showTab(startTab, false);
+</script>
+
+<div class="ws-foot" role="contentinfo"><div><span>Made by junhots for the WoW Forever realm.</span><a href="/updates/">Updates</a><a href="/about/">Data sources</a><button type="button" data-ws-feedback>Report a problem</button><a href="https://junhots.com">Heroes of the Storm site</a><span class="ws-social"><a href="https://www.twitch.tv/junhots_" rel="me noopener" target="_blank">Twitch</a><a href="https://www.youtube.com/@junhots" rel="me noopener" target="_blank">YouTube</a><a href="https://x.com/junhots_" rel="me noopener" target="_blank">Twitter</a></span><span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. Files you load stay in your browser and are never uploaded.</span></div></div>
+<script>if (!window.wsHash0 && location.hash) history.replaceState(history.state, "", location.pathname + location.search);</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "wow-junhots-com",
+  "private": true,
+  "scripts": {
+    "build": "python3 scripts/build_site.py",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

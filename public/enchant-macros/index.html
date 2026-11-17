@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" class="ws-site">
+<head>
+<style>@view-transition { navigation: auto; }</style>
+<script>window.wsHash0 = location.hash;</script>
+<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enchant macros · WoW Forever · junhots</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; }
+h1 { font-size: 20px; margin: 0 0 2px; }
+.sub { color: var(--muted); margin: 0 0 10px; font-size: 13px; }
+.muted { color: var(--muted); } .small { font-size: 12px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; box-shadow: var(--elev); }
+.bar label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+input, select { font: inherit; font-size: 13px; color: var(--ink); background: var(--sunken); border: 1px solid var(--line2); border-radius: 6px; padding: 3px 6px; }
+.seg { display: inline-flex; border: 1px solid var(--line2); border-radius: 7px; overflow: hidden; }
+.seg button { font: inherit; font-size: 12.5px; background: transparent; color: var(--muted); border: 0; padding: 3px 9px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line2); }
+.seg button.on { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 8px; margin-bottom: 10px; align-items: start; }
+.howto div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; }
+.howto b { font-size: 13px; }
+.howto ol { margin: 4px 0 0; padding-left: 18px; color: var(--muted); }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.cats button { font: inherit; font-size: 12px; padding: 2px 9px; border-radius: 99px; border: 1px solid var(--line2); background: var(--panel); color: var(--muted); cursor: pointer; }
+.cats button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 6px; align-items: start; }
+.m { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 6px 8px; display: grid; grid-template-columns: auto 1fr auto; gap: 2px 8px; align-items: center; }
+.m img { width: 26px; height: 26px; border-radius: 5px; box-shadow: 0 0 0 1px var(--line2); grid-row: span 2; }
+.m .nm { font-weight: 600; font-size: 13px; }
+.m .lv { font: 600 11.5px var(--mono); color: var(--muted); margin-left: 4px; }
+.m .lv.ok { color: var(--good); }
+.m pre { grid-column: 2 / 4; margin: 0; font: 11.5px/1.4 var(--mono); color: var(--muted); background: var(--sunken); border-radius: 6px; padding: 4px 6px; white-space: pre-wrap; word-break: break-word; }
+.m .cp { font: inherit; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 6px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; white-space: nowrap; }
+.m .cp:hover { background: var(--accent); color: var(--on-accent); }
+.note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+/* stat + slot filters, grouped list */
+.find { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; }
+.find .lab { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.find .cats { margin: 0; }
+.find input[type=search] { width: min(340px, 100%); }
+.cats button i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.cats button .n { margin-left: 4px; opacity: .65; font-size: 11px; }
+.cats button.on .n { opacity: .8; }
+.grp { margin-bottom: 12px; }
+.grp h3 { display: flex; align-items: center; gap: 7px; font-size: 13.5px; margin: 0 0 5px; }
+.grp h3 i { width: 9px; height: 9px; border-radius: 50%; }
+.grp h3 .n { font: 600 11.5px var(--mono); color: var(--muted); }
+.m .tag { font-size: 11px; color: var(--muted); margin-left: 6px; }
+</style>
+<!--wf-theme-->
+<style id="wf-theme">
+:root { color-scheme: dark; --bg: #141413; --panel: #1c1b19; --raised: #242320; --panel2: #242320; --sunken: #100f0e; --hover: #2d2b28; --line: #302e2a; --line2: #46433d; --ink: #ecebe6; --muted: #a39f96; --gold: #e0a54c; --accent: #e0a54c; --on-accent: #1c1406; --fel: #5bbf86; --good: #5bbf86; --on-good: #0c1a10; --warn: #e0a54c; --bad: #e2685b; --q1: #e8e6e1; --q2: #4fd157; --q3: #5aa9ff; --q4: #b77cf5; --wowgold: #f2c94c; --silver: #c3c8cf; --copper: #cd8a57; --shade: #000000; --tipbg: #18171c; --elev: 0 1px 2px rgba(0,0,0,.35);
+  --display: "Inter", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f2ed; --panel: #fdfcfa; --raised: #f3f0ea; --panel2: #f3f0ea; --sunken: #ebe7df; --hover: #e8e3d9; --line: #e2ddd2; --line2: #cbc4b6; --ink: #1f1d1a; --muted: #6b665d; --gold: #b06c10; --accent: #b06c10; --on-accent: #ffffff; --fel: #237a49; --good: #237a49; --on-good: #ffffff; --warn: #a8670f; --bad: #bf4130; --q1: #1f1d1a; --q2: #1f8516; --q3: #1c66c4; --q4: #7c3cc6; --wowgold: #966f00; --silver: #66707c; --copper: #9c5a27; --shade: #6f6555; --tipbg: #fdfcfa; --elev: 0 1px 2px rgba(60,48,30,.06), 0 1px 1px rgba(60,48,30,.04); }
+body { background: var(--bg) !important; color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; letter-spacing: -.01em; text-transform: none; font-variant: normal; }
+h1 { color: var(--ink) !important; letter-spacing: -.02em; }
+h2 { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline-color: var(--accent); }
+input, select, textarea { color-scheme: inherit; }
+.card, .panel { box-shadow: var(--elev); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--accent); } }
+.wf-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px;
+  font: 600 12px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line2);
+  border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-toggle:hover { background: var(--hover); }
+/* inside the Hub every file is loaded from its "Load files" menu, so the pages' own loaders are hidden */
+.wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
+#wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
+  font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+#wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
+#wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
+#wf-path code i { font-style: normal; color: var(--accent); }
+#wf-path form { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#wf-path form label { font-size: 12px; color: var(--muted); }
+#wf-path form span { display: flex; gap: 6px; }
+#wf-path form input { flex: 1; min-width: 0; font: 12px var(--mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); }
+#wf-path form button { font: 600 12px var(--body); padding: 4px 10px; border-radius: 6px; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+#wf-path form small { color: var(--bad); font-size: 12px; }
+#wf-path form small:empty { display: none; }
+#wf-path a { color: var(--accent); margin-left: 4px; }
+.wf-toggle svg { width: 14px; height: 14px; }
+/* tables: alternating rows and a hover highlight (Jun, 15 Nov). :where() keeps these weaker than any page's own row
+   colours (picked or warning rows keep theirs); the hover on cards is a tint laid over their own background. */
+:where(table tbody tr:nth-child(even)) > td { background-color: color-mix(in srgb, var(--ink) 4%, transparent); }
+:where(table tbody tr:hover) > td { background-color: color-mix(in srgb, var(--accent) 11%, transparent); }
+:where(table tbody tr) > td { transition: background-color .1s ease; }
+.wf-more-card:hover:not(.wf-open), .wf-row-hover:hover { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)); }
+
+/* click-to-open cards (WF_MORE): hint on hover, accent edge when open */
+.wf-more-card { cursor: pointer; }
+.wf-more-card:hover { border-color: var(--line2) !important; }
+.wf-more-card.wf-open { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)) !important; }
+/* hover preview unrolls downward (clip-path animates on the GPU, no layout work per frame) */
+.wf-more-card { transition: background-color .12s ease, border-color .12s ease; }
+.wf-peek { animation: wf-unroll .16s cubic-bezier(.2, .7, .3, 1); }
+@keyframes wf-unroll { from { clip-path: inset(0 -40px calc(100% - var(--wf-h0, 100%)) -40px); } to { clip-path: inset(0 -40px -40px -40px); } }
+@media (prefers-reduced-motion: reduce) { .wf-peek { animation: none; } }
+.wf-peek { position: relative; z-index: 20; border-color: var(--line2) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--shade) 35%, transparent) !important; }
+
+/* one line per enchant; the macro text opens on click (Copy works either way) */
+.m:not(.wf-open):not(.wf-peek) pre { display: none; }
+.m { align-self: start; }
+/* icon and Copy stay on the first line when the macro opens */
+.m > img { grid-row: 1; } .m > img, .m > .cp { align-self: center; } .m > div { grid-row: 1; }
+.grid { grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)) !important; }
+
+/* ---- design v2 ---- */
+body { line-height: 1.5; }
+.wf-head { display: grid; gap: 6px; margin: 6px 0 2px; max-width: 760px; }
+.wf-head h1 { font-size: 26px !important; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; margin: 0; color: var(--ink) !important; }
+.wf-lead { margin: 0; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 78%, var(--muted)); max-width: 66ch; }
+.wf-start { list-style: none; counter-reset: wfs; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.wf-start li { counter-increment: wfs; display: inline-flex; align-items: center; gap: 8px; }
+.wf-start li::before { content: counter(wfs); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  font: 600 11px var(--body); color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line2); }
+.wf-start li:first-child::before { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.wf-sub { margin: 2px 0 0; font-size: 13px; font-weight: 400; color: var(--muted); max-width: 90ch; }
+.wf-answer { margin: 0; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink); max-width: 86ch; }
+.wf-answer::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line2); transform: translateY(-1px); }
+.wf-answer.good::before { background: var(--good); }
+.wf-more { all: unset; cursor: pointer; font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.wf-more:hover { color: var(--ink); text-decoration-color: currentColor; }
+.wf-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+/* calmer labels: sentence case instead of spaced capitals */
+:is(th, .field > span, .lbl, .tile .k, .wf-jump > span) { text-transform: none !important; letter-spacing: 0 !important; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wf-jump > span { font-size: 12px; }
+:is(.card .k, .mini .when, .dbr, .stat span, .buyrow .lbl, .bis .sl, .filters .lab, .find .lab, .pick .rank, .mat.head, .lim .h) {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; }
+:is(.pill, .badge, .status) { text-transform: none !important; letter-spacing: 0 !important; }
+/* one hierarchy: page title, then section titles; headings in ink, never amber */
+h1 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em !important; line-height: 1.15; color: var(--ink) !important; }
+h2 { font-size: 16px; color: var(--ink) !important; }
+.wf-lead { display: block; }
+header .wf-start, .hero .wf-start { margin-top: 8px; }
+
+.wf-stale { display: inline-block; font: 600 11.5px/1.5 var(--body); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: 99px; padding: 0 7px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+.wf-stale-line { display: inline-block; color: var(--ink); border-left: 3px solid var(--warn); padding-left: 8px; margin: 2px 0 4px; }
+
+@media (max-width: 700px) {
+  body :where(div, section, header, main, article, nav, aside, form, ul, ol, li, p, h1, h2, h3, details, fieldset, footer) { min-width: 0; }
+  body { overflow-wrap: break-word; }
+  :where(input, select, textarea) { max-width: 100%; }
+  .wf-start { gap: 4px 14px; }
+  header.hero { flex-direction: column; align-items: flex-start !important; }
+  .hero-icons { flex: none; }
+}
+
+[hidden] { display: none !important; }
+.wf-addon { font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; margin: 0 6px; white-space: nowrap; }
+.wf-addon:hover { color: var(--ink); text-decoration-color: currentColor; }
+.ahrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ahrow label.btn { font: 500 12.5px var(--body); background: var(--panel2, var(--panel)); color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ahrow label.btn:hover { border-color: var(--accent); }
+.ahrow #msg:empty { display: none; }
+
+abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%, transparent); text-underline-offset: 3px; cursor: help; }
+/* phones (review 16 Nov): small buttons and ticks get a finger-sized hit area without changing how they look much */
+@media (pointer: coarse) {
+  button:not(.wf-toggle):not(.wf-fold), select, .btn, .chip { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label:has(> input[type="checkbox"]) { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; }
+  button.mac, button.cp, button.star { min-width: 34px; }
+}
+.wf-tapTip { position: fixed; z-index: 200; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--bg); font: 500 13px/1.4 var(--body); padding: 7px 10px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-theme', root = document.documentElement;
+  var ICON = { dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+               light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' };
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromParent() { try { return window.parent !== window && window.parent.wfTheme ? window.parent.wfTheme.get() : null; } catch (e) { return null; } }
+  var inHub = !!fromParent();
+  if (inHub) root.classList.add('wf-in-hub');
+  function label() {
+    var t = root.dataset.theme, other = t === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.innerHTML = ICON[other] + '<span>' + (other === 'light' ? 'Light' : 'Dark') + '</span>';
+      b.title = 'Switch to ' + other + ' mode';
+    });
+  }
+  function set(t, save) {
+    root.dataset.theme = t;
+    if (save) try { localStorage.setItem(KEY, t); } catch (e) {}
+    document.querySelectorAll('iframe').forEach(function (f) { try { f.contentDocument.documentElement.dataset.theme = t; } catch (e) {} });
+    label();
+  }
+  window.wfTheme = { get: function () { return root.dataset.theme; }, set: set };
+  set(fromParent() || stored() || 'dark', false);
+  addEventListener('storage', function (e) { if (e.key === KEY && e.newValue) set(e.newValue, false); });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!inHub && !document.querySelector('[data-wf-toggle]')) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-toggle'; b.setAttribute('data-wf-toggle', '');
+      document.body.appendChild(b);
+    }
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { if (inHub) { window.parent.wfTheme.set(t, true); return; } } catch (e) {}
+        set(t, true);
+      });
+    });
+    label();
+  });
+})();
+</script>
+<script>
+(function () {
+  var FILES = {"file": "ah", "hubFile": "ah", "bagFile": "tsm", "hubTsm": "tsm", "gearfile": "snap", "knownFile": "snap", "hubSnap": "snap"}, COPY = {".kn-copy": "snap", "#copyPath": "ah", "#copyTsm": "tsm", "[data-wf-copy=ah]": "ah", "[data-wf-copy=snap]": "snap", "[data-wf-copy=tsm]": "tsm"}, KEY = 'wf-wow', timer;
+  var NAME = { ah: 'Auctionator.lua', tsm: 'TradeSkillMaster.lua', snap: 'GearSnapshot.lua' };
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } }
+  // Any path inside WTF\Account\<account> (a file or a folder) -> { acct: '...\\Account\\<account>\\', char: '<realm>\\<character>\\' }
+  function parse(t) {
+    t = String(t || '').trim().replace(/^"|"$/g, ''); var sep = t.indexOf('\\') >= 0 ? '\\' : '/';
+    var m = new RegExp('^(.*?[\\\\/]WTF[\\\\/]Account[\\\\/][^\\\\/]+)(?:[\\\\/](.*))?$', 'i').exec(t); if (!m) return null;
+    var out = { acct: m[1] + sep }, rest = (m[2] || '').split(/[\\/]/).filter(Boolean);
+    if (rest.length >= 2 && !/^savedvariables$/i.test(rest[0]) && !/\.lua$/i.test(rest[1])) out.char = rest[0] + sep + rest[1] + sep;
+    return out;
+  }
+  function set(t) {
+    var p = parse(t); if (!p) return false;
+    var old = get(); if (!p.char && old.char && old.acct === p.acct) p.char = old.char;
+    try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+    return true;
+  }
+  function path(k) {
+    var w = get(); if (!w.acct) return null; var sep = w.acct.slice(-1);
+    if (k === 'snap') return w.char ? w.acct + w.char + 'SavedVariables' + sep + NAME.snap : null;
+    return w.acct + 'SavedVariables' + sep + NAME[k];
+  }
+  // Where the file lives, for anyone (no personal folder names)
+  function where(k) {
+    return 'World of Warcraft\\_forever_\\WTF\\Account\\<i>your account</i>\\' + (k === 'snap' ? '<i>realm</i>\\<i>character</i>\\' : '') + 'SavedVariables\\' + NAME[k];
+  }
+  window.wfWow = { get: get, set: set, path: path, where: where, parse: parse };
+  function copy(t) {
+    var ok = false, a = document.activeElement, ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); try { a && a.focus && a.focus(); } catch (e) {}
+    if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
+    return ok;
+  }
+  function toast(html, el, keep) {
+    var d = document.getElementById('wf-path');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });
+    }
+    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
+    if (r && r.width) {
+      var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
+      if (y + d.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - d.offsetHeight - 6);
+      d.style.left = x + 'px'; d.style.top = y + 'px';
+    }
+    var f = d.querySelector('form');
+    if (f) f.onsubmit = function (e) {
+      e.preventDefault(); var v = f.querySelector('input').value;
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
+    };
+    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+  }
+  function help(k, el) {
+    var p = path(k), name = NAME[k];
+    if (p && copy(p)) return toast('<b>' + name + '</b> path copied. In the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> (File name box), <kbd>Ctrl</kbd>+<kbd>V</kbd>, <kbd>Enter</kbd>. <a href="#" data-wf-wow-reset>Change folder</a>', el);
+    var w = get();
+    toast('<b>' + name + '</b> is in <code>' + where(k) + '</code>' +
+      '<form data-k="' + k + '"><label>Save time next load: paste the ' + (k === 'snap' && w.acct ? 'character' : 'account') + ' folder path once (copy it from the Open window\'s address bar).</label>' +
+      '<span><input type="text" spellcheck="false" placeholder="' + (k === 'snap' ? '...\\WTF\\Account\\NAME\\Realm\\Character' : '...\\WTF\\Account\\NAME') + '"><button type="submit">Save</button></span><small></small></form>', el, true);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-wf-wow-reset]')) { e.preventDefault(); try { localStorage.removeItem(KEY); } catch (x) {} var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; return; }
+    for (var sel in COPY) { var b = t.closest(sel); if (b) { e.preventDefault(); e.stopImmediatePropagation(); help(COPY[sel], b); return; } }
+    if (t.tagName !== 'INPUT' || t.type !== 'file' || !FILES[t.id]) return;
+    help(FILES[t.id], (t.labels && t.labels[0]) || t);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var d = document.getElementById('wf-path');
+    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+  }, true);
+})();
+
+window.wfAge = function (when) {
+  var t = when instanceof Date ? when.getTime() : typeof when === 'number' ? (when < 1e11 ? when * 1000 : when)
+        : Date.parse(/^\d{4}-\d\d-\d\d$/.test(String(when)) ? when + 'T12:00:00' : when);
+  return isNaN(t) ? null : Math.max(0, Math.floor((Date.now() - t) / 864e5));
+};
+window.wfStale = function (when, maxDays, what) {
+  var d = wfAge(when); if (d == null || d <= maxDays) return '';
+  return ' <span class="wf-stale" title="' + (what || 'This data is') + ' ' + d + ' days old, so it may have changed since.">' + d + ' days old</span>';
+};
+
+(function () {
+  var KEY = 'wf-char', subs = [];
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function set(patch) {
+    var c = get(), ch = false;
+    for (var k in patch) if (patch[k] !== undefined && patch[k] !== null && patch[k] !== '' && c[k] !== patch[k]) { c[k] = patch[k]; ch = true; }
+    if (ch) { c.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} }
+    return c;
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) subs.forEach(function (f) { try { f(get()); } catch (x) {} }); });
+  window.WFCHAR = { get: get, set: set, on: function (f) { subs.push(f); } };
+})();
+
+(function () {
+  var G = [
+    ['Gear score', 'How good an item is for your class and spec: its stats times the stat weights of the Forever Leveling BiS addon. Higher is better.'],
+    ["Merchant's Favor", "A Forever currency for rare patterns and formulas, earned by turning in Waylaid Supplies crates (a Journeyman Fabrics crate gives 20)."],
+    ['Sayaad', 'The Succubus (or Incubus), a Warlock demon.'],
+    ['BUY line', 'What to buy for one step, with a small safety margin, after what is already in your bags.'],
+    ['sale rate', 'How often an item actually sells, from TradeSkillMaster data (0.1 = about 1 in 10 listings sell).'],
+    ['Stuck', 'Listings are piling up faster than the rest of the auction house, or sellers are cutting the price hard.'],
+    ['disenchant', 'Destroying a green or blue item with Enchanting to get dust, essences or shards.'],
+    ['Big crowd', 'Many Horde players are at the levels that can use this item right now.']
+  ];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|ABBR|CODE|SVG|TITLE|LABEL)$/;
+  var done = {};
+  function scan() {
+    var root = document.querySelector('main') || document.body; if (!root) return;
+    var left = G.filter(function (g) { return !done[g[0]]; }); if (!left.length) return;
+    var re = new RegExp('\\b(' + left.map(function (g) { return g[0].replace(/[.*+?^${}()|[\]\\']/g, '\\$&'); }).join('|') + ')s?\\b');
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      for (var e = n.parentNode; e && e !== root; e = e.parentNode) { if (SKIP.test(e.nodeName) || e.hidden || (e.classList && (e.classList.contains('gl') || e.classList.contains('mkt')))) return NodeFilter.FILTER_REJECT; }
+      return re.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; } });
+    var hits = []; for (var n = w.nextNode(); n; n = w.nextNode()) hits.push(n);
+    hits.forEach(function (n) {
+      var m = n.nodeValue.match(re); if (!m || done[m[1]]) return;
+      var g = G.filter(function (x) { return x[0] === m[1]; })[0]; done[m[1]] = 1;
+      var a = document.createElement('abbr'); a.className = 'gl'; a.title = g[1]; a.tabIndex = 0;
+      var rest = n.splitText(m.index); rest.splitText(m[0].length); a.textContent = rest.nodeValue; rest.parentNode.replaceChild(a, rest);
+    });
+  }
+  var t = 0; function later() { clearTimeout(t); t = setTimeout(scan, 400); }
+  addEventListener('load', function () { scan(); if (window.MutationObserver) new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); });
+  // phones: tap a tag or term to read its title
+  if (window.matchMedia && matchMedia('(hover: none)').matches) {
+    var tip;
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('abbr[title], .gl, .mkt[title], .pill[title], .mv[title], [data-tip]');
+      if (tip) { tip.remove(); tip = null; }
+      if (!el) return;
+      var txt = el.getAttribute('title') || el.getAttribute('data-tip'); if (!txt) return;
+      tip = document.createElement('div'); tip.className = 'wf-tapTip'; tip.setAttribute('role', 'tooltip'); tip.textContent = txt; document.body.appendChild(tip);
+      var r = el.getBoundingClientRect(), x = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left));
+      tip.style.left = x + 'px'; tip.style.top = (r.bottom + 6 + tip.offsetHeight > innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+    }, true);
+    addEventListener('scroll', function () { if (tip) { tip.remove(); tip = null; } }, { passive: true });
+  }
+})();
+
+(function () {
+  var KEY = 'wf-ah', cache, subs = [];
+  function findBytes(buf, str, from) {
+    var pat = str.split('').map(function (c) { return c.charCodeAt(0); });
+    outer: for (var i = from || 0; i <= buf.length - pat.length; i++) { for (var j = 0; j < pat.length; j++) if (buf[i + j] !== pat[j]) continue outer; return i; }
+    return -1;
+  }
+  function luaString(buf, i) {
+    var out = [], map = { 110: 10, 114: 13, 116: 9, 92: 92, 34: 34, 39: 39, 10: 10, 97: 7, 98: 8, 102: 12, 118: 11 }; i++;
+    while (i < buf.length) {
+      var c = buf[i];
+      if (c === 92) {
+        var n = buf[i + 1];
+        if (n >= 48 && n <= 57) { var k = i + 1, d = ''; while (k < i + 4 && buf[k] >= 48 && buf[k] <= 57) { d += String.fromCharCode(buf[k]); k++; } out.push(parseInt(d, 10)); i = k; continue; }
+        if (n === 13 && buf[i + 2] === 10) { out.push(10); i += 3; continue; }
+        out.push(map[n] !== undefined ? map[n] : n); i += 2; continue;
+      }
+      if (c === 34) return { bytes: new Uint8Array(out), end: i + 1 };
+      out.push(c); i++;
+    }
+    throw new Error('unterminated string');
+  }
+  function cbor(bytes) {
+    var p = 0, dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    function str(n) { var s = ''; for (var k = 0; k < n; k++) s += String.fromCharCode(bytes[p + k]); p += n; return s; }
+    function len(ai) { if (ai < 24) return ai; if (ai === 24) return bytes[p++]; if (ai === 25) { var v = dv.getUint16(p); p += 2; return v; } if (ai === 26) { v = dv.getUint32(p); p += 4; return v; } if (ai === 27) { v = Number(dv.getBigUint64(p)); p += 8; return v; } throw new Error('bad length'); }
+    function item() {
+      var b = bytes[p++], mt = b >> 5, ai = b & 31, n, k, o, a, v;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2 || mt === 3) return str(len(ai));
+      if (mt === 4) { n = len(ai); a = []; for (k = 0; k < n; k++) a.push(item()); return a; }
+      if (mt === 5) { n = len(ai); o = {}; for (k = 0; k < n; k++) { var key = item(); o[key] = item(); } return o; }
+      if (mt === 6) { len(ai); return item(); }
+      if (mt === 7) {
+        if (ai === 20) return false; if (ai === 21) return true; if (ai === 22 || ai === 23) return null;
+        if (ai === 25) { var h = dv.getUint16(p); p += 2; var e = (h >> 10) & 31, f = h & 1023; v = e === 0 ? f * Math.pow(2, -24) : e === 31 ? (f ? NaN : Infinity) : (1 + f / 1024) * Math.pow(2, e - 15); return h & 0x8000 ? -v : v; }
+        if (ai === 26) { v = dv.getFloat32(p); p += 4; return v; }
+        if (ai === 27) { v = dv.getFloat64(p); p += 8; return v; }
+      }
+      throw new Error('unsupported CBOR');
+    }
+    return item();
+  }
+  function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
+  function parse(buf) {
+    var text = ascii(buf, 0, Math.min(buf.length, buf.length));
+    var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
+    if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
+    if (mm[1] === 'nil') throw new Error('Auctionator has not saved any prices yet. Do a full scan at the auction house, then /reload');
+    var i = mm.index + mm[0].length, realms = {};
+    while (i < buf.length) {
+      while (buf[i] === 10 || buf[i] === 13 || buf[i] === 32 || buf[i] === 9 || buf[i] === 44) i++;
+      if (buf[i] === 125) break;
+      if (buf[i] !== 91 || buf[i + 1] !== 34) throw new Error('unexpected format in the price database');
+      var kEnd = findBytes(buf, '"]', i + 2), key = ascii(buf, i + 2, kEnd);
+      i = kEnd + 2; while (buf[i] === 32 || buf[i] === 61) i++;
+      if (buf[i] === 34) { var s = luaString(buf, i); i = s.end; if (key !== '__dbversion') realms[key] = s.bytes; }
+      else if (buf[i] === 123) throw new Error('this Auctionator version stores prices in an older format. Update Auctionator and scan again');
+      else { while (buf[i] !== 44 && buf[i] !== 10) i++; }
+    }
+    var best = null, bestN = -1;
+    Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
+    if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
+    var out = {};
+    Object.keys(best).forEach(function (id) {
+      var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
+      var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
+      out[id] = [e.m, a];
+    });
+    var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
+    if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
+    return { scan: scan, items: bestN, p: out };
+  }
+  function get() {
+    if (cache !== undefined) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function fire(err, name) { subs.forEach(function (f) { try { f(get(), err, name); } catch (e) { if (window.console) console.error(e); } }); }
+  function load(file) {
+    return file.arrayBuffer().then(function (ab) {
+      var rec = parse(new Uint8Array(ab)); rec.name = file.name; rec.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(rec)); } catch (e) {}
+      cache = rec; fire(null, file.name); return rec;
+    }, function (e) { throw e; }).catch(function (e) { fire(e, file.name); throw e; });
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) { cache = undefined; fire(null); } });
+  // every page's own #file loader (and the Hub / website feeding it) fills the shared store
+  document.addEventListener('change', function (e) {
+    var el = e.target; if (!el || el.id !== 'file' || !el.files) return;
+    Array.prototype.forEach.call(el.files, function (f) { if (!/tradeskillmaster|gearsnapshot/i.test(f.name)) load(f).catch(function () {}); });
+  }, true);
+  window.WFAH = { parse: parse, get: get, load: load, on: function (f) { subs.push(f); },
+    // "Prices from ..." label for a page: whose scan it is and how old
+    label: function (rec) { var d = new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      return /site scan/i.test(rec.name) ? 'Horde auction house scan (PvP realm), ' + d : 'your Auctionator scan (' + rec.name + '), ' + d; } };
+})();
+window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
+(function () {
+  var ZIP = window.WF_SNAPZIP || '';
+  if (!ZIP) return;
+  var TIP = 'Unzip it into World of Warcraft\\_forever_\\Interface\\AddOns\\ and tick Gear Snapshot in the AddOns list at character select.';
+  function add() {
+    document.querySelectorAll('label[for="gearfile"], .kn-btn').forEach(function (el) {
+      if (el.parentElement.querySelector('.wf-addon')) return;
+      var a = document.createElement('a'); a.className = 'wf-addon'; a.href = ZIP; a.download = 'GearSnapshot.zip'; a.title = TIP;
+      a.textContent = 'Get the Gear Snapshot addon'; el.insertAdjacentElement('afterend', a);
+    });
+    document.querySelectorAll('[data-wf-addon]').forEach(function (a) { a.href = ZIP; a.download = 'GearSnapshot.zip'; });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  var q = 0;  // pages redraw often: check at most once per frame
+  new MutationObserver(function () { if (q) return; q = 1; requestAnimationFrame(function () { q = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+<script>window.WF_MORE = ".m";
+(function () {
+  var S = window.WF_MORE; if (!S) return;
+  var hover = window.matchMedia && matchMedia('(hover: hover)').matches, cur = null, box = null;
+  function close() {  // end the hover preview
+    if (!cur) return; var c = cur; cur = null; box = null;
+    clearTimeout(c._wfT); c._wfIn = false; c.classList.remove('wf-peek'); c.style.marginBottom = ''; c.style.removeProperty('--wf-h0');
+  }
+  function peek(c) {  // hover: show details on top of the cards below, so nothing moves
+    if (c.classList.contains('wf-open') || c.tagName === 'TR') return;
+    box = c.getBoundingClientRect();  // the preview only lasts while the mouse stays inside this original box
+    // fractional heights: whole-pixel rounding nudged everything below by up to 1px
+    var mb = parseFloat(getComputedStyle(c).marginBottom) || 0, h0 = c.getBoundingClientRect().height;
+    c.style.setProperty('--wf-h0', h0 + 'px'); c.classList.add('wf-peek'); var h1 = c.getBoundingClientRect().height;
+    if (h1 > h0) c.style.marginBottom = (mb + h0 - h1) + 'px';
+  }
+  document.addEventListener('mousemove', function (e) {
+    if (cur && box && (e.clientY > box.bottom || e.clientY < box.top || e.clientX < box.left || e.clientX > box.right)) {
+      close();
+      var under = document.elementFromPoint(e.clientX, e.clientY), n = under && under.closest && under.closest(S);
+      if (n) start(n);  // the mouse is now on the card below: preview that one instead
+    }
+  }, true);
+  addEventListener('scroll', function () { if (cur) close(); }, true);
+  function start(c) {
+    if (!hover || c === cur || c._wfIn) return;
+    close(); c._wfIn = true; cur = c;
+    c._wfT = setTimeout(function () { if (cur === c) requestAnimationFrame(function () { if (cur === c) peek(c); }); }, 90);
+    c.addEventListener('mouseleave', function out() { c.removeEventListener('mouseleave', out); if (cur === c) close(); });
+  }
+  document.addEventListener('mouseover', function (e) {
+    var c = e.target.closest && e.target.closest(S); if (!c) return;
+    c.classList.add('wf-more-card'); start(c);
+  });
+  document.addEventListener('click', function (e) {  // click: keep it open (click again to close)
+    if (e.target.closest('button, a, input, select, textarea, label, summary')) return;
+    if (window.getSelection && String(window.getSelection()).length) return;
+    var c = e.target.closest(S); if (!c) return;
+    if (c === cur) close();
+    var open = !c.classList.contains('wf-open');
+    c.classList.toggle('wf-open', open); c.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches(S)) { e.preventDefault(); e.target.click(); }
+  });
+})();
+</script>
+<style id="wf-qol">
+.wf-fold { all: unset; cursor: pointer; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 8px; border-radius: 5px;
+  color: var(--muted); border: 1px solid var(--line); vertical-align: middle; flex: none; }
+.wf-fold:hover { color: var(--ink); border-color: var(--line2); background: var(--hover); }
+.wf-fold svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.wf-folded .wf-fold svg { transform: rotate(-90deg); }
+.wf-fold-h { cursor: pointer; }
+.wf-folded > :not(.wf-fold-head) { display: none !important; }
+.wf-folded { padding-bottom: 8px !important; }
+.wf-folded > .wf-fold-head .hint, .wf-folded > .wf-fold-head > p { display: none; }
+.wf-sec { scroll-margin-top: 44px; }
+.wf-jump { position: sticky; top: 0; z-index: 40; display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none;
+  margin: 0 0 8px; padding: 5px 0; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line); }
+.wf-jump::-webkit-scrollbar { display: none; }
+.wf-jump > span { font: 600 10.5px var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 0 4px 0 2px; flex: none; }
+.wf-jump button { all: unset; cursor: pointer; flex: none; font: 500 12px var(--body); color: var(--muted); padding: 3px 9px; border-radius: 99px; border: 1px solid transparent; white-space: nowrap; }
+.wf-jump button:hover { color: var(--ink); background: var(--hover); }
+.wf-jump button.on { color: var(--ink); border-color: var(--line2); background: var(--panel); }
+.wf-jump button.folded { opacity: .6; }
+.wf-top { position: fixed; right: 12px; bottom: 50px; z-index: 60; display: none; align-items: center; gap: 4px; font: 600 12px var(--body); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line2); border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-in-hub .wf-top { bottom: 12px; }
+.wf-top.show { display: inline-flex; }
+.wf-top:hover { background: var(--hover); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-fold:' + location.pathname.split('/').pop() + ':' + (document.title || ''), state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  var secs = [], bar = null, topBtn = null;
+  function name(h) { return (h.dataset.wfName || h.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function setFold(sec, on, remember) {
+    sec.el.classList.toggle('wf-folded', on);
+    sec.btn.setAttribute('aria-expanded', !on); sec.btn.title = on ? 'Show this section' : 'Fold this section away';
+    if (remember) { state[sec.key] = on ? 1 : 0; save(); }
+    if (bar) paintBar();
+  }
+  function scan() {
+    var found = false;
+    document.querySelectorAll('h2').forEach(function (h) {
+      if (h.dataset.wfq) { if (h._wfBtn && !h.contains(h._wfBtn)) h.appendChild(h._wfBtn); return; }
+      var el = h.closest('section, .card');
+      if (!el || el.tagName === 'DETAILS' || el.closest('details:not([open])')) return;
+      var head = h; while (head.parentElement && head.parentElement !== el) head = head.parentElement;
+      if (head.parentElement !== el) return;
+      var others = [].filter.call(el.children, function (c) { return c !== head; });
+      if (!others.length) return;
+      h.dataset.wfq = '1'; found = true;
+      var key = name(h).slice(0, 60);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-fold'; b.innerHTML = CHEV;
+      h.appendChild(b); h._wfBtn = b;
+      head.classList.add('wf-fold-head'); h.classList.add('wf-fold-h'); el.classList.add('wf-sec');
+      var sec = { el: el, h: h, btn: b, key: key };
+      secs = secs.filter(function (s) { return s.el !== el; }); secs.push(sec);
+      function toggle(e) { e.preventDefault(); e.stopPropagation(); setFold(sec, !el.classList.contains('wf-folded'), true); }
+      b.addEventListener('click', toggle); h.addEventListener('click', toggle);
+      var start = state[key] !== undefined ? state[key] === 1 : el.getAttribute('data-wf-fold') === 'closed';
+      setFold(sec, start, false);
+    });
+    secs = secs.filter(function (s) { return s.el.isConnected && s.h.isConnected; });
+    secs.sort(function (a, b) { return a.el.compareDocumentPosition(b.el) & 2 ? 1 : -1; });
+    if (found) buildBar();
+  }
+  function buildBar() {
+    if (document.querySelector('nav') || secs.length < 3) { if (bar) { bar.remove(); bar = null; } return; }
+    if (!bar) {
+      bar = document.createElement('div'); bar.className = 'wf-jump'; bar.setAttribute('role', 'navigation'); bar.setAttribute('aria-label', 'Jump to section');
+      var first = secs[0].el;  // sits in the content column, right above the first section
+      first.parentElement.insertBefore(bar, first);
+    }
+    bar.innerHTML = '<span>Jump to</span>' + secs.map(function (s, i) { return '<button type="button" data-i="' + i + '">' + name(s.h).replace(/[&<>]/g, '').slice(0, 30) + '</button>'; }).join('');
+    bar.querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () { var s = secs[+b.dataset.i]; if (!s) return; if (s.el.classList.contains('wf-folded')) setFold(s, false, true); s.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+    });
+    paintBar(); setTimeout(paintBar, 1500);
+  }
+  function paintBar() {
+    if (!bar) return;
+    bar.querySelectorAll('button').forEach(function (b) { var s = secs[+b.dataset.i]; b.hidden = !!(s && s.el.closest('[hidden]')); });  // sections a page hid
+    var cur = -1, y = (bar.getBoundingClientRect().bottom || 0) + 12;
+    secs.forEach(function (s, i) { if (s.el.getBoundingClientRect().top <= y) cur = i; });
+    bar.querySelectorAll('button').forEach(function (b) { var i = +b.dataset.i, s = secs[i]; b.classList.toggle('on', i === cur); b.classList.toggle('folded', !!(s && s.el.classList.contains('wf-folded'))); });
+  }
+  var ticking = false;
+  addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; paintBar(); if (topBtn) topBtn.classList.toggle('show', (document.scrollingElement || document.documentElement).scrollTop > 700); });
+  }, { passive: true });
+  function init() {
+    scan();
+    var hasTop = [].some.call(document.querySelectorAll('button, a'), function (b) { return /^\s*(back to )?top\s*$/i.test(b.textContent) && !b.classList.contains('wf-top'); });
+    if (!hasTop && !topBtn) {
+      topBtn = document.createElement('button'); topBtn.type = 'button'; topBtn.className = 'wf-top'; topBtn.innerHTML = '<span aria-hidden="true">↑</span> Top';
+      topBtn.onclick = function () { scrollTo({ top: 0, behavior: 'smooth' }); };
+      document.body.appendChild(topBtn);
+    }
+    var t = null;
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 250); }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); }); else setTimeout(init, 0);
+})();
+</script>
+<!--/wf-theme-->
+<meta name="ws-prices" content="1794749899">
+<link rel="canonical" href="https://wow.junhots.com/enchant-macros/">
+<meta name="description" content="A copy-paste macro for every enchant: one for the customer&#x27;s item in the trade window, one for the item you are wearing (skill-ups).">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="junhots WoW tools">
+<meta property="og:title" content="Enchant macros · WoW Forever · junhots">
+<meta property="og:description" content="A copy-paste macro for every enchant: one for the customer&#x27;s item in the trade window, one for the item you are wearing (skill-ups).">
+<meta property="og:url" content="https://wow.junhots.com/enchant-macros/">
+<meta property="og:image" content="https://wow.junhots.com/assets/og/enchant-macros.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Tailoring &amp; Enchanting"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Tailoring &amp; Enchanting</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" aria-current="page" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span><i class="ws-ind" aria-hidden="true"></i></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/profession-leveling/" aria-current="page">Professions<i class="ws-tab" aria-hidden="true"></i></a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div><div class="ws-sub" role="navigation" aria-label="Professions"><div><a href="/profession-leveling/"><img src="/assets/icons/trade_engraving.webp" alt="" width="18" height="18">Tailoring &amp; Enchanting</a><a href="/enchants/"><img src="/assets/icons/trade_engraving.webp" alt="" width="18" height="18">Enchants</a><a href="/enchant-macros/" aria-current="page"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="18" height="18">Enchant macros</a></div></div></div>
+<div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
+
+<div class="wrap">
+  <header class="wf-head"><h1>Enchant macros</h1>
+  <p class="sub wf-lead">One-click enchanting: copy a macro, paste it into a new macro in game, and drag it to your bar.</p>
+  <ol class="wf-start"><li>Choose the customer's item or your own</li><li>Copy the enchant</li><li>In game: Esc, Macros, New, paste</li></ol>
+  <p class="wf-sub">Wands, rods and oils can't be made from a macro: use Create All in the Enchanting window for those.</p>
+  <p class="wf-sub" id="tested">Tested in game on the WoW Forever client, 16 Nov 2026. A game patch can break macros without an error message, so if one stops working, use Report a problem.</p></header>
+  <div class="bar">
+    <label>For <span class="seg" id="mode"><button data-v="trade">Customer's item (trade)</button><button data-v="worn">My worn item</button></span></label>
+    <label title="Adds /click StaticPopup1Button1, which clicks Yes on 'Replace the existing enchant?'. Off by default: on a customer's item it would replace their enchant without asking."><input type="checkbox" id="confirm"> Auto-confirm "replace enchant"</label>
+    <label>Your Enchanting <input type="number" id="skill" min="1" max="300" style="width:64px"></label><span class="small muted" id="skillNote"></span>
+    <label class="small muted"><input type="checkbox" id="canOnly"> Only what I can learn</label>
+    <label class="small muted"><input type="checkbox" id="knownOnly"> Only ones I know</label>
+    <span class="kn" id="known"></span>
+  </div>
+  <div class="howto">
+    <div><b>Make the macro</b><ol><li>Click Copy on an enchant.</li><li>In game: Esc → Macros → New, name it after the enchant and pick an icon.</li><li>Paste with Ctrl+V, close, drag it to an action bar.</li></ol></div>
+    <div><b>Customer's item</b><ol><li>First trade: the customer gives you the mats (the enchant uses mats from your bags).</li><li>Second trade: they put the item in the bottom slot, "Will not be traded", and any tip in the gold box.</li><li>Open your Enchanting window (leave it open), press the macro, check the item shows the enchant, then click Trade. The item stays theirs.</li></ol></div>
+    <div><b>Your own item / skill-ups</b><ol><li>Wear a cheap item in that slot (a vendor bracer works).</li><li>Open your Enchanting window, then press the macro once per craft. Each one replaces the last enchant, and the macro clicks Yes on the replace popup.</li></ol></div>
+  </div>
+  <div class="find">
+    <span class="lab">Search</span><div><input type="search" id="q" placeholder="Type a stat, slot or name: agility, bracer, fire resistance…"></div>
+    <span class="lab">Stat</span><div class="cats" id="stats"></div>
+    <span class="lab">Slot</span><div class="cats" id="cats"></div>
+    <span class="lab">Group by</span><div><span class="seg" id="groupBy"><button data-v="stat">Stat</button><button data-v="slot">Slot</button></span></div>
+  </div>
+  <div id="list"></div>
+  <p class="note">Forever can't cast an enchant by name with /cast, so each macro starts it by its recipe number, the same thing the Enchant button in the Enchanting window does. That only works while your Enchanting window is open; if it's closed the macro prints "Open your Enchanting window first" in chat. If the hand cursor shows up but nothing gets enchanted, click the item yourself. The worn-item macro uses slot numbers: neck 2, chest 5, boots 8, bracer 9, gloves 10, cloak 15, main hand 16, off hand or shield 17.</p>
+</div>
+<script>
+const D = {"list":[{"id":7418,"full":"Enchant Bracer - Inferior Stamina","n":"Bracer - Inferior Stamina","cat":"wrist","learn":1,"txt":"Permanently enchant bracers to increase the Stamina of the wearer by 2.","ic":"inv_bracer_07"},{"id":7428,"full":"Enchant Bracer - Minor Deflect","n":"Bracer - Minor Deflect","cat":"wrist","learn":1,"txt":"Permanently enchant bracers so that the defense skill of the wearer is increased by 3.","ic":"inv_bracer_07"},{"id":7420,"full":"Enchant Chest - Inferior Stamina","n":"Chest - Inferior Stamina","cat":"chest","learn":15,"txt":"Permanently enchant a piece of chest armor so that it increases the Stamina of the wearer by 2.","ic":"inv_chest_cloth_04"},{"id":7443,"full":"Enchant Chest - Minor Intellect","n":"Chest - Minor Intellect","cat":"chest","learn":20,"txt":"Permanently enchant a piece of chest armor so that it increases the Intellect of the wearer by 2.","ic":"inv_chest_cloth_04"},{"id":7426,"full":"Enchant Chest - Minor Absorption","n":"Chest - Minor Absorption","cat":"chest","learn":40,"txt":"Enchant a piece of chest armor so it has a 2% chance per hit of giving you 10 points of damage absorption. Cannot occur more often than once every 5 sec.","ic":"inv_chest_cloth_04"},{"id":7454,"full":"Enchant Cloak - Minor Resistance","n":"Cloak - Minor Resistance","cat":"back","learn":45,"txt":"Permanently enchant a cloak so that it increases the resistance to all schools of magic by 2.","ic":"inv_misc_cape_02"},{"id":7457,"full":"Enchant Bracer - Minor Stamina","n":"Bracer - Minor Stamina","cat":"wrist","learn":50,"txt":"Permanently enchant bracers so they increase the wearer's Stamina by 3.","ic":"inv_bracer_07"},{"id":7766,"full":"Enchant Bracer - Minor Spirit","n":"Bracer - Minor Spirit","cat":"wrist","learn":60,"txt":"Permanently enchant bracers so they increase the wearer's Spirit by 3.","ic":"inv_bracer_07"},{"id":7748,"full":"Enchant Chest - Lesser Stamina","n":"Chest - Lesser Stamina","cat":"chest","learn":60,"txt":"Permanently enchant a piece of chest armor so that it increases the Stamina of the wearer by 3.","ic":"inv_chest_cloth_04"},{"id":1248458,"full":"Enchant Bracer - Minor Intellect","n":"Bracer - Minor Intellect","cat":"wrist","learn":70,"txt":"Permanently enchant bracers to give +3 Intellect.","ic":"inv_bracer_07"},{"id":7771,"full":"Enchant Cloak - Minor Protection","n":"Cloak - Minor Protection","cat":"back","learn":70,"txt":"Permanently enchant a cloak to increase armor by 10.","ic":"inv_misc_cape_02"},{"id":7779,"full":"Enchant Bracer - Minor Agility","n":"Bracer - Minor Agility","cat":"wrist","learn":80,"txt":"Permanently enchant bracers so they increase the wearer's Agility by 3.","ic":"inv_bracer_07"},{"id":7782,"full":"Enchant Bracer - Minor Strength","n":"Bracer - Minor Strength","cat":"wrist","learn":80,"txt":"Permanently enchant bracers so they increase the wearer's Strength by 3.","ic":"inv_bracer_07"},{"id":7776,"full":"Enchant Chest - Lesser Intellect","n":"Chest - Lesser Intellect","cat":"chest","learn":80,"txt":"Permanently enchant a piece of chest armor so that it increases the Intellect of the wearer by 3.","ic":"inv_chest_cloth_04"},{"id":1248459,"full":"Enchant Bracer - Minor Healing Power","n":"Bracer - Minor Healing Power","cat":"wrist","learn":90,"txt":"Permanently enchant bracers so they increase the wearer's healing spells by up to 8 and damage spells by up to 3.","ic":"inv_bracer_07"},{"id":7786,"full":"Enchant Weapon - Minor Beastslayer","n":"Weapon - Minor Beastslayer","cat":"weapon","learn":90,"txt":"Permanently enchant a Melee Weapon to do 2 additional points of damage to Beasts.","ic":"inv_sword_04"},{"id":7788,"full":"Enchant Weapon - Minor Striking","n":"Weapon - Minor Striking","cat":"weapon","learn":90,"txt":"Permanently enchant a Melee Weapon to do 1 additional point of damage.","ic":"inv_sword_04"},{"id":7793,"full":"Enchant 2H Weapon - Lesser Intellect","n":"2H Weapon - Lesser Intellect","cat":"twohand","learn":100,"txt":"Permanently enchant a Two-Handed Melee Weapon to add 5 to Intellect.","ic":"inv_axe_09"},{"id":7745,"full":"Enchant 2H Weapon - Minor Impact","n":"2H Weapon - Minor Impact","cat":"twohand","learn":100,"txt":"Permanently enchant a Two-Handed Melee Weapon to do 4 additional points of damage.","ic":"inv_axe_09"},{"id":13378,"full":"Enchant Shield - Minor Stamina","n":"Shield - Minor Stamina","cat":"shield","learn":105,"txt":"Permanently enchant a shield so that it increases the Stamina of the bearer by 3.","ic":"inv_shield_04"},{"id":13380,"full":"Enchant 2H Weapon - Lesser Spirit","n":"2H Weapon - Lesser Spirit","cat":"twohand","learn":110,"txt":"Permanently enchant a Two-Handed Melee Weapon to add 5 to Spirit.","ic":"inv_axe_09"},{"id":13419,"full":"Enchant Cloak - Minor Agility","n":"Cloak - Minor Agility","cat":"back","learn":110,"txt":"Permanently enchant a cloak to grant +3 Agility.","ic":"inv_misc_cape_02"},{"id":13421,"full":"Enchant Cloak - Lesser Protection","n":"Cloak - Lesser Protection","cat":"back","learn":115,"txt":"Permanently enchant a cloak to increase armor by 20.","ic":"inv_misc_cape_02"},{"id":13464,"full":"Enchant Shield - Lesser Protection","n":"Shield - Lesser Protection","cat":"shield","learn":115,"txt":"Permanently enchant a shield to increase its armor by 30.","ic":"inv_shield_04"},{"id":7859,"full":"Enchant Bracer - Lesser Spirit","n":"Bracer - Lesser Spirit","cat":"wrist","learn":120,"txt":"Permanently enchant a bracer so it increases the wearer's Spirit by 4.","ic":"inv_bracer_07"},{"id":7857,"full":"Enchant Chest - Stamina","n":"Chest - Stamina","cat":"chest","learn":120,"txt":"Permanently enchant a piece of chest armor to increase the Stamina of the wearer by 4.","ic":"inv_chest_cloth_04"},{"id":7867,"full":"Enchant Boots - Minor Agility","n":"Boots - Minor Agility","cat":"feet","learn":125,"txt":"Permanently enchant a pair of boots so they increase the wearer's Agility by 3.","ic":"inv_boots_05"},{"id":7863,"full":"Enchant Boots - Minor Stamina","n":"Boots - Minor Stamina","cat":"feet","learn":125,"txt":"Permanently enchant a pair of boots so they increase the wearer's Stamina by 3.","ic":"inv_boots_05"},{"id":7861,"full":"Enchant Cloak - Lesser Fire Resistance","n":"Cloak - Lesser Fire Resistance","cat":"back","learn":125,"txt":"Permanently enchant a cloak so that it increases resistance to fire by 10.","ic":"inv_misc_cape_02"},{"id":13501,"full":"Enchant Bracer - Lesser Stamina","n":"Bracer - Lesser Stamina","cat":"wrist","learn":130,"txt":"Permanently enchant a bracer so it increases the wearer's Stamina by 4.","ic":"inv_bracer_07"},{"id":13485,"full":"Enchant Shield - Lesser Spirit","n":"Shield - Lesser Spirit","cat":"shield","learn":130,"txt":"Permanently enchant a shield to give 3 spirit.","ic":"inv_shield_04"},{"id":13522,"full":"Enchant Cloak - Lesser Shadow Resistance","n":"Cloak - Lesser Shadow Resistance","cat":"back","learn":135,"txt":"Permanently enchant a cloak so that it increases resistance to shadow by 10.","ic":"inv_misc_cape_02"},{"id":1248460,"full":"Enchant Bracer - Lesser Agility","n":"Bracer - Lesser Agility","cat":"wrist","learn":140,"txt":"Permanently enchant a bracer so it increases the wearer's Agility by 4.","ic":"inv_bracer_07"},{"id":13536,"full":"Enchant Bracer - Lesser Strength","n":"Bracer - Lesser Strength","cat":"wrist","learn":140,"txt":"Permanently enchant a bracer so it increases the wearer's Strength by 4.","ic":"inv_bracer_07"},{"id":13538,"full":"Enchant Chest - Lesser Absorption","n":"Chest - Lesser Absorption","cat":"chest","learn":140,"txt":"Enchant a piece of chest armor so it has a 5% chance per hit of giving you 25 points of damage absorption. Cannot occur more often than once every 5 sec.","ic":"inv_chest_cloth_04"},{"id":1248757,"full":"Enchant Weapon - Insight","n":"Weapon - Insight","cat":"weapon","learn":140,"txt":"Permanently enchant a Melee Weapon to have a chance to grant Insight when you cast a spell, increasing Spirit by 100% for 10 sec.","ic":"inv_sword_04"},{"id":13503,"full":"Enchant Weapon - Lesser Striking","n":"Weapon - Lesser Striking","cat":"weapon","learn":140,"txt":"Permanently enchant a Melee Weapon to do 2 additional points of damage.","ic":"inv_sword_04"},{"id":1248760,"full":"Enchant Weapon - Recovery","n":"Weapon - Recovery","cat":"weapon","learn":140,"txt":"Permanently enchant a Melee Weapon to trigger Recovery when you are Parried or Dodged, healing you for 5% of your maximum health. Cannot occur more often than once every 10 sec.","ic":"inv_sword_04"},{"id":1248805,"full":"Enchant Weapon - Revelation","n":"Weapon - Revelation","cat":"weapon","learn":140,"txt":"Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell fails to critically strike. Revelation grants 100% increased critical strike chance to the next non-periodic spell cast. Revelation's chance to trigger is diminished as your critical strike chance increases.","ic":"inv_sword_04"},{"id":13529,"full":"Enchant 2H Weapon - Lesser Impact","n":"2H Weapon - Lesser Impact","cat":"twohand","learn":145,"txt":"Permanently enchant a Two-handed Melee Weapon to do 5 additional points of damage.","ic":"inv_axe_09"},{"id":13607,"full":"Enchant Chest - Intellect","n":"Chest - Intellect","cat":"chest","learn":145,"txt":"Permanently enchant a piece of chest armor to increase the Intellect of the wearer by 4.","ic":"inv_chest_cloth_04"},{"id":13620,"full":"Enchant Gloves - Fishing","n":"Gloves - Fishing","cat":"hands","learn":145,"txt":"Permanently enchant gloves to grant +2 fishing skill.","ic":"inv_gauntlets_04"},{"id":13617,"full":"Enchant Gloves - Herbalism","n":"Gloves - Herbalism","cat":"hands","learn":145,"txt":"Permanently enchant gloves to grant +2 herbalism skill.","ic":"inv_gauntlets_04"},{"id":13612,"full":"Enchant Gloves - Mining","n":"Gloves - Mining","cat":"hands","learn":145,"txt":"Permanently enchant gloves to grant +2 mining skill.","ic":"inv_gauntlets_04"},{"id":13622,"full":"Enchant Bracer - Lesser Intellect","n":"Bracer - Lesser Intellect","cat":"wrist","learn":150,"txt":"Permanently enchant a bracer so it increases the wearer's Intellect by 3.","ic":"inv_bracer_07"},{"id":13626,"full":"Enchant Chest - Minor Stats","n":"Chest - Minor Stats","cat":"chest","learn":150,"txt":"Permanently enchant a piece of chest armor to grant +1 to all stats.","ic":"inv_chest_cloth_04"},{"id":13635,"full":"Enchant Cloak - Defense","n":"Cloak - Defense","cat":"back","learn":155,"txt":"Permanently enchant a cloak to give 30 additional armor.","ic":"inv_misc_cape_02"},{"id":13631,"full":"Enchant Shield - Lesser Stamina","n":"Shield - Lesser Stamina","cat":"shield","learn":155,"txt":"Permanently enchant a shield to give 5 Stamina.","ic":"inv_shield_04"},{"id":13637,"full":"Enchant Boots - Lesser Agility","n":"Boots - Lesser Agility","cat":"feet","learn":160,"txt":"Permanently enchant boots to give +4 Agility.","ic":"inv_boots_05"},{"id":13640,"full":"Enchant Chest - Greater Stamina","n":"Chest - Greater Stamina","cat":"chest","learn":160,"txt":"Permanently enchant a piece of chest armor to give +6 Stamina.","ic":"inv_chest_cloth_04"},{"id":13642,"full":"Enchant Bracer - Spirit","n":"Bracer - Spirit","cat":"wrist","learn":165,"txt":"Permanently enchant bracers to give +5 Spirit.","ic":"inv_bracer_07"},{"id":13644,"full":"Enchant Boots - Lesser Stamina","n":"Boots - Lesser Stamina","cat":"feet","learn":170,"txt":"Permanently enchant boots to give +4 Stamina.","ic":"inv_boots_05"},{"id":13646,"full":"Enchant Bracer - Lesser Deflection","n":"Bracer - Lesser Deflection","cat":"wrist","learn":170,"txt":"Permanently enchant bracers to give +5 Defense.","ic":"inv_bracer_07"},{"id":13648,"full":"Enchant Bracer - Stamina","n":"Bracer - Stamina","cat":"wrist","learn":170,"txt":"Permanently enchant bracers to give +5 Stamina.","ic":"inv_bracer_07"},{"id":13657,"full":"Enchant Cloak - Fire Resistance","n":"Cloak - Fire Resistance","cat":"back","learn":175,"txt":"Permanently enchant a cloak to give 12 Fire Resistance.","ic":"inv_misc_cape_02"},{"id":13653,"full":"Enchant Weapon - Lesser Beastslayer","n":"Weapon - Lesser Beastslayer","cat":"weapon","learn":175,"txt":"Permanently enchant a Melee Weapon to do 6 additional points of damage to Beasts.","ic":"inv_sword_04"},{"id":13655,"full":"Enchant Weapon - Lesser Elemental Slayer","n":"Weapon - Lesser Elemental Slayer","cat":"weapon","learn":175,"txt":"Permanently enchant a Melee Weapon to do 6 additional damage against Elementals.","ic":"inv_sword_04"},{"id":13661,"full":"Enchant Bracer - Strength","n":"Bracer - Strength","cat":"wrist","learn":180,"txt":"Permanently enchant bracers to give +5 Strength.","ic":"inv_bracer_07"},{"id":13659,"full":"Enchant Shield - Spirit","n":"Shield - Spirit","cat":"shield","learn":180,"txt":"Permanently enchant a shield to give 5 Spirit.","ic":"inv_shield_04"},{"id":13663,"full":"Enchant Chest - Greater Intellect","n":"Chest - Greater Intellect","cat":"chest","learn":185,"txt":"Permanently enchant a piece of chest armor to give +6 Intellect.","ic":"inv_chest_cloth_04"},{"id":13687,"full":"Enchant Boots - Lesser Spirit","n":"Boots - Lesser Spirit","cat":"feet","learn":190,"txt":"Permanently enchant boots to give +4 Spirit.","ic":"inv_boots_05"},{"id":1248497,"full":"Enchant Bracer - Agility","n":"Bracer - Agility","cat":"wrist","learn":190,"txt":"Permanently enchant bracers to give +5 Agility.","ic":"inv_bracer_07"},{"id":21931,"full":"Enchant Weapon - Winter's Might","n":"Weapon - Winter's Might","cat":"weapon","learn":190,"txt":"Permanently enchant a weapon to grant up to 15 additional frost damage when casting frost spells.","ic":"inv_sword_04"},{"id":13689,"full":"Enchant Shield - Lesser Block","n":"Shield - Lesser Block","cat":"shield","learn":195,"txt":"Permanently enchant a shield to give +2% chance to block.","ic":"inv_shield_04"},{"id":13693,"full":"Enchant Weapon - Striking","n":"Weapon - Striking","cat":"weapon","learn":195,"txt":"Permanently enchant a Melee Weapon to do 3 additional points of damage.","ic":"inv_sword_04"},{"id":13695,"full":"Enchant 2H Weapon - Impact","n":"2H Weapon - Impact","cat":"twohand","learn":200,"txt":"Permanently enchant a Two-handed Melee Weapon to do 6 additional points of damage.","ic":"inv_axe_09"},{"id":13700,"full":"Enchant Chest - Lesser Stats","n":"Chest - Lesser Stats","cat":"chest","learn":200,"txt":"Permanently enchant a piece of chest armor to grant +2 to all stats.","ic":"inv_chest_cloth_04"},{"id":13698,"full":"Enchant Gloves - Skinning","n":"Gloves - Skinning","cat":"hands","learn":200,"txt":"Permanently enchant gloves to grant +5 skinning skill.","ic":"inv_gauntlets_04"},{"id":1248498,"full":"Enchant Bracer - Lesser Healing Power","n":"Bracer - Lesser Healing Power","cat":"wrist","learn":205,"txt":"Permanently enchant bracers to increase healing by up to 16 and damage by up to 6.","ic":"inv_bracer_07"},{"id":13746,"full":"Enchant Cloak - Greater Defense","n":"Cloak - Greater Defense","cat":"back","learn":205,"txt":"Permanently enchant a cloak to give 60 additional armor.","ic":"inv_misc_cape_02"},{"id":13794,"full":"Enchant Cloak - Resistance","n":"Cloak - Resistance","cat":"back","learn":205,"txt":"Permanently enchant a cloak to give 3 to all resistances.","ic":"inv_misc_cape_02"},{"id":1248510,"full":"Enchant 2H Weapon - Lesser Agility","n":"2H Weapon - Lesser Agility","cat":"twohand","learn":210,"txt":"Permanently enchant a Two-handed Melee Weapon to grant +15 Agility.","ic":"inv_axe_09"},{"id":13822,"full":"Enchant Bracer - Intellect","n":"Bracer - Intellect","cat":"wrist","learn":210,"txt":"Permanently enchant bracers to give +5 Intellect.","ic":"inv_bracer_07"},{"id":13815,"full":"Enchant Gloves - Agility","n":"Gloves - Agility","cat":"hands","learn":210,"txt":"Permanently enchant gloves to grant +7 Agility.","ic":"inv_gauntlets_04"},{"id":1249059,"full":"Enchant Necklace - Agility","n":"Necklace - Agility","cat":"neck","learn":210,"txt":"Permanently enchant a necklace to increase Agility by 5.","ic":"inv_jewelry_necklace_07"},{"id":1249060,"full":"Enchant Necklace - Deflection","n":"Necklace - Deflection","cat":"neck","learn":210,"txt":"Permanently enchant a necklace to increase defense skill by 5.","ic":"inv_jewelry_necklace_07"},{"id":1249058,"full":"Enchant Necklace - Healing Power","n":"Necklace - Healing Power","cat":"neck","learn":210,"txt":"Permanently enchant a necklace to increase healing by up to 11 and spell damage by up to 4.","ic":"inv_jewelry_necklace_07"},{"id":1249057,"full":"Enchant Necklace - Spell Power","n":"Necklace - Spell Power","cat":"neck","learn":210,"txt":"Permanently enchant a necklace to increase spell damage and healing by up to 6.","ic":"inv_jewelry_necklace_07"},{"id":1249019,"full":"Enchant Necklace - Strength","n":"Necklace - Strength","cat":"neck","learn":210,"txt":"Permanently enchant a necklace to increase Strength by 5.","ic":"inv_jewelry_necklace_07"},{"id":13817,"full":"Enchant Shield - Stamina","n":"Shield - Stamina","cat":"shield","learn":210,"txt":"Permanently enchant a shield to give +7 Stamina.","ic":"inv_shield_04"},{"id":13836,"full":"Enchant Boots - Stamina","n":"Boots - Stamina","cat":"feet","learn":215,"txt":"Permanently enchant boots to give +5 Stamina.","ic":"inv_boots_05"},{"id":13841,"full":"Enchant Gloves - Advanced Mining","n":"Gloves - Advanced Mining","cat":"hands","learn":215,"txt":"Permanently enchant gloves to grant +5 mining skill.","ic":"inv_gauntlets_04"},{"id":1248511,"full":"Enchant 2H Weapon - Lesser Strength","n":"2H Weapon - Lesser Strength","cat":"twohand","learn":220,"txt":"Permanently enchant a Two-handed Melee Weapon to grant +15 Strength.","ic":"inv_axe_09"},{"id":13846,"full":"Enchant Bracer - Greater Spirit","n":"Bracer - Greater Spirit","cat":"wrist","learn":220,"txt":"Permanently enchant bracers to give +7 Spirit.","ic":"inv_bracer_07"},{"id":1249071,"full":"Enchant Chest - Absorption","n":"Chest - Absorption","cat":"chest","learn":220,"txt":"Enchant a piece of chest armor so it has a 25% chance per hit of giving you 50 points of damage absorption. Cannot occur more often than once every 5 sec.","ic":"inv_chest_cloth_04"},{"id":13858,"full":"Enchant Chest - Superior Stamina","n":"Chest - Superior Stamina","cat":"chest","learn":220,"txt":"Permanently enchant a piece of chest armor to grant +8 Stamina.","ic":"inv_chest_cloth_04"},{"id":13890,"full":"Enchant Boots - Minor Speed","n":"Boots - Minor Speed","cat":"feet","learn":225,"txt":"Permanently enchant boots to increase movement speed by 4%.","ic":"inv_boots_05"},{"id":13882,"full":"Enchant Cloak - Lesser Agility","n":"Cloak - Lesser Agility","cat":"back","learn":225,"txt":"Permanently enchant a cloak to give 3 Agility.","ic":"inv_misc_cape_02"},{"id":13868,"full":"Enchant Gloves - Advanced Herbalism","n":"Gloves - Advanced Herbalism","cat":"hands","learn":225,"txt":"Permanently enchant gloves to grant +5 herbalism skill.","ic":"inv_gauntlets_04"},{"id":13887,"full":"Enchant Gloves - Strength","n":"Gloves - Strength","cat":"hands","learn":225,"txt":"Permanently enchant gloves to grant +7 Strength.","ic":"inv_gauntlets_04"},{"id":13917,"full":"Enchant Chest - Superior Intellect","n":"Chest - Superior Intellect","cat":"chest","learn":230,"txt":"Permanently enchant a piece of chest armor to give +8 Intellect.","ic":"inv_chest_cloth_04"},{"id":13905,"full":"Enchant Shield - Greater Spirit","n":"Shield - Greater Spirit","cat":"shield","learn":230,"txt":"Permanently enchant a shield to give +7 Spirit.","ic":"inv_shield_04"},{"id":13915,"full":"Enchant Weapon - Demonslaying","n":"Weapon - Demonslaying","cat":"weapon","learn":230,"txt":"Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.","ic":"inv_sword_04"},{"id":13935,"full":"Enchant Boots - Agility","n":"Boots - Agility","cat":"feet","learn":235,"txt":"Permanently enchant boots to give +5 Agility.","ic":"inv_boots_05"},{"id":13931,"full":"Enchant Bracer - Deflection","n":"Bracer - Deflection","cat":"wrist","learn":235,"txt":"Permanently enchant bracers to give +7 Defense.","ic":"inv_bracer_07"},{"id":13933,"full":"Enchant Shield - Frost Resistance","n":"Shield - Frost Resistance","cat":"shield","learn":235,"txt":"Permanently enchant a shield to give +8 Frost Resistance.","ic":"inv_shield_04"},{"id":13937,"full":"Enchant 2H Weapon - Greater Impact","n":"2H Weapon - Greater Impact","cat":"twohand","learn":240,"txt":"Permanently enchant a two-handed melee weapon to do +7 damage.","ic":"inv_axe_09"},{"id":1248500,"full":"Enchant Bracer - Greater Agility","n":"Bracer - Greater Agility","cat":"wrist","learn":240,"txt":"Permanently enchant bracers to give +7 Agility.","ic":"inv_bracer_07"},{"id":13939,"full":"Enchant Bracer - Greater Strength","n":"Bracer - Greater Strength","cat":"wrist","learn":240,"txt":"Permanently enchant bracers to give +7 Strength.","ic":"inv_bracer_07"},{"id":13945,"full":"Enchant Bracer - Greater Stamina","n":"Bracer - Greater Stamina","cat":"wrist","learn":245,"txt":"Permanently enchant bracers to give +7 Stamina.","ic":"inv_bracer_07"},{"id":13941,"full":"Enchant Chest - Stats","n":"Chest - Stats","cat":"chest","learn":245,"txt":"Permanently enchant a piece of chest armor to grant +3 to all stats.","ic":"inv_chest_cloth_04"},{"id":13943,"full":"Enchant Weapon - Greater Striking","n":"Weapon - Greater Striking","cat":"weapon","learn":245,"txt":"Permanently enchant a Melee Weapon to do 4 additional points of damage.","ic":"inv_sword_04"},{"id":1248528,"full":"Enchant Gloves - Advanced Skinning","n":"Gloves - Advanced Skinning","cat":"hands","learn":250,"txt":"Permanently enchant gloves to grant +10 skinning skill.","ic":"inv_gauntlets_04"},{"id":13948,"full":"Enchant Gloves - Minor Haste","n":"Gloves - Minor Haste","cat":"hands","learn":250,"txt":"Permanently enchant gloves to grant a +1% attack and casting speed bonus.","ic":"inv_gauntlets_04"},{"id":13947,"full":"Enchant Gloves - Riding Skill","n":"Gloves - Riding Skill","cat":"hands","learn":250,"txt":"Permanently enchant gloves to grant a minor movement bonus while mounted.","ic":"inv_gauntlets_04"},{"id":20008,"full":"Enchant Bracer - Greater Intellect","n":"Bracer - Greater Intellect","cat":"wrist","learn":255,"txt":"Permanently enchant bracers to give +7 Intellect.","ic":"inv_bracer_07"},{"id":20020,"full":"Enchant Boots - Greater Stamina","n":"Boots - Greater Stamina","cat":"feet","learn":260,"txt":"Permanently enchant boots to give +7 Stamina.","ic":"inv_boots_05"},{"id":20014,"full":"Enchant Cloak - Greater Resistance","n":"Cloak - Greater Resistance","cat":"back","learn":265,"txt":"Permanently enchant a cloak to give 5 to all resistances.","ic":"inv_misc_cape_02"},{"id":20017,"full":"Enchant Shield - Greater Stamina","n":"Shield - Greater Stamina","cat":"shield","learn":265,"txt":"Permanently enchant a shield to give +9 Stamina.","ic":"inv_shield_04"},{"id":13898,"full":"Enchant Weapon - Fiery Weapon","n":"Weapon - Fiery Weapon","cat":"weapon","learn":265,"txt":"Permanently enchant a melee weapon to often strike for 40 additional fire damage.","ic":"inv_sword_04"},{"id":20009,"full":"Enchant Bracer - Superior Spirit","n":"Bracer - Superior Spirit","cat":"wrist","learn":270,"txt":"Permanently enchant bracers to give +9 Spirit.","ic":"inv_bracer_07"},{"id":20012,"full":"Enchant Gloves - Greater Agility","n":"Gloves - Greater Agility","cat":"hands","learn":270,"txt":"Permanently enchant gloves to grant +10 Agility.","ic":"inv_gauntlets_04"},{"id":20024,"full":"Enchant Boots - Spirit","n":"Boots - Spirit","cat":"feet","learn":275,"txt":"Permanently enchant boots to give +5 Spirit.","ic":"inv_boots_05"},{"id":20026,"full":"Enchant Chest - Major Stamina","n":"Chest - Major Stamina","cat":"chest","learn":275,"txt":"Permanently enchant a piece of chest armor to grant +10 Stamina.","ic":"inv_chest_cloth_04"},{"id":1328948,"full":"Enchant Boots - Speed","n":"Boots - Speed","cat":"feet","learn":280,"txt":"Permanently enchant boots to increase movement speed by 8%.","ic":"inv_boots_05"},{"id":20016,"full":"Enchant Shield - Superior Spirit","n":"Shield - Superior Spirit","cat":"shield","learn":280,"txt":"Permanently enchant a shield to give +9 Spirit.","ic":"inv_shield_04"},{"id":20015,"full":"Enchant Cloak - Superior Defense","n":"Cloak - Superior Defense","cat":"back","learn":285,"txt":"Permanently enchant a cloak to give 70 additional armor.","ic":"inv_misc_cape_02"},{"id":20029,"full":"Enchant Weapon - Icy Chill","n":"Weapon - Icy Chill","cat":"weapon","learn":285,"txt":"Permanently enchant a melee weapon to often chill the target reducing their movement and attack speed.","ic":"inv_sword_04"},{"id":27837,"full":"Enchant 2H Weapon - Agility","n":"2H Weapon - Agility","cat":"twohand","learn":290,"txt":"Permanently enchant a two-handed melee weapon to grant +25 Agility.","ic":"inv_axe_09"},{"id":1248668,"full":"Enchant 2H Weapon - Strength","n":"2H Weapon - Strength","cat":"twohand","learn":290,"txt":"Permanently enchant a two-handed melee weapon to grant +25 Strength.","ic":"inv_axe_09"},{"id":23801,"full":"Enchant Bracer - Mana Regeneration","n":"Bracer - Mana Regeneration","cat":"wrist","learn":290,"txt":"Permanently enchant bracers to restore 4 mana every 5 seconds.","ic":"inv_bracer_07"},{"id":20028,"full":"Enchant Chest - Major Intellect","n":"Chest - Major Intellect","cat":"chest","learn":290,"txt":"Permanently enchant a piece of chest armor to give +10 Intellect.","ic":"inv_chest_cloth_04"},{"id":23800,"full":"Enchant Weapon - Agility","n":"Weapon - Agility","cat":"weapon","learn":290,"txt":"Permanently enchant a melee weapon to grant +15 Agility.","ic":"inv_sword_04"},{"id":23799,"full":"Enchant Weapon - Strength","n":"Weapon - Strength","cat":"weapon","learn":290,"txt":"Permanently enchant a melee weapon to grant +15 strength.","ic":"inv_sword_04"},{"id":20030,"full":"Enchant 2H Weapon - Superior Impact","n":"2H Weapon - Superior Impact","cat":"twohand","learn":295,"txt":"Permanently enchant a two-handed melee weapon to do +9 damage.","ic":"inv_axe_09"},{"id":20023,"full":"Enchant Boots - Greater Agility","n":"Boots - Greater Agility","cat":"feet","learn":295,"txt":"Permanently enchant boots to give +7 Agility.","ic":"inv_boots_05"},{"id":1248599,"full":"Enchant Bracer - Superior Agility","n":"Bracer - Superior Agility","cat":"wrist","learn":295,"txt":"Permanently enchant bracers to give +9 Agility.","ic":"inv_bracer_07"},{"id":20010,"full":"Enchant Bracer - Superior Strength","n":"Bracer - Superior Strength","cat":"wrist","learn":295,"txt":"Permanently enchant bracers to give +9 Strength.","ic":"inv_bracer_07"},{"id":20013,"full":"Enchant Gloves - Greater Strength","n":"Gloves - Greater Strength","cat":"hands","learn":295,"txt":"Permanently enchant gloves to grant +10 Strength.","ic":"inv_gauntlets_04"},{"id":1294054,"full":"Enchant Gloves - Lotus Claw","n":"Gloves - Lotus Claw","cat":"hands","learn":295,"txt":"Permanently enchant a pair of gloves to give a small chance to acquire Death Lotus when gathering any herb in Hyjal.","ic":"inv_gauntlets_04"},{"id":20033,"full":"Enchant Weapon - Unholy Weapon","n":"Weapon - Unholy Weapon","cat":"weapon","learn":295,"txt":"Permanently enchant a melee weapon to often inflict a curse on the target reducing their melee damage.","ic":"inv_sword_04"},{"id":20036,"full":"Enchant 2H Weapon - Major Intellect","n":"2H Weapon - Major Intellect","cat":"twohand","learn":300,"txt":"Permanently enchant a Two-Handed Melee Weapon to add 9 to intellect.","ic":"inv_axe_09"},{"id":20035,"full":"Enchant 2H Weapon - Major Spirit","n":"2H Weapon - Major Spirit","cat":"twohand","learn":300,"txt":"Permanently enchant a Two-Handed Melee Weapon to add 9 to Spirit.","ic":"inv_axe_09"},{"id":1248636,"full":"Enchant 2H Weapon - Mighty Healing Power","n":"2H Weapon - Mighty Healing Power","cat":"twohand","learn":300,"txt":"Permanently enchant a two-handed melee weapon to increase healing by up to 100 and damage by up to 34.","ic":"inv_axe_09"},{"id":1248607,"full":"Enchant 2H Weapon - Mighty Spell Power","n":"2H Weapon - Mighty Spell Power","cat":"twohand","learn":300,"txt":"Permanently enchant a two-handed melee weapon to increase damage and healing by up to 55.","ic":"inv_axe_09"},{"id":1219580,"full":"Enchant 2H Weapon - Spellblasting","n":"2H Weapon - Spellblasting","cat":"twohand","learn":300,"txt":"Permanently enchant a 2H Weapon to add 65 Spell Power.","ic":"inv_axe_09"},{"id":1220624,"full":"Enchant Bracer - Greater Spellpower","n":"Bracer - Greater Spellpower","cat":"wrist","learn":300,"txt":"Permanently enchant Bracers to add 16 to spell power.","ic":"inv_bracer_07"},{"id":23802,"full":"Enchant Bracer - Healing Power","n":"Bracer - Healing Power","cat":"wrist","learn":300,"txt":"Permanently enchant bracers to increase the effects of your healing spells by up to 24 and the effects of your damage spells by up to 8.","ic":"inv_bracer_07"},{"id":1248665,"full":"Enchant Bracer - Superior Deflection","n":"Bracer - Superior Deflection","cat":"wrist","learn":300,"txt":"Permanently enchant bracers to give +9 defense skill.","ic":"inv_bracer_07"},{"id":1248661,"full":"Enchant Bracer - Superior Intellect","n":"Bracer - Superior Intellect","cat":"wrist","learn":300,"txt":"Permanently enchant bracers to give +9 Intellect.","ic":"inv_bracer_07"},{"id":20011,"full":"Enchant Bracer - Superior Stamina","n":"Bracer - Superior Stamina","cat":"wrist","learn":300,"txt":"Permanently enchant bracers to give +9 Stamina.","ic":"inv_bracer_07"},{"id":20025,"full":"Enchant Chest - Greater Stats","n":"Chest - Greater Stats","cat":"chest","learn":300,"txt":"Permanently enchant a piece of chest armor to grant +4 to all stats.","ic":"inv_chest_cloth_04"},{"id":1219587,"full":"Enchant Cloak - Agility","n":"Cloak - Agility","cat":"back","learn":300,"txt":"Permanently enchant a Cloak to add 5 to agility.","ic":"inv_misc_cape_02"},{"id":25086,"full":"Enchant Cloak - Dodge","n":"Cloak - Dodge","cat":"back","learn":300,"txt":"Permanently enchant a cloak to give a 1% chance to dodge.","ic":"inv_misc_cape_02"},{"id":25081,"full":"Enchant Cloak - Greater Fire Resistance","n":"Cloak - Greater Fire Resistance","cat":"back","learn":300,"txt":"Permanently enchant a cloak to give 15 fire resistance.","ic":"inv_misc_cape_02"},{"id":25082,"full":"Enchant Cloak - Greater Nature Resistance","n":"Cloak - Greater Nature Resistance","cat":"back","learn":300,"txt":"Permanently enchant a cloak to give 15 nature resistance.","ic":"inv_misc_cape_02"},{"id":25083,"full":"Enchant Cloak - Stealth","n":"Cloak - Stealth","cat":"back","learn":300,"txt":"Permanently enchant a cloak to give an increase to your stealth as if you were 1 level higher.","ic":"inv_misc_cape_02"},{"id":25084,"full":"Enchant Cloak - Subtlety","n":"Cloak - Subtlety","cat":"back","learn":300,"txt":"Permanently enchant a cloak to decrease threat caused by the wearer by 2%.","ic":"inv_misc_cape_02"},{"id":1213626,"full":"Enchant Gloves - Arcane Power","n":"Gloves - Arcane Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase arcane damage by up to 20.","ic":"inv_gauntlets_04"},{"id":25078,"full":"Enchant Gloves - Fire Power","n":"Gloves - Fire Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase fire damage by up to 20.","ic":"inv_gauntlets_04"},{"id":25074,"full":"Enchant Gloves - Frost Power","n":"Gloves - Frost Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase frost damage by up to 20.","ic":"inv_gauntlets_04"},{"id":25079,"full":"Enchant Gloves - Healing Power","n":"Gloves - Healing Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase the caster's healing spells by up to 35 and damage spells by up to 12.","ic":"inv_gauntlets_04"},{"id":1213622,"full":"Enchant Gloves - Holy Power","n":"Gloves - Holy Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase holy damage by up to 20.","ic":"inv_gauntlets_04"},{"id":1248645,"full":"Enchant Gloves - Natural Power","n":"Gloves - Natural Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase Nature damage by up to 20.","ic":"inv_gauntlets_04"},{"id":25073,"full":"Enchant Gloves - Shadow Power","n":"Gloves - Shadow Power","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase shadow damage by up to 20.","ic":"inv_gauntlets_04"},{"id":25080,"full":"Enchant Gloves - Superior Agility","n":"Gloves - Superior Agility","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase agility by 15.","ic":"inv_gauntlets_04"},{"id":1248640,"full":"Enchant Gloves - Superior Strength","n":"Gloves - Superior Strength","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase Strength by 15.","ic":"inv_gauntlets_04"},{"id":25072,"full":"Enchant Gloves - Threat","n":"Gloves - Threat","cat":"hands","learn":300,"txt":"Permanently enchant gloves to increase threat from all attacks and spells by 2%.","ic":"inv_gauntlets_04"},{"id":1219578,"full":"Enchant Off-Hand - Excellent Spirit","n":"Off-Hand - Excellent Spirit","cat":"offhand","learn":300,"txt":"Permanently enchant an Off-Hand to add 12 to spirit.","ic":"inv_misc_book_09"},{"id":1219577,"full":"Enchant Off-Hand - Superior Intellect","n":"Off-Hand - Superior Intellect","cat":"offhand","learn":300,"txt":"Permanently enchant an Off-Hand to add 9 to intellect.","ic":"inv_misc_book_09"},{"id":1219579,"full":"Enchant Off-Hand - Wisdom","n":"Off-Hand - Wisdom","cat":"offhand","learn":300,"txt":"Permanently enchant an Off-Hand to add 6 to intellect and 5 to spirit.","ic":"inv_misc_book_09"},{"id":1220623,"full":"Enchant Shield - Critical Strike","n":"Shield - Critical Strike","cat":"shield","learn":300,"txt":"Permanently enchant a Shield to add 1% critical strike chance.","ic":"inv_shield_04"},{"id":1219581,"full":"Enchant Shield - Excellent Stamina","n":"Shield - Excellent Stamina","cat":"shield","learn":300,"txt":"Permanently enchant a Shield to add 12 to stamina.","ic":"inv_shield_04"},{"id":20034,"full":"Enchant Weapon - Crusader","n":"Weapon - Crusader","cat":"weapon","learn":300,"txt":"Permanently enchant a melee weapon so that often when attacking in melee it heals for 100 and increases Strength by 100 for 15 sec.","ic":"inv_sword_04"},{"id":22750,"full":"Enchant Weapon - Healing Power","n":"Weapon - Healing Power","cat":"weapon","learn":300,"txt":"Permanently enchant a Melee Weapon to add up to 55 points of healing to healing spells and up to 19 points of damage to damage spells.","ic":"inv_sword_04"},{"id":20032,"full":"Enchant Weapon - Lifestealing","n":"Weapon - Lifestealing","cat":"weapon","learn":300,"txt":"Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.","ic":"inv_sword_04"},{"id":23804,"full":"Enchant Weapon - Mighty Intellect","n":"Weapon - Mighty Intellect","cat":"weapon","learn":300,"txt":"Permanently enchant a melee weapon to grant +22 Intellect.","ic":"inv_sword_04"},{"id":23803,"full":"Enchant Weapon - Mighty Spirit","n":"Weapon - Mighty Spirit","cat":"weapon","learn":300,"txt":"Permanently enchant a melee weapon to grant +22 Spirit.","ic":"inv_sword_04"},{"id":22749,"full":"Enchant Weapon - Spell Power","n":"Weapon - Spell Power","cat":"weapon","learn":300,"txt":"Permanently enchant a Melee Weapon to add up to 30 damage to spells.","ic":"inv_sword_04"},{"id":20031,"full":"Enchant Weapon - Superior Striking","n":"Weapon - Superior Striking","cat":"weapon","learn":300,"txt":"Permanently enchant a Melee Weapon to do 5 additional points of damage.","ic":"inv_sword_04"}],"skill":150};
+const ICONS = {"inv_bracer_07": "/assets/i/82c9ab3988c6ff.jpg", "inv_chest_cloth_04": "/assets/i/7237b1e7ece2dd.jpg", "inv_boots_05": "/assets/i/e9f8a4d67daa19.jpg", "inv_gauntlets_04": "/assets/i/7690017ea0f850.jpg", "inv_misc_cape_02": "/assets/i/f4201b81abf332.jpg", "inv_shield_04": "/assets/i/0ac63433fab62f.jpg", "inv_sword_04": "/assets/i/f3f2d87eefa262.jpg", "inv_axe_09": "/assets/i/becbd510f58f30.jpg", "inv_jewelry_necklace_07": "/assets/i/411d18fc1337e2.jpg", "inv_misc_book_09": "/assets/i/50f6c911330eda.jpg"};
+// Enchant macro maker, shared by the Enchants, Enchant macros and Profession leveling pages.
+// Forever runs on the modern client: Enchanting opens the modern Professions window, and a
+// recipe can't be cast by name with /cast. The macro calls C_TradeSkillUI.CraftRecipe(<recipe spell id>)
+// (what the window's own Enchant button does), which needs the Enchanting window OPEN, then
+// clicks the target while the glowing hand is up.
+// trade: enchants the item the customer put in the trade window's bottom slot ("Will not be traded").
+// worn:  enchants the item you're wearing in that slot (for skill-ups: wear a cheap one).
+// The last line clicks "Yes" on the "replace the existing enchant?" popup.
+const MACRO = (() => {
+  const SLOT_ID = { 'Bracer': 9, 'Chest': 5, 'Boots': 8, 'Gloves': 10, 'Cloak': 15, 'Shield': 17, 'Off-Hand': 17, 'Off Hand': 17,
+    'Necklace': 2, 'Weapon': 16, '2H Weapon': 16 };
+  const SLOT_WORD = { 'Bracer': 'bracer', 'Chest': 'chest', 'Boots': 'boots', 'Gloves': 'gloves', 'Cloak': 'cloak', 'Shield': 'shield',
+    'Off-Hand': 'off-hand item', 'Off Hand': 'off-hand item', 'Necklace': 'necklace', 'Weapon': 'main-hand weapon', '2H Weapon': 'two-handed weapon' };
+  const slotOf = name => (String(name).match(/^Enchant (2H Weapon|Weapon|Bracer|Chest|Boots|Gloves|Cloak|Shield|Off-Hand|Off Hand|Necklace) - /) || [])[1];
+  function make(name, mode, confirm = true, id) {
+    const s = slotOf(name); if (!s || !id) return null;
+    const lines = ['/run if ProfessionsFrame and ProfessionsFrame:IsShown() then C_TradeSkillUI.CraftRecipe(' + (+id) +
+      ') else print("Open your Enchanting window first") end',
+      mode === 'worn' ? '/use ' + SLOT_ID[s] : '/click TradeRecipientItem7ItemButton'];
+    if (confirm) lines.push('/click StaticPopup1Button1');
+    return lines.join('\n');
+  }
+  function copy(text, btn, label) {
+    const done = ok => { if (!btn) return; const old = label || btn.textContent; btn.textContent = ok ? 'Copied' : 'Select + Ctrl+C';
+      setTimeout(() => btn.textContent = old, 1600); if (!ok) fallback(text, btn); };
+    try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+  }
+  function fallback(text, btn) {  // clipboard blocked: show the text selected so Ctrl+C works
+    let ta = document.getElementById('macro-fallback');
+    if (!ta) { ta = document.createElement('textarea'); ta.id = 'macro-fallback'; ta.rows = 5;
+      ta.style.cssText = 'position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);width:380px;z-index:99;font:12px var(--mono,monospace);' +
+        'background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:8px;padding:8px';
+      ta.onblur = () => ta.remove(); document.body.appendChild(ta); }
+    ta.value = text; ta.focus(); ta.select();
+  }
+  return { make, copy, slotOf, SLOT_ID, SLOT_WORD };
+})();
+if (typeof module !== 'undefined') module.exports = MACRO;
+
+// Enchant stat groups, shared by the Enchants and Enchant macros pages (inlined by each assemble.py as __STATS__).
+// ESTAT.of(fullName) -> group key; ESTAT.LIST = [[key, label, dot colour], ...] in display order.
+const ESTAT = (() => {
+  const LIST = [
+    ['sta', 'Stamina', '#d9a441'], ['agi', 'Agility', '#5bbf86'], ['str', 'Strength', '#e2685b'], ['int', 'Intellect', '#6fa8dc'],
+    ['spi', 'Spirit', '#b4a7d6'], ['allst', 'All stats', '#e0a54c'], ['spell', 'Spell damage', '#a87fd8'], ['heal', 'Healing', '#7fd8c4'],
+    ['mana', 'Mana & caster procs', '#5b9bd5'], ['wdmg', 'Weapon damage & procs', '#d97a4a'], ['armor', 'Armor & defense', '#9aa3ad'],
+    ['res', 'Resistances', '#c96bb0'], ['crit', 'Crit & haste', '#e8c547'], ['threat', 'Threat & stealth', '#8a8f98'],
+    ['util', 'Gathering & speed', '#7fb069'], ['items', 'Wands, oils, rods & other', '#8a8f98']];
+  const RULES = [
+    [/Resistance$/, 'res'], [/Stats$/, 'allst'], [/Wisdom$/, 'int'],
+    [/Healing Power$/, 'heal'], [/(Spell ?[Pp]ower|Spellblasting|(Arcane|Fire|Frost|Holy|Natural?|Shadow) Power|Winter's Might)$/, 'spell'],
+    [/(Mana Regeneration|Insight|Revelation)$/, 'mana'],
+    [/(Striking|Impact|slayer|Slayer|Demonslaying|Crusader|Fiery Weapon|Icy Chill|Lifestealing|Unholy Weapon|Recovery)$/, 'wdmg'],
+    [/(Protection|Defense|Deflect|Deflection|Absorption|Block|Dodge)$/, 'armor'],
+    [/(Critical Strike|Haste)$/, 'crit'], [/(Threat|Subtlety|Stealth)$/, 'threat'],
+    [/(Herbalism|Mining|Skinning|Fishing|Lotus Claw|Riding Skill|Speed)$/, 'util'],
+    [/Stamina$/, 'sta'], [/Agility$/, 'agi'], [/Strength$/, 'str'], [/Intellect$/, 'int'], [/Spirit$/, 'spi']];
+  const SLOTS = /^Enchant (2H Weapon|Weapon|Bracer|Chest|Boots|Gloves|Cloak|Shield|Off-Hand|Off Hand|Necklace) - /;
+  function of(full) {
+    full = String(full); if (!SLOTS.test(full)) return 'items';
+    for (const [re, k] of RULES) if (re.test(full)) return k;
+    return 'util';
+  }
+  const LABEL = Object.fromEntries(LIST.map(x => [x[0], x[1]])), DOT = Object.fromEntries(LIST.map(x => [x[0], x[2]]));
+  const ORDER = Object.fromEntries(LIST.map((x, i) => [x[0], i]));
+  return { of, LIST, LABEL, DOT, ORDER };
+})();
+if (typeof module !== 'undefined') module.exports = ESTAT;
+
+// Known recipes from the Gear Snapshot addon's file (GearSnapshot.lua, v1.2+), shared by every WoW tool page.
+// Saved in localStorage 'wf-known' = { char, t, profs: { Enchanting: { rank, max, t, ids: [spellID], names: [lowercase name] } } }.
+// Pages in the Hub share it, so loading the file in one tab marks recipes in all of them.
+const KNOWN = (() => {
+  const KEY = 'wf-known';
+  const PATH = 'World of Warcraft\\_forever_\\WTF\\Account\\<account>\\<realm>\\<character>\\SavedVariables\\GearSnapshot.lua';
+  let cache = null, sets = {};
+  function parseLua(src) {
+    let i = 0;
+    const ws = () => { for (;;) { while (i < src.length && /\s/.test(src[i])) i++; if (src.startsWith('--', i)) { while (i < src.length && src[i] !== '\n') i++; } else return; } };
+    function str() { const q = src[i++]; let s = ''; while (i < src.length && src[i] !== q) { if (src[i] === '\\') { i++; const c = src[i]; s += c === 'n' ? '\n' : c === 't' ? '\t' : c; } else s += src[i]; i++; } i++; return s; }
+    function val() {
+      ws(); const c = src[i];
+      if (c === '{') return table();
+      if (c === '"' || c === "'") return str();
+      const m = /^-?[0-9.eE+x]+|^[A-Za-z_][A-Za-z0-9_]*/.exec(src.slice(i, i + 64)); if (!m) throw new Error('bad Lua at ' + i);
+      i += m[0].length; const w = m[0];
+      return w === 'true' ? true : w === 'false' ? false : w === 'nil' ? null : isNaN(+w) ? w : +w;
+    }
+    function table() {
+      i++; const o = {}; let n = 1;
+      for (;;) {
+        ws(); if (src[i] === '}') { i++; return o; }
+        if (src[i] === '[') { i++; const k = val(); ws(); i++; ws(); i++; o[k] = val(); }
+        else { const save = i; const m = /^([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(src.slice(i, i + 80)); if (m) { i += m[0].length; o[m[1]] = val(); } else { i = save; o[n++] = val(); } }
+        ws(); if (src[i] === ',' || src[i] === ';') i++;
+      }
+    }
+    const m = /GearSnapshotDB\s*=\s*/.exec(src); if (!m) throw new Error('this is not a GearSnapshot.lua file');
+    i = m.index + m[0].length; return val();
+  }
+  function fromText(text) {
+    const db = parseLua(text);
+    const rec = db && db.recipes;
+    if (!rec || !Object.keys(rec).length) throw new Error('no recipes in this file yet. Update the Gear Snapshot addon to 1.2, open each profession window once, then /reload');
+    const out = { char: db.name || '', t: db.time || 0, profs: {} };
+    for (const [prof, p] of Object.entries(rec)) {
+      const ids = [], names = [];
+      for (const [k, v] of Object.entries(p.known || {})) { if (/^\d+$/.test(k)) ids.push(+k); if (typeof v === 'string') names.push(v.toLowerCase()); }
+      out.profs[prof] = { rank: p.rank, max: p.max, t: p.t, ids, names };
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(out)); } catch (e) {}
+    cache = out; sets = {};
+    return out;
+  }
+  function get() {
+    if (cache) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function prof(name) { const g = get(); return g && g.profs && g.profs[name] || null; }
+  function has(profName, id, name) {
+    const p = prof(profName); if (!p) return false;
+    const s = sets[profName] || (sets[profName] = { ids: new Set(p.ids), names: new Set(p.names) });
+    return s.ids.has(+id) || (!!name && s.names.has(String(name).toLowerCase()));
+  }
+  function summary() {
+    const g = get(); if (!g) return '';
+    return Object.entries(g.profs).map(([k, p]) => k + ' ' + p.names.length + (p.rank ? ' (skill ' + p.rank + ')' : '')).join(', ');
+  }
+  // Profession skill from the same file (recipes[prof].rank, saved when that profession window was opened).
+  // syncSkill runs apply(rank) once per newer file for this page, so a skill typed by hand stays until the next file.
+  function syncSkill(profName, pageKey, apply) {
+    const p = prof(profName); if (!p || !+p.rank) return false;
+    const g = get(), t = +p.t || +g.t || 1, k = 'wf-skill-applied:' + pageKey + ':' + profName;
+    let last = 0; try { last = +localStorage.getItem(k) || 0; } catch (e) {}
+    if (t <= last) return false;
+    apply(+p.rank, p);
+    try { localStorage.setItem(k, String(t)); } catch (e) {}
+    return true;
+  }
+  // Short line for next to a skill box: where the number came from.
+  function skillNote(profName, cur) {
+    const p = prof(profName);
+    if (!p || !+p.rank) return 'Typed in. Load GearSnapshot.lua to fill it from the game.';
+    const t = +p.t || +(get().t) || 0, d = t ? new Date(t * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '';
+    return +cur === +p.rank ? 'From the game' + (d ? ', ' + d : '') + (p.max ? ' (cap ' + p.max + ')' : '') + '.'
+      : 'The game file says ' + p.rank + (d ? ' (' + d + ')' : '') + '; you changed it here.';
+  }
+  if (typeof addEventListener === 'function') addEventListener('storage', e => { if (e.key === KEY) { cache = null; sets = {}; } });
+  // A "Load my recipes" control: file button + copy-path button + status line. onChange runs after a load here or in another tab.
+  function widget(el, onChange) {
+    if (!el) return;
+    el.innerHTML = '<label class="kn-btn">Load my recipes<input id="knownFile" type="file" accept=".lua,.bak,text/plain" hidden></label>' +
+      '<button type="button" class="kn-btn kn-copy">Copy file path</button><span class="kn-msg"></span>';
+    const msg = el.querySelector('.kn-msg');
+    const show = () => { const s = summary(); msg.textContent = s ? 'Known: ' + s : 'Marks recipes you know (Gear Snapshot addon 1.2).'; };
+    el.querySelector('input').onchange = ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      f.text().then(t => { try { fromText(t); show(); onChange && onChange(); } catch (e) { msg.textContent = 'Could not read it: ' + e.message; } });
+      ev.target.value = '';
+    };
+    el.querySelector('.kn-copy').onclick = ev => {
+      const b = ev.target; const done = ok => { b.textContent = ok ? 'Copied' : 'Copy failed'; setTimeout(() => b.textContent = 'Copy file path', 1600); };
+      const cp = t => { let ok = false; const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0'; document.body.appendChild(ta); ta.select(); try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return ok; }; const fail = () => { done(false); msg.innerHTML = 'Copy this path: <code style="user-select:all"></code>'; msg.querySelector('code').textContent = PATH; }; if (cp(PATH)) done(true); else { try { navigator.clipboard.writeText(PATH).then(() => done(true), fail); } catch (e) { fail(); } }
+    };
+    addEventListener('storage', e => { if (e.key === KEY) { cache = null; sets = {}; show(); onChange && onChange(); } });
+    show();
+  }
+  const CSS = '.kn{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}.kn-btn{font:inherit;font-size:12px;font-weight:600;padding:2px 9px;border-radius:6px;' +
+    'border:1px solid var(--line2);background:var(--raised);color:var(--ink);cursor:pointer}.kn-btn:hover{border-color:var(--accent)}.kn-msg{color:var(--muted);font-size:12px}' +
+    '.kn-chip{display:inline-block;font-size:11px;padding:0 6px;border-radius:99px;border:1px solid color-mix(in srgb,var(--good) 50%,var(--line));color:var(--good);white-space:nowrap}';
+  try { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); } catch (e) {}
+  return { fromText, get, prof, has, summary, widget, syncSkill, skillNote, PATH, parseLua };
+})();
+if (typeof module !== 'undefined') module.exports = KNOWN;
+
+const $ = s => document.querySelector(s);
+const LS = (k, d) => { try { const v = localStorage.getItem('wf-ench-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const SAVE = (k, v) => { try { localStorage.setItem('wf-ench-' + k, JSON.stringify(v)); } catch (e) {} };
+const S = { mode: LS('macroMode', 'trade'), confirm: LS('macroConfirm', false), skill: (window.WFCHAR && WFCHAR.get().enchanting) || LS('skill', D.skill), cat: 'all', stat: 'all', group: LS('macroGroup', 'stat'), q: '', canOnly: false, knownOnly: LS('macroKnownOnly', false) };
+const CATS = [['all', 'All'], ['weapon', 'Weapon'], ['twohand', '2H Weapon'], ['wrist', 'Bracer'], ['chest', 'Chest'], ['feet', 'Boots'], ['hands', 'Gloves'],
+  ['back', 'Cloak'], ['shield', 'Shield'], ['offhand', 'Off-hand'], ['neck', 'Necklace']];
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+const SLOT_ORD = Object.fromEntries(CATS.map(([k], i) => [k, i])), SLOT_LBL = Object.fromEntries(CATS);
+D.list.forEach(e => { e.stat = ESTAT.of(e.full); e.hay = (e.full + ' ' + e.txt + ' ' + ESTAT.LABEL[e.stat] + ' ' + SLOT_LBL[e.cat]).toLowerCase(); });
+const chip = (attr, k, t, n, on, dot) => `<button data-${attr}="${k}" class="${on ? 'on' : ''}">${dot ? `<i style="background:${dot}"></i>` : ''}${t}<span class="n">${n}</span></button>`;
+function card(e) {
+  return `<div class="m"><img src="${ICONS[e.ic]}" alt=""><div><span class="nm">${esc(e.n)}</span><span class="lv ${e.learn <= S.skill ? 'ok' : ''}">${e.learn}</span>${KNOWN.has('Enchanting', e.id, e.full) ? ' <span class="kn-chip">Known</span>' : ''}</div>
+    <button class="cp" data-id="${e.id}">Copy</button><pre>${esc(MACRO.make(e.full, S.mode, S.confirm, e.id))}</pre></div>`;
+}
+function render() {
+  $('#skillNote').textContent = KNOWN.skillNote('Enchanting', S.skill);
+  document.querySelectorAll('#mode button').forEach(b => b.classList.toggle('on', b.dataset.v === S.mode));
+  document.querySelectorAll('#groupBy button').forEach(b => b.classList.toggle('on', b.dataset.v === S.group));
+  const words = S.q.toLowerCase().split(/\s+/).filter(Boolean);
+  const base = D.list.filter(e => words.every(w => e.hay.includes(w)) && (!S.canOnly || e.learn <= S.skill) && (!S.knownOnly || KNOWN.has('Enchanting', e.id, e.full)));
+  // chip counts follow the other filter, so each chip says how many you'd see
+  const nStat = {}, nSlot = {};
+  base.forEach(e => { if (S.cat === 'all' || e.cat === S.cat) nStat[e.stat] = (nStat[e.stat] || 0) + 1; if (S.stat === 'all' || e.stat === S.stat) nSlot[e.cat] = (nSlot[e.cat] || 0) + 1; });
+  const sum = o => Object.values(o).reduce((a, b) => a + b, 0);
+  $('#stats').innerHTML = chip('stat', 'all', 'All', sum(nStat), S.stat === 'all') +
+    ESTAT.LIST.filter(([k]) => nStat[k] || S.stat === k).map(([k, t, dot]) => chip('stat', k, t, nStat[k] || 0, S.stat === k, dot)).join('');
+  $('#cats').innerHTML = CATS.filter(([k]) => k === 'all' || nSlot[k] || S.cat === k).map(([k, t]) => chip('cat', k, t, k === 'all' ? sum(nSlot) : nSlot[k] || 0, S.cat === k)).join('');
+  const list = base.filter(e => (S.cat === 'all' || e.cat === S.cat) && (S.stat === 'all' || e.stat === S.stat));
+  const byStat = S.group === 'stat', gk = e => byStat ? e.stat : e.cat;
+  const ord = k => byStat ? ESTAT.ORDER[k] : SLOT_ORD[k];
+  list.sort((a, b) => ord(gk(a)) - ord(gk(b)) || (byStat ? SLOT_ORD[a.cat] - SLOT_ORD[b.cat] : ESTAT.ORDER[a.stat] - ESTAT.ORDER[b.stat]) || a.learn - b.learn);
+  const groups = []; list.forEach(e => { const k = gk(e); if (!groups.length || groups[groups.length - 1].k !== k) groups.push({ k, items: [] }); groups[groups.length - 1].items.push(e); });
+  $('#list').innerHTML = groups.map(g => `<div class="grp"><h3>${byStat ? `<i style="background:${ESTAT.DOT[g.k]}"></i>${ESTAT.LABEL[g.k]}` : SLOT_LBL[g.k]}<span class="n">${g.items.length}</span></h3>
+    <div class="grid">${g.items.map(card).join('')}</div></div>`).join('') || '<div class="muted">No enchant matches.</div>';
+}
+$('#mode').onclick = ev => { const b = ev.target.closest('button'); if (!b) return; S.mode = b.dataset.v; SAVE('macroMode', S.mode); render(); };
+$('#confirm').checked = S.confirm; $('#confirm').onchange = () => { S.confirm = $('#confirm').checked; SAVE('macroConfirm', S.confirm); render(); };
+KNOWN.syncSkill('Enchanting', 'macros', r => { S.skill = r; SAVE('skill', r); });
+$('#skill').value = S.skill; $('#skill').oninput = () => { S.skill = +$('#skill').value || 1; SAVE('skill', S.skill); if (window.WFCHAR) WFCHAR.set({ enchanting: S.skill }); render(); };
+$('#canOnly').onchange = () => { S.canOnly = $('#canOnly').checked; render(); };
+$('#q').oninput = () => { S.q = $('#q').value; render(); };
+$('#cats').onclick = ev => { const b = ev.target.closest('button'); if (b) { S.cat = b.dataset.cat; render(); } };
+$('#stats').onclick = ev => { const b = ev.target.closest('button'); if (b) { S.stat = b.dataset.stat; render(); } };
+$('#groupBy').onclick = ev => { const b = ev.target.closest('button'); if (!b) return; S.group = b.dataset.v; SAVE('macroGroup', S.group); render(); };
+$('#list').onclick = ev => { const b = ev.target.closest('.cp'); if (!b) return; const e = D.list.find(x => x.id === +b.dataset.id); MACRO.copy(MACRO.make(e.full, S.mode, S.confirm, e.id), b, 'Copy'); };
+$('#knownOnly').checked = S.knownOnly; $('#knownOnly').onchange = () => { S.knownOnly = $('#knownOnly').checked; SAVE('macroKnownOnly', S.knownOnly); render(); };
+KNOWN.widget($('#known'), () => { const p = KNOWN.prof('Enchanting'); if (p && p.rank) { S.skill = p.rank; $('#skill').value = p.rank; SAVE('skill', S.skill); } render(); });
+render();
+</script>
+
+<div class="ws-foot" role="contentinfo"><div><span>Made by junhots for the WoW Forever realm.</span><a href="/updates/">Updates</a><a href="/about/">Data sources</a><button type="button" data-ws-feedback>Report a problem</button><a href="https://junhots.com">Heroes of the Storm site</a><span class="ws-social"><a href="https://www.twitch.tv/junhots_" rel="me noopener" target="_blank">Twitch</a><a href="https://www.youtube.com/@junhots" rel="me noopener" target="_blank">YouTube</a><a href="https://x.com/junhots_" rel="me noopener" target="_blank">Twitter</a></span><span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. Files you load stay in your browser and are never uploaded.</span></div></div>
+<script>if (!window.wsHash0 && location.hash) history.replaceState(history.state, "", location.pathname + location.search);</script>
+</body>
+</html>
