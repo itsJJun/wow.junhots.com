@@ -395,27 +395,27 @@ ADMIN_JS = r"""
   }
   function scanInfo() {
     fetch('/api/ah/meta', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (m) {
-      $('adScan').textContent = m.at ? 'Visitors now get the scan ' + (m.scan ? 'from ' + when(m.scan * 1000) + ', uploaded ' : 'uploaded ') + when(m.at) + ' (' + Math.round(m.size / 1024) + ' KB).' : 'No scan uploaded yet: visitors get the prices built into each page.';
+      $('ownScan').textContent = m.at ? 'Visitors now get the scan ' + (m.scan ? 'from ' + when(m.scan * 1000) + ', uploaded ' : 'uploaded ') + when(m.at) + ' (' + Math.round(m.size / 1024) + ' KB).' : 'No scan uploaded yet: visitors get the prices built into each page.';
     });
   }
   function reports() {
     api('/api/admin/feedback').then(function (j) {
-      $('adFbN').textContent = j.items.length ? '(' + j.items.length + ')' : '';
-      $('adFb').innerHTML = j.items.length ? j.items.map(function (it) {
-        return '<li><div class="ad-meta">' + esc(when(it.at)) + ' · <a href="' + esc(it.page) + '">' + esc(it.page || '?') + '</a>' + (it.contact ? ' · ' + esc(it.contact) : '') + (it.country ? ' · ' + esc(it.country) : '') +
+      $('ownFbN').textContent = j.items.length ? '(' + j.items.length + ')' : '';
+      $('ownFb').innerHTML = j.items.length ? j.items.map(function (it) {
+        return '<li><div class="own-meta">' + esc(when(it.at)) + ' · <a href="' + esc(it.page) + '">' + esc(it.page || '?') + '</a>' + (it.contact ? ' · ' + esc(it.contact) : '') + (it.country ? ' · ' + esc(it.country) : '') +
           '<button type="button" data-del="' + esc(it.key) + '">Delete</button></div><p>' + esc(it.text) + '</p></li>';
-      }).join('') : '<li class="ad-none">No reports. Nice.</li>';
-    }).catch(function (e) { $('adFb').innerHTML = '<li class="ad-none">' + esc(e.message) + '</li>'; });
+      }).join('') : '<li class="own-none">No reports. Nice.</li>';
+    }).catch(function (e) { $('ownFb').innerHTML = '<li class="own-none">' + esc(e.message) + '</li>'; });
   }
   function unlock() {
-    api('/api/admin/check').then(function () { $('adLock').hidden = true; $('adBody').hidden = false; scanInfo(); reports(); },
-      function (e) { $('adPwMsg').textContent = e.message; try { sessionStorage.removeItem(KEY); } catch (x) {} });
+    api('/api/admin/check').then(function () { $('ownLock').hidden = true; $('ownBody').hidden = false; scanInfo(); reports(); },
+      function (e) { $('ownPwMsg').textContent = e.message; try { sessionStorage.removeItem(KEY); } catch (x) {} });
   }
-  $('adLock').addEventListener('submit', function (e) {
-    e.preventDefault(); try { sessionStorage.setItem(KEY, $('adPw').value); } catch (x) {} $('adPw').value = ''; unlock();
+  $('ownLock').addEventListener('submit', function (e) {
+    e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('adFile').addEventListener('change', function () {
-    var f = this.files[0], msg = $('adMsg'); this.value = '';
+  $('ownFile').addEventListener('change', function () {
+    var f = this.files[0], msg = $('ownMsg'); this.value = '';
     if (!f) return;
     msg.textContent = 'Reading ' + f.name + '…';
     f.arrayBuffer().then(function (buf) {
@@ -426,11 +426,11 @@ ADMIN_JS = r"""
       });
     }).catch(function (e) { msg.textContent = 'Not uploaded: ' + e.message; });
   });
-  $('adFb').addEventListener('click', function (e) {
+  $('ownFb').addEventListener('click', function (e) {
     var b = e.target.closest('[data-del]'); if (!b) return;
     b.disabled = true; api('/api/admin/feedback/' + encodeURIComponent(b.dataset.del), { method: 'DELETE' }).then(reports);
   });
-  $('adOut').onclick = function () { try { sessionStorage.removeItem(KEY); } catch (x) {} location.reload(); };
+  $('ownOut').onclick = function () { try { sessionStorage.removeItem(KEY); } catch (x) {} location.reload(); };
   if (pw()) unlock();
 })();
 """
@@ -480,15 +480,15 @@ def build_setup():
 
 def build_admin():
     body = ('<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div>'
-            '<form class="ad-lock" id="adLock"><label>Password <input id="adPw" type="password" autocomplete="current-password" required></label>'
-            '<button type="submit">Unlock</button><span id="adPwMsg" role="status"></span></form>'
-            '<div id="adBody" class="ws-prose" hidden>'
-            '<h2>Auction prices</h2><p id="adScan"></p>'
+            '<form class="own-lock" id="ownLock"><label>Password <input id="ownPw" type="password" autocomplete="current-password" required></label>'
+            '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
+            '<div id="ownBody" class="ws-prose" hidden>'
+            '<h2>Auction prices</h2><p id="ownScan"></p>'
             '<p>In game: Auctionator full scan at the auction house, then /reload. Then upload '
             '<code>WTF\\Account\\&lt;ACCOUNT&gt;\\SavedVariables\\Auctionator.lua</code>. Visitors without their own file get these prices on every tool.</p>'
-            '<p><label class="ad-btn">Upload Auctionator.lua<input id="adFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="adMsg" role="status"></span></p>'
-            '<h2>Reports <span id="adFbN"></span></h2><ul class="ad-fb" id="adFb"></ul>'
-            '<p><button type="button" class="ad-out" id="adOut">Lock</button></p></div>'
+            '<p><label class="own-btn">Upload Auctionator.lua<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
+            '<h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul>'
+            '<p><button type="button" class="own-out" id="ownOut">Lock</button></p></div>'
             '<script>%s</script>' % ADMIN_JS)
     os.makedirs(os.path.join(PUB, 'admin'), exist_ok=True)
     open(os.path.join(PUB, 'admin/index.html'), 'w', encoding='utf-8').write(

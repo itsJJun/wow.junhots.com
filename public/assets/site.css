@@ -211,17 +211,17 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
 .ws-dacts .main:disabled { opacity: .6; cursor: wait; }
 
 /* ---- /admin/ */
-.ad-lock { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-top: 18px; }
-.ad-lock input { font: 14px var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 10px; margin-left: 6px; }
-.ad-lock button, .ad-btn, .ad-out, .ad-fb button { font: 600 13.5px var(--body); border: 1px solid var(--line2); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
-.ad-btn { background: var(--accent); color: var(--on-accent); border-color: var(--accent); display: inline-block; }
-.ad-fb { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
-.ad-fb li { border-left: 2px solid var(--line2); padding-left: 12px; }
-.ad-fb p { margin: 2px 0 0; white-space: pre-wrap; }
-.ad-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
-.ad-meta a { color: var(--accent); }
-.ad-meta button { margin-left: auto; padding: 2px 9px; font-size: 12px; }
-.ad-none { color: var(--muted); border: 0 !important; padding: 0 !important; }
+.own-lock { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-top: 18px; }
+.own-lock input { font: 14px var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 10px; margin-left: 6px; }
+.own-lock button, .own-btn, .own-out, .own-fb button { font: 600 13.5px var(--body); border: 1px solid var(--line2); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.own-btn { background: var(--accent); color: var(--on-accent); border-color: var(--accent); display: inline-block; }
+.own-fb { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
+.own-fb li { border-left: 2px solid var(--line2); padding-left: 12px; }
+.own-fb p { margin: 2px 0 0; white-space: pre-wrap; }
+.own-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.own-meta a { color: var(--accent); }
+.own-meta button { margin-left: auto; padding: 2px 9px; font-size: 12px; }
+.own-none { color: var(--muted); border: 0 !important; padding: 0 !important; }
 
 /* ---- /setup/ */
 .ws-setup code { font-size: 13px; background: var(--panel2, var(--panel)); border: 1px solid var(--line); border-radius: 5px; padding: 0 4px; overflow-wrap: anywhere; }
