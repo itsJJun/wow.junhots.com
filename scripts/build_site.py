@@ -135,7 +135,7 @@ UPD_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 MIN_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
             '<path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>')
 # runs first in <head>: the side panel's size (full or icons) is known before the page is drawn, so it never jumps
-SIDE_JS = "<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); } catch (e) {}</script>"
+SIDE_JS = "<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); if (localStorage.getItem('ws.owner')) document.documentElement.classList.add('ws-owner'); } catch (e) {}</script>"
 
 
 def header(active_cat=None, active_tool=None, active_top=None):
@@ -195,6 +195,7 @@ def footer():
             '<span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. '
             'World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. '
             'Files you load stay in your browser and are never uploaded.</span>'
+            '<a class="ws-login" href="/admin/" rel="nofollow">Log in</a>'
             '</div></div>\n')
 
 
@@ -408,7 +409,7 @@ ADMIN_JS = r"""
     }).catch(function (e) { $('ownFb').innerHTML = '<li class="own-none">' + esc(e.message) + '</li>'; });
   }
   function unlock() {
-    api('/api/admin/check').then(function () { $('ownLock').hidden = true; $('ownBody').hidden = false; scanInfo(); reports(); },
+    api('/api/admin/check').then(function () { $('ownLock').hidden = true; $('ownBody').hidden = false; try { localStorage.setItem('ws.owner', '1'); } catch (x) {} scanInfo(); reports(); },
       function (e) { $('ownPwMsg').textContent = e.message; try { sessionStorage.removeItem(KEY); } catch (x) {} });
   }
   $('ownLock').addEventListener('submit', function (e) {

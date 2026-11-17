@@ -139,6 +139,8 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
 .ws-foot > div { max-width: 1240px; margin: 0 auto; padding: 18px 16px 26px; display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: baseline; }
 .ws-foot a { color: var(--muted); text-decoration: none; }
 .ws-foot a:hover { color: var(--ink); }
+.ws-foot .ws-login { display: none; font-size: 12px; opacity: .7; }
+html.ws-owner .ws-foot .ws-login { display: inline; }
 .ws-foot .ws-legal { flex-basis: 100%; font-size: 12px; opacity: .85; }
 .ws-foot .ws-social { display: flex; gap: 14px; margin-left: auto; }
 
