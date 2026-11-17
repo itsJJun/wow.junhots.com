@@ -451,7 +451,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div></div>
 <div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
 <main class="ws-main">
-<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div><form class="ad-lock" id="adLock"><label>Password <input id="adPw" type="password" autocomplete="current-password" required></label><button type="submit">Unlock</button><span id="adPwMsg" role="status"></span></form><div id="adBody" class="ws-prose" hidden><h2>Auction prices</h2><p id="adScan"></p><p>In game: Auctionator full scan at the auction house, then /reload. Then upload <code>WTF\Account\&lt;ACCOUNT&gt;\SavedVariables\Auctionator.lua</code>. Visitors without their own file get these prices on every tool.</p><p><label class="ad-btn">Upload Auctionator.lua<input id="adFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="adMsg" role="status"></span></p><h2>Reports <span id="adFbN"></span></h2><ul class="ad-fb" id="adFb"></ul><p><button type="button" class="ad-out" id="adOut">Lock</button></p></div><script>
+<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div><form class="own-lock" id="ownLock"><label>Password <input id="ownPw" type="password" autocomplete="current-password" required></label><button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form><div id="ownBody" class="ws-prose" hidden><h2>Auction prices</h2><p id="ownScan"></p><p>In game: Auctionator full scan at the auction house, then /reload. Then upload <code>WTF\Account\&lt;ACCOUNT&gt;\SavedVariables\Auctionator.lua</code>. Visitors without their own file get these prices on every tool.</p><p><label class="own-btn">Upload Auctionator.lua<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p><h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul><p><button type="button" class="own-out" id="ownOut">Lock</button></p></div><script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, KEY = 'ws.admin';
   var pw = function () { try { return sessionStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
@@ -463,27 +463,27 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   }
   function scanInfo() {
     fetch('/api/ah/meta', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (m) {
-      $('adScan').textContent = m.at ? 'Visitors now get the scan ' + (m.scan ? 'from ' + when(m.scan * 1000) + ', uploaded ' : 'uploaded ') + when(m.at) + ' (' + Math.round(m.size / 1024) + ' KB).' : 'No scan uploaded yet: visitors get the prices built into each page.';
+      $('ownScan').textContent = m.at ? 'Visitors now get the scan ' + (m.scan ? 'from ' + when(m.scan * 1000) + ', uploaded ' : 'uploaded ') + when(m.at) + ' (' + Math.round(m.size / 1024) + ' KB).' : 'No scan uploaded yet: visitors get the prices built into each page.';
     });
   }
   function reports() {
     api('/api/admin/feedback').then(function (j) {
-      $('adFbN').textContent = j.items.length ? '(' + j.items.length + ')' : '';
-      $('adFb').innerHTML = j.items.length ? j.items.map(function (it) {
-        return '<li><div class="ad-meta">' + esc(when(it.at)) + ' · <a href="' + esc(it.page) + '">' + esc(it.page || '?') + '</a>' + (it.contact ? ' · ' + esc(it.contact) : '') + (it.country ? ' · ' + esc(it.country) : '') +
+      $('ownFbN').textContent = j.items.length ? '(' + j.items.length + ')' : '';
+      $('ownFb').innerHTML = j.items.length ? j.items.map(function (it) {
+        return '<li><div class="own-meta">' + esc(when(it.at)) + ' · <a href="' + esc(it.page) + '">' + esc(it.page || '?') + '</a>' + (it.contact ? ' · ' + esc(it.contact) : '') + (it.country ? ' · ' + esc(it.country) : '') +
           '<button type="button" data-del="' + esc(it.key) + '">Delete</button></div><p>' + esc(it.text) + '</p></li>';
-      }).join('') : '<li class="ad-none">No reports. Nice.</li>';
-    }).catch(function (e) { $('adFb').innerHTML = '<li class="ad-none">' + esc(e.message) + '</li>'; });
+      }).join('') : '<li class="own-none">No reports. Nice.</li>';
+    }).catch(function (e) { $('ownFb').innerHTML = '<li class="own-none">' + esc(e.message) + '</li>'; });
   }
   function unlock() {
-    api('/api/admin/check').then(function () { $('adLock').hidden = true; $('adBody').hidden = false; scanInfo(); reports(); },
-      function (e) { $('adPwMsg').textContent = e.message; try { sessionStorage.removeItem(KEY); } catch (x) {} });
+    api('/api/admin/check').then(function () { $('ownLock').hidden = true; $('ownBody').hidden = false; scanInfo(); reports(); },
+      function (e) { $('ownPwMsg').textContent = e.message; try { sessionStorage.removeItem(KEY); } catch (x) {} });
   }
-  $('adLock').addEventListener('submit', function (e) {
-    e.preventDefault(); try { sessionStorage.setItem(KEY, $('adPw').value); } catch (x) {} $('adPw').value = ''; unlock();
+  $('ownLock').addEventListener('submit', function (e) {
+    e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('adFile').addEventListener('change', function () {
-    var f = this.files[0], msg = $('adMsg'); this.value = '';
+  $('ownFile').addEventListener('change', function () {
+    var f = this.files[0], msg = $('ownMsg'); this.value = '';
     if (!f) return;
     msg.textContent = 'Reading ' + f.name + '…';
     f.arrayBuffer().then(function (buf) {
@@ -494,11 +494,11 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       });
     }).catch(function (e) { msg.textContent = 'Not uploaded: ' + e.message; });
   });
-  $('adFb').addEventListener('click', function (e) {
+  $('ownFb').addEventListener('click', function (e) {
     var b = e.target.closest('[data-del]'); if (!b) return;
     b.disabled = true; api('/api/admin/feedback/' + encodeURIComponent(b.dataset.del), { method: 'DELETE' }).then(reports);
   });
-  $('adOut').onclick = function () { try { sessionStorage.removeItem(KEY); } catch (x) {} location.reload(); };
+  $('ownOut').onclick = function () { try { sessionStorage.removeItem(KEY); } catch (x) {} location.reload(); };
   if (pw()) unlock();
 })();
 </script>
