@@ -77,6 +77,14 @@ code { font: 11px var(--mono); background: var(--bg); border: 1px solid var(--li
 .msg.err { background: color-mix(in srgb, var(--bad) 10%, transparent); border: 1px solid var(--bad); }
 
 /* filters */
+.fgrid { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; margin-top: 10px; }
+.fgrid .fl { font-size: 12px; color: var(--muted); }
+.fgrid .fc { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; min-width: 0; }
+.fmore { grid-column: 1 / -1; }
+.fmore > summary { cursor: pointer; font-size: 12px; color: var(--muted); width: max-content; }
+.fmore > summary:hover { color: var(--ink); }
+.fmore .fgrid { margin: 8px 0 2px; }
+@media (max-width: 560px) { .fgrid { gap: 8px 10px; } .fgrid .fl { font-size: 11px; } }
 .filters { display: flex; flex-wrap: wrap; gap: 9px 14px; align-items: center; }
 .group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .group > span { font-size: 11px; color: var(--muted); margin-right: 2px; }
@@ -923,31 +931,30 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       style="width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 14px 11px 38px;font:500 16px var(--body)">
     <span aria-hidden="true" style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px">&#9906;</span>
   </div>
-  <div class="filters">
-    <div class="group" id="tiers"><span>Cloth</span></div>
-    <span class="muted small" id="tierNote"></span>
-    <div class="group" role="group" aria-labelledby="patLab">
-      <span id="patLab">Patterns</span>
-      <span class="seg"><button class="chip" id="patAll" type="button" aria-pressed="true">All patterns</button><button class="chip" id="knownOnly" type="button" aria-pressed="false">Patterns I have</button></span>
+  <div class="fgrid">
+    <span class="fl">Cloth</span>
+    <div class="fc"><span class="group" id="tiers"></span><span class="muted small" id="tierNote"></span></div>
+    <span class="fl" id="patLab">Patterns</span>
+    <div class="fc" role="group" aria-labelledby="patLab">
+      <span class="seg"><button class="chip" id="patAll" type="button" aria-pressed="true">All</button><button class="chip" id="knownOnly" type="button" aria-pressed="false">I have</button></span>
       <span class="muted small" id="patNote"></span>
     </div>
-    <div class="group">
-      <span>Show</span>
-      <button class="chip" id="hideStuck" type="button" aria-pressed="false">Hide stuck items</button>
+    <span class="fl">Show</span>
+    <div class="fc">
       <button class="chip" id="hideLoss" type="button" aria-pressed="true">Hide money losers</button>
+      <button class="chip" id="hideStuck" type="button" aria-pressed="false">Hide stuck</button>
+      <button class="chip" id="skillOnly" type="button" aria-pressed="false" hidden>Only my skill</button>
+      <span class="muted small" id="skillInfo"></span>
     </div>
-    <div class="group"><span class="kn" id="knownRec" title="Ticks &ldquo;I have it&rdquo; on every recipe you know, from the Gear Snapshot addon file"></span></div>
-    <div class="group" role="group" aria-labelledby="moneyLab">
-      <span id="moneyLab">My money</span>
+    <span class="fl" id="moneyLab">My gold</span>
+    <div class="fc" role="group" aria-labelledby="moneyLab">
       <span class="mbox"><input id="mG" type="number" min="0" aria-label="Gold"><i class="g">g</i></span>
       <span class="mbox"><input id="mS" type="number" min="0" max="99" aria-label="Silver"><i class="s">s</i></span>
       <span class="mbox"><input id="mC" type="number" min="0" max="99" aria-label="Copper"><i class="c">c</i></span>
       <button class="chip" id="affordOnly" type="button" aria-pressed="true">Only what I can afford</button>
-      <button class="chip" id="skillOnly" type="button" aria-pressed="false" hidden>Only what my skill can make</button>
-      <span class="muted small" id="skillInfo"></span>
     </div>
-    <div class="group">
-      <label for="sort" class="muted small">Sort by</label>
+    <label class="fl" for="sort">Sort by</label>
+    <div class="fc">
       <select id="sort">
         <option value="best">Best profit</option>
         <option value="ah">AH profit</option>
@@ -957,34 +964,33 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
         <option value="" hidden>Custom (column)</option>
       </select>
     </div>
-    <div class="group">
-      <label for="cut" class="muted small">Auction house</label>
-      <select id="cut">
-        <option value="0.05">City (5% cut)</option>
-        <option value="0.15">Neutral (15% cut)</option>
-      </select>
-    </div>
-    <div class="group">
-      <label for="dep" class="muted small">Listing time</label>
-      <select id="dep">
-        <option value="100">4 or 8 hours (1s deposit)</option>
-        <option value="150">24 hours (1s 50c deposit)</option>
-      </select>
-    </div>
-    <div class="group">
-      <label for="relist" class="muted small">Unsold listings</label>
-      <select id="relist">
-        <option value="1">Count relists (TSM sale rate)</option>
-        <option value="0">Assume it sells first time</option>
-      </select>
-    </div>
-    <div class="group">
-      <label for="refund" class="muted small">Deposit back when it sells?</label>
-      <select id="refund">
-        <option value="0">No, count it as a cost</option>
-        <option value="1">Yes, only lost if unsold</option>
-      </select>
-    </div>
+    <details class="fmore">
+      <summary>More settings</summary>
+      <div class="fgrid">
+        <label class="fl" for="cut">Auction house</label>
+        <div class="fc"><select id="cut">
+          <option value="0.05">City (5% cut)</option>
+          <option value="0.15">Neutral (15% cut)</option>
+        </select></div>
+        <label class="fl" for="dep">Listing time</label>
+        <div class="fc"><select id="dep">
+          <option value="100">4 or 8 hours (1s deposit)</option>
+          <option value="150">24 hours (1s 50c deposit)</option>
+        </select></div>
+        <label class="fl" for="relist">Unsold listings</label>
+        <div class="fc"><select id="relist">
+          <option value="1">Count relists (TSM sale rate)</option>
+          <option value="0">Assume it sells first time</option>
+        </select></div>
+        <label class="fl" for="refund">Deposit back?</label>
+        <div class="fc"><select id="refund">
+          <option value="0">No, count it as a cost</option>
+          <option value="1">Yes, only lost if unsold</option>
+        </select></div>
+        <span class="fl">Game file</span>
+        <div class="fc"><span class="kn" id="knownRec" title="Ticks &ldquo;I have it&rdquo; on every recipe you know, from the Gear Snapshot addon file"></span></div>
+      </div>
+    </details>
   </div>
   <p class="muted small"><span id="haveInfo"></span> Click a recipe to plan a batch and see what to buy.</p>
 </section>
@@ -1359,22 +1365,22 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
 
   function renderFilters() {
     const t = $("tiers");
-    t.innerHTML = "<span>Cloth</span>" + TIERS.map(x => '<button class="chip" type="button" data-tier="' + x + '" aria-pressed="' + S.tiers.includes(x) + '">' + x + '</button>').join("");
+    t.innerHTML = TIERS.map(x => '<button class="chip" type="button" data-tier="' + x + '" aria-pressed="' + S.tiers.includes(x) + '">' + x + '</button>').join("");
     t.querySelectorAll("[data-tier]").forEach(b => b.onclick = () => {
       const x = b.dataset.tier; S.tiers = S.tiers.includes(x) ? S.tiers.filter(y => y !== x) : S.tiers.concat(x); save(); render();
     });
     $("knownOnly").setAttribute("aria-pressed", S.knownOnly); $("patAll").setAttribute("aria-pressed", !S.knownOnly);
-    $("knownOnly").textContent = "Patterns I have" + (S.known.size ? " (" + S.known.size + ")" : "");
+    $("knownOnly").textContent = "I have" + (S.known.size ? " (" + S.known.size + ")" : "");
     renderSearchState();
     const got = typeof KNOWN !== "undefined" && KNOWN.prof("Tailoring");
-    $("patNote").innerHTML = got ? "\u2713 ticked from your game" : '<button type="button" class="linkish" id="autoTick">Auto-tick from game file</button>';
+    $("patNote").innerHTML = got ? "\u2713 from your game" : '<button type="button" class="linkish" id="autoTick">Auto-tick from game file</button>';
     if ($("autoTick")) $("autoTick").onclick = () => { const f = $("knownFile"); if (f) f.click(); };
     $("sort").value = (S.sort === "cost" && S.dir === "asc") ? "cost" : (["best", "ah", "vendor"].includes(S.sort) && S.dir === "desc") ? S.sort : "";
     document.querySelectorAll(".sorth").forEach(b => b.dataset.dir = b.dataset.sort === S.sort ? S.dir : ""); $("cut").value = S.cut; $("dep").value = S.dep; $("refund").value = S.refund; $("relist").value = S.relist;
     ["g", "s", "c"].forEach(k => { const el = $("m" + k.toUpperCase()); if (document.activeElement !== el) el.value = S.money[k]; });
     $("affordOnly").setAttribute("aria-pressed", S.affordOnly);
     const sk = mySkill(); $("skillOnly").hidden = sk === null; $("skillOnly").setAttribute("aria-pressed", !!S.skillOnly);
-    $("skillInfo").innerHTML = sk === null ? "" : "Tailoring <b>" + sk + "</b> <span title=\"" + esc(KNOWN.skillNote("Tailoring", sk)) + "\">from the game</span>";
+    $("skillInfo").innerHTML = sk === null ? "" : "<span title=\"" + esc(KNOWN.skillNote("Tailoring", sk)) + "\">Tailoring " + sk + "</span>";
     $("hideStuck").setAttribute("aria-pressed", S.hideStuck); $("hideLoss").setAttribute("aria-pressed", S.hideLoss);
   }
 
@@ -1850,7 +1856,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const q = S.q.trim(); document.querySelectorAll("[data-tier]").forEach(b => b.style.opacity = q ? ".45" : "1");
     const off = TIERS.filter(x => !S.tiers.includes(x)), n = recipes.filter(r => off.includes(r.t)).length;
     $("tierNote").innerHTML = q ? (off.length ? "Searching all cloth" : "")
-      : off.length && S.tiers.length ? "<b>" + n + " hidden</b> (" + off.join(", ") + " off)" : "";
+      : off.length && S.tiers.length ? n + " hidden" : "";
   }
   ["g", "s", "c"].forEach(k => $("m" + k.toUpperCase()).oninput = e => { S.money[k] = e.target.value; save(); render(); });
   $("affordOnly").onclick = () => { S.affordOnly = !S.affordOnly; save(); render(); };
