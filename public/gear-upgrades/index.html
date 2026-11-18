@@ -1235,12 +1235,22 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   }
   // inline (Hub) or, on the website, a separate file the browser caches (data-src)
   async function load(el) {
-    if (el.dataset.src) { const r = await fetch(el.dataset.src); if (!r.ok) throw new Error("item data " + r.status); return unpack(new Uint8Array(await r.arrayBuffer())); }
+    if (el.dataset.src) {
+      let r = await fetch(el.dataset.src);
+      if (!r.ok) r = await fetch(el.dataset.src, { cache: "reload" });
+      if (!r.ok) {
+        // A page kept from before a site update can ask for an item data file that is gone: reload it once.
+        const k = "gdb-reload", last = +sessionStorage.getItem(k) || 0;
+        if (Date.now() - last > 60000) { sessionStorage.setItem(k, Date.now()); location.reload(); await new Promise(() => {}); }
+        throw Object.assign(new Error("item data " + r.status), { stale: true });
+      }
+      return unpack(new Uint8Array(await r.arrayBuffer()));
+    }
     return unpack(Uint8Array.from(atob(el.textContent.trim()), ch => ch.charCodeAt(0)));
   }
   let DB;
   try { DB = await load($("gdb")); }
-  catch (e) { document.querySelector("main").insertAdjacentHTML("afterbegin", '<p class="msg err">This browser could not unpack the item data (' + String(e.message).replace(/</g, "&lt;") + '). Try a current Chrome, Edge, Firefox or Safari.</p>'); return; }
+  catch (e) { document.querySelector("main").insertAdjacentHTML("afterbegin", '<p class="msg err">' + (e.stale ? 'The item data did not load. Press Ctrl+F5 (Cmd+Shift+R on a Mac) to reload the page.' : 'This browser could not unpack the item data (' + String(e.message).replace(/</g, "&lt;") + '). Try a current Chrome, Edge, Firefox or Safari.') + '</p>'); return; }
   const M = DB.meta;
   const KEY = "crafted-upgrades-v1";
   let store = {};
