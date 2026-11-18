@@ -528,9 +528,8 @@ def main():
     print('Tools from', SRC)
     os.makedirs(PUB, exist_ok=True)
     shutil.rmtree(os.path.join(PUB, IMG_DIR), ignore_errors=True)   # icons of this build only
-    for f in os.listdir(os.path.join(PUB, 'data')) if os.path.isdir(os.path.join(PUB, 'data')) else []:
-        if f.startswith('gear-') and f.endswith('.bin'):
-            os.remove(os.path.join(PUB, 'data', f))
+    # Old gear-<hash>.bin files stay: a tab or prerendered page from before a deploy still asks for its own file.
+    # The name only changes when the item data does, so they don't pile up.
     write_icons()
     os.makedirs(os.path.join(PUB, 'downloads'), exist_ok=True)
     shutil.copyfile(os.path.join(SRC, 'crafted-upgrades/GearSnapshot.zip'), os.path.join(PUB, 'downloads/GearSnapshot.zip'))
