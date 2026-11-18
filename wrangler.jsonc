@@ -19,5 +19,7 @@
   // Secrets ADMIN_PASSWORD and TURNSTILE_SECRET, and the TURNSTILE_SITEKEY variable, are set in the Cloudflare dashboard.
   // Secrets (e.g. ADMIN_PASSWORD) and dashboard variables are kept on deploy, never stored in this repo.
   "keep_vars": true,
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Needed by Cloudflare's PR builds (`wrangler preview`). Empty = previews use the settings above.
+  "previews": {}
 }
