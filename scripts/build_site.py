@@ -318,7 +318,7 @@ def build_home(updates):
     steps = [
         (path_of('crafted') if 'crafted' in TOOL else '/', 'Find gear upgrades', 'Better gear for your class, and where to get it'),
         ('/setup/', 'Set up once', 'Three addons, then load your files: your own gear, bags and prices'),
-        (path_of('leveling') if 'leveling' in TOOL else '/', 'Level Tailoring & Enchanting', 'The cheapest way, step by step'),
+        (path_of('leveling') if 'leveling' in TOOL else '/', 'Level your professions', 'Cheapest way, step by step, plus fishing'),
     ]
     step_html = ''.join('<a class="ws-card"%s href="%s"><b>%s</b><span>%s</span></a>' % (
         ' data-ws-open-files' if h == '#files' else '', h, esc(a), esc(b)) for h, a, b in steps)
