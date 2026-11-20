@@ -4,17 +4,20 @@
 // (around 17:00 UTC). The cron in wrangler.jsonc checks it every 3 hours; a page view also starts a check when the
 // stored day is over a day behind (at most one try an hour), so it heals itself if cron runs fail.
 //
-// KV key `census`: {snapshot, fetched, horde[60], trend[days][60], trendDays[days]}
-//   horde = Horde characters on PvP realms per level (index = level - 1), trend = both factions per day (no faction split).
+// KV key `census`: {snapshot, fetched, horde[60], trend[days][60], trendDays[days], classes{Warrior: n, ...}}
+//   horde = Horde characters on PvP realms per level (index = level - 1), trend = both factions per day (no faction split),
+//   classes = Horde characters on PvP realms per class.
 //   Same numbers as level-census/fetch.py in the WoW Forever project.
 //
 // The census pages (CENSUS_PAGES) carry the census from build time inside `const MKT_DATA = {"snapshot":...,"horde":[...],
 // "trend":[...],"trendDays":[...],` (level-census/build.py writes these keys first, in this order). When the stored census is
 // newer, the Worker swaps that part of the page for the fresh numbers as the page streams out. Nothing else on the page
 // changes, and if the pattern is not found the page is served as it is.
+// Enchants (/enchants/) instead gets `window.WF_CENSUS = {snapshot, horde, classes}` in its <head>; its page code applies it.
 
 const API = 'https://classicplus.io/api/';
-export const CENSUS_PAGES = ['/mat-timing/', '/sell-spare-mats/', '/profession-leveling/', '/tailoring-finder/'];
+export const CENSUS_PAGES = ['/mat-timing/', '/sell-spare-mats/', '/profession-leveling/', '/tailoring-finder/', '/enchants/'];
+const HEAD_PAGES = ['/enchants/'];
 const RETRY_MS = 3600e3, STALE_MS = 26 * 3600e3;
 const DAY = /^\d{4}-\d\d-\d\d$/;
 const enc = new TextEncoder(), dec = new TextDecoder();
@@ -31,11 +34,14 @@ const counts = a => Array.isArray(a) && a.length === 60 && a.every(x => Number.i
 export function makeCensus(meta, lv) {
   const pvp = lv && lv.datasets && lv.datasets.pvp;
   if (!pvp || !DAY.test(lv.snapshotDate) || !Array.isArray(meta.combos) || !Array.isArray(meta.races)) throw new Error('census: unexpected shape');
-  const horde = new Array(60).fill(0);
+  const horde = new Array(60).fill(0), classes = {}, byClass = meta.datasets && meta.datasets.pvp && meta.datasets.pvp.counts;
   meta.combos.forEach((cb, i) => {
-    const race = meta.races[cb.race], row = pvp.counts[i] || [];
-    if (race && race.faction === 'Horde') for (let l = 0; l < 60; l++) horde[l] += +row[l] || 0;
+    const race = meta.races[cb.race], row = pvp.counts[i] || [], cls = meta.classes && meta.classes[cb.class];
+    if (!race || race.faction !== 'Horde') return;
+    for (let l = 0; l < 60; l++) horde[l] += +row[l] || 0;
+    if (cls && /^[A-Za-z ]{2,20}$/.test(cls.name) && Array.isArray(byClass)) classes[cls.name] = (classes[cls.name] || 0) + (Math.round(+byClass[i]) || 0);
   });
+  if (Object.keys(classes).length < 5 || Object.values(classes).some(n => !Number.isInteger(n) || n < 0)) throw new Error('census: bad class counts');
   const days = pvp.trend.days, trend = pvp.trend.classLevels.map(cl => {
     const a = new Array(60).fill(0);
     for (const c of cl) for (let l = 0; l < 60; l++) a[l] += +c[l] || 0;
@@ -43,7 +49,7 @@ export function makeCensus(meta, lv) {
   });
   if (!counts(horde) || horde.reduce((a, b) => a + b, 0) < 1000) throw new Error('census: too few characters');
   if (!Array.isArray(days) || days.length !== trend.length || !days.every(d => DAY.test(d)) || !trend.every(counts)) throw new Error('census: bad trend');
-  return { snapshot: lv.snapshotDate, fetched: new Date().toISOString(), horde, trend, trendDays: days };
+  return { snapshot: lv.snapshotDate, fetched: new Date().toISOString(), horde, trend, trendDays: days, classes };
 }
 
 // Fetch from classicplus.io and store when it has a newer day. Returns the census now in KV.
@@ -51,7 +57,7 @@ export async function refreshCensus(env) {
   await env.WOW.put('census:try', String(Date.now()), { expirationTtl: 7200 });
   const old = await env.WOW.get('census', 'json');
   const lv = await get('census/levels');
-  if (old && old.snapshot >= lv.snapshotDate) return old;
+  if (old && old.classes && old.snapshot >= lv.snapshotDate) return old;
   const c = makeCensus(await get('census'), lv);
   await env.WOW.put('census', JSON.stringify(c));
   console.log('census', c.snapshot, c.horde.reduce((a, b) => a + b, 0));
@@ -60,7 +66,7 @@ export async function refreshCensus(env) {
 
 export async function storedCensus(env, ctx) {
   const c = await env.WOW.get('census', { type: 'json', cacheTtl: 300 });
-  if (!c || Date.now() - Date.parse(c.snapshot + 'T17:00:00Z') > STALE_MS) {
+  if (!c || !c.classes || Date.now() - Date.parse(c.snapshot + 'T17:00:00Z') > STALE_MS) {
     const t = +(await env.WOW.get('census:try', { cacheTtl: 60 })) || 0;
     if (Date.now() - t > RETRY_MS) ctx.waitUntil(refreshCensus(env).catch(e => console.error(e)));
   }
@@ -126,6 +132,11 @@ export async function censusPage(request, env, ctx) {
   if ((request.headers.get('if-none-match') || '').split(',').some(t => t.trim() === tag)) {
     await res.body.cancel();
     return new Response(null, { status: 304, headers: out });
+  }
+  if (HEAD_PAGES.includes(new URL(request.url).pathname)) {
+    if (!c.classes) return new Response(res.body, { status: 200, headers: out });
+    const js = '<script>window.WF_CENSUS=' + JSON.stringify({ snapshot: c.snapshot, horde: c.horde, classes: c.classes }) + '</script>';
+    return new HTMLRewriter().on('head', { element(e) { e.append(js, { html: true }); } }).transform(new Response(res.body, { status: 200, headers: out }));
   }
   const b = await splice(res.body, c);
   return new Response(b.unchanged ? b.stream : b, { status: 200, headers: out });

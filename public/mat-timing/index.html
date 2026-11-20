@@ -692,7 +692,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <p>Caveats: the census only counts characters level 10+ whose data reached classicplus.io (a sample, not the whole realm). It covers both PvP realms, and the daily trend has no faction split. AH prices also jump for other reasons, such as one big seller, a holiday, or a patch. Treat the tags as a hint.</p>
 </section>
 
-<footer>Level census: classicplus.io (the source behind realmsforever.com's level chart), Horde characters on PvP realms, snapshot 2026-11-15. Prices and listed counts: Auctionator scans.</footer>
+<footer>Level census: classicplus.io (the source behind realmsforever.com's level chart), Horde characters on PvP realms, updated daily. Prices and listed counts: Auctionator scans.</footer>
 </div>
 
 <script>
@@ -801,7 +801,7 @@ const MKT = (function () {
 
 </script>
 <script>
-const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c518fb9ce.jpg", "4306": "/assets/i/4d7ee72b7b1435.jpg", "4338": "/assets/i/a8327363d319c5.jpg", "14047": "/assets/i/92c039560399f8.jpg", "2318": "/assets/i/0b6150430292f1.jpg", "2319": "/assets/i/233f5f578eac32.jpg", "4234": "/assets/i/83f4a3e44b5434.jpg", "4304": "/assets/i/001b38b7a0a009.jpg", "8170": "/assets/i/c8696198f164c3.jpg", "10940": "/assets/i/5a8306ac0fcfc7.jpg", "11083": "/assets/i/72f0805ed93ce7.jpg", "11137": "/assets/i/14daad377e9de0.jpg", "11176": "/assets/i/4ef7ebdcc7b443.jpg", "16204": "/assets/i/19f3812206d90d.jpg", "10938": "/assets/i/58324a840d6772.jpg", "10939": "/assets/i/01b2622655d0f3.jpg", "10998": "/assets/i/01086e329c1c79.jpg", "11082": "/assets/i/41d547507757b5.jpg", "11134": "/assets/i/fef0d5619abb37.jpg", "11135": "/assets/i/5d5bf77db12a68.jpg", "11174": "/assets/i/d3fa858cf0a32e.jpg", "11175": "/assets/i/0698eab922bd3f.jpg", "16202": "/assets/i/d1e65def664970.jpg", "16203": "/assets/i/21699fa2f3f47d.jpg", "10978": "/assets/i/042ff2ed9870b6.jpg", "11084": "/assets/i/c54f4dae739b38.jpg", "11138": "/assets/i/79bfd7edca506e.jpg", "11139": "/assets/i/c6039d069c0e4a.jpg", "11177": "/assets/i/5f9ed61888ba25.jpg", "11178": "/assets/i/3323908f946240.jpg", "14343": "/assets/i/aeba7b7c4ef213.jpg", "14344": "/assets/i/23819ef3924ef3.jpg", "2770": "/assets/i/a84a633cca26bc.jpg", "2771": "/assets/i/1d17f5529adfd7.jpg", "2772": "/assets/i/5ec5abf4b80486.jpg", "3858": "/assets/i/b6a34292bfe89b.jpg", "10620": "/assets/i/8d3547752a4399.jpg"};
+const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c518fb9ce.jpg", "4306": "/assets/i/4d7ee72b7b1435.jpg", "4338": "/assets/i/a8327363d319c5.jpg", "14047": "/assets/i/92c039560399f8.jpg", "2318": "/assets/i/0b6150430292f1.jpg", "2319": "/assets/i/233f5f578eac32.jpg", "4234": "/assets/i/83f4a3e44b5434.jpg", "4304": "/assets/i/001b38b7a0a009.jpg", "8170": "/assets/i/c8696198f164c3.jpg", "10940": "/assets/i/5a8306ac0fcfc7.jpg", "11083": "/assets/i/72f0805ed93ce7.jpg", "11137": "/assets/i/14daad377e9de0.jpg", "11176": "/assets/i/4ef7ebdcc7b443.jpg", "16204": "/assets/i/19f3812206d90d.jpg", "10938": "/assets/i/58324a840d6772.jpg", "10939": "/assets/i/01b2622655d0f3.jpg", "10998": "/assets/i/01086e329c1c79.jpg", "11082": "/assets/i/41d547507757b5.jpg", "11134": "/assets/i/fef0d5619abb37.jpg", "11135": "/assets/i/5d5bf77db12a68.jpg", "11174": "/assets/i/d3fa858cf0a32e.jpg", "11175": "/assets/i/0698eab922bd3f.jpg", "16202": "/assets/i/d1e65def664970.jpg", "16203": "/assets/i/21699fa2f3f47d.jpg", "10978": "/assets/i/042ff2ed9870b6.jpg", "11084": "/assets/i/c54f4dae739b38.jpg", "11138": "/assets/i/79bfd7edca506e.jpg", "11139": "/assets/i/c6039d069c0e4a.jpg", "11177": "/assets/i/5f9ed61888ba25.jpg", "11178": "/assets/i/3323908f946240.jpg", "14343": "/assets/i/aeba7b7c4ef213.jpg", "14344": "/assets/i/23819ef3924ef3.jpg", "2770": "/assets/i/a84a633cca26bc.jpg", "2771": "/assets/i/1d17f5529adfd7.jpg", "2772": "/assets/i/5ec5abf4b80486.jpg", "3858": "/assets/i/b6a34292bfe89b.jpg", "10620": "/assets/i/8d3547752a4399.jpg", "2996": "/assets/i/5ce1a262073c40.jpg", "2997": "/assets/i/fdb7477d152a90.jpg", "4305": "/assets/i/686020843aa361.jpg", "4339": "/assets/i/b4710c78c42b67.jpg", "14048": "/assets/i/81fcf8a57d0843.jpg"};
 (function () {
   const $ = id => document.getElementById(id), D = MKT.data, H = D.horde;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -854,13 +854,29 @@ const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c
   const kindOf = k => ['dust', 'essence', 'shard'].includes(k) ? 'ench' : k;
   let F = 'all'; try { F = localStorage.getItem('mkt-filter') || 'all'; } catch (e) {}
   const ORDER = { low: 0, buy: 1, wait: 2, steady: 3, dear: 4 };
+  // bolts: same tag as the cloth they're made from (MKT alias), their own auction price
+  [[2996, 'Bolt of Linen Cloth', 2], [2997, 'Bolt of Woolen Cloth', 3], [4305, 'Bolt of Silk Cloth', 4], [4339, 'Bolt of Mageweave', 5], [14048, 'Bolt of Runecloth', 5]]
+    .forEach(([id, n, x]) => { const c = D.mats[D.alias[id]]; if (c && !D.mats[id]) D.mats[id] = { n, k: 'cloth', lo: c.lo, hi: c.hi, h: [], of: D.alias[id], x }; });
+  MKT.refresh();
+  const grp = id => +(D.mats[id].of || id);   // a bolt sorts right after its cloth
+  // bolt vs its cloth, same scan day: "Make it" when the bolt sells 15%+ above the cloth (bolts sell ~10x slower and each
+  // listing pays a deposit, so a small gap isn't worth it), "Buy bolts" when it costs 5%+ less
+  function boltLine(m) {
+    const c = D.mats[m.of], nm = m.x + ' ' + esc(c.n), bh = (m.h || []).filter(r => r[1] > 1), b = bh[bh.length - 1];
+    const k = b && (c.h || []).find(r => r[0] === b[0] && r[1] > 1);
+    if (!k) return 'Made from ' + nm;
+    const cost = m.x * k[1], r = b[1] / cost, pc = Math.round(Math.abs(r - 1) * 100);
+    const tag = r >= 1.15 ? '<span class="mkt low" title="' + esc('A bolt sells for ' + pc + '% more than ' + m.x + ' ' + c.n + '. Tailors: buy the cloth and make bolts, and sell bolts, not cloth.') + '">Make it +' + pc + '%</span>'
+      : r <= 0.95 ? '<span class="mkt dear" title="' + esc('A bolt costs ' + pc + '% less than ' + m.x + ' ' + c.n + '. Buy bolts instead of cloth, and sell plain cloth.') + '">Buy bolts −' + pc + '%</span>' : '';
+    return nm + ' = ' + MKT.silver(cost) + (tag ? ' · ' + tag : '');
+  }
   function card(id) {
     const s = MKT.mat(id), m = D.mats[id], h = (m.h || []).filter(r => r[1] > 1), last = h[h.length - 1];
     const bar = (lbl, v, cls) => '<span>' + lbl + '</span><span class="b' + (cls ? ' ' + cls : '') + '"><span style="width:' + Math.min(100, v * 100 / 0.6) + '%"></span></span><span>' + MKT.pct(v) + '</span>';
     const rows = (m.h || []).slice(-5).map(r => '<tr><td>' + day(r[0]) + '</td><td>' + (r[1] > 1 ? MKT.silver(r[1]) : '—') + '</td><td>' + (r[2] ? r[2].toLocaleString() : '—') + '</td></tr>').join('');
     return '<div class="mc" data-kind="' + kindOf(m.k) + '">' + (ICONS[id] ? '<img src="' + ICONS[id] + '" alt="">' : '<span></span>') +
       '<span class="nm">' + esc(m.n) + '</span><span class="rt">' + MKT.pill(id) + (last ? '<span class="pr">' + MKT.dealTag(id) + MKT.silver(last[1]) + '</span>' : '') + '</span>' +
-      '<span class="meta">Drops at levels ' + m.lo + '–' + m.hi + ' · ' + MKT.pct(s.band.now) + ' of Horde there</span>' +
+      '<span class="meta">' + (m.of ? boltLine(m) : 'Drops at levels ' + m.lo + '–' + m.hi + ' · ' + MKT.pct(s.band.now) + ' of Horde there') + '</span>' +
       '<div class="det">' + esc(s.why) + '<div class="cmp">' + bar('There now', s.band.now) + bar('In a week', s.band.wk, 'wk') + '</div>' +
       (rows ? '<table><thead><tr><th>Your scan</th><th>Cheapest</th><th>Listed</th></tr></thead><tbody>' + rows + '</tbody></table>' : '') + '</div></div>';
   }
@@ -869,7 +885,7 @@ const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c
       '<span class="key"><span class="mkt low">Buy now</span><span class="mkt wait">Wait</span><span class="mkt">No signal</span><span class="mkt-d">↓↑ vs usual price</span></span>';
     $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { F = b.dataset.k; try { localStorage.setItem('mkt-filter', F); } catch (e) {} render(); });
     const ids = Object.keys(D.mats).filter(id => F === 'all' || kindOf(D.mats[id].k) === F)
-      .sort((a, b) => ORDER[MKT.mat(a).k] - ORDER[MKT.mat(b).k] || D.mats[a].lo - D.mats[b].lo);
+      .sort((a, b) => ORDER[MKT.mat(a).k] - ORDER[MKT.mat(b).k] || D.mats[a].lo - D.mats[b].lo || grp(a) - grp(b) || !!D.mats[a].of - !!D.mats[b].of);
     $('grid').innerHTML = ids.map(card).join('');
   }
   render();
