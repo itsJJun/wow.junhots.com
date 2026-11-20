@@ -264,7 +264,9 @@
         ? '<div class="ws-fold"><b>WoW folder linked</b> <code>' + esc(dname) + '</code><div class="ws-fstats">' + stat + '</div>' +
           '<button type="button" class="ws-fbtn main ws-big" data-ws-refresh>↻ Refresh</button> <span class="ws-hint">after /reload in game</span></div>'
         : '<div class="ws-fold"><b>Link your WoW folder once</b><p>Pick the <code>_forever_</code> folder (or <code>WTF</code> in it). The site finds your files itself.</p>' +
-          '<button type="button" class="ws-fbtn main ws-big" data-ws-link>Pick WoW folder</button></div>')
+          '<button type="button" class="ws-fbtn main ws-big" data-ws-link>Pick WoW folder</button>' +
+          // Chrome refuses folders inside Program Files ("contains system files"): the plain folder upload still works there
+          '<p class="ws-alt">Chrome says “system files”? <label>Pick the WTF folder<input type="file" webkitdirectory data-ws-dir></label> instead.</p></div>')
       : '<div class="ws-fold"><b>Load your WoW files</b><p>Pick the <code>WTF</code> folder inside <code>_forever_</code>. Do it again after /reload in game.</p>' +
         '<label class="ws-fbtn main ws-big">Pick WTF folder<input type="file" webkitdirectory data-ws-dir></label>' + (Object.keys(m).length ? '<div class="ws-fstats">' + stat + '</div>' : '') + '</div>';
     pop.innerHTML = top + '<details class="ws-single"' + (FSA && !dname && Object.keys(m).length ? ' open' : '') + '><summary>Single files</summary>' + KINDS.map(function (k) {
