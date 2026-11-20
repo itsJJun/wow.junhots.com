@@ -502,6 +502,8 @@ def build_setup():
             'and choose <code>World of Warcraft\\_forever_</code>. The site finds the files itself.</p>'
             '<ul class="ws-steps"><li><b>Chrome or Edge:</b> next time you open the site, press <b>Load new game files</b>, then <b>Allow on every visit</b>. '
             'After that, new files load by themselves.</li>'
+            '<li><b>Chrome says “system files”?</b> WoW is in <code>Program Files</code>, which Chrome won\'t link. Press <b>Pick the WTF folder</b> instead, after each <code>/reload</code>. '
+            'Want it automatic? Move <code>World of Warcraft</code> to <code>C:\\Games</code>, then in Battle.net press <b>Locate the game</b>.</li>'
             '<li><b>Other browsers:</b> pick the <code>WTF</code> folder again after each <code>/reload</code>.</li></ul>'
             '<p>Load a file once and every tool uses it. Files stay in your browser and are never uploaded.</p>'
             '<p><a class="ws-cta" href="#" data-ws-open-files>Load game files</a></p></div>' % rows)
