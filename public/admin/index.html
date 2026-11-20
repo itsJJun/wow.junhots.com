@@ -451,7 +451,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div></div>
 <div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
 <main class="ws-main">
-<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div><form class="own-lock" id="ownLock"><label>Password <input id="ownPw" type="password" autocomplete="current-password" required></label><button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form><div id="ownBody" class="ws-prose" hidden><h2>Auction prices</h2><p id="ownScan"></p><p>In game: Auctionator full scan, then /reload. Then press Upload latest scan.</p><p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> <label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p><h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul><p><button type="button" class="own-out" id="ownOut">Lock</button></p></div><script>
+<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div><form class="own-lock" id="ownLock"><label>Password <input id="ownPw" type="password" autocomplete="current-password" required></label><button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form><div id="ownBody" class="ws-prose" hidden><h2>Auction prices</h2><p id="ownScan"></p><p>In game: Auctionator full scan, then /reload. Then press Upload latest scan. It also sends the suffix prices Gear Snapshot saved (items you clicked in the auction house).</p><p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> <label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p><h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul><p><button type="button" class="own-out" id="ownOut">Lock</button></p></div><script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, KEY = 'ws.admin';
   var pw = function () { try { return sessionStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
@@ -482,7 +482,22 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   $('ownLock').addEventListener('submit', function (e) {
     e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) upload(f); });
+  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { return uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
+  // Gear Snapshot saves a price per random suffix (Auctionator keeps one per item): every item you click in the AH,
+  // or all of them after a full scan. Pull those entries out of the Lua file: ["Name of Suffix"] = { ["p"] = …, ["t"] = …, ["n"] = … }
+  function sfxFromSnap(text) {
+    var items = {}, n = 0, re = /\["([^"\]]+ of [^"\]]+)"\] = \{([^{}]*)\}/g, m, num = function (b, k) { var x = b.match(new RegExp('\\["' + k + '"\\] = (\\d+)')); return x ? +x[1] : 0; };
+    while ((m = re.exec(text))) { var e = { p: num(m[2], 'p'), n: num(m[2], 'n'), t: num(m[2], 't') }; if (e.p && e.t) { items[m[1]] = e; n++; } }
+    var ah = text.indexOf('["ah"]'), full = ah < 0 ? null : text.slice(ah).match(/\["full"\] = (\d+)/);
+    return { items: items, count: n, full: full ? +full[1] : null };
+  }
+  function uploadSfx(text, msg, before) {
+    var x = sfxFromSnap(text);
+    if (!x.count) { msg.textContent = before + 'No suffix prices in Gear Snapshot yet (click items in the auction house, then /reload).'; return Promise.resolve(); }
+    return api('/api/admin/sfx', { method: 'POST', body: JSON.stringify({ items: x.items, full: x.full }), headers: { 'content-type': 'application/json' } }).then(function (j) {
+      msg.textContent = before + x.count.toLocaleString() + ' suffix prices sent (' + j.count.toLocaleString() + ' on the site now).';
+    }, function (e) { msg.textContent = before + 'Suffix prices not sent: ' + e.message; });
+  }
   // one click: the newest Auctionator.lua from the WoW folder linked in Load game files (or the last one loaded there)
   $('ownLatest').addEventListener('click', function () {
     var msg = $('ownMsg'), W = window.wsFiles;
@@ -500,7 +515,11 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       var rec = window.WFAH.parse(new Uint8Array(buf));   // same parser the pages use: refuse a file they cannot read
       msg.textContent = 'Uploading: ' + rec.items.toLocaleString() + ' prices, scanned ' + when(rec.scan * 1000) + '…';
       return api('/api/admin/ah', { method: 'POST', body: buf, headers: { 'x-file-name': f.name, 'x-scan': String(rec.scan) } }).then(function () {
-        msg.textContent = 'Done. ' + rec.items.toLocaleString() + ' prices from ' + when(rec.scan * 1000) + ' are live (visitors see them within 5 minutes).'; scanInfo();
+        var done = 'Done. ' + rec.items.toLocaleString() + ' prices from ' + when(rec.scan * 1000) + ' are live (visitors see them within 5 minutes). ';
+        msg.textContent = done; scanInfo();
+        // then the suffix prices from Gear Snapshot, if the WoW folder has it
+        var W = window.wsFiles; if (!W) return;
+        return W.get('snap').then(function (s) { if (s && s.data) return uploadSfx(new TextDecoder().decode(s.data), msg, done); });
       });
     }).catch(function (e) { msg.textContent = 'Not uploaded: ' + e.message; });
   }

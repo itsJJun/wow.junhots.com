@@ -415,7 +415,22 @@ ADMIN_JS = r"""
   $('ownLock').addEventListener('submit', function (e) {
     e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) upload(f); });
+  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { return uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
+  // Gear Snapshot saves a price per random suffix (Auctionator keeps one per item): every item you click in the AH,
+  // or all of them after a full scan. Pull those entries out of the Lua file: ["Name of Suffix"] = { ["p"] = …, ["t"] = …, ["n"] = … }
+  function sfxFromSnap(text) {
+    var items = {}, n = 0, re = /\["([^"\]]+ of [^"\]]+)"\] = \{([^{}]*)\}/g, m, num = function (b, k) { var x = b.match(new RegExp('\\["' + k + '"\\] = (\\d+)')); return x ? +x[1] : 0; };
+    while ((m = re.exec(text))) { var e = { p: num(m[2], 'p'), n: num(m[2], 'n'), t: num(m[2], 't') }; if (e.p && e.t) { items[m[1]] = e; n++; } }
+    var ah = text.indexOf('["ah"]'), full = ah < 0 ? null : text.slice(ah).match(/\["full"\] = (\d+)/);
+    return { items: items, count: n, full: full ? +full[1] : null };
+  }
+  function uploadSfx(text, msg, before) {
+    var x = sfxFromSnap(text);
+    if (!x.count) { msg.textContent = before + 'No suffix prices in Gear Snapshot yet (click items in the auction house, then /reload).'; return Promise.resolve(); }
+    return api('/api/admin/sfx', { method: 'POST', body: JSON.stringify({ items: x.items, full: x.full }), headers: { 'content-type': 'application/json' } }).then(function (j) {
+      msg.textContent = before + x.count.toLocaleString() + ' suffix prices sent (' + j.count.toLocaleString() + ' on the site now).';
+    }, function (e) { msg.textContent = before + 'Suffix prices not sent: ' + e.message; });
+  }
   // one click: the newest Auctionator.lua from the WoW folder linked in Load game files (or the last one loaded there)
   $('ownLatest').addEventListener('click', function () {
     var msg = $('ownMsg'), W = window.wsFiles;
@@ -433,7 +448,11 @@ ADMIN_JS = r"""
       var rec = window.WFAH.parse(new Uint8Array(buf));   // same parser the pages use: refuse a file they cannot read
       msg.textContent = 'Uploading: ' + rec.items.toLocaleString() + ' prices, scanned ' + when(rec.scan * 1000) + '…';
       return api('/api/admin/ah', { method: 'POST', body: buf, headers: { 'x-file-name': f.name, 'x-scan': String(rec.scan) } }).then(function () {
-        msg.textContent = 'Done. ' + rec.items.toLocaleString() + ' prices from ' + when(rec.scan * 1000) + ' are live (visitors see them within 5 minutes).'; scanInfo();
+        var done = 'Done. ' + rec.items.toLocaleString() + ' prices from ' + when(rec.scan * 1000) + ' are live (visitors see them within 5 minutes). ';
+        msg.textContent = done; scanInfo();
+        // then the suffix prices from Gear Snapshot, if the WoW folder has it
+        var W = window.wsFiles; if (!W) return;
+        return W.get('snap').then(function (s) { if (s && s.data) return uploadSfx(new TextDecoder().decode(s.data), msg, done); });
       });
     }).catch(function (e) { msg.textContent = 'Not uploaded: ' + e.message; });
   }
@@ -495,7 +514,7 @@ def build_admin():
             '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
             '<div id="ownBody" class="ws-prose" hidden>'
             '<h2>Auction prices</h2><p id="ownScan"></p>'
-            '<p>In game: Auctionator full scan, then /reload. Then press Upload latest scan.</p>'
+            '<p>In game: Auctionator full scan, then /reload. Then press Upload latest scan. It also sends the suffix prices Gear Snapshot saved (items you clicked in the auction house).</p>'
             '<p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> '
             '<label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
             '<h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul>'
