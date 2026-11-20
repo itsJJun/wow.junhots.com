@@ -4,12 +4,31 @@
 // Storage: one KV namespace, binding WOW (this Worker's own; never the junhots.com one).
 //   ah:latest            the newest Auctionator.lua uploaded on /admin/ (raw bytes), metadata {at, size, name}
 //   ah:day:YYYY-MM-DD    one upload per day, kept 120 days (price history for later)
+//   sfx:latest           auction prices per random suffix ("Darkmist Wizard Hat of Shadow Wrath"), JSON
+//                        {at, full, items: {name: {p, n, t}}}, merged from the Gear Snapshot files uploaded on /admin/
 //   fb:<time>-<id>       one feedback report (JSON), kept 180 days
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
 
 const MAX_AH = 8 * 1024 * 1024;
+const MAX_SFX = 2 * 1024 * 1024;
+const SFX_KEEP_DAYS = 30;
+
+// Merge newly uploaded suffix prices into the stored ones. A full scan replaces everything older than it;
+// otherwise the newer entry per name wins. Entries older than SFX_KEEP_DAYS are dropped.
+function mergeSfx(old, add) {
+  const items = {}, cut = Date.now() / 1000 - SFX_KEEP_DAYS * 86400;
+  const full = Math.max(+old.full || 0, +add.full || 0) || null;
+  for (const [k, e] of Object.entries(old.items || {})) if (e.t > cut && !(add.full && e.t < add.full)) items[k] = e;
+  for (const [k, e] of Object.entries(add.items || {})) {
+    if (typeof k !== 'string' || k.length > 120 || !k.includes(' of ')) continue;
+    const v = { p: Math.round(+e.p) || 0, n: Math.round(+e.n) || 0, t: Math.round(+e.t) || 0 };
+    if (v.p <= 0 || v.t <= cut) continue;
+    if (!items[k] || v.t >= items[k].t) items[k] = v;
+  }
+  return { at: Date.now(), full, items };
+}
 const FB_PER_HOUR = 5;
 const ADMIN_FAILS_PER_HOUR = 10;
 
@@ -58,6 +77,16 @@ async function admin(request, env, url) {
       env.WOW.put('ah:day:' + day, buf, { metadata: meta, expirationTtl: 120 * 86400 }),
     ]);
     return json({ ok: true, ...meta });
+  }
+  // suffix prices from a Gear Snapshot file, read in the browser: {items: {name: {p, n, t}}, full}
+  if (p === '/api/admin/sfx' && request.method === 'POST') {
+    const text = await request.text();
+    if (!text || text.length > MAX_SFX) return json({ error: 'Suffix prices must be under 2 MB.' }, 400);
+    let add; try { add = JSON.parse(text); } catch (e) { return json({ error: 'Bad suffix prices.' }, 400); }
+    if (!add || typeof add.items !== 'object') return json({ error: 'Bad suffix prices.' }, 400);
+    const merged = mergeSfx((await env.WOW.get('sfx:latest', 'json')) || {}, add);
+    await env.WOW.put('sfx:latest', JSON.stringify(merged));
+    return json({ ok: true, at: merged.at, count: Object.keys(merged.items).length, full: merged.full });
   }
   if (p === '/api/admin/feedback' && request.method === 'GET') {
     const list = await env.WOW.list({ prefix: 'fb:', limit: 200 });
@@ -118,6 +147,11 @@ export default {
         const r = await env.WOW.getWithMetadata('ah:latest', 'arrayBuffer');
         if (!r.value) return json({ error: 'No scan yet.' }, 404);
         return new Response(r.value, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300', etag: '"' + r.metadata.at + '"' } });
+      }
+      // suffix prices shared by the site owner's uploads; Gear upgrades merges them with the visitor's own
+      if (p === '/api/sfx' && request.method === 'GET') {
+        const v = await env.WOW.get('sfx:latest', 'text');
+        return new Response(v || '{"items":{}}', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
       }
       if (p === '/api/feedback' && request.method === 'POST') return await feedback(request, env);
       if (p.startsWith('/api/admin/')) return await admin(request, env, url);

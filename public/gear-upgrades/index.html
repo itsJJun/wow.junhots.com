@@ -317,6 +317,8 @@ body { font-size: 14px; line-height: 1.4; }
 .wn { display: inline-block; font: 600 10.5px/16px var(--body); padding: 0 7px; border-radius: 99px; white-space: nowrap; text-transform: none; letter-spacing: 0; }
 .wn.now { color: var(--good); background: color-mix(in srgb, var(--good) 15%, transparent); }
 .wn.lvl { color: var(--warn); background: color-mix(in srgb, var(--warn) 15%, transparent); }
+.slot:not(.all) .opt.xtra { display: none; }
+.slot .allopts { justify-self: start; margin-top: 2px; }
 </style>
 <!--wf-theme-->
 <style id="wf-theme">
@@ -1449,11 +1451,32 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     return out;
   }
   // Prices per suffix come from the Gear Snapshot file (S.gear.sfx); Auctionator and TSM price the base item only.
-  function sfxInfo(name) {
-    const x = S.gear && S.gear.sfx; if (!x) return null;
-    const e = x.items && x.items[name];
-    return e ? { p: e.p, n: e.n, t: e.t } : (x.full ? { n: 0, full: x.full } : null);
+  // An item you clicked in the auction house lists every suffix on sale then: a suffix missing from it was not listed.
+  // Suffix prices: your own Gear Snapshot file (S.gear.sfx) plus, on the website, the ones the site owner uploaded
+  // (/api/sfx). The newer entry per name wins. A suffix older than the last look at its item had sold out by then.
+  let SITESFX = null, SFX = null;
+  function sfxData() {
+    const own = S.gear && S.gear.sfx;
+    if (!own && !SITESFX) return null;
+    if (SFX && SFX.own === own && SFX.site === SITESFX) return SFX;
+    const items = {}, add = x => { for (const k in (x && x.items) || {}) { const e = x.items[k]; if (!items[k] || e.t > items[k].t) items[k] = e; } };
+    add(SITESFX); add(own);
+    const seen = {};
+    for (const k in items) { const i = k.indexOf(" of "); if (i > 0) { const b = k.slice(0, i); seen[b] = Math.max(seen[b] || 0, items[k].t || 0); } }
+    const full = Math.max((own && own.full) || 0, (SITESFX && SITESFX.full) || 0) || null;
+    return (SFX = { own, site: SITESFX, items, seen, full, count: Object.keys(items).length });
   }
+  function sfxInfo(name, base) {
+    const x = sfxData(); if (!x) return null;
+    const e = x.items[name], seen = base ? x.seen[base] || 0 : 0;
+    if (e && !(seen && e.t < seen - 600)) return { p: e.p, n: e.n, t: e.t };
+    if (seen && (!x.full || seen > x.full)) return { n: 0, full: seen, looked: 1 };
+    if (x.full) return { n: 0, full: x.full };
+    return null;
+  }
+  if ($("gdb").dataset.src) fetch("/api/sfx").then(r => r.ok ? r.json() : null).then(j => {
+    if (j && j.items && Object.keys(j.items).length) { SITESFX = j; if (window.__gearUpgrades) { POOL = null; optCache.clear(); render(); } }
+  }).catch(() => {});
 
   // ---------- candidates for this character ----------
   const INV_SLOT = { 1: "head", 2: "neck", 3: "shoulder", 16: "back", 5: "chest", 20: "chest", 9: "wrist", 10: "hands", 6: "waist", 7: "legs", 8: "feet", 11: "finger", 12: "trinket", 17: "twohand", 15: "ranged", 25: "ranged", 26: "ranged", 28: "ranged" };
@@ -1555,7 +1578,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   }
   function buildPool() {
     const L = +S.level, H = L + +S.ahead;
-    const key = [P.cls, P.spec, P.race, L, S.ahead, S.skill.tailoring > 0, S.skill.enchanting > 0, JSON.stringify(S.prof), S.gear ? S.gear.date : "", S.gear && S.gear.sfx ? S.gear.sfx.count : 0].join("|");
+    const key = [P.cls, P.spec, P.race, L, S.ahead, S.skill.tailoring > 0, S.skill.enchanting > 0, JSON.stringify(S.prof), S.gear ? S.gear.date : "", sfxData() ? sfxData().count + ":" + (SITESFX ? SITESFX.at : 0) : 0].join("|");
     if (POOL && POOL.key === key) return POOL;
     const raw = { mainhand: [], offhand: [] };
     SLOTS.forEach(([s]) => raw[s] = []);
@@ -1574,8 +1597,8 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
         const seen = new Set(); vs = [];
         for (const v of all) { if (seen.has(v.sfxName) || v.sc <= 0.3) continue; seen.add(v.sfxName); vs.push(v); if (vs.length >= 4) break; }
         if (!vs.length) continue;
-        const priced = vs.filter(v => { const i = sfxInfo(v.n); return i && i.p; });
-        vs = priced.length ? priced : [vs[0]];
+        const priced = vs.filter(v => { const i = sfxInfo(v.n, v.base); return i && i.p; });
+        vs = priced.includes(vs[0]) ? priced : [vs[0]].concat(priced);
       }
       for (const c of vs) {
         if (c.olv > H) continue;
@@ -1661,12 +1684,11 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       if (seen[kind]) continue; seen[kind] = 1;
       let cost = kind === "buy" ? s.ah : 0, unpriced = false, sfx = null;
       if (kind === "buy" && c.suf) {
-        sfx = sfxInfo(c.n);
+        sfx = sfxInfo(c.n, c.base);
         if (sfx && sfx.p) cost = sfx.p;
-        else if (sfx && sfx.full) continue; // your full scan had none with this suffix: not buyable now
-        else { cost = null; unpriced = true; }
+        else { cost = null; unpriced = true; } // price unknown, or none listed (sfx.full): shown, never planned
       }
-      out.push({ c, kind, s, cost, unpriced, sfx, lev: 0, pat: 0, mat: 0, fav: 0 });
+      out.push({ c, kind, s, cost, unpriced, none: !!(sfx && sfx.full && !sfx.p), sfx, lev: 0, pat: 0, mat: 0, fav: 0 });
     }
     return out;
   }
@@ -1825,9 +1847,9 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       if (!o.s) return { pill, main: 'Auction house', sub: [(c.ahq || "a few") + ' listed'] };
       if (!c.suf) return { pill, main: 'Auction house', sub: [(s.ahq || "a few") + ' listed'] };
       const sn = esc(c.sfxName || c.n.replace(/^.* (of .*)$/, "$1"));
-      if (o.sfx && o.sfx.p) return { pill, main: 'Auction house', sub: [o.sfx.n + ' “' + sn + '” listed', o.sfx.t && 'seen ' + new Date(o.sfx.t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" })] };
-      if (o.sfx && o.sfx.full) return { pill, main: '<b style="color:var(--bad)">No “' + sn + '” listed</b>', sub: ['other suffixes from ' + coin(s.ah)] };
-      return { pill, main: '<b style="color:var(--warn)">“' + sn + '” price unknown</b>', sub: [(s.ahq || "?") + ' listed with any suffix, from ' + coin(s.ah), 'this suffix usually costs more'] };
+      if (o.sfx && o.sfx.p) return { pill, main: 'Auction house', sub: [o.sfx.n + ' listed with “' + sn + '”', o.sfx.t && 'seen ' + new Date(o.sfx.t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" })] };
+      if (o.sfx && o.sfx.full) return { pill, main: '<b style="color:var(--bad)">None listed</b>', sub: [(o.sfx.looked ? 'when you looked ' : 'in your scan ') + new Date(o.sfx.full * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" }), 'other suffixes from ' + coin(s.ah)] };
+      return { pill, main: '<b style="color:var(--warn)">Price unknown</b>', sub: ['other suffixes from ' + coin(s.ah), 'click it in the auction house to see “' + sn + '”'] };
     }
     const pat = { own: 'materials not priced here', known: 'pattern known', fav: 'pattern ' + c.fav + ' Merchant\'s Favor', train: 'trainer ' + coin(c.train), trainer: 'trainer recipe', ah: 'pattern on AH ' + coin(c.patah), vendor: 'pattern from a vendor ' + coin(c.patv), drop: 'pattern only drops' + (c.drops ? ': ' + esc(c.drops.join(", ")) : '') }[o.patHow];
     return { pill: '<span class="pill good">Craft</span>', main: '<b>' + c.prof + ' ' + c.sk + '</b> ' + (o.cur >= c.sk ? '<span class="ok">you can</span>' : '<span class="todo">' + (c.sk - o.cur) + ' skill to go</span>'),
@@ -2069,6 +2091,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       tr.onclick = e => { if (!e.target.closest("details")) go(); }; tr.onkeydown = e => { if (e.target.closest("details")) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
     });
   }
+  const ALLOPEN = new Set(); // slots showing every option
   function renderSlots(P2) {
     const b = P2.best;
     let h = "";
@@ -2081,26 +2104,41 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
         const g = gainOf(c); if (g <= 0.3) continue;
         options(c).forEach(o => list.push({ o, g }));
       }
-      list.sort((a, b2) => (!!a.o.unpriced - !!b2.o.unpriced) || b2.g - a.g || (optCost(a.o) || 0) - (optCost(b2.o) || 0));
+      const nowO = o => whenTag(o.c, o).includes('wn now');
+      list.sort((a, b2) => (nowO(b2.o) - nowO(a.o)) || b2.g - a.g || (!!a.o.unpriced - !!b2.o.unpriced) || (optCost(a.o) || 0) - (optCost(b2.o) || 0));
       const seen = new Set(); const top = [];
       for (const x of list) { const k = x.o.c.id + x.o.kind; if (seen.has(k)) continue; seen.add(k); top.push(x); }
       const pick = b.picks[slot];
-      const show = top.slice(0, 5);
-      if (pick && !show.some(x => x.o.c.id === pick.o.c.id && x.o.kind === pick.o.kind)) show.push(top.find(x => x.o.c.id === pick.o.c.id && x.o.kind === pick.o.kind));
+      const isP = x => pick && x.o.c.id === pick.o.c.id && x.o.kind === pick.o.kind;
+      // shown first, per group (now / later): the 3 best priced options, and the best suffix with no price yet if it beats them
+      const cnt = {}, topPriced = {};
+      top.forEach(x => { const g = nowO(x.o) ? "n" : "l"; if (!x.o.unpriced && !(g in topPriced)) topPriced[g] = x.g; });
+      const show = top.map(x => {
+        const g = (nowO(x.o) ? "n" : "l") + (x.o.unpriced ? "u" : "p"), lim = x.o.unpriced ? (x.g > (topPriced[g[0]] || 0) && !x.o.none ? 1 : 0) : 3;
+        const lead = (cnt[g] = (cnt[g] || 0) + 1) <= lim;
+        return Object.assign({ xtra: !lead && !isP(x) }, x);
+      });
+      const nX = show.filter(x => x.xtra).length;
       h += '<article class="slot" id="slot-' + slot + '"><div class="sh"><h3>' + label + '</h3><span class="small muted">' + top.length + ' option' + (top.length === 1 ? "" : "s") + '</span></div>' +
         '<div class="worn">' + iconC(w, "sm") + '<span>Wearing <b class="q' + w.q + '">' + esc(w.n) + '</b> · ' + score(w, L).toFixed(1) + (w.got ? ' <button class="btn tiny" data-ungot="' + slot + '" type="button">undo</button>' : '') + '</span></div>';
       if (!show.length) h += '<p class="none">Nothing beats it within your look-ahead.</p>';
-      show.filter(Boolean).forEach(x => {
-        const o = x.o, c = o.c; const isPick = pick && pick.o.c.id === c.id && pick.o.kind === o.kind;
+      show.forEach(x => {
+        const o = x.o, c = o.c; const isPick = isP(x);
         const cost = optCost(o);
-        h += '<div class="opt' + (isPick ? " best" : "") + '" data-cid="' + c.id + '">' + iconC(c, "") + '<div><div class="nm q' + c.q + '">' + esc(c.n) + '</div><div class="small muted">' + whenTag(c, o) + ' ' + (c.setup ? SETUP_NAME[c.setup] : '') + '</div>' + statsHtml(c, w) + '</div>' +
-          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span><span class="small">' + (isFree(o) ? '<span class="muted">free</span>' : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + o.fav + ' favor</span>' : '') + '</span></div>' +
+        h += '<div class="opt' + (isPick ? " best" : "") + (x.xtra ? " xtra" : "") + '" data-cid="' + c.id + '">' + iconC(c, "") + '<div><div class="nm q' + c.q + '">' + esc(c.n) + '</div><div class="small muted">' + whenTag(c, o) + ' ' + (c.setup ? SETUP_NAME[c.setup] : '') + '</div>' + statsHtml(c, w) + '</div>' +
+          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span><span class="small">' + (isFree(o) ? '<span class="muted">free</span>' : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : o.none ? "none listed" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + o.fav + ' favor</span>' : '') + '</span></div>' +
           '<div class="how">' + optHow(o) + (o.kind === "craft" && o.lev ? '<span>Leveling to ' + c.sk + ': <b>' + coin(o.lev) + '</b></span>' : '') + (o.kind === "craft" && !o.ok ? '<span class="pill bad">pattern not on the AH right now</span>' : '') + '</div>' +
           '<div class="acts"><button class="btn tiny" type="button" data-got="' + c.id + '">I got this</button>' + (o.kind === "craft" && o.prof && !S.known[c.spell] && o.patHow !== "trainer" ? '<button class="btn tiny" type="button" data-known="' + c.spell + '">I know the pattern</button>' : (o.kind === "craft" && o.prof && S.known[c.spell] ? '<button class="btn tiny" type="button" data-unknown="' + c.spell + '">forget pattern</button>' : '')) + '</div></div>';
       });
+      if (nX) h += '<button class="btn tiny allopts" type="button" data-all="' + slot + '">Show all ' + top.length + '</button>';
       h += '</article>';
     }
     $("slots").innerHTML = h;
+    $("slots").querySelectorAll("[data-all]").forEach(bt => {
+      const art = bt.closest(".slot"), k = bt.dataset.all, set = v => { art.classList.toggle("all", v); bt.textContent = v ? "Show fewer" : "Show all " + art.querySelectorAll(".opt").length; };
+      set(ALLOPEN.has(k));
+      bt.onclick = () => { ALLOPEN.has(k) ? ALLOPEN.delete(k) : ALLOPEN.add(k); set(ALLOPEN.has(k)); };
+    });
     $("slots").querySelectorAll("[data-got]").forEach(bt => bt.onclick = () => gotIt(bt.dataset.got));
     $("slots").querySelectorAll("[data-ungot]").forEach(bt => bt.onclick = () => { delete S.got[bt.dataset.ungot]; save(); render(); });
     $("slots").querySelectorAll("[data-known]").forEach(bt => bt.onclick = () => { S.known[bt.dataset.known] = 1; save(); render(); });
@@ -2116,7 +2154,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       for (const c of slotCands(slot)) {
         if (!c || !avail(c) || S.got[slot] === c.id) continue;
         const g = gainOf(c); if (g <= 0.3) continue;
-        for (const o of options(c)) { if (o.kind === "craft" && !o.ok) continue; rows.push({ o, g, slot, cat: catOf(o) }); }
+        for (const o of options(c)) { if ((o.kind === "craft" && !o.ok) || o.none) continue; rows.push({ o, g, slot, cat: catOf(o) }); }
       }
     }
     const count = {}; CATS.forEach(([k]) => count[k] = 0);
