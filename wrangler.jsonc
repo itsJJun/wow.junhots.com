@@ -4,13 +4,14 @@
   "name": "junhots-wow",
   "main": "src/index.js",
   "compatibility_date": "2026-11-01",
-  // Static site: everything in public/ is served as is. The Worker code only runs for /api/* (src/index.js).
+  // Static site: everything in public/ is served as is. The Worker code runs for /api/* and the census pages,
+  // which get the newest level census swapped in (src/census.js).
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/mat-timing/*", "/sell-spare-mats/*", "/profession-leveling/*", "/tailoring-finder/*"]
   },
   // wow.junhots.com only. Never add junhots.com or www.junhots.com here.
   "routes": [{ "pattern": "wow.junhots.com", "custom_domain": true }],
@@ -19,6 +20,8 @@
   // Secrets ADMIN_PASSWORD and TURNSTILE_SECRET, and the TURNSTILE_SITEKEY variable, are set in the Cloudflare dashboard.
   // Secrets (e.g. ADMIN_PASSWORD) and dashboard variables are kept on deploy, never stored in this repo.
   "keep_vars": true,
+  // Level census from classicplus.io, checked every 3 hours (it updates once a day, around 17:00 UTC).
+  "triggers": { "crons": ["15 */3 * * *"] },
   "observability": { "enabled": true },
   // Needed by Cloudflare's PR builds (`wrangler preview`). Empty = previews use the settings above.
   "previews": {}

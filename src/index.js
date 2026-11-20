@@ -1,5 +1,5 @@
 // junhots-wow Worker. Pages are static files in public/ (served by Cloudflare before this code runs).
-// This code only handles /api/* (see run_worker_first in wrangler.jsonc).
+// This code handles /api/* and the census pages (see run_worker_first in wrangler.jsonc), plus the census cron.
 //
 // Storage: one KV namespace, binding WOW (this Worker's own; never the junhots.com one).
 //   ah:latest            the newest Auctionator.lua uploaded on /admin/ (raw bytes), metadata {at, size, name}
@@ -8,8 +8,11 @@
 //                        {at, full, items: {name: {p, n, t}}}, merged from the Gear Snapshot files uploaded on /admin/
 //   fb:<time>-<id>       one feedback report (JSON), kept 180 days; /api/fb/new counts the ones after a time
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
+//   census, census:try   the daily level census from classicplus.io (src/census.js)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
+
+import { CENSUS_PAGES, censusPage, refreshCensus } from './census.js';
 
 const MAX_AH = 8 * 1024 * 1024;
 const MAX_SFX = 2 * 1024 * 1024;
@@ -132,9 +135,15 @@ async function feedback(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url), p = url.pathname;
     try {
+      if (CENSUS_PAGES.includes(p)) return await censusPage(request, env, ctx);
+      // which census day the pages use now
+      if (p === '/api/census' && request.method === 'GET') {
+        const c = await env.WOW.get('census', 'json');
+        return json(c ? { snapshot: c.snapshot, fetched: c.fetched } : { none: true }, 200, { 'cache-control': 'public, max-age=300' });
+      }
       if (p === '/api/health') return json({ ok: true });
       if (p === '/api/config') return json({ turnstile: env.TURNSTILE_SITEKEY || '' }, 200, { 'cache-control': 'public, max-age=300' });
       // the newest Auctionator scan uploaded on /admin/; pages use it when the visitor has not loaded their own
@@ -165,7 +174,12 @@ export default {
       return env.ASSETS.fetch(request);
     } catch (e) {
       console.error(e);
+      if (CENSUS_PAGES.includes(p)) return env.ASSETS.fetch(request);   // census trouble never breaks the page
       return json({ error: 'Something went wrong on the server.' }, 500);
     }
+  },
+  // cron (wrangler.jsonc triggers): keep the level census fresh
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(refreshCensus(env));
   },
 };

@@ -10,6 +10,8 @@ Fan-made. Not affiliated with or endorsed by Blizzard Entertainment.
 - `public/` is the whole site, served as static files by the Cloudflare Worker **junhots-wow**.
 - `src/index.js` only handles `/api/*`: the site's auction house scan (uploaded on `/admin/`),
   feedback reports (with a Turnstile robot check) and soft rate limits. It uses this Worker's own KV namespace `WOW`.
+- `src/census.js` keeps the level census fresh: a cron every 3 hours reads classicplus.io, and the Worker swaps the
+  newest census into Mat timing, Sell spare mats, Tailoring finder and Profession leveling as they are served.
 - `scripts/build_site.py` builds `public/` from the finished tool pages in the WoW Forever project folder.
 
 This Worker is separate from the junhots.com (Heroes of the Storm) site: its own name, domain, KV and secrets.
