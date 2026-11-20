@@ -402,6 +402,7 @@ ADMIN_JS = r"""
   function reports() {
     api('/api/admin/feedback').then(function (j) {
       $('ownFbN').textContent = j.items.length ? '(' + j.items.length + ')' : '';
+      try { localStorage.setItem('ws.fbseen', String(Date.now())); } catch (x) {}   // the reminder bar counts reports after this
       $('ownFb').innerHTML = j.items.length ? j.items.map(function (it) {
         return '<li><div class="own-meta">' + esc(when(it.at)) + ' · <a href="' + esc(it.page) + '">' + esc(it.page || '?') + '</a>' + (it.contact ? ' · ' + esc(it.contact) : '') + (it.country ? ' · ' + esc(it.country) : '') +
           '<button type="button" data-del="' + esc(it.key) + '">Delete</button></div><p>' + esc(it.text) + '</p></li>';

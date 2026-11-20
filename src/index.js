@@ -6,7 +6,7 @@
 //   ah:day:YYYY-MM-DD    one upload per day, kept 120 days (price history for later)
 //   sfx:latest           auction prices per random suffix ("Darkmist Wizard Hat of Shadow Wrath"), JSON
 //                        {at, full, items: {name: {p, n, t}}}, merged from the Gear Snapshot files uploaded on /admin/
-//   fb:<time>-<id>       one feedback report (JSON), kept 180 days
+//   fb:<time>-<id>       one feedback report (JSON), kept 180 days; /api/fb/new counts the ones after a time
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
@@ -154,6 +154,12 @@ export default {
         return new Response(v || '{"items":{}}', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
       }
       if (p === '/api/feedback' && request.method === 'POST') return await feedback(request, env);
+      // how many reports came in after ?since= (ms): only a count, for the owner's reminder bar (site.js ownerNudge)
+      if (p === '/api/fb/new' && request.method === 'GET') {
+        const since = 'fb:' + String(Math.max(0, Math.floor(+url.searchParams.get('since') || 0))).padStart(14, '0');
+        const list = await env.WOW.list({ prefix: 'fb:', limit: 1000 });
+        return json({ n: list.keys.filter(k => k.name > since).length }, 200, { 'cache-control': 'private, max-age=60' });
+      }
       if (p.startsWith('/api/admin/')) return await admin(request, env, url);
       if (p.startsWith('/api/')) return json({ error: 'not found' }, 404);
       return env.ASSETS.fetch(request);

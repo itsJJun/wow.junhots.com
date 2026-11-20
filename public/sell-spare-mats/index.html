@@ -409,11 +409,16 @@ window.wfStale = function (when, maxDays, what) {
     var best = null, bestN = -1;
     Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
     if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
-    var out = {};
+    var out = {}, today = 0;
+    Object.keys(best).forEach(function (id) { var e = best[id]; if (e && e.h && typeof e.h === 'object') Object.keys(e.h).forEach(function (d) { if (+d > today) today = +d; }); });
     Object.keys(best).forEach(function (id) {
       var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
       var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
-      out[id] = [e.m, a];
+      // usual price: median daily price of the 7 days before the scan day (3+ days needed, item seen on the scan day)
+      var h = e.h || {}, l = e.l || {}, u = 0, prev = [];
+      if (h[today] || l[today]) for (var d = today - 7; d < today; d++) { var v = h[d] || l[d]; if (v > 0) prev.push(v); }
+      if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
+      out[id] = u ? [e.m, a, u] : [e.m, a];
     });
     var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
     if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
@@ -713,6 +718,15 @@ const MKT = (function () {
     return n;
   }
   let ahUsed = mergeAH();
+  // the latest auction price against its usual (median of the 7 days before; theme.py WFAH puts it in p[id][2])
+  let ahRec = null; try { ahRec = JSON.parse(localStorage.getItem('wf-ah') || 'null'); } catch (e) {}
+  function deal(id) {
+    const q = ahRec && ahRec.p && ahRec.p[String(id)]; if (!q || !q[0] || !q[2] || (q[1] || 0) < 5) return null;   // 5+ listed: one odd listing is no signal
+    const r = q[0] / q[2], pc = Math.round(Math.abs(r - 1) * 100);
+    if (r <= 0.8) return { k: 'cheap', pc, label: 'Cheaper than usual', why: silver(q[0]) + ' is ' + pc + '% under its usual ' + silver(q[2]) + ' (the 7 days before this scan).' };
+    if (r >= 1.25) return { k: 'pricey', pc, label: 'Pricier than usual', why: silver(q[0]) + ' is ' + pc + '% over its usual ' + silver(q[2]) + ' (the 7 days before this scan).' };
+    return null;
+  }
   // three labels (review 16 Nov); the five kinds stay for sorting and the hover text
   const LBL = { buy: 'Buy now', low: 'Buy now', wait: 'Wait', dear: 'Wait', steady: 'No signal' };
   const PCLS = { buy: 'low', low: 'low', wait: 'wait', dear: 'wait', steady: '' };
@@ -748,17 +762,21 @@ const MKT = (function () {
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   function pill(id) { const s = mat(id); return s ? '<span class="mkt ' + PCLS[s.k] + '" title="' + esc(s.why) + '">' + s.label + '</span>' : ''; }
+  // small "↓22%" / "↑30%" next to a price; the hover text says it in words
+  // (sell: green when it's pricey, since that's the good time to sell)
+  function dealTag(id, sell) { const d = deal(id); return d ? '<span class="mkt-d ' + ((d.k === 'cheap') !== !!sell ? 'low' : 'dear') + '" title="' + esc(d.label + ': ' + d.why) + '">' + (d.k === 'cheap' ? '↓' : '↑') + d.pc + '%</span>' : ''; }
   function crowdPill(req) { const c = crowd(req); return c ? '<span class="mkt ' + c.cls + '" title="' + esc(c.why) + '">' + c.label + '</span>' : ''; }
   const css = document.createElement('style');
   css.textContent = '.mkt{display:inline-block;font-size:11px;line-height:16px;padding:0 6px;border-radius:999px;border:1px solid var(--line2,#46433d);color:var(--muted,#a39f96);white-space:nowrap;vertical-align:1px;cursor:help;font-weight:500}' +
     '.mkt.buy{color:var(--bad,#e2685b);border-color:color-mix(in srgb,var(--bad,#e2685b) 45%,transparent)}' +
     '.mkt.low{color:var(--good,#5bbf86);border-color:color-mix(in srgb,var(--good,#5bbf86) 45%,transparent)}' +
     '.mkt.wait{color:var(--q3,#5aa9ff);border-color:color-mix(in srgb,var(--q3,#5aa9ff) 45%,transparent)}' +
-    '.mkt.dear{color:var(--accent,#e0a54c);border-color:color-mix(in srgb,var(--accent,#e0a54c) 45%,transparent)}';
+    '.mkt.dear{color:var(--accent,#e0a54c);border-color:color-mix(in srgb,var(--accent,#e0a54c) 45%,transparent)}' +
+    '.mkt-d{font-size:11px;font-weight:600;white-space:nowrap;cursor:help;margin-right:5px;color:var(--muted,#a39f96)}.mkt-d.low{color:var(--good,#5bbf86)}.mkt-d.dear{color:var(--accent,#e0a54c)}';
   (document.head || document.documentElement).appendChild(css);
   const when = new Date(D.snapshot + 'T12:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-  const refresh = rec => { ahUsed = mergeAH(rec); for (const k in cache) delete cache[k]; return ahUsed; };
-  return { band, mat, crowd, refresh, ahUsed: () => ahUsed, pill, crowdPill, pct, silver, data: D, total: T, when,
+  const refresh = rec => { if (rec) ahRec = rec; ahUsed = mergeAH(rec); for (const k in cache) delete cache[k]; return ahUsed; };
+  return { band, mat, crowd, refresh, ahUsed: () => ahUsed, pill, crowdPill, deal, dealTag, pct, silver, data: D, total: T, when,
     note: 'Level crowd: classicplus.io census of ' + T.toLocaleString() + ' Horde PvP characters, ' + when + '.' };
 })();
 </script>
@@ -799,7 +817,7 @@ const MKT = (function () {
     return '<div class="sc"' + (tm ? ' data-rank="' + tm.rank + '"' : '') + '>' + ic +
       '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' +
       '<span class="rt">' + (r.tot ? coin(r.tot) : '<span class="muted">—</span>') + (tm ? tm.html : '') + '</span>' +
-      '<span class="meta">' + (r.where === 'none' ? 'No buyer · ' : '') + (all ? 'Sell all ' + fmtN(r.spare) : 'Sell ' + fmtN(r.spare) + ' of ' + fmtN(r.h)) + (r.each ? ' · ' + coin(r.each) + ' each' : '') + '</span>' +
+      '<span class="meta">' + (r.where === 'none' ? 'No buyer · ' : '') + (all ? 'Sell all ' + fmtN(r.spare) : 'Sell ' + fmtN(r.spare) + ' of ' + fmtN(r.h)) + (r.each ? ' · ' + coin(r.each) + ' each' : '') + (r.where === 'ah' && MKT.dealTag ? ' ' + MKT.dealTag(r.id, true) : '') + '</span>' +
       '<div class="det">' + det.map(x => '<span>' + x + '</span>').join('') + '</div></div>';
   }
   function read() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
@@ -813,7 +831,7 @@ const MKT = (function () {
     const card = r => '<div class="sc" data-rank="' + (r.t ? r.t.rank : 1) + '">' + (MAT_ICONS[r.id] ? '<img class="ic" alt="" src="' + MAT_ICONS[r.id] + '">' : '<span class="ic"></span>') +
       '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' +
       '<span class="rt">' + (r.p ? coin(r.p) : '<span class="muted">—</span>') + (r.t ? r.t.html : '') + '</span>' +
-      '<span class="meta">Drops at levels ' + r.lo + '–' + r.hi + (r.at ? ' · AH ' + new Date(r.at + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '') + '</span>' +
+      '<span class="meta">Drops at levels ' + r.lo + '–' + r.hi + (r.at ? ' · AH ' + new Date(r.at + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '') + (MKT.dealTag ? ' ' + MKT.dealTag(r.id, true) : '') + '</span>' +
       '<div class="det"><span>' + esc(r.t && r.t.why || '') + '</span></div></div>';
     const nowN = rows.filter(r => r.t && r.t.rank === 0).length;
     $("tiles").innerHTML = ''; $("sumSec").querySelector('.tiles').hidden = true;
@@ -847,6 +865,7 @@ const MKT = (function () {
     $("ahSec").querySelector('.key').hidden = !ah.length;
   }
   addEventListener('storage', e => { if (e.key === KEY) render(); });
+  if (window.WFAH && typeof MKT !== "undefined" && MKT.refresh) WFAH.on(rec => { if (rec) { MKT.refresh(rec); render(); } });   // Cheap / Pricey today follow new prices
   render();
 })();
 </script>

@@ -271,6 +271,7 @@
 
   function init() {
     drawDots();
+    ownerNudge();
     // phones: the tabs scroll sideways, so bring the current one into view
     document.querySelectorAll('.ws-tabs [aria-current], .ws-sub [aria-current]').forEach(function (a) {
       var box = a.parentElement, x = a.offsetLeft - (box.clientWidth - a.offsetWidth) / 2;
@@ -335,6 +336,24 @@
       f.src = need; f.hidden = true; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1; f.loading = 'eager';
       setTimeout(function () { document.body.appendChild(f); }, 400);
     }
+  }
+  // ---- the site owner's reminder (browsers that logged in on /admin/ once): old site prices, new reports ----
+  function ownerNudge() {
+    if (!ls.get('ws.owner') || /^\/admin/.test(PAGE) || ls.get('ws.nudge') === new Date().toDateString()) return;
+    var get = function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
+    Promise.all([get('/api/ah/meta'), get('/api/fb/new?since=' + (+ls.get('ws.fbseen') || 0))]).then(function (r) {
+      var m = r[0], f = r[1], bits = [], t = m && (m.scan ? m.scan * 1000 : m.at);
+      var days = t ? Math.floor((Date.now() - t) / 864e5) : 0;
+      if (m && m.none) bits.push('No prices uploaded');
+      else if (days >= 2) bits.push('Prices ' + days + ' days old');
+      if (f && f.n) bits.push(f.n + ' new report' + (f.n > 1 ? 's' : ''));
+      if (!bits.length) return;
+      var bar = document.createElement('div');
+      bar.className = 'ws-nudge'; bar.setAttribute('role', 'status');
+      bar.innerHTML = '<a href="/admin/">' + esc(bits.join(' · ')) + '</a><button type="button" aria-label="Hide for today" title="Hide for today">×</button>';
+      bar.querySelector('button').onclick = function () { ls.set('ws.nudge', new Date().toDateString()); bar.remove(); };
+      document.body.appendChild(bar);
+    });
   }
   // ---- "Report a problem": a small form, checked by Cloudflare Turnstile, sent to /api/feedback ----
   var fb, tsId = null, tsReady = null;

@@ -460,11 +460,16 @@ window.wfStale = function (when, maxDays, what) {
     var best = null, bestN = -1;
     Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
     if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
-    var out = {};
+    var out = {}, today = 0;
+    Object.keys(best).forEach(function (id) { var e = best[id]; if (e && e.h && typeof e.h === 'object') Object.keys(e.h).forEach(function (d) { if (+d > today) today = +d; }); });
     Object.keys(best).forEach(function (id) {
       var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
       var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
-      out[id] = [e.m, a];
+      // usual price: median daily price of the 7 days before the scan day (3+ days needed, item seen on the scan day)
+      var h = e.h || {}, l = e.l || {}, u = 0, prev = [];
+      if (h[today] || l[today]) for (var d = today - 7; d < today; d++) { var v = h[d] || l[d]; if (v > 0) prev.push(v); }
+      if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
+      out[id] = u ? [e.m, a, u] : [e.m, a];
     });
     var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
     if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
