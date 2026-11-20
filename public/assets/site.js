@@ -63,7 +63,7 @@
     // raw bytes, not text: Auctionator.lua holds binary (CBOR) strings that a text round-trip would break
     return file.arrayBuffer().then(function (data) {
       var rec = { key: k.key, name: file.name, at: Date.now(), mod: file.lastModified || 0, size: data.byteLength, data: data };
-      return putRec(rec).then(function () { setMeta(k.key, { name: rec.name, at: rec.at, mod: rec.mod }); drawDots(); return rec; });
+      return putRec(rec).then(function () { setMeta(k.key, { name: rec.name, at: rec.at, mod: rec.mod, size: rec.size }); drawDots(); return rec; });
     });
   }
 
@@ -91,33 +91,53 @@
   var SKIP = /^(interface|data|cache|logs|errors|screenshots|fonts|utils|_retail_|_classic_|_classic_era_|_ptr_|_beta_)$/i;
   var dirRec = null;
   function getDir() { return dirRec ? Promise.resolve(dirRec) : getRec('dir').then(function (r) { dirRec = r || null; return dirRec; }, function () { return null; }); }
+  // Auctionator and TSM keep their data account-wide (Account/<id>/SavedVariables). Each character also gets a tiny
+  // Auctionator.lua (Account/<id>/<realm>/<char>/SavedVariables, 38 bytes, written a moment later): never let it win.
+  var ACCT = { ah: 1, tsm: 1 };
+  function better(k, file, isChar, old) {
+    if (!old) return true;
+    if (ACCT[k] && old.isChar !== isChar) return !isChar;
+    return file.lastModified > old.file.lastModified;
+  }
+  // folders below "Account" before SavedVariables: 1 = account-wide, 3 = one character, -1 = unknown
+  function charPath(parts) {
+    var a = -1, sv = -1;
+    parts.forEach(function (n, i) { if (/^account$/i.test(n)) a = i; if (/^savedvariables$/i.test(n)) sv = i; });
+    return a >= 0 && sv - a - 1 === 3;
+  }
+  function pickBest(found) {
+    var best = {};
+    found.forEach(function (x) { if (better(x.k, x.file, x.isChar, best[x.k])) best[x.k] = x; });
+    Object.keys(best).forEach(function (k) { best[k] = best[k].file; });
+    return best;
+  }
   // newest copy of each save file under a folder: works from _forever_, WTF, Account, an account or a SavedVariables folder
   function scanDir(dir) {
-    var best = {};
-    function walk(d, depth, inSV) {
-      var subs = [], files = [];
+    var found = [];
+    function walk(d, depth, path) {
+      var subs = [], files = [], inSV = /^savedvariables$/i.test(d.name);
       return (async function () { for await (const e of d.values()) (e.kind === 'directory' ? subs : files).push(e); })().then(function () {
         var jobs = [];
         if (inSV) files.forEach(function (f) {
           var k = NAMES[f.name.toLowerCase()];
-          if (k) jobs.push(f.getFile().then(function (file) { if (!best[k] || file.lastModified > best[k].lastModified) best[k] = file; }));
+          if (k) jobs.push(f.getFile().then(function (file) { found.push({ k: k, file: file, isChar: charPath(path) }); }));
         });
         if (depth < 6) {
           var only = subs.filter(function (x) { return /^(wtf|account)$/i.test(x.name); });
           (only.length ? only : subs).forEach(function (x) {
-            if (!SKIP.test(x.name)) jobs.push(walk(x, depth + 1, /^savedvariables$/i.test(x.name)));
+            if (!SKIP.test(x.name)) jobs.push(walk(x, depth + 1, path.concat(x.name)));
           });
         }
         return Promise.all(jobs);
       });
     }
-    return walk(dir, 0, /^savedvariables$/i.test(dir.name)).then(function () { return best; });
+    return walk(dir, 0, [dir.name]).then(function () { return pickBest(found); });
   }
   function takeFiles(best, quiet) {
     var m = meta(), got = [], jobs = [];
     KINDS.forEach(function (k) {
       var f = best[k.key]; if (!f) return;
-      if (quiet && m[k.key] && m[k.key].mod && f.lastModified <= m[k.key].mod) return;   // nothing new since last time
+      if (quiet && m[k.key] && f.lastModified === m[k.key].mod && f.size === m[k.key].size) return;   // same file as last time
       jobs.push(save(f, k.key).then(function (rec) { if (rec) { got.push(k.label); if (!quiet) feed(k, rec); } }));
     });
     return Promise.all(jobs).then(function () { return got; });
@@ -133,6 +153,7 @@
         return quiet ? st : h.requestPermission({ mode: 'read' });
       }).then(function (st) {
         r.ok = st === 'granted';
+        if (quiet && st === 'prompt') askBar();
         if (!r.ok) return null;
         return scanDir(h).then(function (best) { return takeFiles(best, quiet); });
       });
@@ -148,9 +169,21 @@
       });
     }, function () {});
   }
+  // Chrome asks again once every tab of the site was closed (a reload keeps the old OK). Asking needs a click,
+  // so offer one: Chrome's answer then has "Allow on every visit", and after that files load by themselves.
+  function askBar() {
+    if ($('.ws-ask') || sessionStorage.getItem('ws.ask')) return;
+    var bar = document.createElement('div');
+    bar.className = 'ws-nudge ws-ask'; bar.setAttribute('role', 'status');
+    bar.innerHTML = '<a href="#">Load new game files</a><button type="button" aria-label="Not now" title="Not now">×</button>';
+    bar.querySelector('a').onclick = function (e) { e.preventDefault(); bar.remove(); refreshFolder(); };
+    bar.querySelector('button').onclick = function () { try { sessionStorage.setItem('ws.ask', '1'); } catch (e) {} bar.remove(); };
+    document.body.appendChild(bar);
+  }
   function unlinkFolder() { dirRec = null; ls.set('ws.dir', ''); return tx('readwrite', function (s) { s.delete('dir'); }).then(drawPop); }
   function refreshFolder() {
     syncFolder(false).then(function (got) {
+      var b = $('.ws-ask'); if (b) b.remove();
       if (got === null) toast('Could not open your WoW folder. Pick it again.', true);
       else toast(got.length ? '✓ Refreshed: ' + esc(got.join(', ')) + '.' : 'No newer files. In game, type /reload first.');
       drawPop();
@@ -158,11 +191,12 @@
   }
   // other browsers: a whole folder picked with <input webkitdirectory>
   function pickedFolder(list) {
-    var best = {};
+    var found = [];
     Array.prototype.forEach.call(list, function (f) {
-      var k = NAMES[f.name.toLowerCase()];
-      if (k && /savedvariables/i.test(f.webkitRelativePath || '') && (!best[k] || f.lastModified > best[k].lastModified)) best[k] = f;
+      var k = NAMES[f.name.toLowerCase()], parts = (f.webkitRelativePath || '').split('/');
+      if (k && /savedvariables/i.test(f.webkitRelativePath || '')) found.push({ k: k, file: f, isChar: charPath(parts.slice(0, -1)) });
     });
+    var best = pickBest(found);
     if (!Object.keys(best).length) { toast('No WoW save files there. Pick the <b>WTF</b> folder inside _forever_.', true); return; }
     takeFiles(best, false).then(function (got) { toast('✓ Loaded: ' + esc(got.join(', ')) + '.'); drawPop(); });
   }
