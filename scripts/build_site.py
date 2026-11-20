@@ -499,10 +499,11 @@ def build_setup():
             '<li><b>Bags and bank:</b> open your bank, then <code>/reload</code>.</li></ul>'
             '<h2>3. Load them on this site</h2>'
             '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on phones), then <b>Pick WoW folder</b> '
-            'and choose <code>World of Warcraft\\_forever_</code> (or the <code>WTF</code> folder in it). The site finds the three files itself. '
-            'In Chrome or Edge it remembers the folder: pick <b>Allow on every visit</b> and new files load by themselves. '
-            'In other browsers, pick the <code>WTF</code> folder again after each <code>/reload</code>.</p>'
-            '<p>Load a file once and every tool uses it. Files stay in your browser and are never uploaded. Load them again after you play, for fresh numbers.</p>'
+            'and choose <code>World of Warcraft\\_forever_</code>. The site finds the files itself.</p>'
+            '<ul class="ws-steps"><li><b>Chrome or Edge:</b> next time you open the site, press <b>Load new game files</b>, then <b>Allow on every visit</b>. '
+            'After that, new files load by themselves.</li>'
+            '<li><b>Other browsers:</b> pick the <code>WTF</code> folder again after each <code>/reload</code>.</li></ul>'
+            '<p>Load a file once and every tool uses it. Files stay in your browser and are never uploaded.</p>'
             '<p><a class="ws-cta" href="#" data-ws-open-files>Load game files</a></p></div>' % rows)
     os.makedirs(os.path.join(PUB, 'setup'), exist_ok=True)
     open(os.path.join(PUB, 'setup/index.html'), 'w', encoding='utf-8').write(

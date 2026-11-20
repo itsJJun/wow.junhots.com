@@ -146,6 +146,7 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
 .ws-toast[hidden] { display: none; }
 .ws-nudge { position: fixed; right: 14px; bottom: 14px; z-index: 80; display: flex; align-items: center; gap: 4px; padding: 5px 6px 5px 12px; border-radius: 99px;
   background: var(--panel); border: 1px solid color-mix(in srgb, var(--warn, #e0a54c) 55%, var(--line)); box-shadow: 0 6px 20px rgba(0,0,0,.25); font: 600 13px/1.4 var(--body); }
+.ws-ask { right: auto; left: calc(var(--ws-sw, 0px) + 14px); }
 .ws-nudge a { color: var(--warn, #e0a54c); text-decoration: none; }
 .ws-nudge a:hover { text-decoration: underline; }
 .ws-nudge button { border: 0; background: none; color: var(--muted); font-size: 17px; line-height: 1; padding: 2px 6px; cursor: pointer; border-radius: 99px; }
