@@ -1,5 +1,45 @@
 [
   {
+    "date": "2026-11-20",
+    "title": "Prices: cheaper or pricier than usual",
+    "text": "Mat timing and Sell spare mats now mark prices well under (↓) or over (↑) their usual price from the last 7 days. Hover or tap the mark for the numbers.",
+    "image": "/assets/updates/2026-11-20-price-vs-usual.webp",
+    "link": "/mat-timing/",
+    "linkText": "Open Mat timing"
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Gear upgrades: what you can wear now comes first",
+    "text": "Each slot lists gear you can wear now first, then gear for later. Items with random stats (\"of Shadow Wrath\") show the best one for your spec, with its price.",
+    "image": "/assets/updates/2026-11-20-gear-wear-now.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-18",
+    "title": "Gear upgrades: \"Upgrade now\" or \"From level X\"",
+    "text": "Every item now says if you can wear it now, or from which level. Also fixed: the page sometimes loaded empty after a site update.",
+    "image": "/assets/updates/2026-11-18-upgrade-now.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-17",
+    "title": "Link your WoW folder once",
+    "text": "In Chrome or Edge, pick your _forever_ folder once. The site finds your game files and reads the newest ones on every visit. Other browsers: pick the WTF folder.",
+    "image": "/assets/updates/2026-11-17-link-folder.webp",
+    "link": "/setup/",
+    "linkText": "How to set up"
+  },
+  {
+    "date": "2026-11-17",
+    "title": "Tailoring finder: patterns you have",
+    "text": "Switch between all patterns and the ones you know (ticked from your game files). Patterns you don't have say where to get them. Simpler filters.",
+    "image": "/assets/updates/2026-11-17-finder-patterns.webp",
+    "link": "/tailoring-finder/",
+    "linkText": "Open Tailoring finder"
+  },
+  {
     "date": "2026-11-16",
     "title": "The site is live",
     "text": "All WoW Forever tools now have their own pages: gear upgrades for every class, Tailoring & Enchanting leveling, enchants, tailoring gold, mat timing and the Warlock guide. Load your game files once and every tool uses them; without them you get a recent Horde auction house scan. Something wrong? Use Report a problem.",
