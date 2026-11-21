@@ -320,8 +320,8 @@ def build_home(updates):
         ('/setup/', 'Set up once', 'Three addons, then load your files: your own gear, bags and prices'),
         (path_of('leveling') if 'leveling' in TOOL else '/', 'Level your professions', 'Cheapest way, step by step, plus fishing'),
     ]
-    step_html = ''.join('<a class="ws-card"%s href="%s"><b>%s</b><span>%s</span></a>' % (
-        ' data-ws-open-files' if h == '#files' else '', h, esc(a), esc(b)) for h, a, b in steps)
+    step_html = ''.join('<a class="ws-card" data-step="%s" href="%s"><b>%s</b><span>%s</span></a>' % (
+        k, h, esc(a), esc(b)) for k, (h, a, b) in zip(('gear', 'setup', 'prof'), steps))
     secs, n = [], 0
     for c in CATS:
         cards = []
@@ -336,7 +336,7 @@ def build_home(updates):
     body = ('<div class="ws-hero"><h1>WoW Forever tools</h1>'
             '<p>Free guides and planners that tell you what to do next: what gear to get, how to level professions and make gold, '
             'and how to play your class. What you enter is saved in your own browser.</p></div>\n'
-            '<section class="ws-sec"><h2>New here? Start with these</h2><div class="ws-grid ws-steps">%s</div></section>\n' % step_html +
+            '<section class="ws-sec ws-start"><h2>New here? Start with these</h2><div class="ws-pick" hidden></div><div class="ws-grid ws-steps">%s</div></section>\n' % step_html +
             '\n'.join(secs) + latest +
             '')
     desc = 'Free WoW Forever tools: gear upgrades for every class, cheapest profession leveling, enchanting and tailoring gold, class guides.'
@@ -568,6 +568,21 @@ def main():
     build_404()
     build_seo(updates)
     print('Done: %s' % PUB)
+    check_updates()
+
+
+def check_updates():
+    """Every change visitors will notice gets an entry on /updates/ (Jun, 21 Nov): warn when pages changed but updates.json didn't."""
+    import subprocess
+    try:
+        out = subprocess.run(['git', 'status', '--porcelain', '--', 'public'], cwd=REPO, capture_output=True, text=True).stdout
+    except Exception:
+        return
+    files = [l[3:].strip() for l in out.splitlines()]
+    pages = [f for f in files if f.endswith('index.html') and f not in ('public/index.html', 'public/updates/index.html')]
+    if pages and 'public/data/updates.json' not in files:
+        print('\nNOTE: %d page(s) changed but public/data/updates.json did not. If visitors will notice, add an Updates entry '
+              '(date, title, one or two plain sentences, image in public/assets/updates/, link).' % len(pages))
 
 
 if __name__ == '__main__':
