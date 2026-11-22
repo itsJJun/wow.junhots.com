@@ -373,7 +373,7 @@ window.wfStale = function (when, maxDays, what) {
     return item();
   }
   function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
-  function parse(buf) {
+  function parse(buf, opt) {
     var text = ascii(buf, 0, Math.min(buf.length, buf.length));
     var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
     if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
@@ -403,9 +403,15 @@ window.wfStale = function (when, maxDays, what) {
       if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
       out[id] = u ? [e.m, a, u] : [e.m, a];
     });
+    // opt.sfx: random-suffix gear ("gr:<id>:of the Owl" keys) listed on the scan day, as g[id][suffix] = [price, count]
+    var g = null;
+    if (opt && opt.sfx) { g = {}; Object.keys(best).forEach(function (k) {
+      var mt = /^gr:(\d+):(.+)$/.exec(k), e = best[k]; if (!mt || !e || typeof e.m !== 'number' || !e.h || !e.h[today]) return;
+      (g[mt[1]] = g[mt[1]] || {})[mt[2]] = [e.m, (e.a && e.a[today]) || 0];
+    }); }
     var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
     if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
-    return { scan: scan, items: bestN, p: out };
+    return g ? { scan: scan, items: bestN, p: out, g: g } : { scan: scan, items: bestN, p: out };
   }
   function get() {
     if (cache !== undefined) return cache;
