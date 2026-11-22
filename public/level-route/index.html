@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en" class="ws-site">
+<head>
+<style>@view-transition { navigation: auto; }</style>
+<script>window.wsHash0 = location.hash;</script>
+<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); if (localStorage.getItem('ws.owner')) document.documentElement.classList.add('ws-owner'); } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level 1-60 route · WoW Forever · junhots</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 14px 16px 40px; display: grid; gap: 10px; }
+h2 { font-size: 15px; margin: 0 0 6px; }
+h2 .muted, h3 .muted { font-weight: 500; font-size: 12.5px; }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.hidden { display: none !important; }
+/* you + search */
+.pick { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; }
+.pick label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.pick select { font: inherit; font-size: 13px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 6px; }
+.status { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.status b { color: var(--ink); font-weight: 600; }
+.fin { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.load { font: inherit; font-size: 12.5px; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+.qs { position: relative; margin-top: 8px; }
+.qs input { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 11px; }
+.qs input:focus { outline: none; border-color: var(--accent); }
+#qres { display: grid; gap: 2px; margin-top: 4px; }
+#qres:empty { display: none; }
+.qr { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 4px 6px; border-radius: 6px; font-size: 13px; }
+.qr:hover { background: var(--raised); }
+.qr .nm { font-weight: 600; } .qr .tx { color: var(--muted); flex: 1; min-width: 160px; }
+.tg { font-size: 11px; font-weight: 700; border-radius: 99px; padding: 0 8px; white-space: nowrap; }
+.tg.route { background: color-mix(in srgb, var(--good) 20%, transparent); color: var(--good); }
+.tg.done { background: color-mix(in srgb, var(--q3) 22%, transparent); color: var(--q3); }
+.tg.skip { background: var(--sunken); color: var(--muted); }
+.go { font: inherit; font-size: 12px; background: none; border: 1px solid var(--line2); color: var(--ink); border-radius: 6px; padding: 1px 8px; cursor: pointer; white-space: nowrap; }
+.go:hover { border-color: var(--accent); color: var(--accent); }
+.go.ok { border-color: color-mix(in srgb, var(--good) 55%, var(--line)); color: var(--good); }
+/* dungeons */
+.dt { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dt th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; padding: 2px 8px 4px 0; }
+.dt td { border-top: 1px solid var(--line); padding: 4px 8px 4px 0; vertical-align: middle; }
+.dt td:first-child { font-weight: 600; }
+.dt .ok { color: var(--good); font-weight: 600; }
+@media (max-width: 700px) { .dt .opt { display: none; } }
+/* chapters */
+.band { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 6px; align-items: start; margin-top: 4px; }
+.band > span { font-size: 12px; color: var(--muted); padding-top: 4px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.tab { font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line2); background: var(--raised); color: var(--ink); cursor: pointer; display: inline-flex; gap: 5px; align-items: baseline; }
+.tab i { font-style: normal; font-size: 11px; color: var(--muted); }
+.tab .ck { color: var(--good); font-size: 11px; }
+.tab .rd { color: var(--good); font-size: 11px; }
+.tab.done { opacity: .6; }
+.tab.here { border-color: var(--accent); }
+.tab.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; opacity: 1; }
+.tab.on i, .tab.on .ck, .tab.on .rd { color: var(--on-accent); }
+.chead { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+/* map + list */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 12px; align-items: start; }
+@media (max-width: 960px) { .split { grid-template-columns: 1fr; } }
+.mapcol { position: sticky; top: 8px; display: grid; gap: 6px; }
+@media (max-width: 960px) { .mapcol { position: static; } }
+.zsw { display: flex; flex-wrap: wrap; gap: 4px; }
+.zsw button { font: inherit; font-size: 12px; padding: 2px 9px; border-radius: 6px; border: 1px solid var(--line2); background: var(--raised); color: var(--muted); cursor: pointer; }
+.zsw button.on { color: var(--ink); border-color: var(--ink); }
+.map { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; aspect-ratio: 1002 / 668; background: var(--sunken); }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; --k: 1; }
+.map image { filter: saturate(.8) brightness(.95); }
+.map svg { touch-action: none; cursor: grab; user-select: none; }
+.map svg:active { cursor: grabbing; }
+.zbar { position: absolute; right: 8px; top: 8px; display: flex; gap: 4px; }
+.zbar button { font: inherit; font-size: 12px; min-width: 30px; height: 28px; padding: 0 9px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--shade) 35%, transparent); background: rgba(24,21,17,.85); color: #f3ead9; cursor: pointer; }
+.zbar button[data-z=in], .zbar button[data-z=out] { font-size: 16px; font-weight: 700; padding: 0; }
+.zbar button:hover { background: rgba(24,21,17,.97); }
+.nomap { border: 1px dashed var(--line2); border-radius: 10px; padding: 26px; color: var(--muted); text-align: center; font-size: 13px; }
+.pin { cursor: pointer; }
+.pin circle, .pin rect { stroke: #15120e; stroke-width: .22; }
+.pin text { font-weight: 700; font-family: Inter, system-ui, sans-serif; font-size: 1.55px; fill: #15120e; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.pin.next circle { fill: #1c1814; stroke: #f0a030; stroke-width: .42; }
+.pin.next text { fill: #f0a030; }
+.pin.later circle { fill: #1c1814; fill-opacity: .9; stroke: #f3ead9; stroke-width: .28; }
+.pin.later { filter: drop-shadow(0 0 .35px color-mix(in srgb, var(--shade) 90%, transparent)); }
+.pin.later text { fill: #f3ead9; font-weight: 700; }
+.pin.later:hover circle { fill-opacity: 1; stroke: #f0a030; }
+.pin.done circle { fill: #3a342d; opacity: .55; stroke: none; }
+.pin.here circle { fill: #f0a030; }
+.pin text.sm { font-size: 1.2px; }
+.pin.sel circle:not(.ring), .pin.sel rect { stroke: #fff; stroke-width: .5; }
+.pin.dun rect { fill: #b48cf0; }
+.pin.here.dun rect { fill: #f0a030; }
+.pin.next.dun rect { fill: #1c1814; stroke: #f0a030; stroke-width: .42; }
+.pin .ring { fill: #f0a030; opacity: .22; stroke: none; }
+.pin .badge { font-size: 1.05px; fill: #fff; paint-order: stroke; stroke: #15120e; stroke-width: .25; }
+.arrow line { stroke: #f0a030; stroke-width: 3px; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.arrow polygon { fill: #f0a030; }
+.path { fill: none; stroke: #f0a030; vector-effect: non-scaling-stroke; stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; border: 1px solid #15120e; }
+.side { display: grid; gap: 5px; max-height: calc(100vh - 24px); overflow: auto; padding-right: 2px; position: sticky; top: 8px; }
+@media (max-width: 960px) { .side { max-height: none; position: static; } }
+.chap h3 { font-size: 16px; margin: 0; }
+.chap .meta { font-size: 12.5px; color: var(--muted); }
+.intro { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
+.stop { background: var(--raised); border: 1px solid var(--line); border-left: 3px solid var(--line2); border-radius: 8px; padding: 6px 9px; cursor: pointer; }
+.stop.nx { border-left-color: var(--accent); }
+.stop.here { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--raised)); }
+.stop.sel { outline: 1px solid var(--ink); }
+.stop.done { opacity: .5; }
+.stop.isdun { border-left-color: #b48cf0; }
+.stop .hd { display: flex; gap: 6px; align-items: center; }
+.stop .hd input { margin: 0; accent-color: var(--good); cursor: pointer; }
+.stop .where { font-size: 11.5px; color: var(--muted); margin: 0 0 1px 42px; }
+.stop .n { font-weight: 700; color: var(--accent); min-width: 18px; text-align: right; }
+.stop.done .n { color: var(--muted); }
+.stop .hd b { font-weight: 650; flex: 1; min-width: 0; }
+.herebadge { white-space: nowrap; font-size: 10.5px; font-weight: 700; color: var(--on-accent); background: var(--accent); border-radius: 99px; padding: 0 7px; }
+.stop ul { list-style: none; margin: 3px 0 0; padding: 0; display: grid; gap: 1px; }
+.stop ul { margin-left: 22px !important; }
+.stop li { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 6px; font-size: 13px; align-items: start; }
+.stop li input { margin: 2px 0 0; accent-color: var(--good); cursor: pointer; }
+.stop li.ck > span { text-decoration: line-through; opacity: .55; }
+.stop li.miss input { outline: 1px solid var(--bad); outline-offset: 1px; }
+.stop li .xp { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.stop li small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
+.ac { font-weight: 700; margin-right: 3px; }
+.ac.a, .ac.t { color: var(--wowgold); } .ac.d { color: var(--ink); } .ac.k { color: var(--good); } .ac.tr { color: var(--accent); }
+.tag { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 0 6px; border-radius: 99px; border: 1px solid var(--line2); color: var(--muted); margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
+.tag.lv { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.tag.add { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.leg { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink); padding: 1px 4px 1px 10px; }
+.leg .ar { color: var(--good); }
+.leg .mn { margin-left: auto; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.rdy { background: color-mix(in srgb, var(--good) 11%, transparent); border: 1px solid color-mix(in srgb, var(--good) 55%, var(--line)); border-radius: 6px; padding: 4px 8px; margin-top: 5px; font-size: 12.5px; }
+.rdy b { color: var(--good); } .rdy span { display: inline-block; margin-right: 8px; color: var(--muted); }
+.navb { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.btn { font: inherit; font-size: 12.5px; padding: 4px 12px; border-radius: 7px; border: 1px solid var(--line2); background: var(--raised); color: var(--ink); cursor: pointer; }
+.btn.main { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.coin { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+.coin .g { color: var(--wowgold); } .coin .s { color: var(--silver); } .coin .c { color: var(--copper); }
+.coin .u { font-size: .75em; font-weight: 500; margin-left: 1px; }
+.how p, .how ul { margin: 0 0 6px; font-size: 13px; }
+.how ul { padding-left: 18px; }
+footer { font-size: 12px; color: var(--muted); }
+.lmode { display: flex; gap: 0; margin: 2px 0; }
+.lmode button { font: inherit; font-size: 12px; padding: 2px 10px; border: 1px solid var(--line2); background: var(--raised); color: var(--muted); cursor: pointer; }
+.lmode button:first-child { border-radius: 7px 0 0 7px; } .lmode button:last-child { border-radius: 0 7px 7px 0; border-left: 0; }
+.lmode button.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.run { font: inherit; font-size: 12.5px; text-align: left; padding: 5px 10px; border-radius: 8px; border: 1px dashed var(--line2); background: transparent; color: var(--muted); cursor: pointer; }
+.run span { color: var(--accent); margin-left: 6px; }
+.stop.mini { padding: 3px 9px; }
+.stop.mini .hd b { font-weight: 500; }
+.side.short .stop:not(.sel):not(.here) li small, .side.short .stop:not(.sel):not(.here) li.ck, .side.short .stop:not(.sel):not(.here) > .intro { display: none; }
+.nhd { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.nhd h2 { margin: 0; }
+.nbtn { display: flex; gap: 6px; }
+#nbody .stop { cursor: default; margin-top: 6px; }
+#nbody .stop .hd b { font-size: 15.5px; }
+#nbody .stop li { font-size: 14px; }
+#nbody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(min(240px, 100%), 340px); gap: 12px; align-items: start; }
+@media (max-width: 760px) { #nbody { grid-template-columns: 1fr; } }
+.then { font-size: 12.5px; margin-top: 6px; }
+.then ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
+.then li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
+.then li .n { font-weight: 700; color: var(--accent); text-align: right; }
+.then li b { font-weight: 600; } .then li em { font-style: normal; color: var(--muted); font-size: 11.5px; }
+.then li i { font-style: normal; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.then li.lg { color: var(--muted); } .then li.lg span:first-child { color: var(--good); text-align: right; }
+
+/* declutter (22 Nov) */
+.qs { margin: 0; flex: 1; max-width: 340px; min-width: 160px; }
+.qs input { padding: 4px 10px; font-size: 13px; }
+#qres { margin: 6px 0 2px; }
+.chead { flex-wrap: nowrap; }
+@media (max-width: 640px) { .chead { flex-wrap: wrap; } .qs { order: 3; max-width: none; flex-basis: 100%; } }
+.bands { display: flex; flex-wrap: wrap; gap: 2px; margin: 6px 0 6px; border-bottom: 1px solid var(--line); }
+.bands button { font: inherit; font-size: 12.5px; padding: 4px 10px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); cursor: pointer; margin-bottom: -1px; }
+.bands button.on { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.bands button .ck { color: var(--good); font-size: 11px; margin-left: 3px; }
+.bands button .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: 5px; vertical-align: 2px; }
+.zsel { position: absolute; left: 8px; top: 8px; font: inherit; font-size: 12.5px; padding: 3px 8px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--shade) 35%, transparent); background: rgba(24,21,17,.85); color: #f3ead9; max-width: 55%; }
+.zbar { gap: 3px; }
+.zbar button { height: 26px; font-size: 11.5px; }
+/* stops: plain rows, one highlight */
+.side { gap: 0; }
+.side .stop { background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 7px 6px 7px 4px; }
+.side .stop.here, .side .stop.here.sel { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 8px; border-top-color: transparent; outline: 0; }
+.side .stop.sel:not(.here) { background: var(--raised); border-radius: 8px; outline: 0; }
+.side .stop.sel + .stop, .side .stop.here + .stop { border-top-color: transparent; }
+.stop .hd input { display: none; }
+.stop .n { min-width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; background: var(--sunken); color: var(--muted); text-align: center; }
+.stop.nx .n { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+.stop.here .n { background: var(--accent); color: var(--on-accent); }
+.stop.done .n { background: none; color: var(--good); }
+.stop .where { margin-left: 28px; }
+.side .stop:not(.sel):not(.here) .where { display: none; }
+.stop ul { margin-left: 28px !important; }
+.stop li { grid-template-columns: 14px minmax(0, 1fr) auto; gap: 7px; }
+.stop li input { width: 13px; height: 13px; opacity: .75; }
+.ac { font-weight: 600; opacity: .9; }
+.leg { padding: 4px 4px 4px 30px; color: var(--muted); font-size: 12px; }
+.leg .ar { color: var(--muted); }
+.side .run { margin: 4px 0; border-style: solid; border-color: transparent; background: none; padding: 4px 6px; }
+.side .stop.mini { padding: 3px 4px; }
+.side .stop.mini .n { width: 22px; }
+.chap { padding-bottom: 4px; }
+.lmode { margin: 4px 0 6px; }
+#nbody .stop, #nbody .stop.sel, #nbody .stop.here { background: none; border: 0; padding: 0; outline: 0; }
+#nbody .stop .hd input { display: none; }
+#nbody .stop .n { background: var(--accent); color: var(--on-accent); }
+.then { border-left: 1px solid var(--line); padding-left: 12px; }
+.gaps { margin: 2px 0 6px; font-size: 12.5px; color: var(--muted); }
+.gaps b { color: var(--warn); font-weight: 600; }
+/* WoW icons */
+.wi { display: inline-block; width: 16px; height: 16px; border-radius: 3px; background: #000 center / cover no-repeat; box-shadow: 0 0 0 1px rgba(0,0,0,.6); vertical-align: -3px; margin-right: 6px; flex: none; }
+h2 .wi { width: 18px; height: 18px; vertical-align: -3px; margin-right: 7px; }
+.leg .wi, .then .wi { width: 16px; height: 16px; margin-right: 0; }
+.rdy .wi { width: 15px; height: 15px; margin-right: 4px; }
+.wi.bare { background-color: transparent; box-shadow: none; border-radius: 0; background-size: contain; }
+:root[data-theme="light"] .wi.bare { filter: drop-shadow(0 0 .6px color-mix(in srgb, var(--shade) 90%, transparent)); }
+.ac.q { display: inline-block; width: 16px; margin-right: 6px; text-align: center; font: 800 15px/1 Georgia, 'Times New Roman', serif; color: var(--wowgold); opacity: 1; text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000; }
+.side.short li.done .wi, .stop li.ck .wi { filter: grayscale(1); }
+</style>
+<!--wf-theme-->
+<style id="wf-theme">
+:root { color-scheme: dark; --bg: #141413; --panel: #1c1b19; --raised: #242320; --panel2: #242320; --sunken: #100f0e; --hover: #2d2b28; --line: #302e2a; --line2: #46433d; --ink: #ecebe6; --muted: #a39f96; --gold: #e0a54c; --accent: #e0a54c; --on-accent: #1c1406; --fel: #5bbf86; --good: #5bbf86; --on-good: #0c1a10; --warn: #e0a54c; --bad: #e2685b; --q1: #e8e6e1; --q2: #4fd157; --q3: #5aa9ff; --q4: #b77cf5; --wowgold: #f2c94c; --silver: #c3c8cf; --copper: #cd8a57; --shade: #000000; --tipbg: #18171c; --elev: 0 1px 2px rgba(0,0,0,.35);
+  --display: "Inter", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f2ed; --panel: #fdfcfa; --raised: #f3f0ea; --panel2: #f3f0ea; --sunken: #ebe7df; --hover: #e8e3d9; --line: #e2ddd2; --line2: #cbc4b6; --ink: #1f1d1a; --muted: #6b665d; --gold: #b06c10; --accent: #b06c10; --on-accent: #ffffff; --fel: #237a49; --good: #237a49; --on-good: #ffffff; --warn: #a8670f; --bad: #bf4130; --q1: #1f1d1a; --q2: #1f8516; --q3: #1c66c4; --q4: #7c3cc6; --wowgold: #966f00; --silver: #66707c; --copper: #9c5a27; --shade: #6f6555; --tipbg: #fdfcfa; --elev: 0 1px 2px rgba(60,48,30,.06), 0 1px 1px rgba(60,48,30,.04); }
+body { background: var(--bg) !important; color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; letter-spacing: -.01em; text-transform: none; font-variant: normal; }
+h1 { color: var(--ink) !important; letter-spacing: -.02em; }
+h2 { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline-color: var(--accent); }
+input, select, textarea { color-scheme: inherit; }
+.card, .panel { box-shadow: var(--elev); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--accent); } }
+.wf-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px;
+  font: 600 12px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line2);
+  border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-toggle:hover { background: var(--hover); }
+/* inside the Hub every file is loaded from its "Load files" menu, so the pages' own loaders are hidden */
+.wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
+#wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
+  font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+#wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
+#wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
+#wf-path code i { font-style: normal; color: var(--accent); }
+#wf-path form { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#wf-path form label { font-size: 12px; color: var(--muted); }
+#wf-path form span { display: flex; gap: 6px; }
+#wf-path form input { flex: 1; min-width: 0; font: 12px var(--mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); }
+#wf-path form button { font: 600 12px var(--body); padding: 4px 10px; border-radius: 6px; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+#wf-path form small { color: var(--bad); font-size: 12px; }
+#wf-path form small:empty { display: none; }
+#wf-path a { color: var(--accent); margin-left: 4px; }
+.wf-toggle svg { width: 14px; height: 14px; }
+/* tables: alternating rows and a hover highlight (Jun, 15 Nov). :where() keeps these weaker than any page's own row
+   colours (picked or warning rows keep theirs); the hover on cards is a tint laid over their own background. */
+:where(table tbody tr:nth-child(even)) > td { background-color: color-mix(in srgb, var(--ink) 4%, transparent); }
+:where(table tbody tr:hover) > td { background-color: color-mix(in srgb, var(--accent) 11%, transparent); }
+:where(table tbody tr) > td { transition: background-color .1s ease; }
+.wf-more-card:hover:not(.wf-open), .wf-row-hover:hover { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)); }
+
+/* click-to-open cards (WF_MORE): hint on hover, accent edge when open */
+.wf-more-card { cursor: pointer; }
+.wf-more-card:hover { border-color: var(--line2) !important; }
+.wf-more-card.wf-open { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)) !important; }
+/* hover preview unrolls downward (clip-path animates on the GPU, no layout work per frame) */
+.wf-more-card { transition: background-color .12s ease, border-color .12s ease; }
+.wf-peek { animation: wf-unroll .16s cubic-bezier(.2, .7, .3, 1); }
+@keyframes wf-unroll { from { clip-path: inset(0 -40px calc(100% - var(--wf-h0, 100%)) -40px); } to { clip-path: inset(0 -40px -40px -40px); } }
+@media (prefers-reduced-motion: reduce) { .wf-peek { animation: none; } }
+.wf-peek { position: relative; z-index: 20; border-color: var(--line2) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--shade) 35%, transparent) !important; }
+
+/* ---- design v2 ---- */
+body { line-height: 1.5; }
+.wf-head { display: grid; gap: 6px; margin: 6px 0 2px; max-width: 760px; }
+.wf-head h1 { font-size: 26px !important; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; margin: 0; color: var(--ink) !important; }
+.wf-lead { margin: 0; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 78%, var(--muted)); max-width: 66ch; }
+.wf-start { list-style: none; counter-reset: wfs; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.wf-start li { counter-increment: wfs; display: inline-flex; align-items: center; gap: 8px; }
+.wf-start li::before { content: counter(wfs); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  font: 600 11px var(--body); color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line2); }
+.wf-start li:first-child::before { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.wf-sub { margin: 2px 0 0; font-size: 13px; font-weight: 400; color: var(--muted); max-width: 90ch; }
+.wf-answer { margin: 0; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink); max-width: 86ch; }
+.wf-answer::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line2); transform: translateY(-1px); }
+.wf-answer.good::before { background: var(--good); }
+.wf-more { all: unset; cursor: pointer; font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.wf-more:hover { color: var(--ink); text-decoration-color: currentColor; }
+.wf-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+/* calmer labels: sentence case instead of spaced capitals */
+:is(th, .field > span, .lbl, .tile .k, .wf-jump > span) { text-transform: none !important; letter-spacing: 0 !important; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wf-jump > span { font-size: 12px; }
+:is(.card .k, .mini .when, .dbr, .stat span, .buyrow .lbl, .bis .sl, .filters .lab, .find .lab, .pick .rank, .mat.head, .lim .h) {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; }
+:is(.pill, .badge, .status) { text-transform: none !important; letter-spacing: 0 !important; }
+/* one hierarchy: page title, then section titles; headings in ink, never amber */
+h1 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em !important; line-height: 1.15; color: var(--ink) !important; }
+h2 { font-size: 16px; color: var(--ink) !important; }
+.wf-lead { display: block; }
+header .wf-start, .hero .wf-start { margin-top: 8px; }
+
+.wf-stale { display: inline-block; font: 600 11.5px/1.5 var(--body); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: 99px; padding: 0 7px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+.wf-stale-line { display: inline-block; color: var(--ink); border-left: 3px solid var(--warn); padding-left: 8px; margin: 2px 0 4px; }
+
+@media (max-width: 700px) {
+  body :where(div, section, header, main, article, nav, aside, form, ul, ol, li, p, h1, h2, h3, details, fieldset, footer) { min-width: 0; }
+  body { overflow-wrap: break-word; }
+  :where(input, select, textarea) { max-width: 100%; }
+  .wf-start { gap: 4px 14px; }
+  header.hero { flex-direction: column; align-items: flex-start !important; }
+  .hero-icons { flex: none; }
+}
+
+[hidden] { display: none !important; }
+.wf-addon { font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; margin: 0 6px; white-space: nowrap; }
+.wf-addon:hover { color: var(--ink); text-decoration-color: currentColor; }
+.ahrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ahrow label.btn { font: 500 12.5px var(--body); background: var(--panel2, var(--panel)); color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ahrow label.btn:hover { border-color: var(--accent); }
+.ahrow #msg:empty { display: none; }
+
+abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%, transparent); text-underline-offset: 3px; cursor: help; }
+/* phones (review 16 Nov): small buttons and ticks get a finger-sized hit area without changing how they look much */
+@media (pointer: coarse) {
+  button:not(.wf-toggle):not(.wf-fold), select, .btn, .chip { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label:has(> input[type="checkbox"]) { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; }
+  button.mac, button.cp, button.star { min-width: 34px; }
+}
+.wf-tapTip { position: fixed; z-index: 200; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--bg); font: 500 13px/1.4 var(--body); padding: 7px 10px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-theme', root = document.documentElement;
+  var ICON = { dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+               light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' };
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromParent() { try { return window.parent !== window && window.parent.wfTheme ? window.parent.wfTheme.get() : null; } catch (e) { return null; } }
+  var inHub = !!fromParent();
+  if (inHub) root.classList.add('wf-in-hub');
+  function label() {
+    var t = root.dataset.theme, other = t === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.innerHTML = ICON[other] + '<span>' + (other === 'light' ? 'Light' : 'Dark') + '</span>';
+      b.title = 'Switch to ' + other + ' mode';
+    });
+  }
+  function set(t, save) {
+    root.dataset.theme = t;
+    if (save) try { localStorage.setItem(KEY, t); } catch (e) {}
+    document.querySelectorAll('iframe').forEach(function (f) { try { f.contentDocument.documentElement.dataset.theme = t; } catch (e) {} });
+    label();
+  }
+  window.wfTheme = { get: function () { return root.dataset.theme; }, set: set };
+  set(fromParent() || stored() || 'dark', false);
+  addEventListener('storage', function (e) { if (e.key === KEY && e.newValue) set(e.newValue, false); });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!inHub && !document.querySelector('[data-wf-toggle]')) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-toggle'; b.setAttribute('data-wf-toggle', '');
+      document.body.appendChild(b);
+    }
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { if (inHub) { window.parent.wfTheme.set(t, true); return; } } catch (e) {}
+        set(t, true);
+      });
+    });
+    label();
+  });
+})();
+</script>
+<script>
+(function () {
+  var FILES = {"file": "ah", "hubFile": "ah", "bagFile": "tsm", "hubTsm": "tsm", "gearfile": "snap", "knownFile": "snap", "hubSnap": "snap"}, COPY = {".kn-copy": "snap", "#copyPath": "ah", "#copyTsm": "tsm", "[data-wf-copy=ah]": "ah", "[data-wf-copy=snap]": "snap", "[data-wf-copy=tsm]": "tsm"}, KEY = 'wf-wow', timer;
+  var NAME = { ah: 'Auctionator.lua', tsm: 'TradeSkillMaster.lua', snap: 'GearSnapshot.lua' };
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } }
+  // Any path inside WTF\Account\<account> (a file or a folder) -> { acct: '...\\Account\\<account>\\', char: '<realm>\\<character>\\' }
+  function parse(t) {
+    t = String(t || '').trim().replace(/^"|"$/g, ''); var sep = t.indexOf('\\') >= 0 ? '\\' : '/';
+    var m = new RegExp('^(.*?[\\\\/]WTF[\\\\/]Account[\\\\/][^\\\\/]+)(?:[\\\\/](.*))?$', 'i').exec(t); if (!m) return null;
+    var out = { acct: m[1] + sep }, rest = (m[2] || '').split(/[\\/]/).filter(Boolean);
+    if (rest.length >= 2 && !/^savedvariables$/i.test(rest[0]) && !/\.lua$/i.test(rest[1])) out.char = rest[0] + sep + rest[1] + sep;
+    return out;
+  }
+  function set(t) {
+    var p = parse(t); if (!p) return false;
+    var old = get(); if (!p.char && old.char && old.acct === p.acct) p.char = old.char;
+    try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+    return true;
+  }
+  function path(k) {
+    var w = get(); if (!w.acct) return null; var sep = w.acct.slice(-1);
+    if (k === 'snap') return w.char ? w.acct + w.char + 'SavedVariables' + sep + NAME.snap : null;
+    return w.acct + 'SavedVariables' + sep + NAME[k];
+  }
+  // Where the file lives, for anyone (no personal folder names)
+  function where(k) {
+    return 'World of Warcraft\\_forever_\\WTF\\Account\\<i>your account</i>\\' + (k === 'snap' ? '<i>realm</i>\\<i>character</i>\\' : '') + 'SavedVariables\\' + NAME[k];
+  }
+  window.wfWow = { get: get, set: set, path: path, where: where, parse: parse };
+  function copy(t) {
+    var ok = false, a = document.activeElement, ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); try { a && a.focus && a.focus(); } catch (e) {}
+    if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
+    return ok;
+  }
+  function toast(html, el, keep) {
+    var d = document.getElementById('wf-path');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });
+    }
+    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
+    if (r && r.width) {
+      var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
+      if (y + d.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - d.offsetHeight - 6);
+      d.style.left = x + 'px'; d.style.top = y + 'px';
+    }
+    var f = d.querySelector('form');
+    if (f) f.onsubmit = function (e) {
+      e.preventDefault(); var v = f.querySelector('input').value;
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
+    };
+    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+  }
+  function help(k, el) {
+    var p = path(k), name = NAME[k];
+    if (p && copy(p)) return toast('<b>' + name + '</b> path copied. In the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> (File name box), <kbd>Ctrl</kbd>+<kbd>V</kbd>, <kbd>Enter</kbd>. <a href="#" data-wf-wow-reset>Change folder</a>', el);
+    var w = get();
+    toast('<b>' + name + '</b> is in <code>' + where(k) + '</code>' +
+      '<form data-k="' + k + '"><label>Save time next load: paste the ' + (k === 'snap' && w.acct ? 'character' : 'account') + ' folder path once (copy it from the Open window\'s address bar).</label>' +
+      '<span><input type="text" spellcheck="false" placeholder="' + (k === 'snap' ? '...\\WTF\\Account\\NAME\\Realm\\Character' : '...\\WTF\\Account\\NAME') + '"><button type="submit">Save</button></span><small></small></form>', el, true);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-wf-wow-reset]')) { e.preventDefault(); try { localStorage.removeItem(KEY); } catch (x) {} var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; return; }
+    for (var sel in COPY) { var b = t.closest(sel); if (b) { e.preventDefault(); e.stopImmediatePropagation(); help(COPY[sel], b); return; } }
+    if (t.tagName !== 'INPUT' || t.type !== 'file' || !FILES[t.id]) return;
+    help(FILES[t.id], (t.labels && t.labels[0]) || t);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var d = document.getElementById('wf-path');
+    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+  }, true);
+})();
+
+window.wfAge = function (when) {
+  var t = when instanceof Date ? when.getTime() : typeof when === 'number' ? (when < 1e11 ? when * 1000 : when)
+        : Date.parse(/^\d{4}-\d\d-\d\d$/.test(String(when)) ? when + 'T12:00:00' : when);
+  return isNaN(t) ? null : Math.max(0, Math.floor((Date.now() - t) / 864e5));
+};
+window.wfStale = function (when, maxDays, what) {
+  var d = wfAge(when); if (d == null || d <= maxDays) return '';
+  return ' <span class="wf-stale" title="' + (what || 'This data is') + ' ' + d + ' days old, so it may have changed since.">' + d + ' days old</span>';
+};
+
+(function () {
+  var KEY = 'wf-char', subs = [];
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function set(patch) {
+    var c = get(), ch = false;
+    for (var k in patch) if (patch[k] !== undefined && patch[k] !== null && patch[k] !== '' && c[k] !== patch[k]) { c[k] = patch[k]; ch = true; }
+    if (ch) { c.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} }
+    return c;
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) subs.forEach(function (f) { try { f(get()); } catch (x) {} }); });
+  window.WFCHAR = { get: get, set: set, on: function (f) { subs.push(f); } };
+})();
+
+(function () {
+  var G = [
+    ['Gear score', 'How good an item is for your class and spec: its stats times the stat weights of the Forever Leveling BiS addon. Higher is better.'],
+    ["Merchant's Favor", "A Forever currency for rare patterns and formulas, earned by turning in Waylaid Supplies crates (a Journeyman Fabrics crate gives 20)."],
+    ['Sayaad', 'The Succubus (or Incubus), a Warlock demon.'],
+    ['BUY line', 'What to buy for one step, with a small safety margin, after what is already in your bags.'],
+    ['sale rate', 'How often an item actually sells, from TradeSkillMaster data (0.1 = about 1 in 10 listings sell).'],
+    ['Stuck', 'Listings are piling up faster than the rest of the auction house, or sellers are cutting the price hard.'],
+    ['disenchant', 'Destroying a green or blue item with Enchanting to get dust, essences or shards.'],
+    ['Big crowd', 'Many Horde players are at the levels that can use this item right now.']
+  ];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|ABBR|CODE|SVG|TITLE|LABEL)$/;
+  var done = {};
+  function scan() {
+    var root = document.querySelector('main') || document.body; if (!root) return;
+    var left = G.filter(function (g) { return !done[g[0]]; }); if (!left.length) return;
+    var re = new RegExp('\\b(' + left.map(function (g) { return g[0].replace(/[.*+?^${}()|[\]\\']/g, '\\$&'); }).join('|') + ')s?\\b');
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      for (var e = n.parentNode; e && e !== root; e = e.parentNode) { if (SKIP.test(e.nodeName) || e.hidden || (e.classList && (e.classList.contains('gl') || e.classList.contains('mkt')))) return NodeFilter.FILTER_REJECT; }
+      return re.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; } });
+    var hits = []; for (var n = w.nextNode(); n; n = w.nextNode()) hits.push(n);
+    hits.forEach(function (n) {
+      var m = n.nodeValue.match(re); if (!m || done[m[1]]) return;
+      var g = G.filter(function (x) { return x[0] === m[1]; })[0]; done[m[1]] = 1;
+      var a = document.createElement('abbr'); a.className = 'gl'; a.title = g[1]; a.tabIndex = 0;
+      var rest = n.splitText(m.index); rest.splitText(m[0].length); a.textContent = rest.nodeValue; rest.parentNode.replaceChild(a, rest);
+    });
+  }
+  var t = 0; function later() { clearTimeout(t); t = setTimeout(scan, 400); }
+  addEventListener('load', function () { scan(); if (window.MutationObserver) new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); });
+  // phones: tap a tag or term to read its title
+  if (window.matchMedia && matchMedia('(hover: none)').matches) {
+    var tip;
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('abbr[title], .gl, .mkt[title], .pill[title], .mv[title], [data-tip]');
+      if (tip) { tip.remove(); tip = null; }
+      if (!el) return;
+      var txt = el.getAttribute('title') || el.getAttribute('data-tip'); if (!txt) return;
+      tip = document.createElement('div'); tip.className = 'wf-tapTip'; tip.setAttribute('role', 'tooltip'); tip.textContent = txt; document.body.appendChild(tip);
+      var r = el.getBoundingClientRect(), x = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left));
+      tip.style.left = x + 'px'; tip.style.top = (r.bottom + 6 + tip.offsetHeight > innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+    }, true);
+    addEventListener('scroll', function () { if (tip) { tip.remove(); tip = null; } }, { passive: true });
+  }
+})();
+
+(function () {
+  var KEY = 'wf-ah', cache, subs = [];
+  function findBytes(buf, str, from) {
+    var pat = str.split('').map(function (c) { return c.charCodeAt(0); });
+    outer: for (var i = from || 0; i <= buf.length - pat.length; i++) { for (var j = 0; j < pat.length; j++) if (buf[i + j] !== pat[j]) continue outer; return i; }
+    return -1;
+  }
+  function luaString(buf, i) {
+    var out = [], map = { 110: 10, 114: 13, 116: 9, 92: 92, 34: 34, 39: 39, 10: 10, 97: 7, 98: 8, 102: 12, 118: 11 }; i++;
+    while (i < buf.length) {
+      var c = buf[i];
+      if (c === 92) {
+        var n = buf[i + 1];
+        if (n >= 48 && n <= 57) { var k = i + 1, d = ''; while (k < i + 4 && buf[k] >= 48 && buf[k] <= 57) { d += String.fromCharCode(buf[k]); k++; } out.push(parseInt(d, 10)); i = k; continue; }
+        if (n === 13 && buf[i + 2] === 10) { out.push(10); i += 3; continue; }
+        out.push(map[n] !== undefined ? map[n] : n); i += 2; continue;
+      }
+      if (c === 34) return { bytes: new Uint8Array(out), end: i + 1 };
+      out.push(c); i++;
+    }
+    throw new Error('unterminated string');
+  }
+  function cbor(bytes) {
+    var p = 0, dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    function str(n) { var s = ''; for (var k = 0; k < n; k++) s += String.fromCharCode(bytes[p + k]); p += n; return s; }
+    function len(ai) { if (ai < 24) return ai; if (ai === 24) return bytes[p++]; if (ai === 25) { var v = dv.getUint16(p); p += 2; return v; } if (ai === 26) { v = dv.getUint32(p); p += 4; return v; } if (ai === 27) { v = Number(dv.getBigUint64(p)); p += 8; return v; } throw new Error('bad length'); }
+    function item() {
+      var b = bytes[p++], mt = b >> 5, ai = b & 31, n, k, o, a, v;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2 || mt === 3) return str(len(ai));
+      if (mt === 4) { n = len(ai); a = []; for (k = 0; k < n; k++) a.push(item()); return a; }
+      if (mt === 5) { n = len(ai); o = {}; for (k = 0; k < n; k++) { var key = item(); o[key] = item(); } return o; }
+      if (mt === 6) { len(ai); return item(); }
+      if (mt === 7) {
+        if (ai === 20) return false; if (ai === 21) return true; if (ai === 22 || ai === 23) return null;
+        if (ai === 25) { var h = dv.getUint16(p); p += 2; var e = (h >> 10) & 31, f = h & 1023; v = e === 0 ? f * Math.pow(2, -24) : e === 31 ? (f ? NaN : Infinity) : (1 + f / 1024) * Math.pow(2, e - 15); return h & 0x8000 ? -v : v; }
+        if (ai === 26) { v = dv.getFloat32(p); p += 4; return v; }
+        if (ai === 27) { v = dv.getFloat64(p); p += 8; return v; }
+      }
+      throw new Error('unsupported CBOR');
+    }
+    return item();
+  }
+  function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
+  function parse(buf, opt) {
+    var text = ascii(buf, 0, Math.min(buf.length, buf.length));
+    var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
+    if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
+    if (mm[1] === 'nil') throw new Error('Auctionator has not saved any prices yet. Do a full scan at the auction house, then /reload');
+    var i = mm.index + mm[0].length, realms = {};
+    while (i < buf.length) {
+      while (buf[i] === 10 || buf[i] === 13 || buf[i] === 32 || buf[i] === 9 || buf[i] === 44) i++;
+      if (buf[i] === 125) break;
+      if (buf[i] !== 91 || buf[i + 1] !== 34) throw new Error('unexpected format in the price database');
+      var kEnd = findBytes(buf, '"]', i + 2), key = ascii(buf, i + 2, kEnd);
+      i = kEnd + 2; while (buf[i] === 32 || buf[i] === 61) i++;
+      if (buf[i] === 34) { var s = luaString(buf, i); i = s.end; if (key !== '__dbversion') realms[key] = s.bytes; }
+      else if (buf[i] === 123) throw new Error('this Auctionator version stores prices in an older format. Update Auctionator and scan again');
+      else { while (buf[i] !== 44 && buf[i] !== 10) i++; }
+    }
+    var best = null, bestN = -1;
+    Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
+    if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
+    var out = {}, today = 0;
+    Object.keys(best).forEach(function (id) { var e = best[id]; if (e && e.h && typeof e.h === 'object') Object.keys(e.h).forEach(function (d) { if (+d > today) today = +d; }); });
+    Object.keys(best).forEach(function (id) {
+      var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
+      var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
+      // usual price: median daily price of the 7 days before the scan day (3+ days needed, item seen on the scan day)
+      var h = e.h || {}, l = e.l || {}, u = 0, prev = [];
+      if (h[today] || l[today]) for (var d = today - 7; d < today; d++) { var v = h[d] || l[d]; if (v > 0) prev.push(v); }
+      if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
+      out[id] = u ? [e.m, a, u] : [e.m, a];
+    });
+    // opt.sfx: random-suffix gear ("gr:<id>:of the Owl" keys) listed on the scan day, as g[id][suffix] = [price, count]
+    var g = null;
+    if (opt && opt.sfx) { g = {}; Object.keys(best).forEach(function (k) {
+      var mt = /^gr:(\d+):(.+)$/.exec(k), e = best[k]; if (!mt || !e || typeof e.m !== 'number' || !e.h || !e.h[today]) return;
+      (g[mt[1]] = g[mt[1]] || {})[mt[2]] = [e.m, (e.a && e.a[today]) || 0];
+    }); }
+    var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
+    if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
+    return g ? { scan: scan, items: bestN, p: out, g: g } : { scan: scan, items: bestN, p: out };
+  }
+  function get() {
+    if (cache !== undefined) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function fire(err, name) { subs.forEach(function (f) { try { f(get(), err, name); } catch (e) { if (window.console) console.error(e); } }); }
+  function load(file) {
+    return file.arrayBuffer().then(function (ab) {
+      var rec = parse(new Uint8Array(ab)); rec.name = file.name; rec.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(rec)); } catch (e) {}
+      cache = rec; fire(null, file.name); return rec;
+    }, function (e) { throw e; }).catch(function (e) { fire(e, file.name); throw e; });
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) { cache = undefined; fire(null); } });
+  // every page's own #file loader (and the Hub / website feeding it) fills the shared store
+  document.addEventListener('change', function (e) {
+    var el = e.target; if (!el || el.id !== 'file' || !el.files) return;
+    Array.prototype.forEach.call(el.files, function (f) { if (!/tradeskillmaster|gearsnapshot/i.test(f.name)) load(f).catch(function () {}); });
+  }, true);
+  window.WFAH = { parse: parse, get: get, load: load, on: function (f) { subs.push(f); },
+    // "Prices from ..." label for a page: whose scan it is and how old
+    label: function (rec) { var d = new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      return /site scan/i.test(rec.name) ? 'Horde auction house scan (PvP realm), ' + d : 'your Auctionator scan (' + rec.name + '), ' + d; } };
+})();
+window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
+(function () {
+  var ZIP = window.WF_SNAPZIP || '';
+  if (!ZIP) return;
+  var TIP = 'Unzip it into World of Warcraft\\_forever_\\Interface\\AddOns\\ and tick Gear Snapshot in the AddOns list at character select.';
+  function add() {
+    document.querySelectorAll('label[for="gearfile"], .kn-btn').forEach(function (el) {
+      if (el.parentElement.querySelector('.wf-addon')) return;
+      var a = document.createElement('a'); a.className = 'wf-addon'; a.href = ZIP; a.download = 'GearSnapshot.zip'; a.title = TIP;
+      a.textContent = 'Get the Gear Snapshot addon'; el.insertAdjacentElement('afterend', a);
+    });
+    document.querySelectorAll('[data-wf-addon]').forEach(function (a) { a.href = ZIP; a.download = 'GearSnapshot.zip'; });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  var q = 0;  // pages redraw often: check at most once per frame
+  new MutationObserver(function () { if (q) return; q = 1; requestAnimationFrame(function () { q = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+<style id="wf-qol">
+.wf-fold { all: unset; cursor: pointer; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 8px; border-radius: 5px;
+  color: var(--muted); border: 1px solid var(--line); vertical-align: middle; flex: none; }
+.wf-fold:hover { color: var(--ink); border-color: var(--line2); background: var(--hover); }
+.wf-fold svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.wf-folded .wf-fold svg { transform: rotate(-90deg); }
+.wf-fold-h { cursor: pointer; }
+.wf-folded > :not(.wf-fold-head) { display: none !important; }
+.wf-folded { padding-bottom: 8px !important; }
+.wf-folded > .wf-fold-head .hint, .wf-folded > .wf-fold-head > p { display: none; }
+.wf-sec { scroll-margin-top: 44px; }
+.wf-jump { position: sticky; top: 0; z-index: 40; display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none;
+  margin: 0 0 8px; padding: 5px 0; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line); }
+.wf-jump::-webkit-scrollbar { display: none; }
+.wf-jump > span { font: 600 10.5px var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 0 4px 0 2px; flex: none; }
+.wf-jump button { all: unset; cursor: pointer; flex: none; font: 500 12px var(--body); color: var(--muted); padding: 3px 9px; border-radius: 99px; border: 1px solid transparent; white-space: nowrap; }
+.wf-jump button:hover { color: var(--ink); background: var(--hover); }
+.wf-jump button.on { color: var(--ink); border-color: var(--line2); background: var(--panel); }
+.wf-jump button.folded { opacity: .6; }
+.wf-top { position: fixed; right: 12px; bottom: 50px; z-index: 60; display: none; align-items: center; gap: 4px; font: 600 12px var(--body); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line2); border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-in-hub .wf-top { bottom: 12px; }
+.wf-top.show { display: inline-flex; }
+.wf-top:hover { background: var(--hover); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-fold:' + location.pathname.split('/').pop() + ':' + (document.title || ''), state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  var secs = [], bar = null, topBtn = null;
+  function name(h) { return (h.dataset.wfName || h.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function setFold(sec, on, remember) {
+    sec.el.classList.toggle('wf-folded', on);
+    sec.btn.setAttribute('aria-expanded', !on); sec.btn.title = on ? 'Show this section' : 'Fold this section away';
+    if (remember) { state[sec.key] = on ? 1 : 0; save(); }
+    if (bar) paintBar();
+  }
+  function scan() {
+    var found = false;
+    document.querySelectorAll('h2').forEach(function (h) {
+      if (h.dataset.wfq) { if (h._wfBtn && !h.contains(h._wfBtn)) h.appendChild(h._wfBtn); return; }
+      var el = h.closest('section, .card');
+      if (!el || el.tagName === 'DETAILS' || el.closest('details:not([open])')) return;
+      var head = h; while (head.parentElement && head.parentElement !== el) head = head.parentElement;
+      if (head.parentElement !== el) return;
+      var others = [].filter.call(el.children, function (c) { return c !== head; });
+      if (!others.length) return;
+      h.dataset.wfq = '1'; found = true;
+      var key = name(h).slice(0, 60);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-fold'; b.innerHTML = CHEV;
+      h.appendChild(b); h._wfBtn = b;
+      head.classList.add('wf-fold-head'); h.classList.add('wf-fold-h'); el.classList.add('wf-sec');
+      var sec = { el: el, h: h, btn: b, key: key };
+      secs = secs.filter(function (s) { return s.el !== el; }); secs.push(sec);
+      function toggle(e) { e.preventDefault(); e.stopPropagation(); setFold(sec, !el.classList.contains('wf-folded'), true); }
+      b.addEventListener('click', toggle); h.addEventListener('click', toggle);
+      var start = state[key] !== undefined ? state[key] === 1 : el.getAttribute('data-wf-fold') === 'closed';
+      setFold(sec, start, false);
+    });
+    secs = secs.filter(function (s) { return s.el.isConnected && s.h.isConnected; });
+    secs.sort(function (a, b) { return a.el.compareDocumentPosition(b.el) & 2 ? 1 : -1; });
+    if (found) buildBar();
+  }
+  function buildBar() {
+    if (document.querySelector('nav') || secs.length < 3) { if (bar) { bar.remove(); bar = null; } return; }
+    if (!bar) {
+      bar = document.createElement('div'); bar.className = 'wf-jump'; bar.setAttribute('role', 'navigation'); bar.setAttribute('aria-label', 'Jump to section');
+      var first = secs[0].el;  // sits in the content column, right above the first section
+      first.parentElement.insertBefore(bar, first);
+    }
+    bar.innerHTML = '<span>Jump to</span>' + secs.map(function (s, i) { return '<button type="button" data-i="' + i + '">' + name(s.h).replace(/[&<>]/g, '').slice(0, 30) + '</button>'; }).join('');
+    bar.querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () { var s = secs[+b.dataset.i]; if (!s) return; if (s.el.classList.contains('wf-folded')) setFold(s, false, true); s.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+    });
+    paintBar(); setTimeout(paintBar, 1500);
+  }
+  function paintBar() {
+    if (!bar) return;
+    bar.querySelectorAll('button').forEach(function (b) { var s = secs[+b.dataset.i]; b.hidden = !!(s && s.el.closest('[hidden]')); });  // sections a page hid
+    var cur = -1, y = (bar.getBoundingClientRect().bottom || 0) + 12;
+    secs.forEach(function (s, i) { if (s.el.getBoundingClientRect().top <= y) cur = i; });
+    bar.querySelectorAll('button').forEach(function (b) { var i = +b.dataset.i, s = secs[i]; b.classList.toggle('on', i === cur); b.classList.toggle('folded', !!(s && s.el.classList.contains('wf-folded'))); });
+  }
+  var ticking = false;
+  addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; paintBar(); if (topBtn) topBtn.classList.toggle('show', (document.scrollingElement || document.documentElement).scrollTop > 700); });
+  }, { passive: true });
+  function init() {
+    scan();
+    var hasTop = [].some.call(document.querySelectorAll('button, a'), function (b) { return /^\s*(back to )?top\s*$/i.test(b.textContent) && !b.classList.contains('wf-top'); });
+    if (!hasTop && !topBtn) {
+      topBtn = document.createElement('button'); topBtn.type = 'button'; topBtn.className = 'wf-top'; topBtn.innerHTML = '<span aria-hidden="true">↑</span> Top';
+      topBtn.onclick = function () { scrollTo({ top: 0, behavior: 'smooth' }); };
+      document.body.appendChild(topBtn);
+    }
+    var t = null;
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 250); }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); }); else setTimeout(init, 0);
+})();
+</script>
+<!--/wf-theme-->
+<meta name="ws-prices" content="1795183501">
+<link rel="canonical" href="https://wow.junhots.com/level-route/">
+<meta name="description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Questie to start…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="junhots WoW tools">
+<meta property="og:title" content="Level 1-60 route · WoW Forever · junhots">
+<meta property="og:description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Questie to start…">
+<meta property="og:url" content="https://wow.junhots.com/level-route/">
+<meta property="og:image" content="https://wow.junhots.com/assets/og/default.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Leveling</div><a href="/level-route/" aria-current="page" title="Level 1-60 route"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="20" height="20"><span>Level 1-60 route</span><i class="ws-ind" aria-hidden="true"></i></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Profession leveling"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Profession leveling</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><a href="/vendor-flips/" title="Vendor flips"><img src="/assets/icons/inv_misc_bag_10.webp" alt="" width="20" height="20"><span>Vendor flips</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank, quests done, flights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/level-route/" aria-current="page">Leveling<i class="ws-tab" aria-hidden="true"></i></a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div></div>
+<div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
+
+<div class="wrap">
+<header class="wf-head">
+  <h1>Level 1-60 route</h1>
+  <p class="wf-lead">Every quest in order on a map, with how to get there, trainer visits and dungeons.</p>
+  <ol class="wf-start"><li>Pick your race and class</li><li>Load your game files (quests done, flights)</li><li>Follow the numbered stops</li></ol>
+</header>
+
+<section class="card" id="you">
+  <div class="pick">
+    <label>Race <select id="race"></select></label>
+    <label>Class <select id="cls"></select></label>
+    <label id="startWrap">Start <select id="start"></select></label>
+    <label id="charWrap" class="hidden">Character <select id="char"></select></label>
+  </div>
+  <div class="status">
+    <span id="qStat">Quests done: <label class="load" for="questieFile">load Questie.lua</label></span><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
+    <span id="fStat">Flights: <label class="load" for="spfFile">load ShortestPathForever.lua</label></span><input id="spfFile" class="fin" type="file" accept=".lua,.bak,text/plain">
+    <span id="sum"></span>
+  </div>
+  <div class="status" id="msg" role="status"></div>
+</section>
+
+<section class="card" id="dunSec" data-wf-fold="closed">
+  <h2 data-wf-name="Dungeons"><i class="wi wi-skull" aria-hidden="true"></i>Dungeons <span class="muted" id="dunSum"></span></h2>
+  <div id="duns"></div>
+</section>
+
+<section class="card" id="routeSec">
+  <div class="chead"><h2 data-wf-name="Route"><i class="wi wi-map" aria-hidden="true"></i>Route <span class="muted" id="routeSum"></span></h2>
+    <div class="qs"><input id="qs" type="search" placeholder="Search a quest" autocomplete="off"></div>
+    <button class="btn main" id="hereBtn" type="button">Where I am</button></div>
+  <p class="gaps" id="gaps"></p>
+  <div id="qres"></div>
+  <div id="tabs"></div>
+</section>
+
+<section class="card" id="nextCard">
+  <div class="nhd"><h2 data-wf-name="Next">Next stop <span class="muted" id="nwhere"></span></h2>
+    <div class="nbtn"><button class="btn" id="backBtn" type="button">Back</button><button class="btn main" id="doneBtn" type="button">Done, next stop</button></div></div>
+  <div id="nbody"></div>
+</section>
+
+<div class="split" id="split">
+  <div class="mapcol"><div id="mapbox"></div></div>
+  <div class="side" id="side"></div>
+</div>
+
+<section class="card how" data-wf-fold="closed">
+  <h2>How it works</h2>
+  <ul>
+    <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups and pre-quests are added (marked <span class="tag add">added</span>).</li>
+    <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
+    <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
+    <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
+    <li><b>Flights in your file:</b> Shortest Path Forever saves them after you open a flight master's map once on each continent, then /reload.</li>
+    <li><b>Dungeon ready:</b> the stop where you have every quest for the next dungeon.</li>
+    <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
+    <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level.</li>
+    <li><b>Quests done</b> come from Questie.lua (account SavedVariables folder).</li>
+  </ul>
+</section>
+<footer>Quest order: <a href="https://www.curseforge.com/wow/addons/guidelime_tugs" target="_blank" rel="noopener">TUGs The Ultimate Leveling Guides</a> (free, by TUGs). Quest, NPC and map data: Questie / QuestieDB. Travel data: <a href="https://github.com/cjber/shortest-path-forever" target="_blank" rel="noopener">Shortest Path Forever</a> by cjber (GPL-3.0). Trainer spells: What's Training. Dungeon doors: Forever Dungeon Journal. Maps and icons: World of Warcraft game art; zeppelin icon from Shortest Path Forever.</footer>
+</div>
+<script>
+// Travel planner for the level route page.
+// Uses travel data from Shortest Path Forever by cjber (GPL-3.0-or-later):
+// flight paths and times, boats, zeppelins, lifts, portals and walking costs between fixed places.
+(function (root) {
+  'use strict';
+  const RUN = 7, MOUNT = 7 * 1.6, DETOUR = 1.4, MAXDIRECT = 2500, FLY_START = 10;
+
+  function Travel(data) {
+    this.d = data;
+    const taxi = this.taxi = {};
+    for (const id in data.taxi) {
+      const t = data.taxi[id];
+      taxi[id] = { id: +id, map: t[0], x: t[1], y: t[2], name: t[3], fac: t[4], cls: t[5] };
+    }
+    this.adj = {};
+    for (const [a, b, s] of data.tpaths) (this.adj[a] = this.adj[a] || []).push([b, s]);
+    // fixed places: every taxi node, dock and portal end
+    const P = this.places = {};
+    for (const id in taxi) P['taxi' + id] = { key: 'taxi' + id, map: taxi[id].map, x: taxi[id].x, y: taxi[id].y, taxi: +id };
+    for (const id in data.docks) {
+      const d = data.docks[id];
+      P['dock' + id] = { key: 'dock' + id, map: d[0], x: d[1], y: d[2], dock: +id, name: d[3] };
+    }
+    data.portals.forEach((p, i) => {
+      P['pa' + i] = { key: 'pa' + i, map: p.a[0], x: p.a[1], y: p.a[2], portal: i };
+      P['pb' + i] = { key: 'pb' + i, map: p.b[0], x: p.b[1], y: p.b[2] };
+    });
+    // walk place keys -> our keys (same names for taxi/dock; portals by position)
+    this.walkKey = {};
+    for (const k in data.places) {
+      const [m, x, y] = data.places[k];
+      if (P[k]) { this.walkKey[k] = k; continue; }
+      let best = null;
+      for (const pk in P) {
+        const p = P[pk];
+        if (p.map !== m || !pk.startsWith('p')) continue;
+        const d = Math.hypot(p.x - x, p.y - y);
+        if (d < 30 && (!best || d < best[0])) best = [d, pk];
+      }
+      if (best) this.walkKey[k] = best[1];
+    }
+    this.walk = {};
+    for (const k in data.walks) {
+      const [a, b] = k.split(' ');
+      const ka = this.walkKey[a], kb = this.walkKey[b];
+      if (!ka || !kb) continue;
+      const v = data.walks[k];
+      this.walk[ka + ' ' + kb] = v[0];
+      this.walk[kb + ' ' + ka] = v.length > 1 ? v[1] : v[0];
+    }
+    this.walkMaps = new Set(Object.values(data.places).map(p => p[0]));
+    this.routes = data.routes;
+  }
+
+  Travel.prototype.land = function (map, x, y) {
+    for (const l of this.d.lands) if (l[0] === map && x >= l[1] && x <= l[2] && y >= l[3] && y <= l[4]) return l[5];
+    return 'main' + map;
+  };
+  Travel.prototype.zoneAt = function (map, x, y) {
+    let best = null;
+    for (const z of this.d.zones) {
+      if (z[1] !== map || x < z[2] || x > z[3] || y < z[4] || y > z[5]) continue;
+      const a = (z[3] - z[2]) * (z[5] - z[4]);
+      if (!best || a < best[0]) best = [a, z[6]];
+    }
+    return best ? best[1] : null;
+  };
+  const facOk = (f, fac) => !f || f === 'N' || f === fac;
+  Travel.prototype.taxiOk = function (id, o) {
+    const t = this.taxi[id];
+    return t && o.known.has(+id) && facOk(t.fac, o.fac) && (!t.cls || t.cls === o.cls);
+  };
+
+  // Fastest way from a to b ({map,x,y}). o = {known:Set(taxi ids), fac:'H'|'A', lvl, cls}
+  Travel.prototype.route = function (a, b, o) {
+    const speed = (o.lvl || 1) >= 40 ? MOUNT : RUN;
+    const nodes = [{ key: 'S', map: a.map, x: a.x, y: a.y }, { key: 'T', map: b.map, x: b.x, y: b.y }];
+    for (const k in this.places) {
+      const p = this.places[k];
+      if (p.taxi && !(facOk(this.taxi[p.taxi].fac, o.fac))) continue;
+      nodes.push(p);
+    }
+    const idx = {}; nodes.forEach((n, i) => idx[n.key] = i);
+    const lands = nodes.map(n => this.land(n.map, n.x, n.y));
+    const dist = new Array(nodes.length).fill(Infinity), prev = new Array(nodes.length).fill(null);
+    const done = new Array(nodes.length).fill(false);
+    dist[0] = 0;
+    const relax = (u, v, c, leg) => {
+      if (dist[u] + c < dist[v]) { dist[v] = dist[u] + c; prev[v] = [u, leg]; }
+    };
+    // nearest fixed places for S and T so far-away points still connect
+    const nearest = (i, n) => nodes.map((p, j) => [j, p]).filter(([j, p]) => j > 1 && p.map === nodes[i].map && lands[j] === lands[i])
+      .map(([j, p]) => [Math.hypot(p.x - nodes[i].x, p.y - nodes[i].y), j]).sort((x, y) => x[0] - y[0]).slice(0, n).map(x => x[1]);
+    const nearS = new Set(nearest(0, 4)), nearT = new Set(nearest(1, 4));
+    for (;;) {
+      let u = -1, best = Infinity;
+      for (let i = 0; i < nodes.length; i++) if (!done[i] && dist[i] < best) { best = dist[i]; u = i; }
+      if (u < 0 || u === 1) break;
+      done[u] = true;
+      const n = nodes[u];
+      // walking
+      for (let v = 1; v < nodes.length; v++) {
+        if (v === u || done[v]) continue;
+        const m = nodes[v];
+        if (m.map !== n.map) continue;
+        const swim = lands[v] !== lands[u];
+        if (swim && !(o.swim && (u === 0 || v === 1))) continue;
+        let c = null;
+        const fixed = u > 1 && v > 1;
+        if (fixed && this.walkMaps.has(n.map)) {
+          const w = this.walk[n.key + ' ' + m.key];
+          if (w === undefined) { if (Math.hypot(m.x - n.x, m.y - n.y) < 60) c = 0; else continue; }
+          else c = w;
+        } else {
+          const d = Math.hypot(m.x - n.x, m.y - n.y);
+          const near = (u === 0 && nearS.has(v)) || (v === 1 && nearT.has(u)) || (u === 0 && v === 1);
+          if (d > MAXDIRECT && !near) continue;
+          c = d * DETOUR;
+        }
+        if (swim) { if (Math.hypot(m.x - n.x, m.y - n.y) > 3000) continue; relax(u, v, c * 2.5 / speed, { k: 'walk', swim: true }); }
+        else relax(u, v, c / speed, { k: 'walk' });
+      }
+      // flights between known nodes
+      if (n.taxi && this.taxiOk(n.taxi, o)) {
+        for (const [to, s] of this.adj[n.taxi] || []) {
+          if (!this.taxiOk(to, o)) continue;
+          const v = idx['taxi' + to];
+          if (v === undefined) continue;
+          const startCost = prev[u] && prev[u][1].k === 'fly' ? 0 : FLY_START;
+          relax(u, v, s + startCost, { k: 'fly', a: n.taxi, b: to });
+        }
+      }
+      // boats, zeppelins, lifts, tram
+      if (n.dock) {
+        for (const r of this.routes) {
+          if (!facOk(r.f, o.fac)) continue;
+          const i0 = r.st.findIndex(s => s[0] === n.dock);
+          if (i0 < 0) continue;
+          for (let j = 1; j < r.st.length; j++) {
+            const s = r.st[(i0 + j) % r.st.length];
+            const v = idx['dock' + s[0]];
+            if (v === undefined) continue;
+            const ride = ((s[1] - r.st[i0][2]) % r.p + r.p) % r.p / 1000;
+            relax(u, v, ride + r.p / 2000, { k: r.k, a: n.dock, b: s[0] });
+          }
+        }
+      }
+      if (n.portal !== undefined) {
+        const p = this.d.portals[n.portal];
+        if (facOk(p.f, o.fac)) relax(u, idx['pb' + n.portal], p.s, { k: p.k, n: p.n });
+      }
+    }
+    if (dist[1] === Infinity) return o.swim ? null : this.route(a, b, Object.assign({}, o, { swim: true }));
+    const legs = [];
+    for (let v = 1; prev[v]; v = prev[v][0]) legs.unshift(Object.assign({ to: nodes[v].key, secs: dist[v] - dist[prev[v][0]] }, prev[v][1]));
+    // merge legs of the same kind (walks, multi-stop flights)
+    const out = [];
+    for (const l of legs) {
+      const last = out[out.length - 1];
+      if (last && last.k === 'walk' && l.k === 'walk') { last.secs += l.secs; last.to = l.to; last.swim = last.swim || l.swim; continue; }
+      if (last && last.k === 'fly' && l.k === 'fly') { last.via.push(last.b); last.b = l.b; last.secs += l.secs; continue; }
+      if (l.k === 'fly') l.via = [];
+      out.push(l);
+    }
+    return { secs: dist[1], legs: out.filter(l => !(l.k === 'walk' && l.secs < 1) && l.k !== 'lift'), all: out };
+  };
+
+  const DIRS = ['north', 'northwest', 'west', 'southwest', 'south', 'southeast', 'east', 'northeast'];
+  // world x = north, world y = west
+  Travel.dir = function (a, b) {
+    const ang = Math.atan2(b.y - a.y, b.x - a.x); // 0 = north, +90 = west
+    return DIRS[((Math.round(ang / (Math.PI / 4)) % 8) + 8) % 8];
+  };
+  Travel.prototype.town = function (id) { return this.taxi[id].name.split(',')[0]; };
+  Travel.prototype.dockName = function (id) { const d = this.d.docks[id]; return (d && d[3]) || 'the dock'; };
+
+  // Plain words for a planned trip, e.g. "Fly Orgrimmar to Crossroads, then run north".
+  Travel.prototype.describe = function (r, from, dest) {
+    const parts = [];
+    let pos = from;
+    const legs = r.legs;
+    const hasRide = legs.some(l => l.k !== 'walk');
+    legs.forEach((l, i) => {
+      const p = this.places[l.to] || dest;
+      if (l.k === 'fly') parts.push(`fly ${this.town(l.a)} to ${this.town(l.b)}`);
+      else if (l.k === 'boat' || l.k === 'zeppelin') parts.push(`take the ${l.k} ${this.dockName(l.a)} to ${this.dockName(l.b)}`);
+      else if (l.k === 'tram') parts.push('take the Deeprun Tram');
+      else if (l.k === 'portal' || (l.k === 'passage' && !legs.some(x => x.k === 'tram'))) parts.push(`take the ${l.n}`);
+      else if (l.k === 'walk') {
+        const last = i === legs.length - 1;
+        const verb = l.swim ? 'swim' : 'run';
+        if (!hasRide) parts.push(`${verb} ${Travel.dir(pos, dest)}${dest.zone ? ' to ' + dest.zone : ''}`);
+        else if (last) { if (l.secs > 30) parts.push(`${verb} ${Travel.dir(pos, dest)}`); }
+        else if (l.secs > 240) {
+          const n = this.places[l.to];
+          const z = n && this.zoneAt(n.map, n.x, n.y);
+          parts.push(`run ${Travel.dir(pos, n || dest)}${z ? ' to ' + z : ''}`);
+        }
+      }
+      pos = p;
+    });
+    if (!parts.length) return '';
+    const s = parts.join(', then ');
+    return s[0].toUpperCase() + s.slice(1);
+  };
+
+
+  // Starting flight paths: every race knows its capital's flight master.
+  Travel.START_FP = { Orc: [23], Troll: [23], Tauren: [22], Undead: [11], Human: [2], Dwarf: [6], Gnome: [6], NightElf: [27], SkyborneH: [], SkyborneA: [] };
+
+  // Walk a compiled route and add travel between steps.
+  // o = {race, cls, fac:'H'|'A', known: Set|null (null = only what the route has learned)}
+  // returns {travel: {stepIndex: {secs, text, legs}}, fp: {stepIndex: taxiId}, warn: [...]}
+  Travel.prototype.plan = function (steps, o, zoneName) {
+    const known = new Set(o.known ? [...o.known] : []);
+    (Travel.START_FP[o.race] || []).forEach(x => known.add(x));
+    const res = { travel: {}, fp: {}, warn: [], skip: {}, total: 0 };
+    let pos = null, bind = null, posZone = null, hearthAt = -1, prePos = null;
+    const lvl = s => Math.floor(s.lv || 1);
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      if (s.t === 'section' || s.t === 'fly') continue;
+      if (s.t === 'hearth') {
+        if (bind) { prePos = pos; pos = bind.w; posZone = bind.z; hearthAt = i; }
+        else if (pos) res.warn.push({ i, k: 'no-bind', m: 'hearth before any bind point' });
+        continue;
+      }
+      if (s.t === 'fp' && s.nd) {
+        if (known.has(s.nd)) s._have = true;
+        known.add(s.nd);
+      }
+      if (!s.w) continue;
+      const w = { map: s.w[0], x: s.w[1], y: s.w[2] };
+      if (!pos) { pos = w; posZone = s.z; bind = { w, z: s.z }; this.pickup(w, known, o, res, i, s.z); continue; }
+      if (hearthAt >= 0) {
+        // the guide's hearth should not be slower than just travelling on
+        const o2 = { known, fac: o.fac, lvl: lvl(s), cls: o.cls };
+        const a = this.route(pos, w, o2), b = prePos && this.route(prePos, w, o2);
+        if (a && b && a.secs > b.secs + 60) {
+          // skip it: going on is faster (e.g. your hearth is still set somewhere else)
+          res.warn.push({ i: hearthAt, k: 'hearth-slow', m: `hearth is slower (${Math.round(a.secs / 60)} min) than going on (${Math.round(b.secs / 60)} min): skipped` });
+          res.skip[hearthAt] = true; pos = prePos;
+        }
+        hearthAt = -1;
+      }
+      const far = pos.map !== w.map || Math.hypot(pos.x - w.x, pos.y - w.y) > 300;
+      if (far || (s.z && posZone && s.z !== posZone && Math.hypot(pos.x - w.x, pos.y - w.y) > 150)) {
+        const dest = Object.assign({ zone: zoneName ? zoneName(s.z) : null }, w);
+        const r = this.route(pos, dest, { known, fac: o.fac, lvl: lvl(s), cls: o.cls });
+        if (!r) res.warn.push({ i, k: 'no-route', m: 'no way found from the last step' });
+        else {
+          const ride = r.legs.some(l => l.k !== 'walk');
+          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs };
+          res.total += r.secs;
+          // flight masters you pass on the way
+          for (const l of r.all) if (l.k === 'fly') { known.add(l.a); known.add(l.b); }
+        }
+      }
+      pos = w; posZone = s.z || posZone;
+      if (s.t === 'bind') bind = { w, z: s.z };
+      this.pickup(w, known, o, res, i, s.z);
+    }
+    return res;
+  };
+  // capital city zone -> its flight master: in a capital, the guide makes you pick it up
+  Travel.CAPITAL_FP = { 1637: 23, 1638: 22, 1497: 11, 1519: 2, 1537: 6 };
+  // standing next to a flight master you don't have (or in its capital): learn it
+  Travel.prototype.pickup = function (w, known, o, res, i, z) {
+    const cap = Travel.CAPITAL_FP[z];
+    if (cap && !known.has(cap) && facOk(this.taxi[cap].fac, o.fac)) { known.add(cap); res.fp[i] = cap; return; }
+    for (const id in this.taxi) {
+      const t = this.taxi[id];
+      if (known.has(+id) || t.map !== w.map || !facOk(t.fac, o.fac) || (t.cls && t.cls !== o.cls)) continue;
+      if (Math.hypot(t.x - w.x, t.y - w.y) < 250) { known.add(+id); res.fp[i] = +id; }
+    }
+  };
+
+  if (typeof module !== 'undefined') module.exports = Travel; else root.RouteTravel = Travel;
+})(this);
+
+</script>
+<script>
+var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453d3f85d2.webp", "c_hunter": "/assets/i/02c149ee45c030.webp", "c_mage": "/assets/i/98db53b1aa0d3c.webp", "c_paladin": "/assets/i/602722000d2bf0.webp", "c_priest": "/assets/i/7b82eb8dad4e5c.webp", "c_rogue": "/assets/i/27661306a6e6dc.webp", "c_shaman": "/assets/i/358e7838c943b3.webp", "c_warlock": "/assets/i/b38b34d0e83b02.webp", "c_warrior": "/assets/i/d5375fcb0f0bdc.webp", "do": "/assets/i/07fddc350243f5.webp", "escort": "/assets/i/4c7c2e6572f625.webp", "explore": "/assets/i/f04e09bcefe09d.webp", "flight_a": "/assets/i/abc08389860e67.webp", "flight_h": "/assets/i/5ff51601206f80.webp", "grind": "/assets/i/e549bddcacadb7.webp", "hearth": "/assets/i/e9dcd47f2b9e9a.webp", "loot": "/assets/i/b2fe7157ddda02.webp", "map": "/assets/i/fc1d5c287bfd78.webp", "p_darnassus": "/assets/i/324c9681b35f2a.webp", "p_stormwind": "/assets/i/b639b0376fb109.webp", "portal": "/assets/i/b877acf8f001d6.webp", "q_accept": "/assets/i/decf9967c399d9.webp", "q_turnin": "/assets/i/42af79f3e1c08a.webp", "skull": "/assets/i/030a7f4845256c.webp", "swim": "/assets/i/3972e890e444c2.webp", "talk": "/assets/i/31dd17541c6121.webp", "tram": "/assets/i/446119a8aa68c3.webp", "use": "/assets/i/8e57b46989b241.webp", "walk": "/assets/i/9eacbefd4184df.webp", "zeppelin": "/assets/i/573c36919d0cd1.webp"};
+</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  var BASE = 'data/', NS = 'http://www.w3.org/2000/svg', AR = 668 / 1002, NEXT = 6;
+  var RACES = { Orc: 'Orc', Troll: 'Troll', Tauren: 'Tauren', Undead: 'Undead', SkyborneH: 'Skyborne (Horde)', Human: 'Human', Dwarf: 'Dwarf', Gnome: 'Gnome', NightElf: 'Night Elf', SkyborneA: 'Skyborne (Alliance)' };
+  var M, T, R, MAPS = new Set(), AREA2UM = {}, UMZ = {};
+  var plan, rows = [], chaps = [], stops = [], duns = [], doneQ = new Set(), ticks = {}, known = null, charData = null;
+  var bandSel = null, full = ls.get('lr.full') === '1', openRuns = new Set();
+  var view = null, viewKey = '', mapSvg = null, mapFit = null, mapArrow = null;
+  var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false;
+  // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
+  var WIC = typeof WI === 'object' ? WI : {};
+  (function () { var c = ''; for (var k in WIC) c += '.wi-' + k + '{background-image:url(' + WIC[k] + ')}'; var e = document.createElement('style'); e.textContent = c; document.head.appendChild(e); })();
+  var BARE = { q_accept: 1, q_turnin: 1, flight_h: 1, flight_a: 1, boat: 1, zeppelin: 1, walk: 1 }; // game art with its own outline: no square frame
+  var wi = function (k, t) { return WIC[k] ? '<i class="wi wi-' + k + (BARE[k] ? ' bare' : '') + '"' + (t ? ' title="' + t + '"' : ' aria-hidden="true"') + '></i>' : ''; };
+  var fly = function () { return R && R.fac && R.fac[0] === 'A' ? 'flight_a' : 'flight_h'; }; // the world map's flight point mark
+  // a trip's icon = its first ride, as the text names it (travel.js describe); otherwise running or swimming
+  var legIcon = function (tr) {
+    var L = tr.legs || [], tram = L.some(function (x) { return x.k === 'tram'; });
+    var l = L.find(function (x) { return /^(fly|boat|zeppelin|tram|portal)$/.test(x.k) || (x.k === 'passage' && !tram); });
+    if (!l) return L.some(function (x) { return x.k === 'walk' && x.swim; }) && !L.some(function (x) { return x.k === 'walk' && !x.swim && x.secs > 30; }) ? 'swim' : 'walk';
+    if (l.k === 'fly') return fly();
+    if (l.k === 'boat' || l.k === 'zeppelin') return l.k;
+    if (l.k === 'tram') return 'tram';
+    if (l.k === 'passage') return 'walk';
+    return /Darnassus|Rut'theran/.test(l.n || '') ? 'p_darnassus' : /Stormwind/.test(l.n || '') ? 'p_stormwind' : 'portal';
+  };
+  // quest objective icon (route-meta quests[q][6], from Questie objectives)
+  var DOI = { kill: 'do', loot: 'loot', use: 'use', explore: 'explore', talk: 'talk', escort: 'escort' };
+
+  var startOf = function (race) {
+    for (var k in M.starts) { var s = M.starts[k]; if (s.races.indexOf(race.replace(/Skyborne[AH]/, 'Skyborne')) >= 0 && (race.indexOf('Skyborne') < 0 || s.fac === (race === 'SkyborneH' ? 'Horde' : 'Alliance'))) return k; }
+  };
+  function coin(c) {
+    var g = Math.floor(c / 10000), s = Math.floor(c / 100) % 100, k = c % 100, o = [];
+    if (g) o.push(g + '<span class="u g">g</span>'); if (s) o.push(s + '<span class="u s">s</span>'); if (k && !g) o.push(k + '<span class="u c">c</span>');
+    return '<span class="coin">' + (o.join(' ') || '0') + '</span>';
+  }
+  var qn = function (q) { var x = M.quests[q]; return x ? x[0] : 'Quest ' + q; };
+  var zn = function (z) { return M.zones[z] || ''; };
+  var umName = function (um) { return UMZ[um] ? UMZ[um][6] : ''; };
+  var mins = function (s) { return s < 90 ? '1 min' : Math.round(s / 60) + ' min'; };
+  var fl = function (x) { return Math.floor(x || 1); };
+
+  // ---- WoW SavedVariables reader (one entry per line, as WoW writes them)
+  function readSV(text) {
+    var out = {}, path = [], lines = text.split(/\r?\n/);
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i].trim(), m;
+      if ((m = /^([A-Za-z_][\w]*)\s*=\s*\{$/.exec(l))) { path = [m[1]]; continue; }
+      if ((m = /^\[(?:"((?:[^"\\]|\\.)*)"|(-?\d+))\]\s*=\s*\{$/.exec(l))) { path.push(m[1] != null ? m[1] : m[2]); continue; }
+      if (/^\},?$/.test(l)) { path.pop(); continue; }
+      if ((m = /^\[(-?\d+)\]\s*=\s*true,?$/.exec(l))) { var key = path.join('/'); (out[key] = out[key] || []).push(+m[1]); }
+    }
+    return out;
+  }
+  function loadQuestie(text) {
+    var sv = readSV(text), chars = {};
+    for (var k in sv) { var m = /^QuestieConfig\/char\/(.+)\/complete$/.exec(k); if (m) chars[m[1]] = sv[k]; }
+    var names = Object.keys(chars);
+    if (!names.length) throw new Error('no finished quests in this file. Load Questie.lua from WTF\\Account\\<account>\\SavedVariables');
+    charData = chars;
+    var s = $('char'); s.innerHTML = names.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('');
+    var want = (window.WFCHAR && WFCHAR.get().name) || ls.get('lr.char');
+    var best = names.filter(function (n) { return want && n.indexOf(want) === 0; })[0] || names.sort(function (a, b) { return chars[b].length - chars[a].length; })[0];
+    s.value = best; $('charWrap').classList.toggle('hidden', names.length < 2);
+    useChar(best);
+  }
+  function useChar(n) {
+    ls.set('lr.char', n);
+    doneQ = new Set(charData[n] || []);
+    $('qStat').innerHTML = 'Quests done: <b>' + doneQ.size + '</b> (' + esc(n) + ') · <label class="load" for="questieFile">reload</label>';
+    jumped = false; render();
+  }
+  function loadSPF(text) {
+    var sv = readSV(text), ids = sv['ShortestPathForeverCharDB/taxi'];
+    if (!ids) throw new Error('no flights in this file. Load the ShortestPathForever.lua inside your character\'s SavedVariables folder');
+    known = new Set(ids);
+    $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="spfFile">reload</label>';
+    render();
+  }
+  function fileInput(id, fn) {
+    $(id).addEventListener('change', function () {
+      var f = this.files[0]; if (!f) return;
+      f.text().then(function (t) { try { fn(t); $('msg').textContent = ''; } catch (e) { $('msg').textContent = 'Could not read ' + f.name + ': ' + e.message; } });
+    });
+  }
+
+  // ---- places: zone % on a map image
+  function worldToZone(w) {
+    if (!w) return null;
+    var best = null;
+    T.d.zones.forEach(function (z) {
+      if (z[1] !== w[0] || w[1] < z[2] || w[1] > z[3] || w[2] < z[4] || w[2] > z[5] || !MAPS.has(z[0])) return;
+      var a = (z[3] - z[2]) * (z[5] - z[4]);
+      if (!best || a < best[0]) best = [a, z];
+    });
+    if (!best) return null;
+    var z = best[1];
+    return { um: z[0], x: (z[5] - w[2]) / (z[5] - z[4]) * 100, y: (z[3] - w[1]) / (z[3] - z[2]) * 100 };
+  }
+  function stepLoc(s) {
+    if (s.in) { var e = worldToZone(s.w); if (e) e.dun = s.dun || 'Dungeon'; return e || { dun: s.dun || 'Dungeon' }; }
+    if (s.a && s.a[1] != null) return { um: AREA2UM[s.a[0]], x: s.a[1], y: s.a[2], z: s.a[0] };
+    return null;
+  }
+  var near = function (a, b) { return a && b && a.um === b.um && a.um != null && Math.hypot(a.x - b.x, (a.y - b.y) * AR) < 2.2; };
+
+  // ---- rows: steps in order, plus travel legs and flight paths picked up on the way
+  function build() {
+    plan = T.plan(R.steps, { race: R.race, cls: R.cls, fac: R.fac[0], known: known }, zn);
+    rows = [];
+    var bindZone = null;
+    R.steps.forEach(function (s, i) {
+      if (s.t === 'fly' || (s.t === 'grind' && s.sko) || plan.skip[i]) return;
+      if (s.t === 'bind') bindZone = zn(s.z);
+      if (s.t === 'hearth') s._to = bindZone;
+      if (plan.travel[i]) rows.push({ k: 'travel', i: i, tr: plan.travel[i] });
+      if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
+      var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
+      if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i]) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
+      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !plan.travel[i] && !prev.s.nl && !s.nl &&
+          (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
+        (prev.more = prev.more || []).push({ i: i, s: s });
+      } else rows.push({ k: 'step', i: i, s: s });
+      if (plan.fp[i] !== undefined && s.t !== 'fp') rows.push({ k: 'fp', i: i, nd: plan.fp[i] });
+    });
+    rows.forEach(function (r, n) { r.n = n; });
+  }
+  var rkeys = function (r) {
+    if (r.k === 'fp') return ['fp' + r.i];
+    return [{ i: r.i, s: r.s }].concat(r.more || []).map(function (m) { return m.i + ':' + m.s.t; });
+  };
+  function isDone(r) {
+    if (r.k === 'fp') return !!ticks['fp' + r.i];
+    if (r.k !== 'step') return false;
+    if (r.s.t === 'note') return false;
+    return [{ i: r.i, s: r.s }].concat(r.more || []).every(function (m) { return (m.s.q && doneQ.has(m.s.q)) || !!ticks[m.i + ':' + m.s.t]; });
+  }
+  function setTick(r, on) { rkeys(r).forEach(function (k) { if (on) ticks[k] = 1; else delete ticks[k]; }); }
+  function saveTicks() { ls.set('lr.ticks.' + R.id, JSON.stringify(ticks)); }
+
+  // ---- chapters (one per guide part) and numbered stops (steps at the same place)
+  function group() {
+    chaps = []; stops = [];
+    var ch = null, st = null, notes = [];
+    function newChap(r) {
+      ch = { idx: chaps.length, part: r ? r.s.name : '', items: [], stops: [], intro: [], rows: [] };
+      chaps.push(ch); st = null;
+    }
+    function newStop(loc) {
+      st = { ch: ch, num: ch.stops.length + 1, loc: loc, rows: [], notes: notes, gi: stops.length };
+      notes = []; ch.stops.push(st); ch.items.push({ k: 'stop', st: st }); stops.push(st);
+      return st;
+    }
+    rows.forEach(function (r) {
+      if (r.k === 'sec') { if (ch && notes.length) Array.prototype.push.apply(ch.stops.length ? ch.stops[ch.stops.length - 1].notes : ch.intro, notes); notes = []; newChap(r); return; }
+      if (!ch) newChap(null);
+      ch.rows.push(r);
+      if (r.k === 'travel') { ch.items.push({ k: 'leg', r: r }); st = null; return; }
+      if (r.k === 'step' && r.s.t === 'note') { if (r.s.tx) notes.push(r.s.tx); return; }
+      var loc = r.k === 'fp' ? worldToZone([T.taxi[r.nd].map, T.taxi[r.nd].x, T.taxi[r.nd].y]) : stepLoc(r.s);
+      var t = r.k === 'step' ? r.s.t : 'fp';
+      if (t === 'hearth' || t === 'grind') { newStop(null).rows.push(r); st = null; return; }
+      if (!st) newStop(loc);
+      else if (loc) {
+        var same = st.loc && ((loc.dun && st.loc.dun === loc.dun) || (!loc.dun && !st.loc.dun && near(loc, st.loc)));
+        if (!same) { if (st.loc || st.rows.some(function (x) { return x.k === 'step' && x.s.t !== 'train'; })) newStop(loc); else st.loc = loc; }
+      }
+      st.rows.push(r);
+    });
+    if (notes.length && ch) Array.prototype.push.apply(ch.stops.length ? ch.stops[ch.stops.length - 1].notes : ch.intro, notes);
+    chaps = chaps.filter(function (c) { return c.stops.length; });
+    chaps.forEach(function (c, k) {
+      c.idx = k;
+      var lv = c.rows.map(function (r) { return r.s && r.s.lv; }).filter(Boolean);
+      c.lv1 = lv.length ? lv[0] : 1;
+      var cnt = {}, nIn = 0, nAll = 0, dn = null;
+      c.rows.forEach(function (r) { if (r.k !== 'step' || !r.s.z) return; nAll++; if (r.s.in) { nIn++; dn = r.s.dun; } else cnt[r.s.z] = (cnt[r.s.z] || 0) + 1; });
+      var zs = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a]; });
+      if (dn && nIn >= nAll * 0.6) c.name = dn;
+      else if (c.part && !/part$/i.test(c.part)) c.name = c.part.replace(/^[\d\- ]+/, '');
+      else c.name = zs.length ? zn(zs[0]) + (zs[1] && cnt[zs[1]] >= nAll * 0.3 ? ' + ' + zn(zs[1]) : '') : c.part.replace(/^[\d\- ]+/, '');
+      c.zones = [];
+      c.stops.forEach(function (s) { if (s.loc && s.loc.um != null && c.zones.indexOf(s.loc.um) < 0) c.zones.push(s.loc.um); });
+      s0title(c);
+    });
+    chaps.forEach(function (c, k) { var nx = chaps[k + 1]; c.lv2 = nx ? nx.lv1 : (R.steps[R.steps.length - 1].lv || 60); });
+  }
+  function s0title(c) {
+    c.stops.forEach(function (st) {
+      var r = st.rows[0], s = r.s || {}, qd = M.quests[s.q] || [], t;
+      if (r.k === 'fp') t = 'Flight master, ' + T.town(r.nd);
+      else if (st.loc && st.loc.dun) t = st.loc.dun;
+      else if (s.t === 'accept') t = qd[3] || qn(s.q);
+      else if (s.t === 'turnin') t = qd[4] || qn(s.q);
+      else if (s.t === 'do') t = qn(s.q);
+      else if (s.t === 'train') t = (M.npcs[s.npc] || 'Class trainer');
+      else if (s.t === 'fp') t = 'Flight master' + (s.nd && T.taxi[s.nd] ? ', ' + T.town(s.nd) : '');
+      else if (s.t === 'bind') t = 'Innkeeper, ' + zn(s.z);
+      else if (s.t === 'hearth') t = 'Hearth' + (s._to ? ' to ' + s._to : '');
+      else if (s.t === 'grind') t = 'Grind to level ' + s.to;
+      else t = zn(s.z) || 'Stop';
+      st.title = t;
+      st.lv = (st.rows.find(function (x) { return x.s && x.s.lv; }) || {}).s;
+      st.lv = st.lv ? st.lv.lv : null;
+    });
+  }
+  var stopDone = function (st) { return st.rows.every(isDone); };
+
+  // ---- dungeons: quests taken outside, and the stop where you have them all
+  function dungeons() {
+    duns = [];
+    var by = {}, acc = {};
+    rows.forEach(function (r) {
+      if (r.k !== 'step') return;
+      [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) {
+        if (s.t === 'accept') acc[s.q] = { r: r, in: s.in };
+        if (!s.in || !s.dun) return;
+        var d = by[s.dun] || (by[s.dun] = { name: s.dun, qs: [], all: [], first: r, w: s.w, lv: s.lv, xp: 0 });
+        if (d.all.indexOf(s.q) < 0) d.all.push(s.q);
+        if (s.t === 'turnin') d.xp += s.xp || 0;
+        if ((s.t === 'do' || s.t === 'turnin') && acc[s.q] && !acc[s.q].in && d.qs.indexOf(s.q) < 0) d.qs.push(s.q);
+      });
+    });
+    Object.keys(by).forEach(function (k) {
+      var d = by[k], last = null;
+      d.qs.forEach(function (q) { var a = acc[q]; if (a && (!last || a.r.n > last.n)) last = a.r; });
+      d.ready = last ? stops.find(function (st) { return st.rows.indexOf(last) >= 0; }) : null;
+      d.stop = stops.find(function (st) { return st.rows.indexOf(d.first) >= 0; });
+      var e = worldToZone(d.w); d.where = e ? umName(e.um) : '';
+      d.done = d.all.length && d.all.every(function (q) { return doneQ.has(q); });
+      duns.push(d);
+    });
+    duns.sort(function (a, b) { return a.first.n - b.first.n; });
+  }
+
+  // ---- you are after the last done quest that has other done quests around it
+  function findHere() {
+    var qrows = [], n;
+    rows.forEach(function (r, k) { if (r.k === 'step' && r.s.q) qrows.push(k); });
+    var dn = qrows.map(function (k) { return isDone(rows[k]) ? 1 : 0; }), cut = 0;
+    for (var a = qrows.length - 1; a >= 0; a--) {
+      if (!dn[a]) continue;
+      var w = dn.slice(Math.max(0, a - 9), a + 1);
+      if (w.reduce(function (x, y) { return x + y; }, 0) >= Math.min(5, w.length)) { cut = a + 1; break; }
+    }
+    var lastDone = -1;
+    for (n = 0; n < rows.length && (cut >= qrows.length || n < qrows[cut]); n++) if (isDone(rows[n])) lastDone = n;
+    here = rows.length;
+    for (n = lastDone + 1; n < rows.length; n++) if ((rows[n].k === 'step' && rows[n].s.t !== 'note' || rows[n].k === 'fp') && !isDone(rows[n])) { here = n; break; }
+    hereStop = null;
+    for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
+    nextSet = new Set();
+    if (hereStop) for (var j = hereStop.gi + 1, c = 0; j < stops.length && c < NEXT; j++) if (!stopDone(stops[j])) { nextSet.add(stops[j]); c++; }
+  }
+
+  function render() {
+    if (!R) return;
+    build(); group(); dungeons(); findHere();
+    if (!jumped && hereStop) { cur = hereStop.ch.idx; sel = hereStop; curZone = null; bandSel = null; jumped = true; }
+    if (cur >= chaps.length) cur = 0;
+    var nq = R.steps.filter(function (s) { return s.t === 'turnin'; }).length;
+    // known gaps, said plainly: dungeons the guide doesn't cover yet, routes that stop before 60, estimated levels
+    var dl = duns.reduce(function (m, d) { return Math.max(m, d.lv || 0); }, 0), end = chaps.length ? chaps[chaps.length - 1].lv2 : 60, gp = [];
+    gp.push('Dungeons after level ' + Math.max(10, Math.floor(dl)) + ' are not in the route yet.');
+    if (end < 59.5) gp.push('This route ends near level ' + Math.floor(end) + '.');
+    gp.push('Levels are estimates.');
+    $('gaps').innerHTML = '<b>Work in progress:</b> ' + esc(gp.join(' '));
+    $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
+    var fix = R.issues.filter(function (x) { return /^added|not-for-you|moved/.test(x.k); }).length;
+    $('sum').innerHTML = fix ? '<span>' + fix + ' fixes to the guide for your race and class</span>' : '';
+    drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
+  }
+
+  function drawDuns() {
+    if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
+    $('dunSec').classList.remove('hidden');
+    var nd = duns.filter(function (d) { return d.done; }).length, left = duns.filter(function (d) { return !d.done; });
+    $('dunSum').textContent = left.length + ' to go' + (nd ? ' · ' + nd + ' done' : '') + (left.length ? ' · next: ' + left[0].name : '');
+    $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
+      var r = d.ready;
+      return '<tr><td>' + esc(d.name) + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
+        d.all.length + (d.all.length === 1 ? ' quest' : ' quests') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + '</td><td>' +
+        (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
+          : d.stop ? '<button class="go" data-go="' + d.stop.gi + '" type="button">' + esc(d.stop.ch.name) + ' →</button>' : '') + '</td></tr>';
+    }).join('') + '</table>';
+  }
+
+  function drawTabs() {
+    var bands = {};
+    chaps.forEach(function (c) { var b = Math.min(5, Math.floor(c.lv1 / 10)); (bands[b] = bands[b] || []).push(c); });
+    var rd = new Set(duns.filter(function (d) { return d.ready && !d.done; }).map(function (d) { return d.ready.ch; }));
+    if (bandSel == null || !bands[bandSel]) bandSel = chaps[cur] ? Math.min(5, Math.floor(chaps[cur].lv1 / 10)) : 0;
+    var hb = hereStop ? Math.min(5, Math.floor(hereStop.ch.lv1 / 10)) : -1;
+    $('tabs').innerHTML = '<div class="bands">' + Object.keys(bands).map(function (b) {
+      var all = bands[b].every(function (c) { return c.stops.every(stopDone); });
+      return '<button type="button" data-band="' + b + '" class="' + (+b === bandSel ? 'on' : '') + '">Level ' + (b * 10 || 1) + '-' + (b * 10 + 10) + (all ? '<span class="ck">✓</span>' : '') + (+b === hb ? '<span class="dot" title="You are here"></span>' : '') + '</button>';
+    }).join('') + '</div><div class="tabs">' + bands[bandSel].map(function (c) {
+      var n = c.stops.filter(stopDone).length, all = c.stops.length, cls = 'tab';
+      if (c.idx === cur) cls += ' on'; else if (n === all) cls += ' done';
+      if (hereStop && hereStop.ch === c) cls += ' here';
+      return '<button class="' + cls + '" data-ch="' + c.idx + '" type="button">' + esc(c.name) + '<i>' + fl(c.lv1) + (fl(c.lv2) > fl(c.lv1) ? '-' + fl(c.lv2) : '') + '</i>' +
+        (n === all ? '<span class="ck">✓</span>' : '') + (rd.has(c) ? '<span class="rd">● dungeon ready</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+
+  // ---- one line of a stop
+  function line(r) {
+    var dn = isDone(r), miss = false, txt = '', xp = '';
+    if (r.k === 'fp') txt = wi(fly()) + 'Get the flight path <span class="tag add">on the way</span>';
+    else {
+      var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
+      if (s.ad) tags += '<span class="tag add" title="' + esc(s.ad) + '">added</span>';
+      if (s.op) tags += '<span class="tag">optional</span>';
+      if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
+      var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
+      if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names;
+      else if (s.t === 'turnin') { txt = wi('q_turnin') + 'Turn in ' + names; var x = all.reduce(function (a, y) { return a + (y.xp || 0); }, 0); if (x) xp = x.toLocaleString() + ' xp'; }
+      else if (s.t === 'do') txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (qd[5] ? '<small>' + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
+      else if (s.t === 'train') { txt = wi('c_' + String(R.cls).toLowerCase()) + 'Train ' + s.sp.length + ' spells' + (s.trip ? ' <span class="tag lv">trip</span>' : '') + '<small>' + s.sp.map(function (x) { return esc(M.spells[x[0]] || x[0]) + (x[2] > 1 ? ' ' + x[2] : ''); }).join(', ') + '</small>'; xp = coin(s.cost); }
+      else if (s.t === 'fp') txt = wi(fly()) + 'Get the flight path';
+      else if (s.t === 'bind') txt = wi('hearth') + 'Set your hearthstone here';
+      else if (s.t === 'hearth') txt = wi('hearth') + 'Use your hearthstone' + (s._to ? ' (' + esc(s._to) + ')' : '');
+      else if (s.t === 'grind') txt = wi('grind') + 'Kill monsters nearby until level ' + s.to;
+      if (s.t !== 'do') txt += tags;
+    }
+    return '<li class="' + (dn ? 'ck' : '') + (miss ? ' miss' : '') + '"><input type="checkbox" data-r="' + r.n + '"' + (dn ? ' checked' : '') + ' aria-label="done"><span>' + txt + '</span><span class="xp">' + xp + '</span></li>';
+  }
+
+  function stopHtml(st, c, rdy) {
+    var dn = stopDone(st), cls = 'stop';
+      if (dn) cls += ' done';
+      if (st === hereStop) cls += ' here'; else if (nextSet.has(st)) cls += ' nx';
+      if (st === sel) cls += ' sel';
+      if (st.loc && st.loc.dun) cls += ' isdun';
+      var where = st.loc && st.loc.x != null && !st.loc.dun ? (st.loc.um !== curZone || c.zones.length > 1 ? umName(st.loc.um) + ' ' : '') + st.loc.x.toFixed(1) + ', ' + st.loc.y.toFixed(1) : st.loc && st.loc.dun ? 'inside' : '';
+    return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b>' +
+        (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' +
+        st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
+        '<ul>' + st.rows.map(line).join('') + '</ul>' +
+        (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
+        '</div>');
+  }
+  function drawChapter() {
+    var c = chaps[cur]; if (!c) return;
+    if (curZone == null || c.zones.indexOf(curZone) < 0) curZone = sel && sel.ch === c && sel.loc && sel.loc.um != null ? sel.loc.um : c.zones[0];
+    var rdy = {};
+    duns.forEach(function (d) { if (d.ready && d.ready.ch === c && !d.done) (rdy[d.ready.gi] = rdy[d.ready.gi] || []).push(d); });
+    var h = ['<div class="chap"><h3>' + esc(c.name) + '</h3><div class="meta">Level ' + fl(c.lv1) + ' to ' + fl(c.lv2) + (c.part ? ' · guide part ' + esc(c.part) : '') + '</div>' +
+      c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
+    var legHtml = function (r) {
+      var tx = r.tr.text;
+      return '<div class="leg">' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
+    };
+    var mini = function (st) {
+      return '<div class="stop done mini' + (st === sel ? ' sel' : '') + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '" checked aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b></div></div>';
+    };
+    h.push('<div class="lmode"><button type="button" data-full="0" class="' + (full ? '' : 'on') + '">Short list</button><button type="button" data-full="1" class="' + (full ? 'on' : '') + '">Full list</button></div>');
+    // short list: done stops fold into one line, travel between them is hidden
+    var run = [], legs = [];
+    var flush = function () {
+      if (run.length >= 2 && !openRuns.has(run[0].gi) && run.indexOf(sel) < 0) h.push('<button class="run" type="button" data-run="' + run[0].gi + '">✓ Stops ' + run[0].num + '-' + run[run.length - 1].num + ' done <span>show</span></button>');
+      else run.forEach(function (st) { h.push(mini(st)); });
+      run = []; legs.forEach(function (r) { h.push(legHtml(r)); }); legs = [];
+    };
+    c.items.forEach(function (it) {
+      if (full) { h.push(it.k === 'leg' ? legHtml(it.r) : stopHtml(it.st, c, rdy)); return; }
+      if (it.k === 'leg') { if (run.length) legs.push(it.r); else h.push(legHtml(it.r)); return; }
+      if (stopDone(it.st) && !rdy[it.st.gi] && it.st !== sel) { if (legs.length) legs = []; run.push(it.st); return; }
+      flush(); h.push(stopHtml(it.st, c, rdy));
+    });
+    flush();
+    var pv = chaps[cur - 1], nx = chaps[cur + 1];
+    h.push('<div class="navb">' + (pv ? '<button class="btn" data-ch="' + (cur - 1) + '" type="button">← ' + esc(pv.name) + '</button>' : '<span></span>') +
+      (nx ? '<button class="btn" data-ch="' + (cur + 1) + '" type="button">' + esc(nx.name) + ' →</button>' : '') + '</div>');
+    $('side').innerHTML = h.join('');
+    $('side').classList.toggle('short', !full);
+    drawMap();
+  }
+
+  function drawNext() {
+    var st = hereStop;
+    if (!st) { $('nbody').innerHTML = '<div class="muted">Route finished. Ding 60!</div>'; $('nwhere').textContent = ''; return; }
+    var c = st.ch, rdy = {};
+    duns.forEach(function (d) { if (d.ready === st && !d.done) (rdy[st.gi] = rdy[st.gi] || []).push(d); });
+    $('nwhere').textContent = c.name + ' · stop ' + st.num + ' of ' + c.stops.length;
+    var k = c.items.findIndex(function (it) { return it.st === st; }), then = [];
+    for (var j = k + 1; j < c.items.length && then.length < 5; j++) {
+      var it = c.items[j];
+      if (it.k === 'leg') then.push('<li class="lg"><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
+      else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun ? ' <em>' + esc(umName(it.st.loc.um)) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
+    }
+    if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
+    $('nbody').innerHTML = '<div>' + stopHtml(st, c, rdy).replace('<span class="herebadge">you are here</span>', '').replace(' id="st', ' data-n="st') + '</div>' +
+      '<div class="then"><div class="muted">Coming up</div><ul>' + then.join('') + '</ul></div>';
+  }
+  $('nbody').addEventListener('click', function (e) {
+    var cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
+    if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
+    else setTick(rows[+cb.dataset.r], cb.checked);
+    saveTicks(); follow();
+  });
+  // Done: tick the whole stop and move on; the map and list follow you
+  function follow() { jumped = false; var keep = $('side').scrollTop; render(); if (hereStop) select(hereStop.gi, true); else $('side').scrollTop = keep; }
+  $('doneBtn').onclick = function () { if (!hereStop) return; hereStop.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); saveTicks(); follow(); };
+  $('backBtn').onclick = function () {
+    var from = hereStop ? hereStop.gi - 1 : stops.length - 1;
+    for (var j = from; j >= 0; j--) {
+      var st = stops[j], any = st.rows.some(function (r) { return rkeys(r).some(function (k) { return ticks[k]; }); });
+      if (any) { st.rows.forEach(function (r) { setTick(r, false); }); saveTicks(); follow(); return; }
+    }
+  };
+
+  function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function drawMap() {
+    var c = chaps[cur], box = $('mapbox');
+    if (curZone == null || !MAPS.has(curZone)) {
+      var d = c.stops.find(function (s) { return s.loc && s.loc.dun; });
+      box.innerHTML = '<div class="nomap">' + (d ? esc(d.loc.dun) + ': a dungeon. The steps are on the right.' : 'No map for this part. Places are in the steps.') + '</div>';
+      return;
+    }
+    var m = document.createElement('div'); m.className = 'map';
+    var svg = el('svg', { preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': umName(curZone) + ' map' });
+    svg.appendChild(el('image', { href: BASE + 'maps/' + curZone + '.webp', x: 0, y: 0, width: 100, height: (100 * AR).toFixed(3), preserveAspectRatio: 'none' }));
+    // clusters: stops at nearly the same place share one pin
+    var cl = [];
+    c.stops.forEach(function (s) {
+      if (!s.loc || s.loc.um !== curZone || s.loc.x == null) return;
+      var k = cl.find(function (x) { return near(x.loc, s.loc); });
+      if (k) k.st.push(s); else cl.push({ loc: s.loc, st: [s] });
+    });
+    cl.forEach(function (k) {
+      var open = k.st.filter(function (s) { return !stopDone(s); });
+      k.rep = open[0] || k.st[0];
+      k.state = k.st.indexOf(hereStop) >= 0 ? 'here' : open.some(function (s) { return nextSet.has(s); }) ? 'next' : open.length ? 'later' : 'done';
+      if (k.state === 'here') k.rep = hereStop; else if (k.state === 'next') k.rep = open.find(function (s) { return nextSet.has(s); });
+      k.dun = k.st.some(function (s) { return s.loc.dun; });
+    });
+    var cOf = function (s) { return cl.find(function (k) { return k.st.indexOf(s) >= 0; }); };
+    // path: from where you are through the next stops in this zone
+    // one arrow: from the stop you are at (or the one you picked) to the next stop, when it is on this map
+    var from = sel && sel.ch === c && !stopDone(sel) ? sel : hereStop && hereStop.ch === c ? hereStop : c.stops.find(function (s) { return !stopDone(s); });
+    var seq = [], tgt = null;
+    if (from && from.loc && from.loc.um === curZone && cOf(from)) {
+      seq.push(cOf(from));
+      for (var j = from.gi + 1; j < stops.length && stops[j].ch === c; j++) {
+        var s = stops[j]; if (stopDone(s)) continue;
+        var k = s.loc && s.loc.um === curZone ? cOf(s) : null;
+        if (k && k !== seq[0]) { seq.push(k); tgt = s; }
+        break;
+      }
+    }
+    // only two pins stand out: the stop you are at (ring) and the arrow's next stop; the rest stay quiet
+    cl.forEach(function (k) {
+      var open = k.st.filter(function (s) { return !stopDone(s); });
+      if (k === seq[0]) { k.state = 'here'; k.rep = from; }
+      else if (k === seq[1]) { k.state = 'next'; k.rep = tgt; }
+      else k.state = open.length ? 'later' : 'done';
+    });
+    // view: starts on the stops you are heading to (and the one you picked); wheel, pinch, drag and buttons move it
+    var fit = [0, 0, 100, 100 * AR];
+    var focus = seq.slice(); var ks = sel && sel.ch === c ? cOf(sel) : null; if (ks && focus.indexOf(ks) < 0) focus.push(ks);
+    if (focus.length) {
+      var xs = focus.map(function (k) { return k.loc.x; }), ys = focus.map(function (k) { return k.loc.y * AR; });
+      var x0 = Math.min.apply(0, xs) - 8, x1 = Math.max.apply(0, xs) + 8, y0 = Math.min.apply(0, ys) - 6, y1 = Math.max.apply(0, ys) + 6;
+      fit = clampView((x0 + x1) / 2, (y0 + y1) / 2, Math.max(36, x1 - x0, (y1 - y0) / AR));
+    }
+    var key = cur + ':' + curZone + ':' + (ks ? ks.rep.gi : '');
+    if (!view || viewKey !== key) { view = fit.slice(); viewKey = key; }
+    mapFit = fit;
+    mapArrow = null;
+    if (seq.length > 1) {
+      var ar = el('g', { class: 'arrow' }); ar.appendChild(el('line', {})); ar.appendChild(el('polygon', {}));
+      svg.appendChild(ar);
+      var rad = function (k) { return { here: 2.05, next: 1.75, later: 1.3, done: 0.5 }[k.state] + (k.state === 'here' ? 1.2 : 0.5); };
+      mapArrow = { g: ar, a: [seq[0].loc.x, seq[0].loc.y * AR, rad(seq[0])], b: [seq[1].loc.x, seq[1].loc.y * AR, rad(seq[1])] };
+    }
+    var order = { done: 0, later: 1, next: 2, here: 3 };
+    cl.sort(function (a, b) { return order[a.state] - order[b.state]; }).forEach(function (k) {
+      var r = { here: 2.05, next: 1.75, later: 1.3, done: 0.5 }[k.state];
+      var g = el('g', { class: 'pin ' + k.state + (k.dun ? ' dun' : '') + (k.st.indexOf(sel) >= 0 ? ' sel' : ''), 'data-st': k.rep.gi, 'data-x': k.loc.x, 'data-y': k.loc.y * AR });
+      var tl = el('title', {}); tl.textContent = k.st.map(function (s) { return s.num + '. ' + s.title + (stopDone(s) ? ' (done)' : ''); }).join('\n'); g.appendChild(tl);
+      if (k.state === 'here') g.appendChild(el('circle', { class: 'ring', cx: 0, cy: 0, r: 3.1 }));
+      if (k.dun) g.appendChild(el('rect', { x: -r, y: -r, width: 2 * r, height: 2 * r, rx: .5 }));
+      else g.appendChild(el('circle', { cx: 0, cy: 0, r: r }));
+      if (k.dun && k.state !== 'done' && WIC.skull) { // dungeon: the skull icon instead of a number
+        var ri = r - (k.state === 'here' ? .5 : .3); g.appendChild(el('image', { href: WIC.skull, x: -ri, y: -ri, width: 2 * ri, height: 2 * ri, preserveAspectRatio: 'xMidYMid slice' }));
+      } else if (k.state !== 'done') {
+        var t = el('text', { x: 0, y: 0.05 }); t.textContent = k.rep.num;
+        if (k.state === 'later') t.setAttribute('class', 'sm');
+        g.appendChild(t);
+        var more = k.st.filter(function (s) { return !stopDone(s); }).length - 1;
+        if (more > 0) { var b = el('text', { class: 'badge', x: (k.state === 'here' ? 3.3 : r) + 0.9, y: -r + 0.1 }); b.textContent = '+' + more; g.appendChild(b); }
+      }
+      svg.appendChild(g);
+    });
+    m.appendChild(svg);
+    var zb = document.createElement('div'); zb.className = 'zbar';
+    zb.innerHTML = '<button type="button" data-z="in" title="Zoom in" aria-label="Zoom in">+</button><button type="button" data-z="out" title="Zoom out" aria-label="Zoom out">−</button>' +
+      '<button type="button" data-z="fit" title="Zoom to my next stops">My stops</button><button type="button" data-z="all" title="Show the whole zone">Whole zone</button>';
+    m.appendChild(zb);
+    if (c.zones.length > 1) {
+      var zs = document.createElement('select'); zs.className = 'zsel'; zs.setAttribute('aria-label', 'Map');
+      zs.innerHTML = c.zones.filter(function (um) { return MAPS.has(um); }).map(function (um) {
+        var n = c.stops.filter(function (s) { return s.loc && s.loc.um === um; }).length;
+        return '<option value="' + um + '"' + (um === curZone ? ' selected' : '') + '>' + esc(umName(um)) + ' (' + n + ' stops)</option>';
+      }).join('');
+      zs.onchange = function () { curZone = +zs.value; drawMap(); };
+      m.appendChild(zs);
+    }
+    box.innerHTML = ''; box.appendChild(m);
+    mapSvg = svg; applyView();
+  }
+  function clampView(cx, cy, w) {
+    w = Math.min(100, Math.max(10, w)); var h = w * AR;
+    return [Math.min(Math.max(0, cx - w / 2), 100 - w), Math.min(Math.max(0, cy - h / 2), 100 * AR - h), w, h];
+  }
+  function applyView() {
+    if (!mapSvg) return;
+    var pw = mapSvg.getBoundingClientRect().width || 900, K = view[2] / 100 * Math.min(2.2, Math.max(1, 720 / pw));
+    mapSvg.setAttribute('viewBox', view.map(function (v) { return v.toFixed(3); }).join(' '));
+    mapSvg.style.touchAction = view[2] < 99.9 ? 'none' : 'pan-y';
+    if (mapArrow) {
+      var A = mapArrow.a, B = mapArrow.b, dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+      var sx = A[0] + ux * A[2] * K, sy = A[1] + uy * A[2] * K, ex = B[0] - ux * B[2] * K, ey = B[1] - uy * B[2] * K, hl = 1.6 * K, hw = 1.0 * K;
+      var ln = mapArrow.g.firstChild, pg = mapArrow.g.lastChild, show = (L - (A[2] + B[2]) * K) > hl;
+      mapArrow.g.style.display = show ? '' : 'none';
+      ln.setAttribute('x1', sx); ln.setAttribute('y1', sy); ln.setAttribute('x2', ex - ux * hl * .8); ln.setAttribute('y2', ey - uy * hl * .8);
+      pg.setAttribute('points', [ex, ey, ex - ux * hl - uy * hw, ey - uy * hl + ux * hw, ex - ux * hl + uy * hw, ey - uy * hl - ux * hw].map(function (v) { return v.toFixed(3); }).join(' '));
+    }
+    mapSvg.querySelectorAll('.pin').forEach(function (g) { g.setAttribute('transform', 'translate(' + g.dataset.x + ' ' + g.dataset.y + ') scale(' + K.toFixed(4) + ')'); });
+  }
+  function zoomAt(px, py, f) {
+    var w = Math.min(100, Math.max(10, view[2] / f)), s = w / view[2];
+    view = clampView(px - (px - view[0]) * s + w / 2, py - (py - view[1]) * s + w * AR / 2, w);
+    applyView();
+  }
+  function toMap(e) {
+    var r = mapSvg.getBoundingClientRect();
+    return [view[0] + (e.clientX - r.left) / r.width * view[2], view[1] + (e.clientY - r.top) / r.height * view[3]];
+  }
+  // wheel = zoom at the mouse; drag = move; two fingers = pinch; double click = zoom in
+  var ptrs = {}, drag = null, moved = false;
+  $('mapbox').addEventListener('wheel', function (e) {
+    if (!mapSvg || !e.target.closest('svg')) return;
+    e.preventDefault();
+    var p = toMap(e); zoomAt(p[0], p[1], Math.pow(1.0018, -e.deltaY * (e.deltaMode === 1 ? 30 : 1)));
+  }, { passive: false });
+  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
+  $('mapbox').addEventListener('pointerdown', function (e) {
+    if (!mapSvg || !e.target.closest('svg')) return;
+    ptrs[e.pointerId] = [e.clientX, e.clientY]; moved = false;
+    drag = { v: view.slice(), p: JSON.parse(JSON.stringify(ptrs)) };
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!drag || !ptrs[e.pointerId]) return;
+    ptrs[e.pointerId] = [e.clientX, e.clientY];
+    var r = mapSvg.getBoundingClientRect(), ids = Object.keys(ptrs);
+    if (ids.length >= 2 && drag.p[ids[0]] && drag.p[ids[1]]) {
+      var d0 = Math.hypot(drag.p[ids[0]][0] - drag.p[ids[1]][0], drag.p[ids[0]][1] - drag.p[ids[1]][1]);
+      var d1 = Math.hypot(ptrs[ids[0]][0] - ptrs[ids[1]][0], ptrs[ids[0]][1] - ptrs[ids[1]][1]);
+      var mx = (ptrs[ids[0]][0] + ptrs[ids[1]][0]) / 2, my = (ptrs[ids[0]][1] + ptrs[ids[1]][1]) / 2;
+      view = drag.v.slice(); var px = view[0] + (mx - r.left) / r.width * view[2], py = view[1] + (my - r.top) / r.height * view[3];
+      zoomAt(px, py, d1 / Math.max(1, d0)); moved = true; e.preventDefault(); return;
+    }
+    var p0 = drag.p[e.pointerId]; if (!p0) return;
+    var dx = e.clientX - p0[0], dy = e.clientY - p0[1];
+    if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+    if (!moved || drag.v[2] >= 100) return;
+    view = clampView(drag.v[0] - dx / r.width * drag.v[2] + drag.v[2] / 2, drag.v[1] - dy / r.height * drag.v[3] + drag.v[3] / 2, drag.v[2]);
+    applyView();
+  });
+  function endPtr(e) { delete ptrs[e.pointerId]; if (!Object.keys(ptrs).length) drag = null; else drag = { v: view.slice(), p: JSON.parse(JSON.stringify(ptrs)) }; }
+  window.addEventListener('pointerup', endPtr); window.addEventListener('pointercancel', endPtr);
+
+  function select(gi, scroll) {
+    var st = stops[gi]; if (!st) return;
+    sel = st;
+    if (st.ch.idx !== cur) { cur = st.ch.idx; curZone = null; bandSel = null; drawTabs(); }
+    if (st.loc && st.loc.um != null && MAPS.has(st.loc.um)) curZone = st.loc.um;
+    drawChapter();
+    var e = $('st' + gi);
+    if (e && scroll) {
+      var side = $('side');
+      if (side.scrollHeight > side.clientHeight + 4) side.scrollTop = e.offsetTop - side.offsetTop - 60;
+      else e.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }
+  function goStop(gi) { select(gi, true); $('split').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+  // ---- clicks
+  $('tabs').addEventListener('click', function (e) {
+    var bb = e.target.closest('[data-band]'); if (bb) { bandSel = +bb.dataset.band; drawTabs(); return; }
+    var b = e.target.closest('[data-ch]'); if (!b) return;
+    cur = +b.dataset.ch; curZone = null; sel = null; drawTabs(); drawChapter(); $('side').scrollTop = 0;
+  });
+  $('side').addEventListener('click', function (e) {
+    var fb = e.target.closest('[data-full]');
+    if (fb) { full = fb.dataset.full === '1'; ls.set('lr.full', full ? '1' : '0'); drawChapter(); return; }
+    var rb = e.target.closest('[data-run]');
+    if (rb) { openRuns.add(+rb.dataset.run); drawChapter(); return; }
+    var b = e.target.closest('[data-ch]');
+    if (b) { cur = +b.dataset.ch; curZone = null; sel = null; drawTabs(); drawChapter(); $('side').scrollTop = 0; $('split').scrollIntoView({ block: 'start' }); return; }
+    var cb = e.target.closest('input[type=checkbox]');
+    if (cb) {
+      if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
+      else setTick(rows[+cb.dataset.r], cb.checked);
+      saveTicks();
+      var keep = $('side').scrollTop; render(); $('side').scrollTop = keep;
+      return;
+    }
+    var s = e.target.closest('[data-st]'); if (s) select(+s.dataset.st, false);
+  });
+  $('mapbox').addEventListener('click', function (e) {
+    var z = e.target.closest('[data-z]');
+    if (z) {
+      var z0 = z.dataset.z, cx = view[0] + view[2] / 2, cy = view[1] + view[3] / 2;
+      if (z0 === 'in') zoomAt(cx, cy, 1.6); else if (z0 === 'out') zoomAt(cx, cy, 1 / 1.6);
+      else { view = z0 === 'fit' ? mapFit.slice() : [0, 0, 100, 100 * AR]; applyView(); }
+      return;
+    }
+    if (moved) { moved = false; return; }
+    var p = e.target.closest('.pin'); if (p) select(+p.dataset.st, true);
+  });
+  $('duns').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
+  $('hereBtn').onclick = function () { if (hereStop) goStop(hereStop.gi); };
+
+  // ---- quest search: is it on my route?
+  var qt;
+  $('qs').addEventListener('input', function () { clearTimeout(qt); qt = setTimeout(search, 120); });
+  $('qres').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
+  function search() {
+    var v = $('qs').value.trim().toLowerCase(), out = $('qres');
+    if (!M || !R || v.length < 3) { out.innerHTML = ''; return; }
+    var at = {};
+    stops.forEach(function (st) { st.rows.forEach(function (r) { if (r.k === 'step') [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (s.q && (!at[s.q] || s.t === 'accept')) at[s.q] = at[s.q] && at[s.q].t === 'accept' ? at[s.q] : { st: st, t: s.t }; }); }); });
+    var hits = Object.keys(M.quests).filter(function (id) { return M.quests[id][0].toLowerCase().indexOf(v) >= 0; });
+    hits.sort(function (a, b) { return (at[b] ? 1 : 0) - (at[a] ? 1 : 0) || M.quests[a][1] - M.quests[b][1]; });
+    if (!hits.length) { out.innerHTML = '<div class="qr"><span class="tx">No quest with that name in the guide.</span></div>'; return; }
+    out.innerHTML = hits.slice(0, 8).map(function (id) {
+      var q = M.quests[id], a = at[id], d = doneQ.has(+id);
+      var tag = d ? '<span class="tg done">Done</span>' : a ? '<span class="tg route">On your route</span>' : '<span class="tg skip">Not on your route</span>';
+      var tx = a ? esc(a.st.ch.name) + ', stop ' + a.st.num + (a.st.lv ? ' · about level ' + fl(a.st.lv) : '') : 'The guide skips it for your race and class.';
+      return '<div class="qr">' + tag + '<span class="nm">' + esc(q[0]) + '</span><span class="muted">' + (q[1] || '') + '</span><span class="tx">' + tx + '</span>' +
+        (a ? '<button class="go" data-go="' + a.st.gi + '" type="button">Show stop →</button>' : '') + '</div>';
+    }).join('');
+  }
+
+  // ---- race / class / start
+  function fillPick() {
+    var race = ls.get('lr.race'), cls = ls.get('lr.cls');
+    var wc = window.WFCHAR ? WFCHAR.get() : {};
+    if (!race && wc.race) race = ({ 'Night Elf': 'NightElf', NightElf: 'NightElf', Scourge: 'Undead' })[wc.race] || wc.race;
+    if (!cls && wc.cls) cls = wc.cls.charAt(0).toUpperCase() + wc.cls.slice(1).toLowerCase();
+    if (!RACES[race]) race = 'Orc';
+    $('race').innerHTML = Object.keys(RACES).map(function (r) { return '<option value="' + r + '">' + RACES[r] + '</option>'; }).join('');
+    $('race').value = race;
+    fillCls(cls);
+  }
+  function fillCls(cls) {
+    var race = $('race').value, list = M.combos[race] || [];
+    $('cls').innerHTML = list.map(function (c) { return '<option>' + c + '</option>'; }).join('');
+    $('cls').value = list.indexOf(cls) >= 0 ? cls : list[0];
+    var st = startOf(race);
+    $('start').innerHTML = '<option value="' + st + '">' + esc(M.starts[st].label) + '</option>';
+    loadRoute();
+  }
+  $('race').onchange = function () { ls.set('lr.race', this.value); fillCls($('cls').value); };
+  $('cls').onchange = function () { ls.set('lr.cls', this.value); loadRoute(); };
+  $('char').onchange = function () { useChar(this.value); };
+  function loadRoute() {
+    var race = $('race').value, cls = $('cls').value, id = startOf(race) + '-' + race + '-' + cls;
+    ls.set('lr.race', race); ls.set('lr.cls', cls);
+    $('side').innerHTML = '<div class="muted">Loading…</div>';
+    fetch(BASE + 'routes/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) {
+      R = j; try { ticks = JSON.parse(ls.get('lr.ticks.' + id) || '{}'); } catch (e) { ticks = {}; }
+      cur = 0; sel = null; curZone = null; jumped = false;
+      render();
+    }).catch(function () { $('side').innerHTML = '<div class="muted">Could not load this route.</div>'; });
+  }
+  fileInput('questieFile', loadQuestie);
+  fileInput('spfFile', loadSPF);
+  Promise.all(['route-meta.json', 'travel.json', 'maps.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
+    .then(function (a) {
+      M = a[0]; T = new RouteTravel(a[1]); MAPS = new Set(a[2]);
+      a[1].zones.forEach(function (z) { if (AREA2UM[z[7]] == null) AREA2UM[z[7]] = z[0]; UMZ[z[0]] = z; });
+      fillPick();
+    })
+    .catch(function () { $('side').innerHTML = '<div class="muted">Could not load the route data.</div>'; });
+})();
+
+</script>
+
+<div class="ws-foot" role="contentinfo"><div><span>Made by junhots for the WoW Forever realm.</span><a href="/updates/">Updates</a><a href="/about/">Data sources</a><button type="button" data-ws-feedback>Report a problem</button><a href="https://junhots.com">Heroes of the Storm site</a><span class="ws-social"><a href="https://www.twitch.tv/junhots_" rel="me noopener" target="_blank">Twitch</a><a href="https://www.youtube.com/@junhots" rel="me noopener" target="_blank">YouTube</a><a href="https://x.com/junhots_" rel="me noopener" target="_blank">Twitter</a></span><span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. Files you load stay in your browser and are never uploaded.</span><a class="ws-login" href="/admin/" rel="nofollow">Log in</a></div></div>
+<script>if (!window.wsHash0 && location.hash) history.replaceState(history.state, "", location.pathname + location.search);</script>
+</body>
+</html>
