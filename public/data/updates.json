@@ -1,5 +1,61 @@
 [
   {
+    "date": "2026-11-21",
+    "title": "Home: your next steps",
+    "text": "Pick your class and level once, and Home shows your 3 next steps for gear, professions and gold.",
+    "image": "/assets/updates/2026-11-21-next-steps.webp",
+    "link": "/",
+    "linkText": "Open Home"
+  },
+  {
+    "date": "2026-11-21",
+    "title": "Alliance players: a note on prices",
+    "text": "The site's prices come from the Horde auction house. If your character is Alliance, price pages now say so and offer to load your own scan.",
+    "image": "/assets/updates/2026-11-21-alliance-note.webp",
+    "link": "/mat-timing/",
+    "linkText": "See it on Mat timing"
+  },
+  {
+    "date": "2026-11-21",
+    "title": "Vendor flips",
+    "text": "A new Gold page: recipes whose materials cost less than a vendor pays for what you make, and auction items listed under their vendor price.",
+    "image": "/assets/updates/2026-11-21-vendor-flips.webp",
+    "link": "/vendor-flips/",
+    "linkText": "Open Vendor flips"
+  },
+  {
+    "date": "2026-11-21",
+    "title": "Tailoring finder: every recipe",
+    "text": "All 416 Tailoring recipes are in, with a new Runecloth group (Felcloth and Mooncloth crafts too), so you can find things like Felblood Soul Bag.",
+    "image": "/assets/updates/2026-11-21-finder-every-recipe.webp",
+    "link": "/tailoring-finder/",
+    "linkText": "Open Tailoring finder"
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Profession leveling: every profession",
+    "text": "Alchemy, Blacksmithing, Engineering, Leatherworking, First Aid and Cooking get the cheapest route, like Tailoring. Mining, Herbalism, Skinning and Fishing get a where-to-go guide. It also says how many bolts to make.",
+    "image": "/assets/updates/2026-11-20-every-profession.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Mat timing: bolts, and a fresher census",
+    "text": "Cloth bolts have their own cards, with \"Make it\" when a bolt sells well above its cloth. The level census now refreshes itself, and Enchants uses it too.",
+    "image": "/assets/updates/2026-11-20-bolts.webp",
+    "link": "/mat-timing/",
+    "linkText": "Open Mat timing"
+  },
+  {
+    "date": "2026-11-20",
+    "title": "Game files: fixes for Chrome",
+    "text": "Tools now read the right Auctionator file (some kept old prices). If Chrome won't link a folder inside Program Files, pick the WTF folder instead.",
+    "link": "/setup/",
+    "linkText": "How to set up",
+    "image": "/assets/updates/2026-11-20-wtf-folder.webp"
+  },
+  {
     "date": "2026-11-20",
     "title": "Prices: cheaper or pricier than usual",
     "text": "Mat timing and Sell spare mats now mark prices well under (↓) or over (↑) their usual price from the last 7 days. Hover or tap the mark for the numbers.",

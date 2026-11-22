@@ -243,6 +243,7 @@
       d.innerHTML = KINDS.map(function (k) { return '<i class="' + (m[k.key] ? 'on' : '') + '"></i>'; }).join('');
     });
     document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of 3 game files loaded'; });
+    if (document.readyState !== 'loading') { factionNote(); startHere(); }   // both depend on which files are loaded
     // side panel: one line per file, like the Hub
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
@@ -308,6 +309,7 @@
   function init() {
     drawDots();
     ownerNudge();
+    addEventListener('storage', function (e) { if (e.key === 'wf-char' || e.key === 'ws.files') { factionNote(); startHere(); } });
     // phones: the tabs scroll sideways, so bring the current one into view
     document.querySelectorAll('.ws-tabs [aria-current], .ws-sub [aria-current]').forEach(function (a) {
       var box = a.parentElement, x = a.offsetLeft - (box.clientWidth - a.offsetWidth) / 2;
@@ -373,6 +375,55 @@
       setTimeout(function () { document.body.appendChild(f); }, 400);
     }
   }
+  // ---- Alliance players: the site's prices (and census) are Horde's. Race comes from My character / Gear Snapshot ----
+  var ALLIANCE = [1, 3, 4, 7, 11, 22, 25, 29, 30, 32, 34, 37];
+  function myChar() { try { return JSON.parse(ls.get('wf-char') || '{}') || {}; } catch (e) { return {}; } }
+  function factionNote() {
+    var old = $('.ws-fnote'); if (old) old.remove();
+    if (ALLIANCE.indexOf(+myChar().race) < 0 || meta().ah) return;   // Horde, or their own scan is loaded
+    if (!targetsHere(KINDS[0]).length && !/^\/sell-spare-mats\//.test(PAGE)) return;   // no auction prices on this page
+    var lead = $('.wf-lead') || $('.wf-head') || $('h1'); if (!lead) return;
+    var p = document.createElement('p');
+    p.className = 'ws-fnote';
+    p.innerHTML = 'These are <b>Horde</b> auction prices. <a href="#" data-ws-open-files>Load your own scan</a> for Alliance prices.';
+    lead.insertAdjacentElement('afterend', p);
+  }
+
+  // ---- Home: "New here? Start with these" becomes your 3 next steps once the site knows your class and level ----
+  var CLASSES = [['WARRIOR', 'Warrior'], ['PALADIN', 'Paladin'], ['HUNTER', 'Hunter'], ['ROGUE', 'Rogue'], ['PRIEST', 'Priest'],
+    ['SHAMAN', 'Shaman'], ['MAGE', 'Mage'], ['WARLOCK', 'Warlock'], ['DRUID', 'Druid']];
+  var gold = function (c) { c = Math.round(c || 0); var g = Math.floor(c / 10000), s2 = Math.floor(c / 100) % 100; return g ? g + 'g' + (s2 ? ' ' + s2 + 's' : '') : s2 + 's'; };
+  function startHere() {
+    var sec = $('.ws-start'); if (!sec) return;
+    var c = myChar(), cls = (CLASSES.filter(function (x) { return x[0] === c.cls; })[0] || [])[1], lvl = +c.level || 0;
+    var pick = $('.ws-pick', sec), cards = sec.querySelectorAll('.ws-steps .ws-card');
+    if (!cls || !lvl) {   // ask once: class + level (saved to My character, which every tool reads)
+      pick.hidden = false;
+      pick.innerHTML = '<label>Your class <select data-c><option value="">Pick</option>' + CLASSES.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === c.cls ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') +
+        '</select></label><label>Level <input data-l type="number" min="1" max="60" inputmode="numeric" value="' + (lvl || '') + '"></label><button type="button" class="ws-fbtn main" data-go>Show my steps</button>';
+      pick.querySelector('[data-go]').onclick = function () {
+        var nc = pick.querySelector('[data-c]').value, nl = Math.max(1, Math.min(60, +pick.querySelector('[data-l]').value || 0));
+        if (!nc || !nl) { pick.querySelector(nc ? '[data-l]' : '[data-c]').focus(); return; }
+        if (window.WFCHAR) WFCHAR.set({ cls: nc, level: nl }); else { c.cls = nc; c.level = nl; ls.set('wf-char', JSON.stringify(c)); }
+        startHere();
+      };
+      return;
+    }
+    pick.hidden = true;
+    var steps = [['/gear-upgrades/', 'Gear for your level ' + lvl + ' ' + cls, 'Upgrades you can wear now, and where to get them']];
+    if (!Object.keys(meta()).length && !ls.get('ws.dir')) steps.push(['/setup/', 'Set up once', 'Load your game files: your own gear, bags and prices']);
+    var known = {}; try { known = (JSON.parse(ls.get('wf-known') || '{}') || {}).profs || {}; } catch (e) {}
+    var prof = Object.keys(known).filter(function (k) { return !/first aid|cooking|fishing/i.test(k) && known[k].rank < known[k].max; })[0];
+    steps.push(prof ? ['/profession-leveling/', 'Level ' + prof + ' from ' + known[prof].rank, 'Cheapest way, step by step'] : ['/profession-leveling/', 'Level your professions', 'Cheapest way, step by step']);
+    var sm = {}; try { sm = JSON.parse(ls.get('wf-sell-mats') || '{}') || {}; } catch (e) {}
+    var rows = (sm.hasHave && sm.rows) || [], tot = rows.reduce(function (a, r) { return a + (r.tot || 0); }, 0);
+    steps.push(rows.length && tot >= 100 ? ['/sell-spare-mats/', 'Sell ' + rows.length + ' spare material' + (rows.length > 1 ? 's' : ''), 'About ' + gold(tot) + ' you no longer need'] :
+      ['/vendor-flips/', 'Make some gold', 'Buy cheap on the auction house, sell to a vendor for more']);
+    $('h2', sec).innerHTML = 'Your next steps <button type="button" class="ws-chg" title="Change class or level">' + esc(cls) + ' ' + lvl + '</button>';
+    $('.ws-chg', sec).onclick = function () { var x = myChar(); delete x.level; ls.set('wf-char', JSON.stringify(x)); startHere(); $('[data-l]', sec).value = lvl; };
+    steps.slice(0, 3).forEach(function (st, i) { var a = cards[i]; if (!a) return; a.href = st[0]; a.innerHTML = '<b>' + esc(st[1]) + '</b><span>' + esc(st[2]) + '</span>'; });
+  }
+
   // ---- the site owner's reminder (browsers that logged in on /admin/ once): old site prices, new reports ----
   function ownerNudge() {
     if (!ls.get('ws.owner') || /^\/admin/.test(PAGE) || ls.get('ws.nudge') === new Date().toDateString()) return;
