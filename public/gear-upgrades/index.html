@@ -1157,7 +1157,7 @@ const KNOWN = (() => {
     const db = parseLua(text);
     const rec = db && db.recipes;
     if (!rec || !Object.keys(rec).length) throw new Error('no recipes in this file yet. Update the Gear Snapshot addon to 1.2, open each profession window once, then /reload');
-    const out = { char: db.name || '', t: db.time || 0, profs: {} };
+    const out = { char: db.name || '', t: db.time || 0, profs: {}, skills: db.skills || {} };   // skills: every skill line, e.g. Fishing (no profession window)
     for (const [prof, p] of Object.entries(rec)) {
       const ids = [], names = [];
       for (const [k, v] of Object.entries(p.known || {})) { if (/^\d+$/.test(k)) ids.push(+k); if (typeof v === 'string') names.push(v.toLowerCase()); }
@@ -1840,6 +1840,10 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     $("favWrap").style.display = tailor() ? "" : "none";
   }
   const lvTxt = s => s.ql ? 'quest level ' + s.ql : '';
+  // Which auction house the prices are from: the site scan is Horde; your own scan is your faction's.
+  // Booty Bay, Gadgetzan and Everlook are a separate (neutral) auction house, so name the faction one.
+  const ahSide = () => AHREC && !/site scan/i.test(AHREC.name || '') && P.faction === 'Alliance' ? 'Alliance' : 'Horde';
+  const ahName = () => ahSide() + ' auction house';
   // Where to get an option, as { pill, main, sub: [...] }: one tag, the one thing to look for, then short facts.
   function srcParts(o) {
     const s = o.s || {}, c = o.c;
@@ -1849,10 +1853,10 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       sub: [esc(s.z || "a dungeon"), s.dl && 'levels ' + s.dl[0] + '–' + s.dl[1], s.pct && Math.round(s.pct) + '% drop'] };
     if (o.kind === "buy") {
       const pill = '<span class="pill blue">Buy</span>';
-      if (!o.s) return { pill, main: 'Auction house', sub: [(c.ahq || "a few") + ' listed'] };
-      if (!c.suf) return { pill, main: 'Auction house', sub: [(s.ahq || "a few") + ' listed'] };
+      if (!o.s) return { pill, main: ahName(), sub: [(c.ahq || "a few") + ' listed'] };
+      if (!c.suf) return { pill, main: ahName(), sub: [(s.ahq || "a few") + ' listed'] };
       const sn = esc(c.sfxName || c.n.replace(/^.* (of .*)$/, "$1"));
-      if (o.sfx && o.sfx.p) return { pill, main: 'Auction house', sub: [o.sfx.n + ' listed with “' + sn + '”', o.sfx.t && 'seen ' + new Date(o.sfx.t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" })] };
+      if (o.sfx && o.sfx.p) return { pill, main: ahName(), sub: [o.sfx.n + ' listed with “' + sn + '”', o.sfx.t && 'seen ' + new Date(o.sfx.t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" })] };
       if (o.sfx && o.sfx.full) return { pill, main: '<b style="color:var(--bad)">None listed</b>', sub: [(o.sfx.looked ? 'when you looked ' : 'in your scan ') + new Date(o.sfx.full * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" }), 'other suffixes from ' + coin(s.ah)] };
       return { pill, main: '<b style="color:var(--warn)">Price unknown</b>', sub: ['other suffixes from ' + coin(s.ah), 'click it in the auction house to see “' + sn + '”'] };
     }
@@ -1964,7 +1968,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     }
     if (buysNow.length) {
       n++; let tot = 0; buysNow.forEach(p => tot += p.cost);
-      h += '<article class="step buy"><div class="shead"><div class="t"><span class="k">Step ' + n + ' · now</span><span class="nm">Buy on the auction house</span></div><div class="right"><span class="num">' + coin(tot) + '</span><span class="small muted">' + buysNow.length + ' item' + (buysNow.length > 1 ? "s" : "") + '</span></div></div>' +
+      h += '<article class="step buy"><div class="shead"><div class="t"><span class="k">Step ' + n + ' · now</span><span class="nm">Buy on the ' + ahName() + '</span></div><div class="right"><span class="num">' + coin(tot) + '</span><span class="small muted">' + buysNow.length + ' item' + (buysNow.length > 1 ? "s" : "") + '</span></div></div>' +
         '<div class="sitem">' + buysNow.map(p => optLine(p) + buyFacts(p) + altLine(p)).join('</div><div class="sitem">') + '</div>' + '</article>';
     }
     let at = cur;
@@ -2004,7 +2008,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       const byLv = {}; buysLater.forEach(p => (byLv[obtainLv(p.o.c)] = byLv[obtainLv(p.o.c)] || []).push(p));
       Object.keys(byLv).sort((a, b2) => a - b2).forEach(lv => {
         n++; const ps = byLv[lv]; let tot = 0; ps.forEach(p => tot += p.o.cost);
-        h += '<article class="step buy later"><div class="shead"><div class="t"><span class="k">Step ' + n + ' · at level ' + lv + '</span><span class="nm">Buy on the auction house</span></div><div class="right"><span class="num">' + coin(tot) + '</span><span class="small muted">' + ps.length + ' item' + (ps.length > 1 ? "s" : "") + '</span></div></div>' +
+        h += '<article class="step buy later"><div class="shead"><div class="t"><span class="k">Step ' + n + ' · at level ' + lv + '</span><span class="nm">Buy on the ' + ahName() + '</span></div><div class="right"><span class="num">' + coin(tot) + '</span><span class="small muted">' + ps.length + ' item' + (ps.length > 1 ? "s" : "") + '</span></div></div>' +
           '<div class="sitem">' + ps.map(p => optLine(p) + buyFacts(p) + altLine(p)).join('</div><div class="sitem">') + '</div>' + '</article>';
       });
     }

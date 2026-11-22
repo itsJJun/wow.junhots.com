@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-11-22",
+    "title": "Which auction house to use",
+    "text": "Gear upgrades now says Horde auction house. Booty Bay, Gadgetzan and Everlook have their own listings, so the site's items may not be there.",
+    "image": "/assets/updates/2026-11-22-horde-ah.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
     "date": "2026-11-21",
     "title": "Home: your next steps",
     "text": "Pick your class and level once, and Home shows your 3 next steps for gear, professions and gold.",
