@@ -768,7 +768,7 @@ window.wfStale = function (when, maxDays, what) {
     return item();
   }
   function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
-  function parse(buf) {
+  function parse(buf, opt) {
     var text = ascii(buf, 0, Math.min(buf.length, buf.length));
     var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
     if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
@@ -798,9 +798,15 @@ window.wfStale = function (when, maxDays, what) {
       if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
       out[id] = u ? [e.m, a, u] : [e.m, a];
     });
+    // opt.sfx: random-suffix gear ("gr:<id>:of the Owl" keys) listed on the scan day, as g[id][suffix] = [price, count]
+    var g = null;
+    if (opt && opt.sfx) { g = {}; Object.keys(best).forEach(function (k) {
+      var mt = /^gr:(\d+):(.+)$/.exec(k), e = best[k]; if (!mt || !e || typeof e.m !== 'number' || !e.h || !e.h[today]) return;
+      (g[mt[1]] = g[mt[1]] || {})[mt[2]] = [e.m, (e.a && e.a[today]) || 0];
+    }); }
     var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
     if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
-    return { scan: scan, items: bestN, p: out };
+    return g ? { scan: scan, items: bestN, p: out, g: g } : { scan: scan, items: bestN, p: out };
   }
   function get() {
     if (cache !== undefined) return cache;
@@ -1078,7 +1084,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         <li>Once: <a data-wf-addon href="#">download the Gear Snapshot addon</a>, unzip it into <code>World of Warcraft\_forever_\Interface\AddOns\</code> (you get a <b>GearSnapshot</b> folder there) and tick it in the AddOns list at character select.</li>
         <li>In game, type <code>/reload</code> (or just log out). The game then writes your gear, class, race, spec, level, professions and gold to a file. Open each profession window once before that, so your skill and known recipes are saved too. The spec is the one you picked in Forever Leveling BiS, if you use it.</li>
         <li>Click <b>Load my gear</b> (or drop the file here). The file's path is copied for you, so in the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> to jump to the File name box, then <kbd>Ctrl</kbd>+<kbd>V</kbd> and <kbd>Enter</kbd>. It is <code>World of Warcraft\_forever_\WTF\Account\&lt;account&gt;\&lt;realm&gt;\&lt;character&gt;\SavedVariables\GearSnapshot.lua</code>. Class, spec, level and skills fill in too.</li>
-        <li>Suffix prices (Gear Snapshot 1.1): Auctionator and TSM keep one price for all versions of a green, so “of Shadow Wrath” can't be priced from them. With Gear Snapshot on, run Auctionator's <b>full scan</b> (or click the items you want in the auction house), then <code>/reload</code> and load the file again. Until then, greens whose suffix price is unknown are listed but never put in your plan.</li>
+        <li>Suffix prices (“of Shadow Wrath”, “of the Owl”…): run Auctionator's <b>full scan</b>, then <code>/reload</code> and load your AH prices again. Greens with no suffix price are listed but never put in your plan.</li>
       </ol></details>
   </div>
   <p class="hint" id="setHint"></p>
@@ -1236,6 +1242,12 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
 // Item data: Forever Leveling BiS (gear_db.json, gzip+base64 in <script id="gdb">); rules ported from its Scoring.lua.
 (async function () {
   const $ = id => document.getElementById(id);
+  // an Auctionator file handed to this page can arrive before the item data has loaded: keep it for its suffix prices
+  let AHFILE = null, readAhSfx = null;
+  document.addEventListener("change", e => {
+    const el = e.target; if (!el || el.id !== "file" || !el.files) return;
+    Array.prototype.forEach.call(el.files, f => { if (/auctionator/i.test(f.name)) { AHFILE = f; if (readAhSfx) readAhSfx(f); } });
+  }, true);
   async function unpack(bin) {
     const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip"));
     return JSON.parse(await new Response(stream).text());
@@ -1455,30 +1467,39 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     }
     return out;
   }
-  // Prices per suffix come from the Gear Snapshot file (S.gear.sfx); Auctionator and TSM price the base item only.
-  // An item you clicked in the auction house lists every suffix on sale then: a suffix missing from it was not listed.
-  // Suffix prices: your own Gear Snapshot file (S.gear.sfx) plus, on the website, the ones the site owner uploaded
-  // (/api/sfx). The newer entry per name wins. A suffix older than the last look at its item had sold out by then.
-  let SITESFX = null, SFX = null;
+  // Suffix prices, newest entry per name wins: the Auctionator scan (AHSFX: Forever's Auctionator saves every suffix
+  // as "gr:<id>:of the Owl"), your Gear Snapshot file (S.gear.sfx) and, on the website, the site owner's uploads (/api/sfx).
+  // A full scan or a click on an item lists every suffix on sale then: one missing from it was not listed.
+  let SITESFX = null, SFX = null, AHSFX = null;
   function sfxData() {
     const own = S.gear && S.gear.sfx;
-    if (!own && !SITESFX) return null;
-    if (SFX && SFX.own === own && SFX.site === SITESFX) return SFX;
+    if (!own && !SITESFX && !AHSFX) return null;
+    if (SFX && SFX.own === own && SFX.site === SITESFX && SFX.ah === AHSFX) return SFX;
     const items = {}, add = x => { for (const k in (x && x.items) || {}) { const e = x.items[k]; if (!items[k] || e.t > items[k].t) items[k] = e; } };
-    add(SITESFX); add(own);
+    add(SITESFX); add(AHSFX); add(own);
     const seen = {};
     for (const k in items) { const i = k.indexOf(" of "); if (i > 0) { const b = k.slice(0, i); seen[b] = Math.max(seen[b] || 0, items[k].t || 0); } }
-    const full = Math.max((own && own.full) || 0, (SITESFX && SITESFX.full) || 0) || null;
-    return (SFX = { own, site: SITESFX, items, seen, full, count: Object.keys(items).length });
+    const full = Math.max((own && own.full) || 0, (SITESFX && SITESFX.full) || 0, (AHSFX && AHSFX.full) || 0) || null;
+    return (SFX = { own, site: SITESFX, ah: AHSFX, items, seen, full, count: Object.keys(items).length });
   }
   function sfxInfo(name, base) {
     const x = sfxData(); if (!x) return null;
     const e = x.items[name], seen = base ? x.seen[base] || 0 : 0;
-    if (e && !(seen && e.t < seen - 600)) return { p: e.p, n: e.n, t: e.t };
+    if (e && !(seen && e.t < seen - 600) && !(x.full && e.t < x.full - 600)) return { p: e.p, n: e.n, t: e.t };
     if (seen && (!x.full || seen > x.full)) return { n: 0, full: seen, looked: 1 };
     if (x.full) return { n: 0, full: x.full };
     return null;
   }
+  // the Auctionator file itself (any Load, or the site's own scan): read its suffix prices too
+  function ahSfx(r) { // -> the Gear Snapshot shape: { items: { "Lunar Handwraps of Shadow Wrath": { p, n, t } }, full }
+    const items = {}; for (const id in r.g) { const x = DBI[id]; if (x) for (const sn in r.g[id]) items[x.n + " " + sn] = { p: r.g[id][sn][0], n: r.g[id][sn][1], t: r.scan }; }
+    return { items, full: Object.keys(items).length ? r.scan : 0 };
+  }
+  readAhSfx = f => { if (window.WFAH) f.arrayBuffer().then(ab => {
+    const r = WFAH.parse(new Uint8Array(ab), { sfx: 1 }); if (!r.g || f !== AHFILE) return;
+    AHSFX = ahSfx(r); if (window.__gearUpgrades) { POOL = null; optCache.clear(); render(); }
+  }).catch(() => {}); };
+  if (AHFILE) readAhSfx(AHFILE);
   if ($("gdb").dataset.src) fetch("/api/sfx").then(r => r.ok ? r.json() : null).then(j => {
     if (j && j.items && Object.keys(j.items).length) { SITESFX = j; if (window.__gearUpgrades) { POOL = null; optCache.clear(); render(); } }
   }).catch(() => {});
