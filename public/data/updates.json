@@ -24,6 +24,14 @@
     "linkText": "Open Vendor flips"
   },
   {
+    "date": "2026-11-21",
+    "title": "Tailoring finder: every recipe",
+    "text": "All 416 Tailoring recipes are in, with a new Runecloth group (Felcloth and Mooncloth crafts too), so you can find things like Felblood Soul Bag.",
+    "image": "/assets/updates/2026-11-21-finder-every-recipe.webp",
+    "link": "/tailoring-finder/",
+    "linkText": "Open Tailoring finder"
+  },
+  {
     "date": "2026-11-20",
     "title": "Profession leveling: every profession",
     "text": "Alchemy, Blacksmithing, Engineering, Leatherworking, First Aid and Cooking get the cheapest route, like Tailoring. Mining, Herbalism, Skinning and Fishing get a where-to-go guide. It also says how many bolts to make.",
