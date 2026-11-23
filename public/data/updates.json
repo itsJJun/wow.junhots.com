@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Leveling: class quests and every dungeon quest",
+    "text": "The route now has your class quests (pets, mounts, forms, totems) and about 40 more dungeon quests from the Dungeon Journal, like Agamaggan's Blood. Shen'dralas is in the route too.",
+    "image": "/assets/updates/2026-11-23-dungeon-quests.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
+    "date": "2026-11-23",
     "title": "The game's own icons",
     "text": "Prices show gold, silver and copper coins. Quests, dungeons, vendors, trainers and the auction house have their in-game icons.",
     "image": "/assets/updates/2026-11-22-game-icons.webp",
