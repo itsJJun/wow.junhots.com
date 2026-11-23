@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Leveling: boss drops that are upgrades for you",
+    "text": "Each dungeon on the Leveling route now lists the boss drops that beat the gear your quests gave you by then, for the spec you pick. Hover an item to see the boss and its drop chance.",
+    "image": "/assets/updates/2026-11-23-boss-gear.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Leveling: close-up maps, map icons and quest areas",
     "text": "Zoom in on the Leveling map to see the game's own close-up map, like in game. Flight masters, boats, zeppelins and dungeon entrances show as small icons. Quest objectives show as blue areas, and quests with several spots (like Strange Pylons) take you to each one, with its name and coordinates under the quest. The route also takes quests as soon as they open, does quests on the same monsters together (about 5 hours less travel) and marks elite quests. Quests that start from a looted item (like Tattered Journal) are now in the route, and Desolace follows the Magram clan for casters and Gelkis for everyone else.",
     "image": "/assets/updates/2026-11-23-closeup-map.webp",

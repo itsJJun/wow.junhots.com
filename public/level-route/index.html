@@ -170,6 +170,12 @@ a { color: var(--accent); }
 .leg.opt { color: var(--opt); }
 .pin.opt circle:not(.ring) { stroke: var(--opt) !important; stroke-width: .42; stroke-dasharray: .55 .35; }
 .dt .ofq { display: block; color: var(--opt); font-size: 12px; }
+/* boss drops that are upgrades for your spec */
+.bgi { font-weight: 600; }
+.bgi.q1 { color: inherit; } .bgi.q2 { color: #1eaa1e; } .bgi.q3 { color: #2f7fe0; } .bgi.q4 { color: #a335ee; }
+.dt .bgl { display: block; font-weight: 400; font-size: 12px; line-height: 1.35; margin-top: 1px; }
+.stop .bgear { margin: 2px 0 4px; font-size: 13px; line-height: 1.4; }
+.stop .bgear .wi { width: 14px; height: 14px; vertical-align: -2px; }
 .leg { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink); padding: 1px 4px 1px 10px; }
 .leg .ar { color: var(--good); }
 .leg .mn { margin-left: auto; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
@@ -1194,7 +1200,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var SPECS = { Warrior: ['arms', 'fury', 'protection'], Paladin: ['holy', 'protection', 'retribution'], Hunter: ['beastmastery', 'marksmanship', 'survival', 'survivalmelee'], Rogue: ['assassination', 'combat', 'subtlety'], Priest: ['discipline', 'holy', 'shadow'], Shaman: ['elemental', 'enhancement', 'restoration'], Mage: ['arcane', 'fire', 'frost'], Warlock: ['affliction', 'demonology', 'destruction'], Druid: ['balance', 'feral', 'bear', 'restoration'] };
   var SPEC_LABEL = { beastmastery: 'Beast Mastery', survival: 'Survival (ranged)', survivalmelee: 'Survival (melee)', feral: 'Feral (cat)', bear: 'Feral (bear)' };
   var specLabel = function (k) { return SPEC_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1); };
-  var UP = null, UPQ = {};   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
+  var UP = null, UPQ = {}, BG = {};   // BG: boss drops that are upgrades for your spec, per dungeon [[item, name, slot, boss, drop %, quality]]   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
   var view = null, viewKey = '', mapSvg = null, mapFit = null, mapArrow = null;
   // close-up map (Jun 23 Nov): the game's own minimap pictures (maps/t/<map>_<row>_<col>.webp, one per 533-yard
   // tile) fade in over the zone map as you zoom in, only the tiles in view. MINI = maps/mini.json
@@ -1494,7 +1500,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('dunSum').textContent = left.length + ' to go' + (nd ? ' · ' + nd + ' done' : '') + (left.length ? ' · next: ' + left[0].name : '');
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
-      return '<tr><td>' + esc(d.name) + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
+      var g = bossGear(d.name);
+      return '<tr><td>' + esc(d.name) + (g ? '<small class="bgl"><span class="muted">Upgrades: </span>' + g + '</small>' : '') + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
         (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + farOf(d.name) + '</td><td>' +
         (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
           : d.stop ? '<button class="go ok" data-go="' + d.stop.gi + '" type="button" title="Its quests start inside the dungeon">' + esc(d.stop.ch.name) + ', stop ' + d.stop.num + ' →</button>' : '') + '</td></tr>';
@@ -1564,6 +1571,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     st.rows.forEach(function (r) { [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (!s || !s.of) return; if (s.t === 'turnin') xp += s.xp || 0; if (qs.indexOf(s.q) < 0) qs.push(s.q); }); });
     return '<span class="optrip">Optional trip' + (leg ? ' · ' + mins(leg.secs) + ' travel' : '') + (xp ? ' · +' + xp.toLocaleString() + ' xp' : '') + '</span>';
   }
+  // boss drops for your spec: item names in their quality colour, boss and drop chance on hover
+  function bossGear(name, withBoss) {
+    var l = BG[name]; if (!l || !l.length) return '';
+    return l.map(function (x) {
+      return '<span class="bgi q' + (x[5] || 1) + '" title="' + esc(x[3] + (x[4] ? ' · ' + Math.round(x[4]) + '% drop' : '') + ' · ' + x[2]) + '">' + esc(x[1]) + '</span>' + (withBoss ? ' <span class="muted">(' + esc(x[3]) + ')</span>' : '');
+    }).join(', ');
+  }
   function stopHtml(st, c, rdy) {
     var dn = stopDone(st), cls = 'stop';
       if (dn) cls += ' done';
@@ -1575,6 +1589,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b>' +
         (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' + ot +
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
+        (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) && bossGear(st.loc.dun) ? '<p class="bgear">' + wi('skull') + ' Upgrades for you: ' + bossGear(st.loc.dun, true) + '</p>' : '') +
         '<ul>' + st.rows.map(line).join('') + '</ul>' +
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
         '</div>');
@@ -2038,6 +2053,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var get = function (f) { return fetch(BASE + 'routes/' + f + '.json').then(function (r) { return r.json(); }); };
     get(base).then(function (b) {
       var up = (b.ups || {})[$('spec').value] || null;
+      BG = (b.bg || {})[$('spec').value] || {};
       id = optOn ? base + '-opt' : up ? base + up.f : base;
       return (id === base ? Promise.resolve(b) : get(id)).then(function (j) { return [j, up]; });
     }).then(function (a) {
