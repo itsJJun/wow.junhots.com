@@ -865,6 +865,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
+<script src="/assets/npc.js" defer></script>
 <script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -1161,7 +1162,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
     <li><b>Prices.</b> Each material uses the cheapest of: the auction house (the Auctionator scan built into this page, or your own once you load it), a vendor, or making it yourself (cloth into bolts). Prices marked <span class="srcb est">est</span> weren't in the scan, so they come from wowtbc.gg's Forever price list.</li>
     <li><b>Bolts are free skill.</b> When later steps need bolts, making them yourself while the bolt recipe still gives points is counted as free, because you were going to make those bolts anyway.</li>
     <li><b>Money back.</b> With selling on, each crafted item counts its vendor price back. Green and blue items can count their disenchant value instead (dust, essence, shards at the share of AH price you pick), using the classic disenchant tables. The higher of the two is used. Unless you allow profit, a craft never counts as cheaper than free.</li>
-    <li><b>Patterns and rods</b> are only bought if they save more than they cost. Vendor patterns are listed with their sellers; some sellers are Alliance only. Press “Can't get this” and the route is rebuilt without it.</li>
+    <li><b>Patterns and rods</b> are only bought if they save more than they cost. Vendor patterns are listed with their sellers: point at a name (tap on a phone) to see where they stand. Press “Can't get this” and the route is rebuilt without it.</li>
     <li><b>Not counted:</b> trainer fees for recipes and ranks, and cheap items to put enchants on. Enchanting needs a matching item in your bags (bracers, boots, gloves, chest, cloak, shield). Any cheap vendor item works, and you can enchant the same one again and again.</li>
   </ul>
 </section>
@@ -1468,11 +1469,11 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   // secondary professions: Expert is a book, Artisan a quest at 225 (Forever guides, 20 Nov)
   const RANKS_BY = {
     firstaid: [{ at: 50, name: "Journeyman", cap: 150, prev: 75 },
-      { at: 125, name: "Expert", cap: 225, prev: 150, how: "Buy and read <b>Expert First Aid - Under Wraps</b>: Balai Lok'Wein (Dustwallow Marsh, Horde) or Deneb Walker (Arathi Highlands, Alliance)" },
-      { at: 225, name: "Artisan", cap: 300, prev: 225, lvl: 35, how: "Quest <b>Triage</b>: Doctor Gregory Victor (Hammerfall, Arathi Highlands, Horde) or Doctor Gustaf VanHowzen (Theramore, Dustwallow Marsh, Alliance)" }],
+      { at: 125, name: "Expert", cap: 225, prev: 150, how: "Buy and read <b>Expert First Aid - Under Wraps</b> from [[{Balai Lok'Wein}||{Deneb Walker}]]" },
+      { at: 225, name: "Artisan", cap: 300, prev: 225, lvl: 35, how: "Quest <b>Triage</b> from [[{Doctor Gregory Victor}||{Doctor Gustaf VanHowzen}]]" }],
     cooking: [{ at: 50, name: "Journeyman", cap: 150, prev: 75 },
-      { at: 125, name: "Expert", cap: 225, prev: 150, how: "Buy and read the <b>Expert Cookbook</b> (about 1g): Wulan (Shadowprey Village, Desolace, Horde) or Shandrina (Mystral Lake, Ashenvale, Alliance)" },
-      { at: 225, name: "Artisan", cap: 300, prev: 225, lvl: 35, how: "Quest <b>Clamlette Surprise</b> from Dirge Quikcleave (Gadgetzan, Tanaris): bring 12 Giant Egg, 10 Zesty Clam Meat and 20 Alterac Swiss" }]
+      { at: 125, name: "Expert", cap: 225, prev: 150, how: "Buy and read the <b>Expert Cookbook</b> (about 1g) from [[{Wulan}||{Shandrina}]]" },
+      { at: 225, name: "Artisan", cap: 300, prev: 225, lvl: 35, how: "Quest <b>Clamlette Surprise</b> from {Dirge Quikcleave}: bring 12 Giant Egg, 10 Zesty Clam Meat and 20 Alterac Swiss" }]
   };
   const ranksOf = p => RANKS_BY[p] || RANKS;
   const brkOf = p => ranksOf(p).map(r => r.at);
@@ -1940,24 +1941,26 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const [y, g, gr] = r.s;
     return '<span style="color:var(--orange)">orange to ' + (y - 1) + '</span>, <span style="color:var(--yellow)">yellow ' + y + '–' + (g - 1) + '</span>, <span style="color:var(--green)">green ' + g + '–' + (gr - 1) + '</span>, <span style="color:var(--gray)">gray at ' + gr + '</span>';
   }
-  // Where pattern vendors stand (wow-professions.com Forever guides and our own checks, 16 Nov). Others: name only.
-  const VPLACE = {
-    "Kithas": "Orgrimmar, Horde", "Nata Dawnstrider": "Thunder Bluff, Horde", "Thaddeus Webb": "Undercity, Horde", "Leo Sarn": "Silverpine Forest, Horde",
-    "Daniel Bartlett": "Undercity, Horde", "Tilli Thistlefuzz": "Ironforge, Alliance", "Vaean": "Darnassus, Alliance", "Jessara Cordell": "Stormwind, Alliance",
-    "Mythrin'dir": "Darnassus, Alliance", "Kania": "Silithus, upstairs in the inn", "Lorelae Wintersong": "Nighthaven, Moonglade", "Qia": "Everlook, Winterspring",
-    "Pexmit": "Mount Hyjal", "Mishta": "Silithus", "Jim'bek": "The Barrens, Horde", "Mivin Shadowweave": "Redridge Mountains, Alliance",
-    "Beneris": "outside the Crossroads west gate, the Barrens, Horde",
-    // Cooking and First Aid sellers (20 Nov)
-    "Kendor Kabonka": "Stormwind, Alliance", "Kelsey Yance": "Booty Bay", "Gikkix": "Tanaris", "Jabbey": "Gadgetzan, Tanaris", "Dirge Quikcleave": "Gadgetzan, Tanaris",
-    "Kriggon Talsone": "Westfall, Alliance", "Khara Deepwater": "Loch Modan, Alliance", "Tharynn Bouden": "Elwynn Forest, Alliance", "Naal Mistrunner": "Thunder Bluff, Horde",
-    "Grimtak": "Razor Hill, Durotar, Horde", "Wunna Darkmane": "Bloodhoof Village, Mulgore, Horde", "Abigail Shiel": "Brill, Tirisfal Glades, Horde",
-    "Sheendra Tallgrass": "Camp Mojache, Feralas, Horde", "Vivianna": "Feathermoon, Feralas, Alliance", "Ogg'marr": "Brackenwall, Dustwallow Marsh, Horde",
-    "Nerrist": "Grom'gol, Stranglethorn Vale, Horde", "Corporal Bluth": "Stranglethorn Vale, Alliance", "Derak Nightfall": "Tarren Mill, Hillsbrad, Horde",
-    "Lindea Rabonne": "Southshore, Hillsbrad, Alliance", "Stuart Fleming": "Menethil Harbor, Wetlands, Alliance", "Banalash": "Stonard, Swamp of Sorrows, Horde",
-    "Kireena": "Shadowprey Village, Desolace, Horde", "Janet Hommers": "Nijel's Point, Desolace, Alliance", "Super-Seller 680": "Desolace",
-    "Deneb Walker": "Arathi Highlands, Alliance", "Balai Lok'Wein": "Dustwallow Marsh, Horde"
-  };
-  const vendList = v => (v || []).map(n => esc(n) + (VPLACE[n] ? " (" + esc(VPLACE[n]) + ")" : "")).join(", ");
+  // NPC names: hover (tap on phones) shows where they stand, with a map (shared /assets/npc.js + /data/npcs.json).
+  // Names on the page are plain; {Name} in a text (npcText) becomes a hover name, [[Horde text||Alliance text]] shows only your
+  // faction's part once the site knows your race (else both, marked Horde / Alliance).
+  // NPCID: names Questie gives to more than one NPC -> the one in Questie's vendor list for the pattern (Phoenix Bindings).
+  const NPCID = { "Elaine Compton": 213077, "Jornah": 214070, "Dokimi": 214096 };
+  // vendors that serve one faction only (QuestieDB, 23 Nov); NOTE: extra words shown in the card
+  const VFAC = {"Abigail Shiel":"H","Alexandra Bolero":"A","Algernon":"H","Alynsia":"A","Amy Davenport":"A","Andrew Hilbert":"H","Androd Fadran":"A","Apothecary Durelle":"H","Apothecary Quinard":"H","Aza'bek":"H","Balai Lok'Wein":"H","Bale":"H","Banalash":"H","Beneris":"H","Bombus Finespindle":"A","Borya":"H","Brienna Starglow":"A","Bronk":"H","Chief Expeditionary Requisitioner Enkles":"A","Christoph Jeffcoat":"H","Clyde Ranthal":"A","Constance Brisboise":"H","Corporal Bluth":"A","Dalria":"A","Daniel Bartlett":"H","Daniel Stitchsong":"A","Danielle Zipstitch":"A","Darian Singh":"A","Deneb Walker":"A","Derak Nightfall":"H","Dokimi":"H","Drac Roughcut":"A","Drake Lindgren":"A","Drovnar Strongbrew":"A","Elynna":"A","Fizzlefuse":"H","Flakk":"H","Fradd Swiftgear":"A","Fritz Fizzle":"A","Gearcutter Cogspinner":"A","George Candarte":"H","Gharash":"H","Ghok'kah":"H","Gina MacGregor":"A","Gor'mak":"H","Granny Finespindle":"A","Grimtak":"H","Hagrus":"H","Hammon Karwn":"A","Harggan":"A","Harklan Moongrove":"A","Harlown Darkweave":"A","Heldan Galesong":"A","Helenia Olden":"A","Hula'mahi":"H","Janet Hommers":"A","Jangdor Swiftstrider":"H","Jannos Ironwill":"A","Jeeda":"H","Jennabink Powerseam":"A","Jessara Cordell":"A","Jim'bek":"H","Jornah":"H","Joseph Moore":"H","Jun'ha":"H","Kaita Deepforge":"A","Kalsey Sanden":"A","Keena":"H","Kendor Kabonka":"A","Khara Deepwater":"A","Kireena":"H","Kithas":"H","Kor'gar":"A","Kor'geld":"H","Kriggon Talsone":"A","Kulwia":"H","Laird":"A","Lardan":"A","Leonard Porter":"A","Lilly":"H","Lindea Rabonne":"A","Logannas":"A","Mahu":"H","Mallen Swain":"H","Malygen":"A","Maria Lumere":"A","Martha Wellsworth":"A","Martine Tramblay":"H","Mavralyn":"A","Micha Yance":"A","Millie Gregorian":"H","Mivin Shadowweave":"A","Montarr":"H","Muuran":"H","Mythrin'dir":"A","Naal Mistrunner":"H","Naluk":"H","Namdo Bizzfizzle":"A","Nandar Branson":"A","Narj Deepslice":"A","Nata Dawnstrider":"H","Nerrist":"H","Nina Lightbrew":"A","Nina Surefire":"A","Nioma":"A","Ogg'marr":"H","Outfitter Eric":"A","Pawani":"H","Pratt McGrubben":"A","Rann Flamespinner":"A","Rartar":"H","Saenorion":"A","Sewa Mistrunner":"H","Shankys":"H","Sheendra Tallgrass":"H","Sheri Zipstitch":"A","Soolie Berryfizz":"A","Sovik":"H","Stondry Darkhammer":"A","Stuart Fleming":"A","Sumi":"H","Tamar":"H","Tansy Puddlefizz":"A","Tari'qa":"H","Tharynn Bouden":"A","Tilli Thistlefuzz":"A","Truk Wildbeard":"A","Tunkk":"H","Ulthaan":"A","Ulthir":"A","Uthok":"H","Vharr":"H","Vivianna":"A","Wenna Silkbeard":"A","Werg Thickblade":"H","Wrahk":"H","Wunna Darkmane":"H","Xandar Goodbeard":"A","Zargh":"H"};
+  const NOTE = { "Kania": "Upstairs in the inn.", "Beneris": "Outside the Crossroads west gate." };
+  const FACN = { A: "Alliance", H: "Horde" };
+  const myFac = () => { if (window.WSNPC) return WSNPC.fac();
+    let c = {}; try { c = JSON.parse(localStorage.getItem("wf-char") || "{}") || {}; } catch (e) {}
+    if (+c.race) return [1, 3, 4, 7, 11, 22, 25, 29, 30, 32, 34, 37].includes(+c.race) ? "A" : "H";
+    try { return { Human: "A", Dwarf: "A", NightElf: "A", Gnome: "A", Orc: "H", Undead: "H", Tauren: "H", Troll: "H" }[localStorage.getItem("lr.race")] || null; } catch (e) { return null; } };
+  const npc = n => '<span data-npc="' + esc(NPCID[n] || n) + '" tabindex="0"' + (NOTE[n] ? ' data-npc-note="' + esc(NOTE[n]) + '"' : '') + '>' + esc(n) + '</span>';
+  const facTag = f => ' <span class="muted">(' + FACN[f] + ')</span>';
+  const facPick = (h, a) => { const me = myFac(); return me === "H" ? h : me === "A" ? a : h + facTag("H") + " or " + a + facTag("A"); };
+  const npcText = t => String(t).replace(/\{([^{}]+)\}/g, (m, n) => npc(n)).replace(/\[\[(.*?)\|\|(.*?)\]\]/g, (m, h, a) => facPick(h, a));
+  // sellers of a pattern: only your faction's (when known), the others marked Horde / Alliance
+  const vendList = v => { const me = myFac(), L = v || [], mine = me ? L.filter(n => !VFAC[n] || VFAC[n] === me) : [];
+    return (mine.length ? mine : L).map(n => npc(n) + (VFAC[n] && VFAC[n] !== me ? facTag(VFAC[n]) : "")).join(", "); };
   // Tips per rank (review 16 Nov, ideas from wow-professions.com's Forever guides): shown at each training step
   const TIPS = {
     enchanting: {
@@ -1966,24 +1969,24 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
         "Disenchant comes with Apprentice. On Forever it is not in your spellbook: it is in the Enchanting part of the Professions window.",
         "A Greater Magic Essence splits into 3 Lesser Magic Essence (right-click it), so buy whichever is cheaper per Lesser."],
       Journeyman: ["Silver and better rods are made by Blacksmiths. If you can't make one, buy it on the auction house.",
-        "Kithas (Orgrimmar), Nata Dawnstrider (Thunder Bluff) and Tilli Thistlefuzz (Ironforge) sell the Lesser Intellect, Minor Mana Oil and Lesser Wizard Oil formulas. Buy the ones your route needs in one trip."],
-      Expert: ["There is one Expert trainer per faction: Hgarth on the hill above Sun Rock Retreat (Stonetalon) and Kitta Firewind at the top of the Tower of Azora (Elwynn Forest)."],
-      Artisan: ["Annora, the only Artisan trainer, is inside Uldaman (Badlands). Use the back entrance. You can't solo it at 35: bring a group or a level 60.",
+        "Buy the Lesser Intellect, Minor Mana Oil and Lesser Wizard Oil formulas from [[{Kithas} or {Nata Dawnstrider}||{Tilli Thistlefuzz}]]. Buy the ones your route needs in one trip."],
+      Expert: ["[[{Hgarth} stands on the hill above Sun Rock Retreat||{Kitta Firewind} is at the top of the Tower of Azora]]."],
+      Artisan: ["{Annora}, the only Artisan trainer, is inside Uldaman (Badlands). Use the back entrance. You can't solo it at 35: bring a group or a level 60.",
         "She only appears after every mob around her is dead.",
         "Recipes from 230 up are taught only by her, so learn everything you need and bring materials for about 20 points, to reach 250 in one trip.",
         "Formula: Enchant Shield - Greater Stamina binds when picked up: buy it on the character that enchants.",
-        "Most 290+ recipes need a Runed Arcanite Rod. Its formula is sold by Lorelae Wintersong in Nighthaven, Moonglade."]
+        "Most 290+ recipes need a Runed Arcanite Rod. Its formula is sold by {Lorelae Wintersong}."]
     },
     tailoring: {
       Apprentice: ["Apprentice Tailoring has no level requirement on Forever.",
-        "Thread and dye come from the Tailoring Supplies vendor next to each trainer, much cheaper than the auction house. Undead start: Tirisfal's trainer has none, so buy Coarse Thread from Abigail Shiel in Brill.",
+        "Thread and dye come from the Tailoring Supplies vendor next to each trainer, much cheaper than the auction house. Undead start: Tirisfal's trainer has none, so buy Coarse Thread from {Abigail Shiel}.",
         "Any guard can mark the nearest trainer on your map."],
       Journeyman: ["Train before your skill hits the cap, or crafts stop giving points."],
       Expert: ["Some steps use an Elixir of Wisdom or other potions: buy them on the auction house or from an Alchemist."],
-      Artisan: ["Artisan is taught only by Daryl Stack (Tarren Mill, Hillsbrad, Horde) and Timothy Worthington (Theramore, Dustwallow Marsh, Alliance). The Expert trainers in the capitals don't teach Black Mageweave Shoulders.",
-        "The Runecloth Cuffs pattern (Pexmit, Mount Hyjal) binds when picked up: buy it on your tailor.",
+      Artisan: ["Artisan is taught only by [[{Daryl Stack}||{Timothy Worthington}]]. The Expert trainers in the capitals don't teach Black Mageweave Shoulders.",
+        "The Runecloth Cuffs pattern from {Pexmit} binds when picked up: buy it on your tailor.",
         "Recipes that need a Loom only work where someone has placed a Loom, and a Loom itself needs Tailoring 300.",
-        "Rare Forever patterns cost Merchant's Favor at your faction's Waylaid Supplies vendor: Jim'bek (the Barrens) for Horde, Mivin Shadowweave (Redridge) for Alliance."]
+        "Rare Forever patterns cost Merchant's Favor at your faction's Waylaid Supplies vendor: [[{Jim'bek}||{Mivin Shadowweave}]]."]
     }
   };
   TIPS.firstaid = {
@@ -1998,7 +2001,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     Apprentice: ["Cook next to any fire. Basic Campfire makes one: Simple Wood plus Flint and Tinder from a trade vendor.",
       "Fish you catch are free materials: load your bags so the plan uses them."]
   };
-  const tipsHtml = (rank) => { const t = (TIPS[S.prof] || {})[rank]; return t && t.length ? '<ul class="tips"><li class="th">Tips</li>' + t.map(x => '<li>' + esc(x) + '</li>').join("") + '</ul>' : ""; };
+  const tipsHtml = (rank) => { const t = (TIPS[S.prof] || {})[rank]; return t && t.length ? '<ul class="tips"><li class="th">Tips</li>' + t.map(x => '<li>' + npcText(esc(x)) + '</li>').join("") + '</ul>' : ""; };
   // vendor patterns the route needs between two skills, for "buy now for later" while you are in town
   function laterPats(segs, lo, hi) {
     const seen = new Set(), out = [];
@@ -2102,9 +2105,9 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const sec = DATA.profs[S.prof].sections || [];
     // both factions (review 16 Nov); one line when Horde and Alliance share the trainer (Artisan: Annora in Uldaman)
     const trainerAt = name => { const s = sec.find(x => x.rank === name); if (!s || !s.trainers) return "";
-      const fmt = L => (L || []).map(t => esc(t.npc) + " (" + esc(t.location) + ")").join(" or ");
-      const ho = fmt(s.trainers.horde), al = fmt(s.trainers.alliance);
-      return (ho === al || !al ? "Trainer: " + ho : !ho ? "Alliance trainer: " + al : "Horde trainer: " + ho + ". Alliance trainer: " + al) + (s.trainers.note ? ". " + esc(s.trainers.note) : ""); };
+      const fmt = L => (L || []).map(t => npc(t.npc)).join(" or ");
+      const ho = fmt(s.trainers.horde), al = fmt(s.trainers.alliance), me = myFac();
+      return (ho === al || !al ? "Trainer: " + ho : !ho ? "Alliance trainer: " + al : me ? "Trainer: " + (me === "H" ? ho : al) : "Horde trainer: " + ho + ". Alliance trainer: " + al) + (s.trainers.note ? ". " + esc(s.trainers.note) : ""); };
     const allR = RK.map(r => r.at).concat([301]);
     const extra = rank => { const nx = allR[allR.indexOf(rank.at) + 1] || 301; return laterHtml(laterPats(pl.segs, rank.at, nx)) + tipsHtml(rank.name); };
     if (!off && pl.from < RK[0].at) { const first = laterHtml(laterPats(pl.segs, 0, RK[0].at)), tp = tipsHtml("Apprentice");
@@ -2168,7 +2171,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   function trainStep(rank, trainerAt, extra) {
     const where = rank.how || trainerAt(rank.name);
     return '<article class="step train"><div class="shead"><div class="t"><span class="rng">At skill ' + rank.at + '</span><span class="nm">' + (rank.how ? 'Get ' : GI('trainer') + 'Train ') + rank.name + ' ' + PROFS[S.prof].label + '</span></div><div class="right"><span class="pill acc">cap ' + rank.cap + '</span></div></div>' +
-      '<p class="stepnote"><span>You can\'t go past ' + rank.prev + ' without it.' + (rank.lvl ? ' Needs character level ' + rank.lvl + '.' : '') + (where ? ' ' + where + '.' : ' Any ' + PROFS[S.prof].label.toLowerCase() + ' trainer in a capital city.') + (rank.how ? '' : ' Learn the new recipes listed in the next steps while you are there.') + '</span></p>' + (extra || '') + '</article>';
+      '<p class="stepnote"><span>You can\'t go past ' + rank.prev + ' without it.' + (rank.lvl ? ' Needs character level ' + rank.lvl + '.' : '') + (where ? ' ' + npcText(where) + '.' : ' Any ' + PROFS[S.prof].label.toLowerCase() + ' trainer in a capital city.') + (rank.how ? '' : ' Learn the new recipes listed in the next steps while you are there.') + '</span></p>' + (extra || '') + '</article>';
   }
 
   function renderShop(pl) {
@@ -2355,12 +2358,12 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       { from: 1, to: 75, nm: "Starting zones", h: "Durotar, Mulgore, Tirisfal Glades", a: "Elwynn Forest, Dun Morogh, Teldrassil", b: "Zephras Isle", note: "Fish stop getting away at 25. Before that, use a Shiny Bauble.",
         t: { at: 50, prev: 75, nm: "Journeyman", lvl: 10, how: "any fishing trainer." } },
       { from: 75, to: 150, nm: "Cities and nearby zones", h: "Orgrimmar, Thunder Bluff, the Barrens, Silverpine Forest", a: "Stormwind, Darnassus, Westfall, Loch Modan, Darkshore", note: "Fish stop getting away at 75. Use Nightcrawlers if they still do.",
-        t: { at: 125, prev: 150, nm: "Expert", lvl: 20, how: "buy and read <b>Expert Fishing - The Bass and You</b> from Old Man Heming in Booty Bay (or the auction house). Buy Bright Baubles there too." } },
+        t: { at: 125, prev: 150, nm: "Expert", lvl: 20, how: "buy and read <b>Expert Fishing - The Bass and You</b> from {Old Man Heming} (or the auction house). Buy Bright Baubles there too." } },
       { from: 150, to: 225, nm: "Dustwallow Marsh", b: "Dustwallow Marsh, where the Artisan quest is. Also good: Stranglethorn Vale, Desolace, Arathi Highlands, Swamp of Sorrows, Thousand Needles.", note: "Use Bright Baubles.",
-        t: { at: 225, prev: 225, nm: "Artisan", lvl: 35, how: "quest <b>Nat Pagle, Angler Extreme</b> from Nat Pagle (Tidefury Cove, Dustwallow Marsh). Catch Feralas Ahi (Feralas), Misty Reed Mahi Mahi (Swamp of Sorrows), Sar'theris Striker (Desolace) and Savage Coast Blue Sailfin (Stranglethorn Vale)." } },
+        t: { at: 225, prev: 225, nm: "Artisan", lvl: 35, how: "quest <b>Nat Pagle, Angler Extreme</b> from {Nat Pagle}. Catch Feralas Ahi (Feralas), Misty Reed Mahi Mahi (Swamp of Sorrows), Sar'theris Striker (Desolace) and Savage Coast Blue Sailfin (Stranglethorn Vale)." } },
       { from: 225, to: 300, nm: "High-level zones", b: "Feralas, Tanaris, The Hinterlands, Felwood, Un'Goro Crater, Western Plaguelands.", note: "Bright Baubles needed." }],
       buy: [[6256, "+0", 1, "Fishing vendors"], [6365, "+5", 10, "Fishing vendors"], [6367, "+20", 100, "Shellfish Traps in Desolace, or the auction house"],
-        [6529, "+25", 1, "Fishing vendors"], [6530, "+50", 50, "Fishing vendors"], [6532, "+75", 100, "Old Man Heming (Booty Bay), or the auction house"], [6533, "+100", 100, "Engineers, or the auction house"]],
+        [6529, "+25", 1, "Fishing vendors"], [6530, "+50", 50, "Fishing vendors"], [6532, "+75", 100, "{Old Man Heming}, or the auction house"], [6533, "+100", 100, "Engineers, or the auction house"]],
       notes: ["Points come only from fish you catch. Each point takes more casts as you go up.", "Cook what you catch: it levels Cooking too."] },
     mining: { title: "Mining", what: "mine", bands: [
       { from: 1, to: 65, nm: "Copper", h: "Durotar, Mulgore, Tirisfal Glades", a: "Elwynn Forest, Dun Morogh, Teldrassil", b: "Zephras Isle", note: "Smelt your copper at a forge for extra points.", t: GTRAIN.J },
@@ -2403,14 +2406,14 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       const now = r === cur && s < 300;
       return '<div class="fb' + (now ? ' now' : s >= r.to ? ' done' : '') + '"><span class="rng">Skill ' + r.from + ' → ' + r.to + (now ? ' · you are here' : '') + '</span><span class="nm">' + r.nm + '</span>' +
         line("Horde", r.h) + line("Alliance", r.a) + line(r.h ? "Both" : "Where", r.b) + (r.note ? '<span class="fl muted">' + r.note + '</span>' : '') +
-        (r.t ? '<span class="fl ftr"><b>At ' + r.t.at + ', get ' + r.t.nm + '</b>' + (r.t.lvl ? ' (level ' + r.t.lvl + ')' : '') + ': ' + (r.t.how || 'any ' + G.title.toLowerCase() + ' trainer in a capital (starting-zone trainers stop at 75).') + '</span>' : '') + '</div>';
+        (r.t ? '<span class="fl ftr"><b>At ' + r.t.at + ', get ' + r.t.nm + '</b>' + (r.t.lvl ? ' (level ' + r.t.lvl + ')' : '') + ': ' + npcText(r.t.how || 'any ' + G.title.toLowerCase() + ' trainer in a capital (starting-zone trainers stop at 75).') + '</span>' : '') + '</div>';
     }).join("");
     $("fishNotes").innerHTML = G.notes.map(n => '<li>' + n + '</li>').join('');
     off($("fishBuySec"), !G.buy.length);
     const bonus = G.buy.some(b => b[1]);
     $("fishBuy").innerHTML = '<thead><tr><th>Item</th>' + (bonus ? '<th class="r">Bonus</th><th class="r">From skill</th>' : '') + '<th>Where</th><th class="r">Price</th></tr></thead><tbody>' +
       G.buy.map(([id, b, from, where]) => { const u = price(id);
-        return '<tr><td>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</td>' + (bonus ? '<td class="r num">' + b + '</td><td class="r num">' + from + '</td>' : '') + '<td>' + where + '</td><td class="r">' + (u ? coin(u.c) + ' <span class="srcb ' + u.src + '">' + (u.src === "ah" ? "AH" : u.src) + '</span>' : '<span class="muted">—</span>') + '</td></tr>'; }).join("") + '</tbody>';
+        return '<tr><td>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</td>' + (bonus ? '<td class="r num">' + b + '</td><td class="r num">' + from + '</td>' : '') + '<td>' + nx(where) + '</td><td class="r">' + (u ? coin(u.c) + ' <span class="srcb ' + u.src + '">' + (u.src === "ah" ? "AH" : u.src) + '</span>' : '<span class="muted">—</span>') + '</td></tr>'; }).join("") + '</tbody>';
   }
   // skill from the Gear Snapshot file's skill list (gathering and Fishing have no recipe window)
   function skillFromFile(k) { const g = KNOWN.get(); return g && g.skills && +g.skills[LABEL(k)] || 0; }

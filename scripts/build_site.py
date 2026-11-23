@@ -120,6 +120,7 @@ def head_tags(title, desc, path, og=None):
         '<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>',
         '<link rel="stylesheet" href="/assets/site.css">',
         '<script src="/assets/site.js" defer></script>',
+        '<script src="/assets/npc.js" defer></script>',
         SPECULATION,
     ]
     if CF_BEACON:
@@ -375,6 +376,8 @@ CREDITS = [
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'The auction house scans every price on this site comes from, including the file you load yourself.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
+    ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC stands, for the NPC cards (hover a name) and the Level 1-60 route (GPL-3.0).'),
+    ('AzerothCore', 'https://www.azerothcore.org/', 'Which game model each NPC uses, so the NPC cards can show Blizzard\'s picture of it (AGPL-3.0 data).'),
     ('OpenMap addon', 'https://github.com/openmap-world/openmap', 'The list of the game\'s dungeon map files and the boss spots in Lower Blackrock Spire, on Dungeons (MIT licence, /dungeons/data/OpenMap-LICENSE.txt). The maps are Blizzard\'s own.'),
 ]
 

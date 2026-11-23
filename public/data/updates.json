@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Point at an NPC to see where they stand",
+    "text": "On Profession leveling, NPC names (trainers, vendors, quest givers) now open a card with their picture, town and a map with a marker. Tap a name on a phone. Once the site knows your race, you only see your own faction's NPCs.",
+    "image": "/assets/updates/2026-11-23-npc-cards.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Profession leveling: vendor prices per item",
     "text": "\"Sell to vendor\" now shows what a vendor pays for one item, like the in-game tooltip. Before, recipes that make several items at once (like Anti-Venom, which makes 3) showed the price of all of them.",
     "image": "/assets/updates/2026-11-23-vendor-price-each.webp",
