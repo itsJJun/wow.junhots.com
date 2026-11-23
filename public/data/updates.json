@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "The game's own icons",
+    "text": "Prices show gold, silver and copper coins. Quests, dungeons, vendors, trainers and the auction house have their in-game icons.",
+    "image": "/assets/updates/2026-11-22-game-icons.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Level 1-60 route",
     "text": "A new Leveling page: every quest from level 1 to 60 in order for your race and class, on the zone map, with flights, trainer visits and every dungeon at the right level (with the boss to kill for Legacy points). Load Questie and it starts where you are.",
     "image": "/assets/updates/2026-11-22-level-route.webp",

@@ -2054,7 +2054,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const key = S.prof + ":" + sg.from + ":" + r.id, done = !!(S.bought || {})[key], toBuy = rows.filter(x => x.buy > 0), tot = toBuy.reduce((a, x) => a + x.c, 0) + us.reduce((a, u) => a + u.cost, 0);
     const covered = rows.filter(x => x.have > 0);
     const chips = toBuy.map(x => '<span class="mat">' + icon(itemIcon(x.id), "sm") + '<span class="num">' + fmtN(x.buy) + '×</span> ' + esc(itemName(x.id)) +
-      (x.u && x.u.src === "vendor" ? ' <span class="srcb vendor">Vendor</span>' : ' ' + MKT.pill(x.id)) + (x.have > 0 ? ' <span class="have">+' + fmtN(x.have) + ' in bags</span>' : '') + '</span>').join("");
+      (x.u && x.u.src === "vendor" ? ' <span class="srcb vendor">' + GI('vendor') + 'Vendor</span>' : ' ' + MKT.pill(x.id)) + (x.have > 0 ? ' <span class="have">+' + fmtN(x.have) + ' in bags</span>' : '') + '</span>').join("");
     const pats = us.map(u => '<span class="mat" title="' + (u.rod ? 'Make this rod once before the step: ' + coinTxt(u.cost) + ' in materials' : 'Buy this ' + PROFS[S.prof].pat + ' once: ' + coinTxt(u.cost)) + '">' + (u.rod ? esc(u.rod) : PROFS[S.prof].pat.replace(/^./, c => c.toUpperCase())) + ' <span class="srcb vendor">' + coinTxt(u.cost) + '</span></span>').join("");
     return '<div class="buyrow' + (done ? ' done' : '') + '"><span class="lbl">Buy</span>' + pats +
       (toBuy.length ? chips : us.length ? '' : '<span class="none">Nothing to buy: your bags cover this step</span>') +
@@ -2162,9 +2162,11 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     while (ri < ranks.length) { h += trainStep(ranks[ri], trainerAt, extra(ranks[ri])); ri++; }
     return h;
   }
+  // The game's own icons (site.css .wf-i, /assets/ui/): trainer, vendor, auctioneer
+  function GI(k) { return '<i class="wf-i wf-i-' + k + '"></i>'; }
   function trainStep(rank, trainerAt, extra) {
     const where = rank.how || trainerAt(rank.name);
-    return '<article class="step train"><div class="shead"><div class="t"><span class="rng">At skill ' + rank.at + '</span><span class="nm">' + (rank.how ? 'Get ' : 'Train ') + rank.name + ' ' + PROFS[S.prof].label + '</span></div><div class="right"><span class="pill acc">cap ' + rank.cap + '</span></div></div>' +
+    return '<article class="step train"><div class="shead"><div class="t"><span class="rng">At skill ' + rank.at + '</span><span class="nm">' + (rank.how ? 'Get ' : GI('trainer') + 'Train ') + rank.name + ' ' + PROFS[S.prof].label + '</span></div><div class="right"><span class="pill acc">cap ' + rank.cap + '</span></div></div>' +
       '<p class="stepnote"><span>You can\'t go past ' + rank.prev + ' without it.' + (rank.lvl ? ' Needs character level ' + rank.lvl + '.' : '') + (where ? ' ' + where + '.' : ' Any ' + PROFS[S.prof].label.toLowerCase() + ' trainer in a capital city.') + (rank.how ? '' : ' Learn the new recipes listed in the next steps while you are there.') + '</span></p>' + (extra || '') + '</article>';
   }
 
@@ -2189,7 +2191,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       (boltsOf[id] || []).forEach(bid => { const bu = price(bid); if (bu) ownTot += bu.c * bolts[bid].have; });
       h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span>' + (boltsOf[id] || []).map(boltLine).join('') + '</td><td class="r num">' + fmtN(n.q) + '</td>' +
         '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td><td class="r num">' + (buy ? fmtN(buy) : '<span class="muted">none</span>') + '</td>' +
-        '<td>' + (u ? '<span class="srcb ' + u.src + '">' + ({ ah: "AH", vendor: "Vendor", est: "est", you: "You", craft: "Craft" }[u.src]) + '</span>' : "") + '</td>' +
+        '<td>' + (u ? '<span class="srcb ' + u.src + '">' + ({ ah: GI('ah') + "AH", vendor: GI('vendor') + "Vendor", est: "est", you: "You", craft: "Craft" }[u.src]) + '</span>' : "") + '</td>' +
         '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>';
     });
     const t = total(pl);
@@ -2207,9 +2209,9 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       const ids = Object.keys(a); if (!ids.length) return;
       blocks.push('<div class="rg"><div class="rgh"><b>Skill ' + Math.max(lo, pl.from) + '–' + Math.min(hi, pl.to) + '</b><span>' + coin(c) + '</span></div><ul>' +
         ids.sort((x, y) => a[y] - a[x]).map(id => { const u = price(id); return '<li>' + icon(itemIcon(id), "sm") + '<span>' + fmtN(a[id]) + '× ' + esc(itemName(id)) + '</span>' +
-          (u && u.src === "vendor" ? '<span class="srcb vendor" title="Sold by a supplies vendor: cheaper than the auction house">Vendor</span>' : '') + '</li>'; }).join('') + '</ul></div>');
+          (u && u.src === "vendor" ? '<span class="srcb vendor" title="Sold by a supplies vendor: cheaper than the auction house">' + GI('vendor') + 'Vendor</span>' : '') + '</li>'; }).join('') + '</ul></div>');
     });
-    $("shopRanges").innerHTML = blocks.length > 1 ? '<h3 class="rgt">By skill range</h3><p class="hint" style="margin:0 0 6px">Buy one block at a time (totals are materials only; patterns and rods are in the table above). <span class="srcb vendor">Vendor</span> items (thread, dye, Mote of Magic, vials) come from the supplies vendor next to the trainer: don\'t buy them on the auction house.</p><div class="rgs">' + blocks.join('') + '</div>' : '';
+    $("shopRanges").innerHTML = blocks.length > 1 ? '<h3 class="rgt">By skill range</h3><p class="hint" style="margin:0 0 6px">Buy one block at a time (totals are materials only; patterns and rods are in the table above). <span class="srcb vendor">' + GI('vendor') + 'Vendor</span> items (thread, dye, Mote of Magic, vials) come from the supplies vendor next to the trainer: don\'t buy them on the auction house.</p><div class="rgs">' + blocks.join('') + '</div>' : '';
     $("mktNote").innerHTML = 'Timing: <span class="mkt low">Buy now</span> <span class="mkt wait">Wait</span> <span class="mkt">No signal</span> (buy only what the next steps need). From how many players are at the levels where each material drops, a rule of thumb; hover or tap a tag for the numbers. ' + MKT.note;
     $("shop").querySelectorAll(".have-in").forEach(inp => inp.onchange = () => { const v = Math.max(0, Math.floor(+inp.value || 0)); if (v) S.have[inp.dataset.id] = v; else delete S.have[inp.dataset.id]; save(); render(); });
     $("useHave").checked = !!S.useHave;

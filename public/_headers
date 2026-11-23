@@ -10,6 +10,9 @@
 /assets/icons/*
   Cache-Control: public, max-age=604800
 
+/assets/ui/*
+  Cache-Control: public, max-age=604800
+
 /assets/updates/*
   Cache-Control: public, max-age=604800
 
