@@ -132,6 +132,23 @@ a { color: var(--accent); }
 .tag { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 0 6px; border-radius: 99px; border: 1px solid var(--line2); color: var(--muted); margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
 .tag.lv { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
 .tag.add { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+/* Optional quests switch (far-off journal quests): one color everywhere, dashed = optional */
+:root { --opt: #3fb6d8; }
+:root[data-theme="light"] { --opt: #0b7fa6; }
+.tag.of { color: #fff; background: var(--opt); border-color: var(--opt); }
+.optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
+.optsw input { appearance: none; width: 28px; height: 16px; border-radius: 99px; background: var(--line2); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+.optsw input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: left .15s; }
+.optsw input:checked { background: var(--opt); }
+.optsw input:checked::after { left: 14px; }
+.optsw.on { border-style: solid; background: color-mix(in srgb, var(--opt) 14%, transparent); }
+.optsw .oc { color: var(--muted); font-size: 12px; }
+.optsw.on .oc { color: var(--opt); font-weight: 600; }
+.stop.isopt { box-shadow: inset 3px 0 0 var(--opt); }
+.optrip { display: block; color: var(--opt); font-size: 12px; font-weight: 600; margin: 2px 0 0; }
+.leg.opt { color: var(--opt); }
+.pin.opt circle:not(.ring) { stroke: var(--opt) !important; stroke-width: .42; stroke-dasharray: .55 .35; }
+.dt .ofq { display: block; color: var(--opt); font-size: 12px; }
 .leg { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink); padding: 1px 4px 1px 10px; }
 .leg .ar { color: var(--good); }
 .leg .mn { margin-left: auto; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
@@ -798,6 +815,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <label>Class <select id="cls"></select></label>
     <label id="startWrap">Start <select id="start"></select></label>
     <label id="charWrap" class="hidden">Character <select id="char"></select></label>
+    <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
   </div>
   <div class="status">
     <span id="qStat">Quests done: <label class="load" for="questieFile">load Questie.lua</label></span><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
@@ -836,6 +854,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <h2>How it works</h2>
   <ul>
     <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups and pre-quests are added (marked <span class="tag add">added</span>).</li>
+    <li><b>Optional quests:</b> dungeon quests that start far off the route are left out. Turn on <b>Optional quests</b> to take them: the route changes to fit, and their lines are marked <span class="tag of">optional</span>.</li>
     <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. Started mid-way? Pick your stop (or search a quest) and press <b>Tick all before this</b>. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
     <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
@@ -1144,6 +1163,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var M, T, R, MAPS = new Set(), AREA2UM = {}, UMZ = {};
   var plan, rows = [], chaps = [], stops = [], duns = [], doneQ = new Set(), ticks = {}, known = null, charData = null;
   var bandSel = null, full = ls.get('lr.full') === '1', openRuns = new Set();
+  var optOn = ls.get('lr.opt') === '1';   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
   var view = null, viewKey = '', mapSvg = null, mapFit = null, mapArrow = null;
   var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false;
   // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
@@ -1260,7 +1280,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
       if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i]) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
-      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !plan.travel[i] && !prev.s.nl && !s.nl &&
+      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && !plan.travel[i] && !prev.s.nl && !s.nl &&
           (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
         (prev.more = prev.more || []).push({ i: i, s: s });
       } else rows.push({ k: 'step', i: i, s: s });
@@ -1412,9 +1432,20 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
     var fix = R.issues.filter(function (x) { return x.g && /^added|not-for-you|moved/.test(x.k); }).length;
     $('sum').innerHTML = fix ? '<span>' + fix + ' fixes to the guide for your race and class</span>' : '';
-    drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
+    drawOpt(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
   }
 
+  // far-off journal quests the switch would add, under their dungeon (only while it is off)
+  function farOf(name) {
+    if (optOn || !R.far) return '';
+    return R.far.filter(function (f) { return f[1] === name; }).map(function (f) { return '<span class="ofq"><span class="tag of">optional</span> ' + esc(qn(f[0])) + (f[2] ? ' (starts in ' + esc(f[2]) + ')' : '') + '</span>'; }).join('');
+  }
+  function drawOpt() {
+    var o = R.opt, w = $('optWrap');
+    if (!o || !o.all) { w.classList.add('hidden'); return; }
+    w.classList.remove('hidden'); w.classList.toggle('on', optOn); $('optSw').checked = optOn;
+    $('optCost').textContent = (optOn ? 'on: ' : '') + '+' + o.all + ' optional quests' + (o.s ? ' · +' + Math.round(o.s / 360) / 10 + ' h travel' : '');
+  }
   function drawDuns() {
     if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
     $('dunSec').classList.remove('hidden');
@@ -1423,7 +1454,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
       return '<tr><td>' + esc(d.name) + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
-        (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + '</td><td>' +
+        (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + farOf(d.name) + '</td><td>' +
         (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
           : d.stop ? '<button class="go" data-go="' + d.stop.gi + '" type="button">' + esc(d.stop.ch.name) + ' →</button>' : '') + '</td></tr>';
     }).join('') + '</table>';
@@ -1454,8 +1485,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (r.k === 'fp') txt = wi(fly()) + 'Get the flight path <span class="tag add">on the way</span>';
     else {
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
-      if (s.ad) tags += '<span class="tag add" title="' + esc(s.ad) + '">' + (s.ad === 'Class quest' ? 'class quest' : 'added') + '</span>';
-      if (s.op) tags += '<span class="tag">optional</span>';
+      if (s.ad && !s.of) tags += '<span class="tag add" title="' + esc(s.ad) + '">' + (s.ad === 'Class quest' ? 'class quest' : 'added') + '</span>';
+      if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
+      else if (s.op) tags += '<span class="tag">optional</span>';
       if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
@@ -1471,15 +1503,25 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return '<li class="' + (dn ? 'ck' : '') + (miss ? ' miss' : '') + '"><input type="checkbox" data-r="' + r.n + '"' + (dn ? ' checked' : '') + ' aria-label="done"><span>' + txt + '</span><span class="xp">' + xp + '</span></li>';
   }
 
+  // a stop with optional steps: one plain line saying so, with the trip there and the XP
+  var optStop = function (st) { var q = st.rows.filter(function (r) { return r.s && r.s.q; }); return q.length && q.every(function (r) { return r.s.of; }); };
+  function optTrip(st) {
+    if (!optStop(st)) return '';
+    var it = st.ch.items, k = it.findIndex(function (x) { return x.st === st; }), leg = k > 0 && it[k - 1].k === 'leg' ? it[k - 1].r.tr : null;
+    var xp = 0, qs = [];
+    st.rows.forEach(function (r) { [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (!s || !s.of) return; if (s.t === 'turnin') xp += s.xp || 0; if (qs.indexOf(s.q) < 0) qs.push(s.q); }); });
+    return '<span class="optrip">Optional trip' + (leg ? ' · ' + mins(leg.secs) + ' travel' : '') + (xp ? ' · +' + xp.toLocaleString() + ' xp' : '') + '</span>';
+  }
   function stopHtml(st, c, rdy) {
     var dn = stopDone(st), cls = 'stop';
       if (dn) cls += ' done';
       if (st === hereStop) cls += ' here'; else if (nextSet.has(st)) cls += ' nx';
       if (st === sel) cls += ' sel';
       if (st.loc && st.loc.dun) cls += ' isdun';
+      var ot = optTrip(st); if (ot) cls += ' isopt';
       var where = st.loc && st.loc.x != null && !st.loc.dun ? (st.loc.um !== curZone || c.zones.length > 1 ? umName(st.loc.um) + ' ' : '') + st.loc.x.toFixed(1) + ', ' + st.loc.y.toFixed(1) : st.loc && st.loc.dun ? 'inside' : '';
     return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b>' +
-        (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' +
+        (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' + ot +
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
         '<ul>' + st.rows.map(line).join('') + '</ul>' +
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
@@ -1493,8 +1535,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var h = ['<div class="chap"><h3>' + esc(c.name) + '</h3><div class="meta">Level ' + fl(c.lv1) + ' to ' + fl(c.lv2) + (c.part ? ' · guide part ' + esc(c.part) : '') + '</div>' +
       c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
     var legHtml = function (r) {
-      var tx = r.tr.text;
-      return '<div class="leg">' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
+      var tx = r.tr.text, k = c.items.findIndex(function (x) { return x.r === r; }), nx = c.items[k + 1];
+      return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '">' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
     };
     var mini = function (st) {
       return '<div class="stop done mini' + (st === sel ? ' sel' : '') + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '" checked aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b></div></div>';
@@ -1645,7 +1687,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var order = { done: 0, later: 1, next: 2, here: 3 };
     cl.sort(function (a, b) { return order[a.state] - order[b.state]; }).forEach(function (k) {
       var r = { here: 2.05, next: 1.75, later: 1.3, done: 0.5 }[k.state];
-      var g = el('g', { class: 'pin ' + k.state + (k.dun ? ' dun' : '') + (k.st.indexOf(sel) >= 0 ? ' sel' : ''), 'data-st': k.rep.gi, 'data-x': k.loc.x, 'data-y': k.loc.y * AR });
+      var g = el('g', { class: 'pin ' + k.state + (k.dun ? ' dun' : '') + (optStop(k.rep) ? ' opt' : '') + (k.st.indexOf(sel) >= 0 ? ' sel' : ''), 'data-st': k.rep.gi, 'data-x': k.loc.x, 'data-y': k.loc.y * AR });
       var tl = el('title', {}); tl.textContent = k.st.map(function (s) { return s.num + '. ' + s.title + (stopDone(s) ? ' (done)' : ''); }).join('\n'); g.appendChild(tl);
       if (k.state === 'here') g.appendChild(el('circle', { class: 'ring', cx: 0, cy: 0, r: 3.1 }));
       if (k.dun) g.appendChild(el('rect', { x: -r, y: -r, width: 2 * r, height: 2 * r, rx: .5 }));
@@ -1836,16 +1878,33 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   $('race').onchange = function () { ls.set('lr.race', this.value); fillCls($('cls').value); };
   $('cls').onchange = function () { ls.set('lr.cls', this.value); loadRoute(); };
   $('char').onchange = function () { useChar(this.value); };
-  function loadRoute() {
-    var race = $('race').value, cls = $('cls').value, id = startOf(race) + '-' + race + '-' + cls;
+  function loadRoute(carry) {
+    var race = $('race').value, cls = $('cls').value, id = startOf(race) + '-' + race + '-' + cls + (optOn ? '-opt' : '');
     ls.set('lr.race', race); ls.set('lr.cls', cls);
     $('side').innerHTML = '<div class="muted">Loading…</div>';
     fetch(BASE + 'routes/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) {
+      var old = carry && R ? { steps: R.steps, ticks: ticks } : null;
       R = j; try { ticks = JSON.parse(ls.get('lr.ticks.' + id) || '{}'); } catch (e) { ticks = {}; }
+      if (old) { ticks = {}; carryTicks(old); saveTicks(); undoTicks = null; }   // your progress is the version you were on
       cur = 0; sel = null; curZone = null; jumped = false;
       render();
     }).catch(function () { $('side').innerHTML = '<div class="muted">Could not load this route.</div>'; });
   }
+  // switching versions: your ticks follow you. Quest lines match by quest; other lines (trainer, flight path,
+  // hearth) count as done when the quest lines around them are.
+  function carryTicks(old) {
+    var had = new Set();
+    old.steps.forEach(function (s, i) { if (s.q && old.ticks[i + ':' + s.t]) had.add(s.q + ':' + s.t); });
+    if (!had.size) return;
+    var q = R.steps.map(function (s) { return s.q ? had.has(s.q + ':' + s.t) : null; });
+    var prev = null, next = [];
+    for (var i = q.length - 1, n = null; i >= 0; i--) { if (q[i] !== null) n = q[i]; next[i] = n; }
+    R.steps.forEach(function (s, i) {
+      if (q[i] !== null) { if (q[i]) ticks[i + ':' + s.t] = 1; prev = q[i]; return; }
+      if (prev && next[i]) { ticks[i + ':' + s.t] = 1; ticks['fp' + i] = 1; }
+    });
+  }
+  $('optSw').onchange = function () { optOn = this.checked; ls.set('lr.opt', optOn ? '1' : '0'); loadRoute(true); };
   fileInput('questieFile', loadQuestie);
   fileInput('spfFile', loadSPF);
   Promise.all(['route-meta.json', 'travel.json', 'maps.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
