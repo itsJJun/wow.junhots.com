@@ -822,8 +822,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 </section>
 
 <section class="card" id="nextCard">
-  <div class="nhd"><h2 data-wf-name="Next">Next stop <span class="muted" id="nwhere"></span></h2>
-    <div class="nbtn"><button class="btn" id="backBtn" type="button">Back</button><button class="btn main" id="doneBtn" type="button">Done, next stop</button></div></div>
+  <div class="nhd"><h2 data-wf-name="Next"><span id="nlab">Next stop</span> <span class="muted" id="nwhere"></span></h2>
+    <div class="nbtn"><button class="btn" id="startBtn" type="button" hidden title="Started mid-way? Ticks every stop before this one">Tick all before this</button><button class="btn" id="undoBtn" type="button" hidden>Undo</button><button class="btn" id="backBtn" type="button">Back</button><button class="btn main" id="doneBtn" type="button">Done, next stop</button></div></div>
   <div id="nbody"></div>
 </section>
 
@@ -836,11 +836,11 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <h2>How it works</h2>
   <ul>
     <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups and pre-quests are added (marked <span class="tag add">added</span>).</li>
-    <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
+    <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. Started mid-way? Pick your stop (or search a quest) and press <b>Tick all before this</b>. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
     <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
     <li><b>Flights in your file:</b> Shortest Path Forever saves them after you open a flight master's map once on each continent, then /reload.</li>
-    <li><b>Dungeon ready:</b> the stop where you have every quest for the next dungeon.</li>
+    <li><b>Dungeon ready:</b> the stop where you have every quest for that dungeon.</li>
     <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
     <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level.</li>
     <li><b>Quests done</b> come from Questie.lua (account SavedVariables folder).</li>
@@ -1399,6 +1399,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function render() {
     if (!R) return;
     build(); group(); dungeons(); findHere();
+    if (sel) sel = stops[sel.gi] || null;   // stops were rebuilt: same place, new object
     if (!jumped && hereStop) { cur = hereStop.ch.idx; sel = hereStop; curZone = null; bandSel = null; jumped = true; }
     if (cur >= chaps.length) cur = 0;
     var nq = R.steps.filter(function (s) { return s.t === 'turnin'; }).length;
@@ -1431,7 +1432,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function drawTabs() {
     var bands = {};
     chaps.forEach(function (c) { var b = Math.min(5, Math.floor(c.lv1 / 10)); (bands[b] = bands[b] || []).push(c); });
-    var rd = new Set(duns.filter(function (d) { return d.ready && !d.done; }).map(function (d) { return d.ready.ch; }));
+    var rd = new Map();   // part -> dungeons you have every quest for there
+    duns.forEach(function (d) { if (d.ready && !d.done) { if (!rd.has(d.ready.ch)) rd.set(d.ready.ch, []); rd.get(d.ready.ch).push(d.name.replace('Scarlet Monastery: ', 'SM ')); } });
     if (bandSel == null || !bands[bandSel]) bandSel = chaps[cur] ? Math.min(5, Math.floor(chaps[cur].lv1 / 10)) : 0;
     var hb = hereStop ? Math.min(5, Math.floor(hereStop.ch.lv1 / 10)) : -1;
     $('tabs').innerHTML = '<div class="bands">' + Object.keys(bands).map(function (b) {
@@ -1442,7 +1444,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (c.idx === cur) cls += ' on'; else if (n === all) cls += ' done';
       if (hereStop && hereStop.ch === c) cls += ' here';
       return '<button class="' + cls + '" data-ch="' + c.idx + '" type="button">' + esc(c.name) + '<i>' + fl(c.lv1) + (fl(c.lv2) > fl(c.lv1) ? '-' + fl(c.lv2) : '') + '</i>' +
-        (n === all ? '<span class="ck">✓</span>' : '') + (rd.has(c) ? '<span class="rd">● dungeon ready</span>' : '') + '</button>';
+        (n === all ? '<span class="ck">✓</span>' : '') + (rd.has(c) ? '<span class="rd">● ' + esc(rd.get(c).join(', ')) + ' ready</span>' : '') + '</button>';
     }).join('') + '</div>';
   }
 
@@ -1521,7 +1523,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
 
   function drawNext() {
-    var st = hereStop;
+    var st = sel || hereStop;
+    $('nlab').textContent = st && st !== hereStop ? 'Stop' : 'Next stop';
+    var before = st ? stops.slice(0, st.gi).some(function (x) { return !stopDone(x); }) : false;
+    $('startBtn').hidden = !before; $('undoBtn').hidden = !undoTicks;
     if (!st) { $('nbody').innerHTML = '<div class="muted">Route finished. Ding 60!</div>'; $('nwhere').textContent = ''; return; }
     var c = st.ch, rdy = {};
     duns.forEach(function (d) { if (d.ready === st && !d.done) (rdy[st.gi] = rdy[st.gi] || []).push(d); });
@@ -1540,11 +1545,30 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
     if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
     else setTick(rows[+cb.dataset.r], cb.checked);
-    saveTicks(); follow();
+    saveTicks();
+    if (sel && sel !== hereStop) { var g = sel.gi; jumped = true; render(); select(g, false); } else follow();
   });
   // Done: tick the whole stop and move on; the map and list follow you
   function follow() { jumped = false; var keep = $('side').scrollTop; render(); if (hereStop) select(hereStop.gi, true); else $('side').scrollTop = keep; }
-  $('doneBtn').onclick = function () { if (!hereStop) return; hereStop.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); saveTicks(); follow(); };
+  $('doneBtn').onclick = function () {
+    var st = sel || hereStop; if (!st) return; undoTicks = null;
+    st.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); saveTicks();
+    if (st === hereStop) return follow();
+    var nx = stops.slice(st.gi + 1).find(function (x) { return !stopDone(x); });
+    var keep = $('side').scrollTop; render(); if (nx) select(nx.gi, true); else $('side').scrollTop = keep;
+  };
+  // Started mid-way: tick every stop before the one on the card (Undo puts the ticks back)
+  var undoTicks = null;
+  $('startBtn').onclick = function () {
+    var st = sel || hereStop; if (!st) return;
+    undoTicks = JSON.stringify(ticks);
+    stops.slice(0, st.gi).forEach(function (x) { x.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); });
+    saveTicks(); var g = st.gi; jumped = true; render(); select(g, true);
+  };
+  $('undoBtn').onclick = function () {
+    if (!undoTicks) return; ticks = JSON.parse(undoTicks); undoTicks = null; saveTicks();
+    var g = sel ? sel.gi : null; jumped = true; render(); if (g != null) select(g, true);
+  };
   $('backBtn').onclick = function () {
     var from = hereStop ? hereStop.gi - 1 : stops.length - 1;
     for (var j = from; j >= 0; j--) {
@@ -1721,7 +1745,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     sel = st;
     if (st.ch.idx !== cur) { cur = st.ch.idx; curZone = null; bandSel = null; drawTabs(); }
     if (st.loc && st.loc.um != null && MAPS.has(st.loc.um)) curZone = st.loc.um;
-    drawChapter();
+    drawChapter(); drawNext();
     var e = $('st' + gi);
     if (e && scroll) {
       var side = $('side');
@@ -1729,13 +1753,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       else e.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
   }
+  function firstOpen(c) { return c ? c.stops.find(function (x) { return !stopDone(x); }) || c.stops[0] : null; }
   function goStop(gi) { select(gi, true); $('split').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
   // ---- clicks
   $('tabs').addEventListener('click', function (e) {
     var bb = e.target.closest('[data-band]'); if (bb) { bandSel = +bb.dataset.band; drawTabs(); return; }
     var b = e.target.closest('[data-ch]'); if (!b) return;
-    cur = +b.dataset.ch; curZone = null; sel = null; drawTabs(); drawChapter(); $('side').scrollTop = 0;
+    cur = +b.dataset.ch; curZone = null; sel = firstOpen(chaps[cur]); drawTabs(); drawChapter(); drawNext(); $('side').scrollTop = 0;
   });
   $('side').addEventListener('click', function (e) {
     var fb = e.target.closest('[data-full]');
@@ -1743,7 +1768,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var rb = e.target.closest('[data-run]');
     if (rb) { openRuns.add(+rb.dataset.run); drawChapter(); return; }
     var b = e.target.closest('[data-ch]');
-    if (b) { cur = +b.dataset.ch; curZone = null; sel = null; drawTabs(); drawChapter(); $('side').scrollTop = 0; $('split').scrollIntoView({ block: 'start' }); return; }
+    if (b) { cur = +b.dataset.ch; curZone = null; sel = firstOpen(chaps[cur]); drawTabs(); drawChapter(); drawNext(); $('side').scrollTop = 0; $('split').scrollIntoView({ block: 'start' }); return; }
     var cb = e.target.closest('input[type=checkbox]');
     if (cb) {
       if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
