@@ -1223,14 +1223,16 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       }).join('') + '</div>');
       h.push('<div class="dgm-map"><img src="' + base + f.img + '" alt="' + esc(d.n) + ' map' + (f.nm ? ': ' + esc(f.nm) : '') + '" width="1002" height="668" loading="lazy">');
       (d.me || []).forEach(function (e) {
-        if (e[0] - 1 === cur) h.push('<span class="dgm-in" style="left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3] === 'Way in' ? 'In' : e[3].split(' ')[0]) + '</span>');
+        if (e[0] - 1 !== cur) return;
+        var c = { Orange: '#d9822b', Purple: '#8e5bd6' }[e[3].split(' ')[0]];   // Maraudon's coloured doors
+        h.push('<span class="dgm-in" style="' + (c ? 'background:' + c + ';' : '') + 'left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3]) + '</span>');
       });
       (d.mt || []).forEach(function (t) {
         if (t[0] - 1 === cur && fl[t[1] - 1]) h.push('<button type="button" class="dgm-to" data-fl="' + (t[1] - 1) + '" style="left:' + t[2] * 100 + '%;top:' + t[3] * 100 + '%" title="To ' + esc(fl[t[1] - 1].nm || 'floor ' + t[1]) + '">' + (t[1] > t[0] ? '↓' : '↑') + '</button>');
       });
       d.b.forEach(function (b, i) {
         if (!b.p || b.p[0] - 1 !== cur) return;
-        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" title="' + esc(b.n + (b.lv ? ' · level ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
+        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" aria-label="' + esc(b.n) + '" data-n="' + esc(b.n + (b.lv ? ' · ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
       });
       h.push('</div>');
       el.innerHTML = h.join('');
@@ -1255,6 +1257,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
     '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
     '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
+    '.dgm-pin:hover::after,.dgm-pin.hot::after,.dgm-pin.sel::after{content:attr(data-n);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:5px;background:rgba(20,17,13,.92);color:#f3d9a4;font:600 11.5px/1.3 Inter,system-ui,sans-serif;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.5)}' +
     '.dgm-in{position:absolute;transform:translate(-50%,-50%);padding:0 6px;height:18px;border-radius:5px;background:#3f9d52;color:#fff;font:700 10.5px/18px Inter,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:auto}' +
     '.dgm-to{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;padding:0;border:0;border-radius:5px;background:#2f6fb0;color:#fff;font:700 12px/20px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5)}';
 })();
