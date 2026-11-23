@@ -1197,13 +1197,15 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     "Vizzklick": "Gadgetzan, Tanaris, both factions"
   };
   const PATDAY = PATSCAN ? new Date(PATSCAN * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "";
+  // The game's own icons (site.css .wf-i, /assets/ui/): trainer, vendor, auctioneer
+  const GI = k => '<i class="wf-i wf-i-' + k + '"></i>';
   // one plain line: how to get a recipe you don't have yet, and what it costs
   function getHtml(r) {
     const p = PATSRC[r.id]; if (!p) return "";
     let t;
-    if (p.k === "t") t = "Tailoring trainer, skill " + p.l;
-    else if (p.k === "v") t = "<b>" + coin(p.b) + "</b> from " + p.v.map(n => "<b>" + esc(n) + "</b>" + (VPLACE[n] ? " (" + esc(VPLACE[n]) + ")" : "")).join(" or ");
-    else if (p.k === "a") t = "monster drop (no vendor). Auction house about <b>" + coin(p.b) + "</b>" + (p.q ? ", " + p.q + " listed" : "");
+    if (p.k === "t") t = GI("trainer") + "Tailoring trainer, skill " + p.l;
+    else if (p.k === "v") t = GI("vendor") + "<b>" + coin(p.b) + "</b> from " + p.v.map(n => "<b>" + esc(n) + "</b>" + (VPLACE[n] ? " (" + esc(VPLACE[n]) + ")" : "")).join(" or ");
+    else if (p.k === "a") t = "monster drop (no vendor). " + GI("ah") + "Auction house about <b>" + coin(p.b) + "</b>" + (p.q ? ", " + p.q + " listed" : "");
     else t = "monster drop (no vendor), none on the auction house";
     if (p.rep) t += ", needs " + esc(p.rep);
     return '<div class="rget"><b>Get it:</b> ' + t + '</div>';
@@ -1503,7 +1505,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
       if (!pl.ok) html += '<p class="pill bad">Some materials have no price yet.</p>';
       const buys = Object.entries(pl.buy);
       if (n > 0) {
-        html += '<ul class="buy">' + (buys.length ? buys.map(([mid, b]) => '<li><label><input type="checkbox"><span class="q">' + b.qty + '</span><span>' + esc(names[mid] || mid) + ' <span class="src ' + (b.src || "") + '">' + (b.src === "AH" ? "Auction house" : b.src === "Vendor" ? "Vendor" : "no price") + '</span>' + (b.unit !== null ? ' <span class="muted small">' + coin(b.unit) + ' each</span>' : '') + '</span><span>' + coin(b.unit !== null ? Math.ceil(b.qty * b.unit) : null) + '</span></label></li>').join("") : '<li class="muted small" style="padding:6px">Nothing to buy: you have everything.</li>') +
+        html += '<ul class="buy">' + (buys.length ? buys.map(([mid, b]) => '<li><label><input type="checkbox"><span class="q">' + b.qty + '</span><span>' + esc(names[mid] || mid) + ' <span class="src ' + (b.src || "") + '">' + (b.src === "AH" ? GI("ah") + "Auction house" : b.src === "Vendor" ? GI("vendor") + "Vendor" : "no price") + '</span>' + (b.unit !== null ? ' <span class="muted small">' + coin(b.unit) + ' each</span>' : '') + '</span><span>' + coin(b.unit !== null ? Math.ceil(b.qty * b.unit) : null) + '</span></label></li>').join("") : '<li class="muted small" style="padding:6px">Nothing to buy: you have everything.</li>') +
           Object.entries(pl.crafts).map(([cid, q]) => '<li><label><input type="checkbox"><span class="q">' + q + '</span><span>Craft ' + esc(names[cid]) + '</span><span></span></label></li>').join("") +
           '<li><label><input type="checkbox"><span class="q">' + n + '</span><span>Craft ' + esc(r.n) + '</span><span></span></label></li></ul>';
         const usedTxt = Object.entries(pl.used).map(([mid, q]) => q + " " + esc(names[mid])).join(", ");
@@ -1619,7 +1621,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     if (!rows.length) { $("rows").innerHTML = '<tr><td colspan="7" class="empty">' + (S.q.trim() ? "Nothing matches \u201c" + esc(S.q.trim()) + "\u201d. Try part of the name, like \u201cshirt\u201d or \u201cwool\u201d." : S.knownOnly ? (S.known.size ? "None of yours here. Turn on more cloth types." : "None ticked yet. Load your game files, or tick \u201cI have it\u201d.") : "Pick at least one cloth type.") + '</td></tr>'; return; }
     $("rows").innerHTML = rows.map(x => {
       const id = x.r.id, open = S.open.has(id);
-      const way = x.bestWay === null ? '<span class="pill mute">missing price</span>' : x.best < 0 ? '<span class="pill bad">loses money</span>' : '<span class="best">' + (x.bestWay === "AH" ? "Auction house" : "Vendor") + '</span>';
+      const way = x.bestWay === null ? '<span class="pill mute">missing price</span>' : x.best < 0 ? '<span class="pill bad">loses money</span>' : '<span class="best">' + (x.bestWay === "AH" ? GI("ah") + "Auction house" : GI("vendor") + "Vendor") + '</span>';
       return '<tr class="rec ' + cls(x.best) + '" data-id="' + id + '" aria-expanded="' + open + '">' +
         '<td style="width:44px"><button class="star" type="button" data-star="' + id + '" aria-pressed="' + S.known.has(id) + '" aria-label="I have the ' + esc(x.r.n) + ' pattern" title="Tick if you already know this recipe"><span class="bx">\u2713</span>' + (S.known.has(id) ? "have" : "") + '</button></td>' +
         '<td><div class="rname">' + ricon(id) + esc(x.r.n) + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</div><div class="rmeta">' + x.r.r.map(([a, q]) => q + " " + esc(names[a])).join(", ") + skillTag(x.r) + '</div>' + (S.known.has(id) ? '' : getHtml(x.r)) + '</td>' +

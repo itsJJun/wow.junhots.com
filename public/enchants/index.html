@@ -1079,8 +1079,11 @@ const S = { skill: (window.WFCHAR && WFCHAR.get().enchanting) || LS('skill', D.s
   cat: 'enchants', stat: 'all', grp: LS('grpStat', true), q: '', canOnly: false, hideHave: false, sort: 'learn', dir: 1 };
 const byId = {}; D.ench.forEach(e => { byId[e.id] = e; e.stat = ESTAT.of(e.full); });
 const money = c => { if (c == null) return '<span class="muted">?</span>'; c = Math.round(c); const g = Math.floor(c / 10000), s = Math.floor(c / 100) % 100, cc = c % 100;
-  if (g >= 10) return `<span class="g">${g}g</span>`; if (g) return `<span class="g">${g}g</span> <span class="s">${s}s</span>`;
-  if (s) return `<span class="s">${s}s</span>` + (cc && s < 10 ? ` <span class="c">${cc}c</span>` : ''); return `<span class="c">${cc}c</span>`; };
+  const p = (v, k) => `<span class="${k}">${v}</span><span class="u ${k}">${k}</span>`, w = x => `<span class="coin">${x}</span>`;
+  if (g >= 10) return w(p(g, 'g')); if (g) return w(p(g, 'g') + p(s, 's'));
+  if (s) return w(p(s, 's') + (cc && s < 10 ? p(cc, 'c') : '')); return w(p(cc, 'c')); };
+// The game's own icons (site.css .wf-i, /assets/ui/): where each formula comes from
+const GI = k => `<i class="wf-i wf-i-${k}"></i>`;
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 function fx(e) {
   const t = e.txt || '';
@@ -1092,11 +1095,11 @@ const known = e => KNOWN.has('Enchanting', e.id, e.full);
 const isHave = e => S.have.has(e.id) || known(e);
 function fcost(e) {
   const f = e.f;
-  if (f.kind === 'trainer') return { html: '<span class="muted">Trainer</span>', v: 0 };
-  if (f.kind === 'favor') return { html: f.favor ? `<span class="fav">${f.favor} Merchant's Favor</span>` : '<span class="fav">Merchant\'s Favor</span> <span class="muted">(amount unconfirmed)</span>' + (f.ah ? ` · AH ${money(f.ah)}` : ''), v: (f.favor || 200) * 100 };
-  if (f.kind === 'vendor') return { html: money(f.cost) + (f.ah ? ` <span class="muted">· AH ${money(f.ah)}</span>` : ''), v: f.cost };
+  if (f.kind === 'trainer') return { html: GI('trainer') + '<span class="muted">Trainer</span>', v: 0 };
+  if (f.kind === 'favor') return { html: GI('favor') + (f.favor ? `<span class="fav">${f.favor} Merchant's Favor</span>` : '<span class="fav">Merchant\'s Favor</span> <span class="muted">(amount unconfirmed)</span>' + (f.ah ? ` · AH ${money(f.ah)}` : '')), v: (f.favor || 200) * 100 };
+  if (f.kind === 'vendor') return { html: GI('vendor') + money(f.cost) + (f.ah ? ` <span class="muted">· AH ${money(f.ah)}</span>` : ''), v: f.cost };
   if (f.kind === 'rep') return { html: (f.cost ? money(f.cost) + ' ' : '') + `<span class="muted">${esc(f.rep)}</span>`, v: 1e9 };
-  return { html: f.ah ? 'AH ' + money(f.ah) : '<span class="muted">not on AH</span>', v: f.ah || 1e9 };
+  return { html: f.ah ? GI('ah') + 'AH ' + money(f.ah) : '<span class="muted">not on AH</span>', v: f.ah || 1e9 };
 }
 function trainerText(e) {
   if (e.learn > 225) return 'Trainer: Annora, inside Uldaman (the only Artisan trainer)';

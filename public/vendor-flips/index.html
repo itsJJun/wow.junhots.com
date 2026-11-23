@@ -821,6 +821,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       '<span class="meta">Buy ' + coin(f.m) + ' · vendor ' + coin(f.it[1]) + ' · ' + fmtN(f.q) + ' listed</span>' +
       '<div class="det"><span>Only the cheapest one is sure to cost ' + coin(f.m) + '.</span></div></div>';
   }
+  // The game's own icons (site.css .wf-i, /assets/ui/): profession icons, and where the recipe comes from
+  const GI = k => '<i class="wf-i wf-i-' + k + '"></i>';
+  const HOW_ICON = { Trainer: 'trainer', Vendor: 'vendor', Quest: 'quest' };
   function craftCard(f) {
     const pn = (DATA.profs || {})[f.prof] || f.prof;
     const det = f.parts.map(x => '<span><b>' + x.n + '×</b> ' + esc(nameOf(x.id)) + ' ' + coin(x.b.c) + (x.b.w === 'vendor' ? ' (vendor)' : '') + '</span>');
@@ -829,7 +832,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     det.push('<span>Recipe: ' + esc(f.how === 'Trainer' ? 'trainer' : (f.pat || 'pattern') + ' (' + f.how.toLowerCase() + ')') + '</span>');
     return '<div class="sc">' + icon(f.it) + '<span class="nm q' + f.it[2] + '" title="' + esc(f.name) + '">' + esc(f.name) + '</span>' +
       '<span class="rt"><span class="plus">+' + coin(f.gain) + '</span></span>' +
-      '<span class="meta">' + esc(pn) + ' ' + f.lvl + ' · ' + esc(f.how === 'Trainer' ? 'trainer' : 'recipe: ' + f.how.toLowerCase()) + ' · mats ' + coin(f.cost) + '</span>' +
+      '<span class="meta">' + esc(pn) + ' ' + f.lvl + ' · ' + (HOW_ICON[f.how] ? GI(HOW_ICON[f.how]) : '') + esc(f.how === 'Trainer' ? 'trainer' : 'recipe: ' + f.how.toLowerCase()) + ' · mats ' + coin(f.cost) + '</span>' +
       '<div class="det">' + det.join('') + '</div></div>';
   }
   function render() {
@@ -841,7 +844,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     const counts = {}; F.craft.filter(keep).forEach(f => { counts[f.prof] = (counts[f.prof] || 0) + 1; });
     if (S.prof && !counts[S.prof]) S.prof = '';
     $('profs').innerHTML = '<button class="chip' + (S.prof ? '' : ' on') + '" data-p="">All</button>' +
-      Object.keys(DATA.profs || {}).filter(k => counts[k]).map(k => '<button class="chip' + (S.prof === k ? ' on' : '') + '" data-p="' + k + '">' + esc(DATA.profs[k]) + '<span>' + counts[k] + '</span></button>').join('');
+      Object.keys(DATA.profs || {}).filter(k => counts[k]).map(k => '<button class="chip' + (S.prof === k ? ' on' : '') + '" data-p="' + k + '">' + GI('p-' + k) + esc(DATA.profs[k]) + '<span>' + counts[k] + '</span></button>').join('');
     const craft = F.craft.filter(keep).filter(f => !S.prof || f.prof === S.prof), buy = F.buy.filter(keep);
     $('craftGrid').innerHTML = craft.map(craftCard).join('') || '<span class="empty">No craft flips' + (tiny ? '' : ' over 1s') + ' in this scan.</span>';
     $('buyGrid').innerHTML = buy.map(buyCard).join('') || '<span class="empty">No items under vendor price' + (tiny ? '' : ' by 1s or more') + ' in this scan.</span>';

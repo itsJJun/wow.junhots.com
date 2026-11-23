@@ -1865,15 +1865,18 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   // Booty Bay, Gadgetzan and Everlook are a separate (neutral) auction house, so name the faction one.
   const ahSide = () => AHREC && !/site scan/i.test(AHREC.name || '') && P.faction === 'Alliance' ? 'Alliance' : 'Horde';
   const ahName = () => ahSide() + ' auction house';
+  // The game's own icons (site.css .wf-i, /assets/ui/): quest !, dungeon skull, auctioneer, profession icons
+  const GI = k => '<i class="wf-i wf-i-' + k + '"></i>';
+  const PI = n => n ? GI('p-' + String(n).toLowerCase().replace(/[^a-z]/g, '')) : GI('profession');
   // Where to get an option, as { pill, main, sub: [...] }: one tag, the one thing to look for, then short facts.
   function srcParts(o) {
     const s = o.s || {}, c = o.c;
     if (o.kind === "have") return { pill: '<span class="pill mute">Bags</span>', main: 'You wear or carry it', sub: [] };
-    if (o.kind === "quest") return { pill: '<span class="pill quest">Quest</span>', main: '<b>' + esc(s.n) + '</b>', sub: [s.z && esc(s.z), lvTxt(s)] };
-    if (o.kind === "drop") return { pill: '<span class="pill drop">Dungeon</span>', main: s.npc === "Trash" ? 'Trash mobs' : s.npc ? '<b>' + esc(s.npc) + '</b>' : 'Any boss',
+    if (o.kind === "quest") return { pill: '<span class="pill quest">' + GI('quest') + 'Quest</span>', main: '<b>' + esc(s.n) + '</b>', sub: [s.z && esc(s.z), lvTxt(s)] };
+    if (o.kind === "drop") return { pill: '<span class="pill drop">' + GI('skull') + 'Dungeon</span>', main: s.npc === "Trash" ? 'Trash mobs' : s.npc ? '<b>' + esc(s.npc) + '</b>' : 'Any boss',
       sub: [esc(s.z || "a dungeon"), s.dl && 'levels ' + s.dl[0] + '–' + s.dl[1], s.pct && Math.round(s.pct) + '% drop'] };
     if (o.kind === "buy") {
-      const pill = '<span class="pill blue">Buy</span>';
+      const pill = '<span class="pill blue">' + GI('ah') + 'Buy</span>';
       if (!o.s) return { pill, main: ahName(), sub: [(c.ahq || "a few") + ' listed'] };
       if (!c.suf) return { pill, main: ahName(), sub: [(s.ahq || "a few") + ' listed'] };
       const sn = esc(c.sfxName || c.n.replace(/^.* (of .*)$/, "$1"));
@@ -1882,7 +1885,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       return { pill, main: '<b style="color:var(--warn)">Price unknown</b>', sub: ['other suffixes from ' + coin(s.ah), 'click it in the auction house to see “' + sn + '”'] };
     }
     const pat = { own: 'materials not priced here', known: 'pattern known', fav: 'pattern ' + c.fav + ' Merchant\'s Favor', train: 'trainer ' + coin(c.train), trainer: 'trainer recipe', ah: 'pattern on AH ' + coin(c.patah), vendor: 'pattern from a vendor ' + coin(c.patv), drop: 'pattern only drops' + (c.drops ? ': ' + esc(c.drops.join(", ")) : '') }[o.patHow];
-    return { pill: '<span class="pill good">Craft</span>', main: '<b>' + c.prof + ' ' + c.sk + '</b> ' + (o.cur >= c.sk ? '<span class="ok">you can</span>' : '<span class="todo">' + (c.sk - o.cur) + ' skill to go</span>'),
+    return { pill: '<span class="pill good">' + PI(c.prof) + 'Craft</span>', main: '<b>' + c.prof + ' ' + c.sk + '</b> ' + (o.cur >= c.sk ? '<span class="ok">you can</span>' : '<span class="todo">' + (c.sk - o.cur) + ' skill to go</span>'),
       sub: [pat, c.bop && 'soulbound'] };
   }
   // One row per item: [icon] name … tag, then where to get it underneath. `item` names the item (weapon pairs).
@@ -2156,7 +2159,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
         const o = x.o, c = o.c; const isPick = isP(x);
         const cost = optCost(o);
         h += '<div class="opt' + (isPick ? " best" : "") + (x.xtra ? " xtra" : "") + '" data-cid="' + c.id + '">' + iconC(c, "") + '<div><div class="nm q' + c.q + '">' + esc(c.n) + '</div><div class="small muted">' + whenTag(c, o) + ' ' + (c.setup ? SETUP_NAME[c.setup] : '') + '</div>' + statsHtml(c, w) + '</div>' +
-          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span><span class="small">' + (isFree(o) ? '<span class="muted">free</span>' : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : o.none ? "none listed" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + o.fav + ' favor</span>' : '') + '</span></div>' +
+          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span><span class="small">' + (isFree(o) ? '<span class="muted">free</span>' : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : o.none ? "none listed" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + GI('favor') + o.fav + ' favor</span>' : '') + '</span></div>' +
           '<div class="how">' + optHow(o) + (o.kind === "craft" && o.lev ? '<span>Leveling to ' + c.sk + ': <b>' + coin(o.lev) + '</b></span>' : '') + (o.kind === "craft" && !o.ok ? '<span class="pill bad">pattern not on the AH right now</span>' : '') + '</div>' +
           '<div class="acts"><button class="btn tiny" type="button" data-got="' + c.id + '">I got this</button>' + (o.kind === "craft" && o.prof && !S.known[c.spell] && o.patHow !== "trainer" ? '<button class="btn tiny" type="button" data-known="' + c.spell + '">I know the pattern</button>' : (o.kind === "craft" && o.prof && S.known[c.spell] ? '<button class="btn tiny" type="button" data-unknown="' + c.spell + '">forget pattern</button>' : '')) + '</div></div>';
       });
@@ -2177,6 +2180,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   function gotIt(id) { const c = getItem(id); if (!c) return; S.got[c.slot] = c.id; save(); render(); }
   // ---------- best upgrades across all slots and sources ----------
   const CATS = [["all", "Everything"], ["quest", "Quests"], ["drop", "Dungeons"], ["buy", "Auction house"], ["craft", "Crafting"]];
+  const CAT_ICON = { quest: "quest", drop: "skull", buy: "ah", craft: "profession" };
   const catOf = o => o.kind === "pair" ? (o.parts.every(p => p.kind === "quest" || p.kind === "have") ? "quest" : o.parts.some(p => p.kind === "drop") ? "drop" : o.parts.some(p => p.kind === "craft") ? "craft" : "buy") : o.kind === "have" ? "quest" : o.kind;
   function renderTop(P2) {
     const rows = [];
@@ -2190,7 +2194,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     const count = {}; CATS.forEach(([k]) => count[k] = 0);
     const seenAll = new Set();
     rows.forEach(r => { count[r.cat]++; const k = r.o.c.id; if (!seenAll.has(k)) { seenAll.add(k); count.all++; } });
-    $("srcChips").innerHTML = CATS.map(([k, l]) => '<button type="button" class="chip" data-cat="' + k + '" aria-pressed="' + (S.src === k) + '">' + l + '<span class="n">' + count[k] + '</span></button>').join("");
+    $("srcChips").innerHTML = CATS.map(([k, l]) => '<button type="button" class="chip" data-cat="' + k + '" aria-pressed="' + (S.src === k) + '">' + (CAT_ICON[k] ? GI(CAT_ICON[k]) : '') + l + '<span class="n">' + count[k] + '</span></button>').join("");
     $("srcChips").querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { S.src = b.dataset.cat; save(); renderTop(P2); });
     const L = +S.level;
     let list = rows.filter(r => S.src === "all" || r.cat === S.src);
@@ -2213,10 +2217,10 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       const o = r.o, c = o.c, pick = P2.best.picks[r.slot];
       const isPick = pick && pick.o.c.id === c.id && pick.o.kind === o.kind;
       const total = o.kind === "craft" ? (o.unpriced ? null : o.pat + o.mat + (o.lev || 0)) : o.cost;
-      const cost = isFree(o) ? '<span class="cost free">free</span>' : '<span class="cost">' + (total === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : "price ?") + '</span>' : coin(total)) + (o.fav ? ' <span class="muted">+' + o.fav + ' favor</span>' : '') + '</span>';
+      const cost = isFree(o) ? '<span class="cost free">free</span>' : '<span class="cost">' + (total === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : "price ?") + '</span>' : coin(total)) + (o.fav ? ' <span class="muted">+' + GI('favor') + o.fav + ' favor</span>' : '') + '</span>';
       const tags = (isPick ? '<span class="tg plan" title="Part of your plan below">plan</span>' : '') + (r.g >= best[r.slot] - 0.05 ? '<span class="tg" title="Biggest upgrade for this slot">best</span>' : '');
       return '<div class="trow k-' + r.cat + '" data-more tabindex="0" aria-expanded="false">' + iconC(c, "") +
-        '<div class="tm"><span class="nm q' + c.q + '">' + esc(c.n) + '</span><span class="sub"><i class="dot"></i>' + SLOTNAME[r.slot] + ' · ' + (SRC[r.cat] || r.cat) + whenTag(c, o) + tags + '</span></div>' +
+        '<div class="tm"><span class="nm q' + c.q + '">' + esc(c.n) + '</span><span class="sub">' + (r.cat === "craft" && c.prof ? PI(c.prof) : CAT_ICON[r.cat] ? GI(CAT_ICON[r.cat]) : '<i class="dot"></i>') + SLOTNAME[r.slot] + ' · ' + (SRC[r.cat] || r.cat) + whenTag(c, o) + tags + '</span></div>' +
         '<div class="rt"><span class="gain">' + fmt1(r.g) + '</span>' + cost + '</div>' +
         '<div class="more"><div class="how">' + optHow(o) + (o.kind === "craft" && !o.unpriced ? '<span>Pattern + materials <b>' + coin(o.pat + o.mat) + '</b></span>' + (o.lev ? '<span>Leveling to ' + c.sk + ': <b>' + coin(o.lev) + '</b></span>' : '') : '') + '</div>' +
         '<div class="acts"><button class="btn tiny" type="button" data-got="' + c.id + '">I got this</button><span class="small muted">replaces ' + esc(wornFor(r.slot).n) + '</span></div></div></div>';

@@ -1343,6 +1343,8 @@ const img = (k, cls = 'm', alt = '') => `<img class="ic ${cls}" src="${ICON[k] |
 const esc = s => String(s).replace(/"/g, '&quot;');
 const tipAttrs = (title, sub, desc, extra) => `data-tt="${esc(title)}" data-ts="${esc(sub || '')}" data-td="${esc(desc || '')}" data-te="${esc(extra || '')}"`;
 document.querySelectorAll('img[data-icon]').forEach(i => i.src = ICON[i.dataset.icon]);
+// The game's own icons (site.css .wf-i, /assets/ui/): class trainer, quest
+const GI = k => `<i class="wf-i wf-i-${k}"></i>`;
 
 let L = 10, full = false;
 function ranksAt(lvl) {
@@ -1388,10 +1390,10 @@ function renderNow() {
   const cr = document.getElementById('cTrainer');
   const next = TRAINER.find(([lv]) => lv >= L);
   if (L < 20) {
-    cr.innerHTML = `<span class="k">Trainer</span><h3>Train whenever you're in town</h3><p class="muted" style="font-size:14px">Most even levels add a new spell or rank until 20. Trainers: Nartok (Valley of Trials), Dhugru Gorelust in Razor Hill, and the Cleft of Shadow in Orgrimmar.</p><p class="muted" style="font-size:14px">First big stop after that: level 24.</p>`;
+    cr.innerHTML = `<span class="k">Trainer</span><h3>${GI('trainer')}Train whenever you're in town</h3><p class="muted" style="font-size:14px">Most even levels add a new spell or rank until 20. Trainers: Nartok (Valley of Trials), Dhugru Gorelust in Razor Hill, and the Cleft of Shadow in Orgrimmar.</p><p class="muted" style="font-size:14px">First big stop after that: level 24.</p>`;
   } else if (next) {
     const [lv, buys] = next;
-    cr.innerHTML = `<span class="k">Next trainer visit</span><h3>${lv === L ? 'Go train now!' : 'At level ' + lv}</h3>
+    cr.innerHTML = `<span class="k">Next trainer visit</span><h3>${GI('trainer')}${lv === L ? 'Go train now!' : 'At level ' + lv}</h3>
       <div class="buy">${buys.map(([n, from]) => `<span ${tipAttrs(n, from ? 'New rank from level ' + from : 'Spell', '')}>${img(S[n], 's')}${n}${from ? ' <em class="muted">(' + from + ')</em>' : ''}</span>`).join('')}</div>`;
   }
 
@@ -1400,7 +1402,7 @@ function renderNow() {
   else {
     const w = WANDS[wi], nx = WANDS[wi + 1];
     cw.innerHTML = `<span class="k">Best wand now</span><div class="big" ${tipAttrs(w[1], 'Wand · level ' + w[0], w[5], w[4])} tabindex="0">${img(w[2], 'xl')}<div><h3 class="q${w[3]}">${w[1]}</h3><div class="r">From level ${w[0]}</div></div></div>
-      <p class="muted" style="font-size:14px"><b style="color:var(--ink)">${w[4]}.</b> ${w[5]}</p>${nx ? `<div class="next-list"><div>${img(nx[2], 's')} Next at ${nx[0]}: <b class="q${nx[3]}" style="font-weight:600">${nx[1]}</b></div></div>` : ''}`;
+      <p class="muted" style="font-size:14px">${/^Quest:/.test(w[4]) ? GI('quest') : ''}<b style="color:var(--ink)">${w[4]}.</b> ${w[5]}</p>${nx ? `<div class="next-list"><div>${img(nx[2], 's')} Next at ${nx[0]}: <b class="q${nx[3]}" style="font-weight:600">${nx[1]}</b></div></div>` : ''}`;
   }
   const dn = dungeonsAt(L), cd = document.getElementById('cDun');
   cd.innerHTML = `<span class="k">Dungeons for you</span>` + (dn.length ? `<div class="dchips">${dn.map(([n, a, b]) => `<span>${img('inv_misc_bone_humanskull_01', 's')}${n} <em>${a === b ? a : a + '–' + b}</em></span>`).join('')}</div>`

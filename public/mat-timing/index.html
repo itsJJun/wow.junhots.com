@@ -875,7 +875,7 @@ const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c
     const bar = (lbl, v, cls) => '<span>' + lbl + '</span><span class="b' + (cls ? ' ' + cls : '') + '"><span style="width:' + Math.min(100, v * 100 / 0.6) + '%"></span></span><span>' + MKT.pct(v) + '</span>';
     const rows = (m.h || []).slice(-5).map(r => '<tr><td>' + day(r[0]) + '</td><td>' + (r[1] > 1 ? MKT.silver(r[1]) : '—') + '</td><td>' + (r[2] ? r[2].toLocaleString() : '—') + '</td></tr>').join('');
     return '<div class="mc" data-kind="' + kindOf(m.k) + '">' + (ICONS[id] ? '<img src="' + ICONS[id] + '" alt="">' : '<span></span>') +
-      '<span class="nm">' + esc(m.n) + '</span><span class="rt">' + MKT.pill(id) + (last ? '<span class="pr">' + MKT.dealTag(id) + MKT.silver(last[1]) + '</span>' : '') + '</span>' +
+      '<span class="nm">' + esc(m.n) + '</span><span class="rt">' + MKT.pill(id) + (last ? '<span class="pr">' + MKT.dealTag(id) + '<span class="coin">' + MKT.silver(last[1]).replace(/(\d+)([gsc])/g, '<span class="$2">$1</span><span class="u $2">$2</span>') + '</span></span>' : '') + '</span>' +
       '<span class="meta">' + (m.of ? boltLine(m) : 'Drops at levels ' + m.lo + '–' + m.hi + ' · ' + MKT.pct(s.band.now) + ' of Horde there') + '</span>' +
       '<div class="det">' + esc(s.why) + '<div class="cmp">' + bar('There now', s.band.now) + bar('In a week', s.band.wk, 'wk') + '</div>' +
       (rows ? '<table><thead><tr><th>Your scan</th><th>Cheapest</th><th>Listed</th></tr></thead><tbody>' + rows + '</tbody></table>' : '') + '</div></div>';
