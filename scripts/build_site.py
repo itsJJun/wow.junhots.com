@@ -369,9 +369,9 @@ def build_updates(updates):
 CREDITS = [
     # (name, url or None, what it gives the tools)
     ('Forever Leveling BiS addon', None, 'Item list, stat weights and gear scoring behind Gear upgrades and the enchant ranking on Enchants.'),
-    ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Tailoring finder.'),
+    ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Craft finder.'),
     ('classicplus.io', 'https://classicplus.io/', 'The daily level census of Horde characters that Mat timing and the "level crowd" tags read.'),
-    ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Tailoring finder and Sell spare mats.'),
+    ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Craft finder and Sell spare mats.'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'The auction house scans every price on this site comes from, including the file you load yourself.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
@@ -385,7 +385,7 @@ def build_about():
     body = ('<div class="ws-hero"><h1>Data sources</h1><p>Where the numbers on this site come from. Thank you to everyone who makes this data.</p></div>'
             '<div class="ws-prose"><ul class="ws-credits">%s</ul>'
             '<h2>How fresh is it?</h2><p>Each tool shows the date of its own data at the top. Built-in auction prices are from the Horde auction house on the PvP realm. '
-            'Load your own Auctionator file (button in the side panel) and Gear upgrades, Enchants, Mat timing, Profession leveling, the Tailoring finder and Sell spare mats all use it.</p>'
+            'Load your own Auctionator file (button in the side panel) and Gear upgrades, Enchants, Mat timing, Profession leveling, the Craft finder and Sell spare mats all use it.</p>'
             '<h2>Your files</h2><p>Game files you load stay in your browser (saved on this device so you do not have to load them again). They are never uploaded.</p></div>' % rows)
     os.makedirs(os.path.join(PUB, 'about'), exist_ok=True)
     open(os.path.join(PUB, 'about/index.html'), 'w', encoding='utf-8').write(
