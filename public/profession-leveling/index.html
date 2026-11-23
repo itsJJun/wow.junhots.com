@@ -1699,6 +1699,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     }
     return { deWorth, deVal, sellV, forMe, de, on: true };
   }
+  // sellV / deVal are per craft (one Anti-Venom craft makes 3); the step cards show them per item
   function cashWalk(segs, m, unlocks, buys, G, left) {
     const uc = {}, seen = new Set(), batches = {}, short = {}, unl = new Map();
     unlocks.forEach(u => { uc[u.rod ? "t" + u.rod : "p" + u.rec.id] = u; });
@@ -2134,14 +2135,14 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       if (!sg.free && x.cred > 0) {
         // worth it for you: dust/essence your Enchanting still needs counts at full price (up to what it needs);
         // the rest at your "Disenchanted mats count as" share, and then it has to beat the vendor by 25%
-        const { de, sellV, deVal, deWorth, forMe } = fateOf(sg, deLeft);
+        const { de, sellV, deVal, deWorth, forMe } = fateOf(sg, deLeft), sellE = sellV / cnt, deE = deVal / cnt;
         if (deWorth) {
           const need = ENGINE.deSkill(r), low = S.prof !== "enchanting" && (+S.skill.enchanting || 0) < need;
-          fate = '<span class="pill acc fate" title="Worth about ' + coinTxt(deVal) + ' each to you vs ' + coinTxt(sellV) + ' at a vendor' + (forMe.length ? '. ' + forMe.join(', ') + ' counted at full AH price because your Enchanting route still needs ' + (forMe.length > 1 ? 'them' : 'it') : '. Only selling the mats, and it still beats the vendor by 25% or more') + '">disenchant ≈' + coinTxt(deVal) + '</span>' + (forMe.length ? '<span class="muted">' + esc(forMe.join(', ')) + ' for your Enchanting</span>' : '<span class="muted">sell the mats</span>') + (low ? '<span class="pill warn" title="Disenchanting this needs Enchanting ' + need + '. Keep them in your bank until then.">needs Enchanting ' + need + '</span>' : '');
+          fate = '<span class="pill acc fate" title="Worth about ' + coinTxt(deE) + ' each to you vs ' + coinTxt(sellE) + ' at a vendor' + (forMe.length ? '. ' + forMe.join(', ') + ' counted at full AH price because your Enchanting route still needs ' + (forMe.length > 1 ? 'them' : 'it') : '. Only selling the mats, and it still beats the vendor by 25% or more') + '">disenchant ≈' + coinTxt(deE) + ' each</span>' + (forMe.length ? '<span class="muted">' + esc(forMe.join(', ')) + ' for your Enchanting</span>' : '<span class="muted">sell the mats</span>') + (low ? '<span class="pill warn" title="Disenchanting this needs Enchanting ' + need + '. Keep them in your bank until then.">needs Enchanting ' + need + '</span>' : '');
         }
-        else if (S.sell && sellV) fate = '<span class="pill good fate" title="' + (de && +S.deFactor > 0 ? 'Disenchanting is worth about ' + coinTxt(deVal) + ' to you: your Enchanting doesn\'t need these mats, and selling them doesn\'t beat the vendor by enough to be worth it' : 'Vendor price') + '">sell to vendor ' + coin(sellV) + '</span>';
+        else if (S.sell && sellV) fate = '<span class="pill good fate" title="' + (de && +S.deFactor > 0 ? 'Disenchanting is worth about ' + coinTxt(deE) + ' each to you: your Enchanting doesn\'t need these mats, and selling them doesn\'t beat the vendor by enough to be worth it' : 'Vendor price') + '" data-vs-item="' + r.it + '">sell to vendor ' + coin(sellE) + ' each</span>';
         if (deWorth) notes.push("Disenchant each one (needs Enchanting " + ENGINE.deSkill(r) + "): about " + de.map(([id, c, q]) => (c * q).toFixed(2).replace(/\.?0+$/, "") + " " + esc(itemName(id))).join(", ") + " per item.");
-        else if (S.sell) notes.push("Sell each one to a vendor for " + coin(sellV) + ".");
+        else if (S.sell) notes.push('<span data-vs-item="' + r.it + '">Sell each one to a vendor for ' + coin(sellE) + ".</span>");
       }
       const p0 = Math.round(sg.pStart * 100), p1 = Math.round(sg.pEnd * 100);
       h += '<article class="step" id="step-' + (i + off) + '">' +

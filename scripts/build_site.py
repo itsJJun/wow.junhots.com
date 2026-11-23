@@ -577,6 +577,7 @@ def main():
     build_seo(updates)
     print('Done: %s' % PUB)
     check_updates()
+    check_vendor_prices()
 
 
 def check_updates():
@@ -591,6 +592,19 @@ def check_updates():
     if pages and 'public/data/updates.json' not in files:
         print('\nNOTE: %d page(s) changed but public/data/updates.json did not. If visitors will notice, add an Updates entry '
               '(date, title, one or two plain sentences, image in public/assets/updates/, link).' % len(pages))
+
+
+def check_vendor_prices():
+    """Every vendor price shown must match the game (scripts/check-vendor-prices.cjs, 23 Nov: Anti-Venom showed 84c, one craft's 3)."""
+    import subprocess
+    try:
+        r = subprocess.run(['node', os.path.join(REPO, 'scripts', 'check-vendor-prices.cjs')], cwd=REPO, capture_output=True, text=True, timeout=600)
+    except Exception as e:
+        print('\nWARNING: vendor price check did not run (%s). Run: node scripts/check-vendor-prices.cjs' % e)
+        return
+    print('\n' + (r.stdout + r.stderr).strip())
+    if r.returncode:
+        sys.exit('Vendor price check FAILED: fix the prices above before opening a pull request.')
 
 
 if __name__ == '__main__':

@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Profession leveling: vendor prices per item",
+    "text": "\"Sell to vendor\" now shows what a vendor pays for one item, like the in-game tooltip. Before, recipes that make several items at once (like Anti-Venom, which makes 3) showed the price of all of them.",
+    "image": "/assets/updates/2026-11-23-vendor-price-each.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-23",
     "title": "New: Dungeons page",
     "text": "Every Forever dungeon in one place: the map with each boss numbered, what each boss drops (upgrades for your spec marked), its quests and how to get in. Your Leveling route links to it, and each dungeon stop on the route now shows the map and bosses.",
     "image": "/assets/updates/2026-11-23-dungeons.webp",
