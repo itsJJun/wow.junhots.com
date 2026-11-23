@@ -78,6 +78,11 @@ a { color: var(--accent); }
 .zbar button[data-z=in], .zbar button[data-z=out] { font-size: 16px; font-weight: 700; padding: 0; }
 .zbar button:hover { background: rgba(24,21,17,.97); }
 .nomap { border: 1px dashed var(--line2); border-radius: 10px; padding: 26px; color: var(--muted); text-align: center; font-size: 13px; }
+/* close-up tiles and the quiet map icons (flight masters, boats, zeppelins, dungeon entrances) */
+.mini { pointer-events: none; transition: opacity .25s; }
+.poi circle { fill: rgba(20, 16, 10, .55); stroke: rgba(255, 220, 150, .55); stroke-width: .12; }
+.poi { opacity: .9; }
+.poi:hover { opacity: 1; }
 .pin { cursor: pointer; }
 .pin circle, .pin rect { stroke: #15120e; stroke-width: .22; }
 .pin text { font-weight: 700; font-family: Inter, system-ui, sans-serif; font-size: 1.55px; fill: #15120e; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
@@ -1182,6 +1187,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var specLabel = function (k) { return SPEC_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1); };
   var UP = null, UPQ = {};   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
   var view = null, viewKey = '', mapSvg = null, mapFit = null, mapArrow = null;
+  // close-up map (Jun 23 Nov): the game's own minimap pictures (maps/t/<map>_<row>_<col>.webp, one per 533-yard
+  // tile) fade in over the zone map as you zoom in, only the tiles in view. MINI = maps/mini.json
+  var MINI = null, MINIS = {}, miniG = null, miniHave = {}, TS = 533.3333333;
   var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false;
   // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
   var WIC = typeof WI === 'object' ? WI : {};
@@ -1659,6 +1667,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var m = document.createElement('div'); m.className = 'map';
     var svg = el('svg', { preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': umName(curZone) + ' map' });
     svg.appendChild(el('image', { href: BASE + 'maps/' + curZone + '.webp', x: 0, y: 0, width: 100, height: (100 * AR).toFixed(3), preserveAspectRatio: 'none' }));
+    miniG = el('g', { class: 'mini' }); miniHave = {}; svg.appendChild(miniG);
+    svg.appendChild(poiLayer(curZone));
     // clusters: stops at nearly the same place share one pin
     var cl = [];
     c.stops.forEach(function (s) {
@@ -1765,7 +1775,50 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       ln.setAttribute('x1', sx); ln.setAttribute('y1', sy); ln.setAttribute('x2', ex - ux * hl * .8); ln.setAttribute('y2', ey - uy * hl * .8);
       pg.setAttribute('points', [ex, ey, ex - ux * hl - uy * hw, ey - uy * hl + ux * hw, ex - ux * hl + uy * hw, ey - uy * hl - ux * hw].map(function (v) { return v.toFixed(3); }).join(' '));
     }
-    mapSvg.querySelectorAll('.pin').forEach(function (g) { g.setAttribute('transform', 'translate(' + g.dataset.x + ' ' + g.dataset.y + ') scale(' + K.toFixed(4) + ')'); });
+    updMini();
+    mapSvg.querySelectorAll('.pin, .poi').forEach(function (g) { g.setAttribute('transform', 'translate(' + g.dataset.x + ' ' + g.dataset.y + ') scale(' + K.toFixed(4) + ')'); });
+  }
+  // the close-up tiles: invisible up to about 2x zoom, fully in from about 3.4x; the zone map's names still show through
+  function updMini() {
+    var b = MINI && MINI.um[curZone]; if (!miniG || !b) return;
+    var z = 100 / view[2], op = Math.max(0, Math.min(0.85, (z - 2.2) / 1.2 * 0.85));
+    miniG.style.opacity = op.toFixed(2); if (op <= 0) return;
+    var m = b[0], x0 = b[1], y0 = b[2], x1 = b[3], y1 = b[4], have = MINIS[m]; if (!have) return;
+    var wy = function (sx) { return y1 - sx / 100 * (y1 - y0); }, wx = function (sy) { return x1 - sy / (100 * AR) * (x1 - x0); };
+    var c0 = Math.floor(32 - wy(view[0]) / TS), c1 = Math.floor(32 - wy(view[0] + view[2]) / TS);
+    var r0 = Math.floor(32 - wx(view[1]) / TS), r1 = Math.floor(32 - wx(view[1] + view[3]) / TS);
+    var w = TS / (y1 - y0) * 100, h = TS / (x1 - x0) * 100 * AR;
+    for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) {
+      var k = r + '_' + c; if (miniHave[k] || !have.has(k)) continue; miniHave[k] = 1;
+      miniG.appendChild(el('image', { href: BASE + 'maps/t/' + m + '_' + k + '.webp', x: ((y1 - (32 - c) * TS) / (y1 - y0) * 100).toFixed(3), y: ((x1 - (32 - r) * TS) / (x1 - x0) * 100 * AR).toFixed(3),
+        width: (w + 0.02).toFixed(3), height: (h + 0.02).toFixed(3), preserveAspectRatio: 'none' }));
+    }
+  }
+  // the places that matter on any map, small and under the route's pins: flight masters, boats and zeppelins of
+  // your side, and dungeon entrances (name on hover)
+  function poiLayer(um) {
+    var g = el('g', { class: 'pois' }), b = MINI && MINI.um[um];
+    var add = function (x, y, icon, name, cls) {
+      if (!WIC[icon] || x < 0 || x > 1 || y < 0 || y > 1) return;
+      var p = el('g', { class: 'poi ' + (cls || ''), 'data-x': x * 100, 'data-y': y * 100 * AR });
+      var t = el('title', {}); t.textContent = name; p.appendChild(t);
+      p.appendChild(el('circle', { cx: 0, cy: 0, r: 1.05 }));
+      p.appendChild(el('image', { href: WIC[icon], x: -0.85, y: -0.85, width: 1.7, height: 1.7 }));
+      g.appendChild(p);
+    };
+    var side = R && R.fac ? R.fac[0] : 'H', mine = function (f) { return !f || f === 'N' || f === side; };
+    if (b) {
+      var toUm = function (m, x, y) { return m === b[0] ? [(b[4] - y) / (b[4] - b[2]), (b[3] - x) / (b[3] - b[1])] : [-1, -1]; };
+      for (var id in T.taxi) {
+        var t = T.taxi[id]; if (!mine(t.fac) || (t.cls && t.cls !== String(R.cls).toUpperCase())) continue;
+        var q = toUm(t.map, t.x, t.y); add(q[0], q[1], side === 'A' ? 'flight_a' : 'flight_h', 'Flight master: ' + t.name.split(',')[0], 'fp');
+      }
+      var dk = {};
+      (T.d.routes || []).forEach(function (r) { if ((r.k === 'boat' || r.k === 'zeppelin') && mine(r.f)) r.st.forEach(function (x) { dk[x[0]] = r.k; }); });
+      for (var d in dk) { var o = T.d.docks[d]; if (!o) continue; var q2 = toUm(o[0], o[1], o[2]); add(q2[0], q2[1], dk[d], (dk[d] === 'boat' ? 'Boat: ' : 'Zeppelin: ') + o[3], 'dock'); }
+    }
+    ((MINI && MINI.d && MINI.d[um]) || []).forEach(function (e) { add(e[1], e[2], 'skull', 'Dungeon: ' + e[0], 'dg'); });
+    return g;
   }
   function zoomAt(px, py, f) {
     var w = Math.min(100, Math.max(10, view[2] / f)), s = w / view[2];
@@ -1964,9 +2017,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   $('optSw').onchange = function () { optOn = this.checked; ls.set('lr.opt', optOn ? '1' : '0'); loadRoute(true); };
   fileInput('questieFile', loadQuestie);
   fileInput('spfFile', loadSPF);
-  Promise.all(['route-meta.json', 'travel.json', 'maps.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
+  Promise.all(['route-meta.json', 'travel.json', 'maps.json', 'maps/mini.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
     .then(function (a) {
       M = a[0]; T = new RouteTravel(a[1]); MAPS = new Set(a[2]);
+      MINI = a[3]; for (var mk in MINI.t) MINIS[mk] = new Set(MINI.t[mk]);
       a[1].zones.forEach(function (z) { if (AREA2UM[z[7]] == null) AREA2UM[z[7]] = z[0]; UMZ[z[0]] = z; });
       fillPick();
     })
