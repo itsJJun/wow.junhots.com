@@ -137,6 +137,9 @@ a { color: var(--accent); }
 .stop li.miss input { outline: 1px solid var(--bad); outline-offset: 1px; }
 .stop li .xp { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .stop li small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
+.stop li small.at { color: #6f9cff; }
+:root[data-theme="light"] .stop li small.at { color: #2f62d6; }
+.stop li small.at::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3d7bff; opacity: .7; margin-right: 5px; vertical-align: 1px; }
 .ac { font-weight: 700; margin-right: 3px; }
 .ac.a, .ac.t { color: var(--wowgold); } .ac.d { color: var(--ink); } .ac.k { color: var(--good); } .ac.tr { color: var(--accent); }
 .tag { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 0 6px; border-radius: 99px; border: 1px solid var(--line2); color: var(--muted); margin-left: 4px; vertical-align: 1px; white-space: nowrap; }
@@ -1533,7 +1536,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
       else if (s.t === 'turnin') { txt = wi('q_turnin') + 'Turn in ' + names; var x = all.reduce(function (a, y) { return a + (y.xp || 0); }, 0); if (x) xp = x.toLocaleString() + ' xp'; }
-      else if (s.t === 'do') txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (s.pl && !/^Spot \d/.test(s.pl) ? '<small>Here: ' + esc(s.pl) + '</small>' : qd[5] ? '<small>' + (s.pl ? esc(s.pl) + ': ' : '') + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
+      else if (s.t === 'do') {
+        // where it is done: the spot's name and map coordinates when the objective is one exact spot
+        var obs = qd[8] || [], one = !s.pl && obs.length === 1 && obs[0][1].length === 1 && obs[0][1][0].length === 3 ? obs[0] : null;
+        var lab = s.pl && !/^Spot \d/.test(s.pl) ? s.pl : one ? one[0] : '', at = (s.pl || one) && s.a && s.a[1] != null ? (+s.a[1]).toFixed(1) + ', ' + (+s.a[2]).toFixed(1) : '';
+        txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (lab || at ? '<small class="at">' + esc(lab) + (lab && at ? ' · ' : '') + at + '</small>' : '') +
+          (qd[5] && !s.pl ? '<small>' + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
+      }
       else if (s.t === 'train') { txt = wi('c_' + String(R.cls).toLowerCase()) + 'Train ' + s.sp.length + ' spells' + (s.trip ? ' <span class="tag lv">trip</span>' : '') + '<small>' + s.sp.map(function (x) { return esc(M.spells[x[0]] || x[0]) + (x[2] > 1 ? ' ' + x[2] : ''); }).join(', ') + '</small>'; xp = coin(s.cost); }
       else if (s.t === 'fp') txt = wi(fly()) + 'Get the flight path';
       else if (s.t === 'bind') txt = wi('hearth') + 'Set your hearthstone here';
@@ -1834,11 +1843,18 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var blob = el('g', { class: 'objblob', filter: 'url(#objblur)' }); g.appendChild(blob);
     var defs = el('defs', {}), f = el('filter', { id: 'objblur', x: '-20%', y: '-20%', width: '140%', height: '140%' });
     f.appendChild(el('feGaussianBlur', { stdDeviation: '0.6' })); defs.appendChild(f); g.insertBefore(defs, blob);
+    var gone = {}, left = {};   // ticked spots leave the map; a quest with every objective ticked leaves it too
+    rows.forEach(function (r) {
+      if (r.k !== 'step' || !r.s || r.s.t !== 'do' || !r.s.q) return;
+      if (isDone(r)) (r.s.pl || '').split(', ').forEach(function (l) { gone[r.s.q + '|' + l] = 1; });
+      else left[r.s.q] = 1;
+    });
     sts.forEach(function (st) {
       if (!st) return;
       st.rows.forEach(function (r) {
-        var s = r.s; if (!s || s.t !== 'do' || !s.q || seen[s.q]) return; seen[s.q] = 1;
+        var s = r.s; if (!s || s.t !== 'do' || !s.q || seen[s.q] || !left[s.q]) return; seen[s.q] = 1;
         ((M.quests[s.q] || [])[8] || []).forEach(function (ob) {
+          if (gone[s.q + '|' + ob[0]]) return;
           var pts = [];
           ob[1].forEach(function (a) { if (AREA2UM[a[0]] !== curZone) return; for (var i = 1; i < a.length; i += 2) pts.push([a[i], a[i + 1] * AR]); });
           if (!pts.length) return;
