@@ -126,6 +126,7 @@ a { color: var(--accent); }
 .qrow.open .qb { display: block; }
 .qb p { margin: 0 0 3px; }
 .qb b { color: var(--ink); font-weight: 600; }
+.qb .qrw a { text-decoration: none; font-weight: 600; } .qb .qrw a:hover { text-decoration: underline; }
 .qb .qtags { display: none; }
 .ent p { margin: 0; font-size: 13.5px; }
 .entmap { position: relative; margin-top: 8px; max-width: 520px; border-radius: 8px; overflow: hidden; line-height: 0; }
@@ -762,6 +763,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 
 <footer>Bosses, drops, quests and boss spots: the Dungeon Journal addon (by Exehn). Lower Blackrock Spire's boss spots and the map file list: <a href="https://github.com/openmap-world/openmap" target="_blank" rel="noopener">OpenMap</a> (MIT licence). Maps: Blizzard's own dungeon maps. Upgrades for your spec: the same scoring as the <a href="/level-route/">Level 1-60 route</a> and Gear upgrades.</footer>
 </div>
+<!-- item tooltips like in game: Wowhead's tooltip script, Forever data (links to wowhead.com/forever/item=...) -->
+<script>var whTooltips = { colorLinks: false, iconizeLinks: false, renameLinks: false };</script>
+<script src="https://wow.zamimg.com/js/tooltips.js" async></script>
 <script>
 /* Dungeon map with numbered boss spots. Shared by the Dungeons page and the Level route (both inline this file).
    DGMap(el, d, base, opt) draws dungeon d (dungeons.json) into el: floor tabs, the map picture, a numbered pin per boss.
@@ -787,7 +791,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       }).join('') + '</div>');
       h.push('<div class="dgm-map"><img src="' + base + f.img + '" alt="' + esc(d.n) + ' map' + (f.nm ? ': ' + esc(f.nm) : '') + '" width="1002" height="668" loading="lazy">');
       (d.me || []).forEach(function (e) {
-        if (e[0] - 1 === cur) h.push('<span class="dgm-in" style="left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3] === 'Way in' ? 'In' : e[3].split(' ')[0]) + '</span>');
+        if (e[0] - 1 !== cur) return;
+        var c = { Orange: '#d9822b', Purple: '#8e5bd6' }[e[3].split(' ')[0]];   // Maraudon's coloured doors
+        h.push('<span class="dgm-in" style="' + (c ? 'background:' + c + ';' : '') + 'left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3]) + '</span>');
       });
       (d.mt || []).forEach(function (t) {
         if (t[0] - 1 === cur && fl[t[1] - 1]) h.push('<button type="button" class="dgm-to" data-fl="' + (t[1] - 1) + '" style="left:' + t[2] * 100 + '%;top:' + t[3] * 100 + '%" title="To ' + esc(fl[t[1] - 1].nm || 'floor ' + t[1]) + '">' + (t[1] > t[0] ? '↓' : '↑') + '</button>');
@@ -1026,7 +1032,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     $('qSec').classList.toggle('hidden', !qs.length);
     $('quests').innerHTML = qs.map(function (q) {
       var rw = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i] || ['', 1, '']; return '<img class="rwi" src="' + icon(it[2]) + '" alt="' + esc(it[0]) + '" title="' + esc(it[0]) + (it[3] ? ' · ' + esc(it[3]) : '') + '" loading="lazy">'; }).join('');
-      var rwTxt = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i]; return it ? '<span class="q' + it[1] + '">' + esc(it[0]) + '</span>' : ''; }).filter(Boolean).join(', ');
+      var rwTxt = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i]; return it ? '<a class="q' + it[1] + '" href="https://www.wowhead.com/forever/item=' + i + '" target="_blank" rel="noopener">' + esc(it[0]) + '</a>' : ''; }).filter(Boolean).join(', ');
       var t = [];
       if (doneQ(q.id)) t.push('<span class="tg done">✓ done</span>');
       else if (r.qs && r.qs.has(q.id)) t.push('<span class="tg route">on your route</span>');

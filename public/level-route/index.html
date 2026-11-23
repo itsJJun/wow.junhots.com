@@ -1223,7 +1223,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       }).join('') + '</div>');
       h.push('<div class="dgm-map"><img src="' + base + f.img + '" alt="' + esc(d.n) + ' map' + (f.nm ? ': ' + esc(f.nm) : '') + '" width="1002" height="668" loading="lazy">');
       (d.me || []).forEach(function (e) {
-        if (e[0] - 1 === cur) h.push('<span class="dgm-in" style="left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3] === 'Way in' ? 'In' : e[3].split(' ')[0]) + '</span>');
+        if (e[0] - 1 !== cur) return;
+        var c = { Orange: '#d9822b', Purple: '#8e5bd6' }[e[3].split(' ')[0]];   // Maraudon's coloured doors
+        h.push('<span class="dgm-in" style="' + (c ? 'background:' + c + ';' : '') + 'left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3]) + '</span>');
       });
       (d.mt || []).forEach(function (t) {
         if (t[0] - 1 === cur && fl[t[1] - 1]) h.push('<button type="button" class="dgm-to" data-fl="' + (t[1] - 1) + '" style="left:' + t[2] * 100 + '%;top:' + t[3] * 100 + '%" title="To ' + esc(fl[t[1] - 1].nm || 'floor ' + t[1]) + '">' + (t[1] > t[0] ? '↓' : '↑') + '</button>');
