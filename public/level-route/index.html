@@ -83,6 +83,11 @@ a { color: var(--accent); }
 .poi circle { fill: rgba(20, 16, 10, .55); stroke: rgba(255, 220, 150, .55); stroke-width: .12; }
 .poi { opacity: .9; }
 .poi:hover { opacity: 1; }
+/* quest objective areas (blue, like the game's) */
+.objblob circle { fill: #3d7bff; }
+.objblob { opacity: .42; }
+.objdot circle { fill: #8fb4ff; stroke: #0b1b44; stroke-width: .15; }
+.objdot text { font: 600 1.05px Inter, system-ui, sans-serif; fill: #fff; paint-order: stroke; stroke: #0b1b44; stroke-width: .28px; dominant-baseline: central; text-anchor: middle; pointer-events: none; }
 .pin { cursor: pointer; }
 .pin circle, .pin rect { stroke: #15120e; stroke-width: .22; }
 .pin text { font-weight: 700; font-family: Inter, system-ui, sans-serif; font-size: 1.55px; fill: #15120e; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
@@ -1304,7 +1309,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (plan.travel[i]) rows.push({ k: 'travel', i: i, tr: plan.travel[i] });
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
-      if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i]) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
+      if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i] && !s.pl && !prev.s.pl) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
       if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && prev.s.dq === s.dq && prev.s.fd === s.fd && !UPQ[prev.s.q] && !UPQ[s.q] && !plan.travel[i] && !prev.s.nl && !s.nl &&
           (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
         (prev.more = prev.more || []).push({ i: i, s: s });
@@ -1528,7 +1533,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
       else if (s.t === 'turnin') { txt = wi('q_turnin') + 'Turn in ' + names; var x = all.reduce(function (a, y) { return a + (y.xp || 0); }, 0); if (x) xp = x.toLocaleString() + ' xp'; }
-      else if (s.t === 'do') txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (qd[5] ? '<small>' + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
+      else if (s.t === 'do') txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (s.pl && !/^Spot \d/.test(s.pl) ? '<small>Here: ' + esc(s.pl) + '</small>' : qd[5] ? '<small>' + (s.pl ? esc(s.pl) + ': ' : '') + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
       else if (s.t === 'train') { txt = wi('c_' + String(R.cls).toLowerCase()) + 'Train ' + s.sp.length + ' spells' + (s.trip ? ' <span class="tag lv">trip</span>' : '') + '<small>' + s.sp.map(function (x) { return esc(M.spells[x[0]] || x[0]) + (x[2] > 1 ? ' ' + x[2] : ''); }).join(', ') + '</small>'; xp = coin(s.cost); }
       else if (s.t === 'fp') txt = wi(fly()) + 'Get the flight path';
       else if (s.t === 'bind') txt = wi('hearth') + 'Set your hearthstone here';
@@ -1715,6 +1720,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var key = cur + ':' + curZone + ':' + (ks ? ks.rep.gi : '');
     if (!view || viewKey !== key) { view = fit.slice(); viewKey = key; }
     mapFit = fit;
+    svg.appendChild(objLayer([from, sel && sel.ch === c ? sel : null]));
     mapArrow = null;
     if (seq.length > 1) {
       var ar = el('g', { class: 'arrow' }); ar.appendChild(el('line', {})); ar.appendChild(el('polygon', {}));
@@ -1818,6 +1824,38 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       for (var d in dk) { var o = T.d.docks[d]; if (!o) continue; var q2 = toUm(o[0], o[1], o[2]); add(q2[0], q2[1], dk[d], (dk[d] === 'boat' ? 'Boat: ' : 'Zeppelin: ') + o[3], 'dock'); }
     }
     ((MINI && MINI.d && MINI.d[um]) || []).forEach(function (e) { add(e[1], e[2], 'skull', 'Dungeon: ' + e[0], 'dg'); });
+    return g;
+  }
+  // where the quest objectives are, for the stop you are at and the one you picked (Jun 23 Nov, like the game's
+  // blue quest areas): a soft blue area over the spawns of what you kill, loot or use (route-meta quests[q][8]);
+  // a place with only a few spots also gets a small labelled dot (Strange Pylons: each pylon)
+  function objLayer(sts) {
+    var g = el('g', { class: 'objs' }), seen = {};
+    var blob = el('g', { class: 'objblob', filter: 'url(#objblur)' }); g.appendChild(blob);
+    var defs = el('defs', {}), f = el('filter', { id: 'objblur', x: '-20%', y: '-20%', width: '140%', height: '140%' });
+    f.appendChild(el('feGaussianBlur', { stdDeviation: '0.6' })); defs.appendChild(f); g.insertBefore(defs, blob);
+    sts.forEach(function (st) {
+      if (!st) return;
+      st.rows.forEach(function (r) {
+        var s = r.s; if (!s || s.t !== 'do' || !s.q || seen[s.q]) return; seen[s.q] = 1;
+        ((M.quests[s.q] || [])[8] || []).forEach(function (ob) {
+          var pts = [];
+          ob[1].forEach(function (a) { if (AREA2UM[a[0]] !== curZone) return; for (var i = 1; i < a.length; i += 2) pts.push([a[i], a[i + 1] * AR]); });
+          if (!pts.length) return;
+          var t = el('title', {}); t.textContent = qn(s.q) + (ob[0] ? ': ' + ob[0] : '');
+          var one = el('g', {}); one.appendChild(t);
+          pts.forEach(function (p) { one.appendChild(el('circle', { cx: p[0], cy: p[1], r: 1.7 })); });
+          blob.appendChild(one);
+          if (pts.length <= 3 && ob[0]) pts.forEach(function (p) {
+            var m = el('g', { class: 'poi objdot', 'data-x': p[0], 'data-y': p[1] });
+            var tt = el('title', {}); tt.textContent = qn(s.q) + ': ' + ob[0]; m.appendChild(tt);
+            m.appendChild(el('circle', { cx: 0, cy: 0, r: 0.55 }));
+            var tx = el('text', { x: 0, y: 3.9 }); tx.textContent = ob[0]; m.appendChild(tx);   // below the route pin that may sit on it
+            g.appendChild(m);
+          });
+        });
+      });
+    });
     return g;
   }
   function zoomAt(px, py, f) {
