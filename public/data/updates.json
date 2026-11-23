@@ -1,8 +1,8 @@
 [
   {
-    "date": "2026-11-22",
+    "date": "2026-11-23",
     "title": "Level 1-60 route",
-    "text": "A new Leveling page: every quest from level 1 to 60 in order for your race and class, on the zone map, with how to get to each place using the flights you know, trainer visits and dungeons. Load Questie and it starts where you are.",
+    "text": "A new Leveling page: every quest from level 1 to 60 in order for your race and class, on the zone map, with flights, trainer visits and every dungeon at the right level (with the boss to kill for Legacy points). Load Questie and it starts where you are.",
     "image": "/assets/updates/2026-11-22-level-route.webp",
     "link": "/level-route/",
     "linkText": "Open the route"

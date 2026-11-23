@@ -1238,7 +1238,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return { um: z[0], x: (z[5] - w[2]) / (z[5] - z[4]) * 100, y: (z[3] - w[1]) / (z[3] - z[2]) * 100 };
   }
   function stepLoc(s) {
-    if (s.in) { var e = worldToZone(s.w); if (e) e.dun = s.dun || 'Dungeon'; return e || { dun: s.dun || 'Dungeon' }; }
+    if (s.in) {   // the door on its zone map (journal entrance), else the zone the door's world spot falls in
+      var e = s.dr && MAPS.has(s.dr[0]) ? { um: s.dr[0], x: s.dr[1], y: s.dr[2] } : worldToZone(s.w);
+      if (e) e.dun = s.dun || 'Dungeon'; return e || { dun: s.dun || 'Dungeon' };
+    }
     if (s.a && s.a[1] != null) return { um: AREA2UM[s.a[0]], x: s.a[1], y: s.a[2], z: s.a[0] };
     return null;
   }
@@ -1355,8 +1358,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) {
         if (s.t === 'accept') acc[s.q] = { r: r, in: s.in };
         if (!s.in || !s.dun) return;
-        var d = by[s.dun] || (by[s.dun] = { name: s.dun, qs: [], all: [], first: r, w: s.w, lv: s.lv, xp: 0 });
-        if (d.all.indexOf(s.q) < 0) d.all.push(s.q);
+        var d = by[s.dun] || (by[s.dun] = { name: s.dun, qs: [], all: [], first: r, w: s.w, dr: s.dr, lv: s.lv, xp: 0 });
+        if (s.q && d.all.indexOf(s.q) < 0) d.all.push(s.q);
         if (s.t === 'turnin') d.xp += s.xp || 0;
         if ((s.t === 'do' || s.t === 'turnin') && acc[s.q] && !acc[s.q].in && d.qs.indexOf(s.q) < 0) d.qs.push(s.q);
       });
@@ -1366,7 +1369,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       d.qs.forEach(function (q) { var a = acc[q]; if (a && (!last || a.r.n > last.n)) last = a.r; });
       d.ready = last ? stops.find(function (st) { return st.rows.indexOf(last) >= 0; }) : null;
       d.stop = stops.find(function (st) { return st.rows.indexOf(d.first) >= 0; });
-      var e = worldToZone(d.w); d.where = e ? umName(e.um) : '';
+      var e = d.dr ? { um: d.dr[0] } : worldToZone(d.w); d.where = e ? umName(e.um) : '';
       d.done = d.all.length && d.all.every(function (q) { return doneQ.has(q); });
       duns.push(d);
     });
@@ -1401,12 +1404,12 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var nq = R.steps.filter(function (s) { return s.t === 'turnin'; }).length;
     // known gaps, said plainly: dungeons the guide doesn't cover yet, routes that stop before 60, estimated levels
     var dl = duns.reduce(function (m, d) { return Math.max(m, d.lv || 0); }, 0), end = chaps.length ? chaps[chaps.length - 1].lv2 : 60, gp = [];
-    gp.push('Dungeons after level ' + Math.max(10, Math.floor(dl)) + ' are not in the route yet.');
+    if (dl < 55) gp.push('Dungeons after level ' + Math.max(10, Math.floor(dl)) + ' are not in the route yet.');
     if (end < 59.5) gp.push('This route ends near level ' + Math.floor(end) + '.');
     gp.push('Levels are estimates.');
     $('gaps').innerHTML = '<b>Work in progress:</b> ' + esc(gp.join(' '));
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
-    var fix = R.issues.filter(function (x) { return /^added|not-for-you|moved/.test(x.k); }).length;
+    var fix = R.issues.filter(function (x) { return x.g && /^added|not-for-you|moved/.test(x.k); }).length;
     $('sum').innerHTML = fix ? '<span>' + fix + ' fixes to the guide for your race and class</span>' : '';
     drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
   }
@@ -1419,7 +1422,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
       return '<tr><td>' + esc(d.name) + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
-        d.all.length + (d.all.length === 1 ? ' quest' : ' quests') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + '</td><td>' +
+        (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + '</td><td>' +
         (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
           : d.stop ? '<button class="go" data-go="' + d.stop.gi + '" type="button">' + esc(d.stop.ch.name) + ' →</button>' : '') + '</td></tr>';
     }).join('') + '</table>';
@@ -1554,7 +1557,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function drawMap() {
     var c = chaps[cur], box = $('mapbox');
     if (curZone == null || !MAPS.has(curZone)) {
-      var d = c.stops.find(function (s) { return s.loc && s.loc.dun; });
+      var isD = function (s) { return s && s.loc && s.loc.dun; };
+      var d = sel && sel.ch === c && isD(sel) ? sel : c.stops.length && c.stops.every(isD) ? c.stops[0] : null;
       box.innerHTML = '<div class="nomap">' + (d ? esc(d.loc.dun) + ': a dungeon. The steps are on the right.' : 'No map for this part. Places are in the steps.') + '</div>';
       return;
     }
