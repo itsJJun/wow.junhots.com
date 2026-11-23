@@ -1456,7 +1456,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.op) tags += '<span class="tag">optional</span>';
       if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
-      if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names;
+      if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
       else if (s.t === 'turnin') { txt = wi('q_turnin') + 'Turn in ' + names; var x = all.reduce(function (a, y) { return a + (y.xp || 0); }, 0); if (x) xp = x.toLocaleString() + ' xp'; }
       else if (s.t === 'do') txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + tags + (qd[5] ? '<small>' + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
       else if (s.t === 'train') { txt = wi('c_' + String(R.cls).toLowerCase()) + 'Train ' + s.sp.length + ' spells' + (s.trip ? ' <span class="tag lv">trip</span>' : '') + '<small>' + s.sp.map(function (x) { return esc(M.spells[x[0]] || x[0]) + (x[2] > 1 ? ' ' + x[2] : ''); }).join(', ') + '</small>'; xp = coin(s.cost); }
