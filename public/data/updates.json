@@ -9,6 +9,14 @@
   },
   {
     "date": "2026-11-23",
+    "title": "New: Dungeons page",
+    "text": "Every Forever dungeon in one place: the map with each boss numbered, what each boss drops (upgrades for your spec marked), its quests and how to get in. Your Leveling route links to it, and each dungeon stop on the route now shows the map and bosses.",
+    "image": "/assets/updates/2026-11-23-dungeons.webp",
+    "link": "/dungeons/",
+    "linkText": "Open Dungeons"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Craft finder: every crafting profession",
     "text": "The Tailoring finder is now the Craft finder. Pick Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking or Tailoring to see which crafts make a profit right now. Recipes that make several at once show the price of one.",
     "image": "/assets/updates/2026-11-23-craft-finder.webp",
