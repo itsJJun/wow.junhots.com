@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Craft finder: every crafting profession",
+    "text": "The Tailoring finder is now the Craft finder. Pick Alchemy, Blacksmithing, Cooking, Enchanting, Engineering, First Aid, Leatherworking or Tailoring to see which crafts make a profit right now. Recipes that make several at once show the price of one.",
+    "image": "/assets/updates/2026-11-23-craft-finder.webp",
+    "link": "/tailoring-finder/",
+    "linkText": "Open Craft finder"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Leveling: boss drops that are upgrades for you",
     "text": "Each dungeon on the Leveling route now lists the boss drops that beat the gear your quests gave you by then, for the spec you pick. Hover an item to see the boss and its drop chance.",
     "image": "/assets/updates/2026-11-23-boss-gear.webp",
