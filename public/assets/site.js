@@ -79,7 +79,7 @@
     if (!ts.length) return false;
     ts.forEach(function (t) {
       var input = $(t[0]), dt = new DataTransfer();
-      dt.items.add(new File([rec.data], rec.name, { type: 'text/plain', lastModified: rec.at }));
+      dt.items.add(new File([rec.data], rec.name, { type: 'text/plain', lastModified: rec.mod || rec.at }));
       input.files = dt.files;
       feeding = true;
       try { input.dispatchEvent(new Event('change', { bubbles: true })); } finally { feeding = false; }
