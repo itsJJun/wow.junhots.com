@@ -19,6 +19,9 @@ This Worker is separate from the junhots.com (Heroes of the Storm) site: its own
 ## Change the site
 
 1. Edit the tool pages in the project folder, then run `python3 scripts/build_site.py`.
+   It ends by running `node scripts/check-vendor-prices.cjs`, which stops the build if any vendor price on the site
+   differs from the game. The game's prices live in `scripts/vendor-prices.json`; refresh them from your
+   TradeSkillMaster save with `python3 scripts/vendor_ref.py "<...>/SavedVariables/TradeSkillMaster.lua"`.
 2. Check it locally with `npx wrangler dev` (local test keys go in `.dev.vars`, which is never committed).
 3. Commit on a branch and open a pull request. Only `main` goes live, after the pull request is merged.
 
