@@ -1454,7 +1454,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (r.k === 'fp') txt = wi(fly()) + 'Get the flight path <span class="tag add">on the way</span>';
     else {
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
-      if (s.ad) tags += '<span class="tag add" title="' + esc(s.ad) + '">added</span>';
+      if (s.ad) tags += '<span class="tag add" title="' + esc(s.ad) + '">' + (s.ad === 'Class quest' ? 'class quest' : 'added') + '</span>';
       if (s.op) tags += '<span class="tag">optional</span>';
       if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
