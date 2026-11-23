@@ -28,7 +28,9 @@ CF_BEACON = os.environ.get('CF_BEACON', '')
 # tool id (hub/build_hub.py TOOLS) -> page address on the site
 SLUG = {'crafted': 'gear-upgrades', 'leveling': 'profession-leveling', 'enchants': 'enchants', 'macros': 'enchant-macros',
         'tailoring': 'tailoring-finder', 'timing': 'mat-timing', 'sell': 'sell-spare-mats', 'flips': 'vendor-flips',
-        'warlock': 'warlock-guide', 'demons': 'demon-trainer'}
+        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route'}
+# tools that fetch their own data files (<tool folder>/data/ -> /<slug>/data/)
+DATA_DIRS = {'route': 'level-route/data'}
 HUB_ARTIFACT = 'CHaDEsKnVJdVHSheWPz7XF'
 # shorter tab names in the site header (category id -> label); others use the Hub's category label
 NAV_LABEL = {'character': 'Gear', 'guides': 'Classes'}
@@ -161,7 +163,7 @@ def header(active_cat=None, active_tool=None, active_top=None):
             '<div class="ws-snav" role="navigation" aria-label="Tools">%s</div>' % ''.join(items) +
             '<div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div>'
             '<button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: '
-            'auction prices, gear and recipes, bags and bank">%s<span>Load game files</span></button>' % FILES_ICON +
+            'auction prices, gear and recipes, bags and bank, quests done, flights">%s<span>Load game files</span></button>' % FILES_ICON +
             '<div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div>'
             '<div class="ws-srow"><a href="%s" title="Jun\'s Heroes of the Storm site">HotS site ↗</a>' % HOTS +
             '<button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>\n')
@@ -294,6 +296,10 @@ def build_tool(t):
     os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, 'w', encoding='utf-8').write(s)
     print('  %-22s %5d KB' % (path, len(s.encode()) // 1024))
+    if t['id'] in DATA_DIRS:
+        dst = os.path.join(PUB, SLUG[t['id']], 'data')
+        shutil.rmtree(dst, ignore_errors=True)
+        shutil.copytree(os.path.join(SRC, DATA_DIRS[t['id']]), dst)
 
 
 # ---------------------------------------------------------------- own pages

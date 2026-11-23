@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-11-23",
+    "title": "Level 1-60 route",
+    "text": "A new Leveling page: every quest from level 1 to 60 in order for your race and class, on the zone map, with flights, trainer visits and every dungeon at the right level (with the boss to kill for Legacy points). Load Questie and it starts where you are.",
+    "image": "/assets/updates/2026-11-22-level-route.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
     "date": "2026-11-22",
     "title": "Prices for “of Shadow Wrath” and every other suffix",
     "text": "Gear upgrades now prices each suffix version of a green (of the Owl, of the Monkey…) straight from your Auctionator full scan, so they show up as upgrades you can buy.",

@@ -12,9 +12,14 @@
     { key: 'snap', label: 'Gear & recipes', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows, then /reload',
       targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg']] },
     { key: 'tsm', label: 'Bags & bank', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
-      targets: [['#bagFile', '#haveInfo']] }
+      targets: [['#bagFile', '#haveInfo']] },
+    // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)
+    { key: 'quests', label: 'Quests done', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
+      targets: [['#questieFile', '#msg']] },
+    { key: 'flights', label: 'Known flights', file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
+      targets: [['#spfFile', '#msg']] }
   ];
-  var BY_INPUT = { file: 'ah', gearfile: 'snap', knownFile: 'snap', bagFile: 'tsm' };
+  var BY_INPUT = { file: 'ah', gearfile: 'snap', knownFile: 'snap', bagFile: 'tsm', questieFile: 'quests', spfFile: 'flights' };
   var PAGE = location.pathname;
   var feeding = false;
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -87,13 +92,13 @@
   // re-read the newest save files by themselves (or after one click when the browser asks again).
   // Other browsers: pick the WTF folder each time (input webkitdirectory). Only the three save files are read. ----
   var FSA = typeof window.showDirectoryPicker === 'function';
-  var NAMES = { 'auctionator.lua': 'ah', 'tradeskillmaster.lua': 'tsm', 'gearsnapshot.lua': 'snap' };
+  var NAMES = { 'auctionator.lua': 'ah', 'tradeskillmaster.lua': 'tsm', 'gearsnapshot.lua': 'snap', 'questie.lua': 'quests', 'shortestpathforever.lua': 'flights' };
   var SKIP = /^(interface|data|cache|logs|errors|screenshots|fonts|utils|_retail_|_classic_|_classic_era_|_ptr_|_beta_)$/i;
   var dirRec = null;
   function getDir() { return dirRec ? Promise.resolve(dirRec) : getRec('dir').then(function (r) { dirRec = r || null; return dirRec; }, function () { return null; }); }
   // Auctionator and TSM keep their data account-wide (Account/<id>/SavedVariables). Each character also gets a tiny
   // Auctionator.lua (Account/<id>/<realm>/<char>/SavedVariables, 38 bytes, written a moment later): never let it win.
-  var ACCT = { ah: 1, tsm: 1 };
+  var ACCT = { ah: 1, tsm: 1, quests: 1 };
   function better(k, file, isChar, old) {
     if (!old) return true;
     if (ACCT[k] && old.isChar !== isChar) return !isChar;
@@ -242,7 +247,7 @@
     document.querySelectorAll('.ws-dots').forEach(function (d) {
       d.innerHTML = KINDS.map(function (k) { return '<i class="' + (m[k.key] ? 'on' : '') + '"></i>'; }).join('');
     });
-    document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of 3 game files loaded'; });
+    document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of ' + KINDS.length + ' game files loaded'; });
     if (document.readyState !== 'loading') { factionNote(); startHere(); }   // both depend on which files are loaded
     // side panel: one line per file, like the Hub
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
@@ -274,7 +279,7 @@
       var i = m[k.key];
       return '<div class="ws-frow"><div><b>' + esc(k.label) + '</b> <code>' + esc(k.file) + '</code></div>' +
         '<span class="ws-acts2"><label class="ws-fbtn main">Load<input type="file" accept=".lua,.bak,text/plain" multiple data-ws-kind="' + k.key + '"></label>' +
-        '<button type="button" class="ws-fbtn" data-wf-copy="' + k.key + '">Copy path</button></span>' +
+        (k.noCopy ? '' : '<button type="button" class="ws-fbtn" data-wf-copy="' + k.key + '">Copy path</button>') + '</span>' +
         '<span class="ws-st' + (i ? ' ok' : '') + '">' + (i ? '✓ ' + esc(i.name) + ', ' + esc(when(i.at)) :
           (k.key === 'ah' && site ? 'Using the site\'s Horde auction scan from ' + esc(when(site.scan ? site.scan * 1000 : site.at)) + '. Load yours for your own realm and faction.' : 'Not loaded. In game: ' + esc(k.pre))) + '</span></div>';
     }).join('') +
