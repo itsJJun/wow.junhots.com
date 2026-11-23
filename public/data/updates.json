@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-23",
+    "title": "Leveling: close-up maps, map icons and quest areas",
+    "text": "Zoom in on the Leveling map to see the game's own close-up map, like in game. Flight masters, boats, zeppelins and dungeon entrances show as small icons. Quest objectives show as blue areas, and quests with several spots (like Strange Pylons) take you to each one, with its name and coordinates under the quest. The route also takes quests as soon as they open, does quests on the same monsters together (about 5 hours less travel) and marks elite quests. Quests that start from a looted item (like Tattered Journal) are now in the route, and Desolace follows the Magram clan for casters and Gelkis for everyone else.",
+    "image": "/assets/updates/2026-11-23-closeup-map.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
+    "date": "2026-11-23",
     "title": "Leveling: class quests and every dungeon quest",
     "text": "The route now has your class quests (pets, mounts, forms, totems) and about 40 more dungeon quests from the Dungeon Journal, like Agamaggan's Blood. Shen'dralas is in the route too, and far-off dungeon quests are one switch away (Optional quests). Every dungeon quest shows its dungeon, and far-off quests with a gear upgrade for your spec are in the route.",
     "image": "/assets/updates/2026-11-23-dungeon-quests.webp",
