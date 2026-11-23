@@ -28,9 +28,9 @@ CF_BEACON = os.environ.get('CF_BEACON', '')
 # tool id (hub/build_hub.py TOOLS) -> page address on the site
 SLUG = {'crafted': 'gear-upgrades', 'leveling': 'profession-leveling', 'enchants': 'enchants', 'macros': 'enchant-macros',
         'tailoring': 'tailoring-finder', 'timing': 'mat-timing', 'sell': 'sell-spare-mats', 'flips': 'vendor-flips',
-        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route'}
+        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route', 'dungeons': 'dungeons'}
 # tools that fetch their own data files (<tool folder>/data/ -> /<slug>/data/)
-DATA_DIRS = {'route': 'level-route/data'}
+DATA_DIRS = {'route': 'level-route/data', 'dungeons': 'dungeon-guide/data'}
 HUB_ARTIFACT = 'CHaDEsKnVJdVHSheWPz7XF'
 # shorter tab names in the site header (category id -> label); others use the Hub's category label
 NAV_LABEL = {'character': 'Gear', 'guides': 'Classes'}
@@ -374,6 +374,8 @@ CREDITS = [
     ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Tailoring finder and Sell spare mats.'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'The auction house scans every price on this site comes from, including the file you load yourself.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
+    ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
+    ('OpenMap addon', 'https://github.com/openmap-world/openmap', 'The list of the game\'s dungeon map files and the boss spots in Lower Blackrock Spire, on Dungeons (MIT licence, /dungeons/data/OpenMap-LICENSE.txt). The maps are Blizzard\'s own.'),
 ]
 
 

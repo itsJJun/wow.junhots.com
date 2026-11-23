@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en" class="ws-site">
+<head>
+<style>@view-transition { navigation: auto; }</style>
+<script>window.wsHash0 = location.hash;</script>
+<script>try { if (localStorage.getItem('ws.side') === 'mini') document.documentElement.classList.add('ws-mini'); if (localStorage.getItem('ws.owner')) document.documentElement.classList.add('ws-owner'); } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dungeons · WoW Forever · junhots</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 14px 16px 40px; display: grid; gap: 10px; }
+h2 { font-size: 15px; margin: 0 0 6px; }
+h2 .muted { font-weight: 500; font-size: 12.5px; }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.hidden { display: none !important; }
+.q1 { color: var(--q1); } .q2 { color: var(--q2); } .q3 { color: var(--q3); } .q4 { color: var(--q4); } .q0 { color: var(--muted); }
+/* you + search */
+.pick { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; }
+.pick label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.pick select { font: inherit; font-size: 13px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 6px; }
+.pick .rt { margin-left: auto; font-size: 12.5px; }
+.srch { position: relative; margin-top: 8px; }
+.srch input { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 11px; }
+.srch input:focus { outline: none; border-color: var(--accent); }
+#sres { display: grid; gap: 2px; margin-top: 4px; max-height: 320px; overflow: auto; }
+#sres:empty { display: none; }
+.sr { all: unset; display: flex; gap: 8px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+.sr:hover, .sr:focus-visible { background: var(--hover); }
+.sr img { width: 20px; height: 20px; border-radius: 4px; }
+.sr .k { font-size: 11.5px; color: var(--muted); min-width: 42px; }
+/* dungeon picker */
+.bands { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; }
+.band { font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.band.on { background: var(--raised); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; display: inline-flex; gap: 6px; align-items: center; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); font-size: 13px; color: var(--ink); cursor: pointer; }
+.chip small { color: var(--muted); font-size: 11.5px; }
+.chip.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+.chip.done { opacity: .6; }
+#dsel { display: none; font: inherit; font-size: 14px; width: 100%; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 8px; padding: 6px 8px; }
+/* one dungeon */
+.dhead { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.dname { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.dhead p { margin: 2px 0 0; font-size: 13px; }
+.dico { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--line); }
+.dtags { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tg { font-size: 11.5px; padding: 1px 7px; border-radius: 5px; white-space: nowrap; background: var(--raised); color: var(--muted); }
+.tg.leg { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.tg.route { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+.tg.opt { background: color-mix(in srgb, #4fc3d9 16%, transparent); color: #4fc3d9; }
+.tg.in { background: color-mix(in srgb, #b48cf0 18%, transparent); color: #b48cf0; }
+.tg.done { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--good); }
+.tg.up { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+:root[data-theme="light"] .tg.in { color: #7a4fc9; } :root[data-theme="light"] .tg.opt { color: #1f8aa0; }
+.go { font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--good) 50%, var(--line)); background: none; color: var(--good); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.go:hover { border-color: var(--good); }
+.go.back { color: var(--ink); border-color: var(--line2); }
+.lead2 { margin: 2px 0 0; font-size: 13.5px; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); max-width: 92ch; }
+.wf-answer { margin: 4px 0 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(min(320px, 100%), 1fr); gap: 10px; align-items: start; }
+.grid.nomap { grid-template-columns: minmax(0, 1fr); }
+.nomapnote { font-size: 13px; margin: 0; }
+/* bosses */
+.boss { border-top: 1px solid var(--line); }
+.boss:first-child { border-top: 0; }
+.bh { all: unset; box-sizing: border-box; width: 100%; display: flex; gap: 8px; align-items: center; padding: 6px 2px; cursor: pointer; font-size: 13.5px; }
+.bh:focus-visible { outline: 2px solid var(--accent); border-radius: 6px; }
+.bn { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--raised); box-shadow: inset 0 0 0 1px #e0a64a; font: 700 11px/20px var(--body, Inter), sans-serif; text-align: center; color: var(--ink); }
+.bn.r, .bn.x { box-shadow: inset 0 0 0 1px var(--line2); color: var(--muted); }
+.boss.open .bn:not(.x), .boss.hot .bn:not(.x) { background: #e0a64a; color: #1d1a16; }
+.bname { font-weight: 600; }
+.blv { font-size: 12px; color: var(--muted); }
+.bw { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.bcar { color: var(--muted); font-size: 11px; transition: transform .15s; }
+.boss.open .bcar { transform: rotate(90deg); }
+.bbody { display: none; padding: 0 0 8px 28px; }
+.boss.open .bbody { display: block; }
+.bdesc { margin: 0 0 6px; font-size: 12.5px; color: var(--muted); }
+.loot { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.loot li { display: flex; gap: 8px; align-items: center; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
+.loot li.isup { background: color-mix(in srgb, var(--good) 9%, transparent); }
+.loot img, .rwi { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
+.loot .nm { font-weight: 600; text-decoration: none; }
+.loot .nm:hover { text-decoration: underline; }
+.loot .sl { color: var(--muted); font-size: 12px; flex: 1; min-width: 0; }
+.loot .pc { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.recs { font-size: 12px; color: var(--muted); margin: 4px 0 0 6px; }
+.bfilter { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); margin: -2px 0 6px; }
+.bfilter label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+/* quests */
+.qt { width: 100%; border-collapse: collapse; font-size: 13px; }
+.qt td { padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+.qt tr:first-child td { border-top: 0; }
+.qn { font-weight: 600; }
+.qn .wf-i { margin-right: 4px; }
+.qo { display: block; font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 1px; }
+.ql { white-space: nowrap; }
+.qr { white-space: nowrap; }
+.rwi { display: inline-block; vertical-align: middle; margin: 0 3px 2px 0; }
+.rwi.isup { border-color: var(--good); box-shadow: 0 0 0 1px var(--good); }
+.qtags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.lead-in { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.ent p { margin: 0; font-size: 13.5px; }
+.entmap { position: relative; margin-top: 8px; max-width: 460px; border-radius: 8px; overflow: hidden; line-height: 0; }
+.entmap img { width: 100%; height: auto; display: block; aspect-ratio: 1002 / 668; }
+.entmap .pin { position: absolute; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #3f9d52; box-shadow: 0 0 0 3px rgba(63,157,82,.35), 0 1px 4px rgba(0,0,0,.6); }
+footer { font-size: 12px; color: var(--muted); }
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .dtags { margin-left: 0; }
+  .bands, .chips { display: none; }
+  #dsel { display: block; }
+  .qt .qg { display: none; }
+  .qt, .qt tbody, .qt tr { display: block; }
+  .qt tr { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+  .qt tr:first-child { border-top: 0; }
+  .qt td { display: block; padding: 0; border: 0; background: none !important; }
+  .qt td:first-child { flex: 1 0 100%; }
+  .qtags { justify-content: flex-start; }
+  .pick .rt { margin-left: 0; }
+}
+</style>
+<!--wf-theme-->
+<style id="wf-theme">
+:root { color-scheme: dark; --bg: #141413; --panel: #1c1b19; --raised: #242320; --panel2: #242320; --sunken: #100f0e; --hover: #2d2b28; --line: #302e2a; --line2: #46433d; --ink: #ecebe6; --muted: #a39f96; --gold: #e0a54c; --accent: #e0a54c; --on-accent: #1c1406; --fel: #5bbf86; --good: #5bbf86; --on-good: #0c1a10; --warn: #e0a54c; --bad: #e2685b; --q1: #e8e6e1; --q2: #4fd157; --q3: #5aa9ff; --q4: #b77cf5; --wowgold: #f2c94c; --silver: #c3c8cf; --copper: #cd8a57; --shade: #000000; --tipbg: #18171c; --elev: 0 1px 2px rgba(0,0,0,.35);
+  --display: "Inter", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+:root[data-theme="light"] { color-scheme: light; --bg: #f4f2ed; --panel: #fdfcfa; --raised: #f3f0ea; --panel2: #f3f0ea; --sunken: #ebe7df; --hover: #e8e3d9; --line: #e2ddd2; --line2: #cbc4b6; --ink: #1f1d1a; --muted: #6b665d; --gold: #b06c10; --accent: #b06c10; --on-accent: #ffffff; --fel: #237a49; --good: #237a49; --on-good: #ffffff; --warn: #a8670f; --bad: #bf4130; --q1: #1f1d1a; --q2: #1f8516; --q3: #1c66c4; --q4: #7c3cc6; --wowgold: #966f00; --silver: #66707c; --copper: #9c5a27; --shade: #6f6555; --tipbg: #fdfcfa; --elev: 0 1px 2px rgba(60,48,30,.06), 0 1px 1px rgba(60,48,30,.04); }
+body { background: var(--bg) !important; color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; letter-spacing: -.01em; text-transform: none; font-variant: normal; }
+h1 { color: var(--ink) !important; letter-spacing: -.02em; }
+h2 { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline-color: var(--accent); }
+input, select, textarea { color-scheme: inherit; }
+.card, .panel { box-shadow: var(--elev); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--accent); } }
+.wf-toggle { position: fixed; right: 12px; bottom: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px;
+  font: 600 12px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line2);
+  border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-toggle:hover { background: var(--hover); }
+/* inside the Hub every file is loaded from its "Load files" menu, so the pages' own loaders are hidden */
+.wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
+#wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
+  font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+#wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
+#wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
+#wf-path code i { font-style: normal; color: var(--accent); }
+#wf-path form { display: grid; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#wf-path form label { font-size: 12px; color: var(--muted); }
+#wf-path form span { display: flex; gap: 6px; }
+#wf-path form input { flex: 1; min-width: 0; font: 12px var(--mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); }
+#wf-path form button { font: 600 12px var(--body); padding: 4px 10px; border-radius: 6px; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+#wf-path form small { color: var(--bad); font-size: 12px; }
+#wf-path form small:empty { display: none; }
+#wf-path a { color: var(--accent); margin-left: 4px; }
+.wf-toggle svg { width: 14px; height: 14px; }
+/* tables: alternating rows and a hover highlight (Jun, 15 Nov). :where() keeps these weaker than any page's own row
+   colours (picked or warning rows keep theirs); the hover on cards is a tint laid over their own background. */
+:where(table tbody tr:nth-child(even)) > td { background-color: color-mix(in srgb, var(--ink) 4%, transparent); }
+:where(table tbody tr:hover) > td { background-color: color-mix(in srgb, var(--accent) 11%, transparent); }
+:where(table tbody tr) > td { transition: background-color .1s ease; }
+.wf-more-card:hover:not(.wf-open), .wf-row-hover:hover { background-image: linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent), color-mix(in srgb, var(--accent) 7%, transparent)); }
+
+/* click-to-open cards (WF_MORE): hint on hover, accent edge when open */
+.wf-more-card { cursor: pointer; }
+.wf-more-card:hover { border-color: var(--line2) !important; }
+.wf-more-card.wf-open { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)) !important; }
+/* hover preview unrolls downward (clip-path animates on the GPU, no layout work per frame) */
+.wf-more-card { transition: background-color .12s ease, border-color .12s ease; }
+.wf-peek { animation: wf-unroll .16s cubic-bezier(.2, .7, .3, 1); }
+@keyframes wf-unroll { from { clip-path: inset(0 -40px calc(100% - var(--wf-h0, 100%)) -40px); } to { clip-path: inset(0 -40px -40px -40px); } }
+@media (prefers-reduced-motion: reduce) { .wf-peek { animation: none; } }
+.wf-peek { position: relative; z-index: 20; border-color: var(--line2) !important; box-shadow: 0 12px 28px color-mix(in srgb, var(--shade) 35%, transparent) !important; }
+
+/* ---- design v2 ---- */
+body { line-height: 1.5; }
+.wf-head { display: grid; gap: 6px; margin: 6px 0 2px; max-width: 760px; }
+.wf-head h1 { font-size: 26px !important; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; margin: 0; color: var(--ink) !important; }
+.wf-lead { margin: 0; font-size: 15px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 78%, var(--muted)); max-width: 66ch; }
+.wf-start { list-style: none; counter-reset: wfs; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.wf-start li { counter-increment: wfs; display: inline-flex; align-items: center; gap: 8px; }
+.wf-start li::before { content: counter(wfs); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  font: 600 11px var(--body); color: var(--ink); background: var(--raised); box-shadow: inset 0 0 0 1px var(--line2); }
+.wf-start li:first-child::before { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.wf-sub { margin: 2px 0 0; font-size: 13px; font-weight: 400; color: var(--muted); max-width: 90ch; }
+.wf-answer { margin: 0; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink); max-width: 86ch; }
+.wf-answer::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--line2); transform: translateY(-1px); }
+.wf-answer.good::before { background: var(--good); }
+.wf-more { all: unset; cursor: pointer; font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.wf-more:hover { color: var(--ink); text-decoration-color: currentColor; }
+.wf-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+/* calmer labels: sentence case instead of spaced capitals */
+:is(th, .field > span, .lbl, .tile .k, .wf-jump > span) { text-transform: none !important; letter-spacing: 0 !important; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); }
+.wf-jump > span { font-size: 12px; }
+:is(.card .k, .mini .when, .dbr, .stat span, .buyrow .lbl, .bis .sl, .filters .lab, .find .lab, .pick .rank, .mat.head, .lim .h) {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12px !important; }
+:is(.pill, .badge, .status) { text-transform: none !important; letter-spacing: 0 !important; }
+/* one hierarchy: page title, then section titles; headings in ink, never amber */
+h1 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.025em !important; line-height: 1.15; color: var(--ink) !important; }
+h2 { font-size: 16px; color: var(--ink) !important; }
+.wf-lead { display: block; }
+header .wf-start, .hero .wf-start { margin-top: 8px; }
+
+.wf-stale { display: inline-block; font: 600 11.5px/1.5 var(--body); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: 99px; padding: 0 7px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+.wf-stale-line { display: inline-block; color: var(--ink); border-left: 3px solid var(--warn); padding-left: 8px; margin: 2px 0 4px; }
+
+@media (max-width: 700px) {
+  body :where(div, section, header, main, article, nav, aside, form, ul, ol, li, p, h1, h2, h3, details, fieldset, footer) { min-width: 0; }
+  body { overflow-wrap: break-word; }
+  :where(input, select, textarea) { max-width: 100%; }
+  .wf-start { gap: 4px 14px; }
+  header.hero { flex-direction: column; align-items: flex-start !important; }
+  .hero-icons { flex: none; }
+}
+
+[hidden] { display: none !important; }
+.wf-addon { font: 500 12.5px var(--body); color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; margin: 0 6px; white-space: nowrap; }
+.wf-addon:hover { color: var(--ink); text-decoration-color: currentColor; }
+.ahrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ahrow label.btn { font: 500 12.5px var(--body); background: var(--panel2, var(--panel)); color: var(--ink); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ahrow label.btn:hover { border-color: var(--accent); }
+.ahrow #msg:empty { display: none; }
+
+abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%, transparent); text-underline-offset: 3px; cursor: help; }
+/* phones (review 16 Nov): small buttons and ticks get a finger-sized hit area without changing how they look much */
+@media (pointer: coarse) {
+  button:not(.wf-toggle):not(.wf-fold), select, .btn, .chip { min-height: 32px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  label:has(> input[type="checkbox"]) { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; }
+  button.mac, button.cp, button.star { min-width: 34px; }
+}
+.wf-tapTip { position: fixed; z-index: 200; max-width: min(320px, calc(100vw - 16px)); background: var(--ink); color: var(--bg); font: 500 13px/1.4 var(--body); padding: 7px 10px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-theme', root = document.documentElement;
+  var ICON = { dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+               light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' };
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function fromParent() { try { return window.parent !== window && window.parent.wfTheme ? window.parent.wfTheme.get() : null; } catch (e) { return null; } }
+  var inHub = !!fromParent();
+  if (inHub) root.classList.add('wf-in-hub');
+  function label() {
+    var t = root.dataset.theme, other = t === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.innerHTML = ICON[other] + '<span>' + (other === 'light' ? 'Light' : 'Dark') + '</span>';
+      b.title = 'Switch to ' + other + ' mode';
+    });
+  }
+  function set(t, save) {
+    root.dataset.theme = t;
+    if (save) try { localStorage.setItem(KEY, t); } catch (e) {}
+    document.querySelectorAll('iframe').forEach(function (f) { try { f.contentDocument.documentElement.dataset.theme = t; } catch (e) {} });
+    label();
+  }
+  window.wfTheme = { get: function () { return root.dataset.theme; }, set: set };
+  set(fromParent() || stored() || 'dark', false);
+  addEventListener('storage', function (e) { if (e.key === KEY && e.newValue) set(e.newValue, false); });
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!inHub && !document.querySelector('[data-wf-toggle]')) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-toggle'; b.setAttribute('data-wf-toggle', '');
+      document.body.appendChild(b);
+    }
+    document.querySelectorAll('[data-wf-toggle]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { if (inHub) { window.parent.wfTheme.set(t, true); return; } } catch (e) {}
+        set(t, true);
+      });
+    });
+    label();
+  });
+})();
+</script>
+<script>
+(function () {
+  var FILES = {"file": "ah", "hubFile": "ah", "bagFile": "tsm", "hubTsm": "tsm", "gearfile": "snap", "knownFile": "snap", "hubSnap": "snap"}, COPY = {".kn-copy": "snap", "#copyPath": "ah", "#copyTsm": "tsm", "[data-wf-copy=ah]": "ah", "[data-wf-copy=snap]": "snap", "[data-wf-copy=tsm]": "tsm"}, KEY = 'wf-wow', timer;
+  var NAME = { ah: 'Auctionator.lua', tsm: 'TradeSkillMaster.lua', snap: 'GearSnapshot.lua' };
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } }
+  // Any path inside WTF\Account\<account> (a file or a folder) -> { acct: '...\\Account\\<account>\\', char: '<realm>\\<character>\\' }
+  function parse(t) {
+    t = String(t || '').trim().replace(/^"|"$/g, ''); var sep = t.indexOf('\\') >= 0 ? '\\' : '/';
+    var m = new RegExp('^(.*?[\\\\/]WTF[\\\\/]Account[\\\\/][^\\\\/]+)(?:[\\\\/](.*))?$', 'i').exec(t); if (!m) return null;
+    var out = { acct: m[1] + sep }, rest = (m[2] || '').split(/[\\/]/).filter(Boolean);
+    if (rest.length >= 2 && !/^savedvariables$/i.test(rest[0]) && !/\.lua$/i.test(rest[1])) out.char = rest[0] + sep + rest[1] + sep;
+    return out;
+  }
+  function set(t) {
+    var p = parse(t); if (!p) return false;
+    var old = get(); if (!p.char && old.char && old.acct === p.acct) p.char = old.char;
+    try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+    return true;
+  }
+  function path(k) {
+    var w = get(); if (!w.acct) return null; var sep = w.acct.slice(-1);
+    if (k === 'snap') return w.char ? w.acct + w.char + 'SavedVariables' + sep + NAME.snap : null;
+    return w.acct + 'SavedVariables' + sep + NAME[k];
+  }
+  // Where the file lives, for anyone (no personal folder names)
+  function where(k) {
+    return 'World of Warcraft\\_forever_\\WTF\\Account\\<i>your account</i>\\' + (k === 'snap' ? '<i>realm</i>\\<i>character</i>\\' : '') + 'SavedVariables\\' + NAME[k];
+  }
+  window.wfWow = { get: get, set: set, path: path, where: where, parse: parse };
+  function copy(t) {
+    var ok = false, a = document.activeElement, ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); try { a && a.focus && a.focus(); } catch (e) {}
+    if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
+    return ok;
+  }
+  function toast(html, el, keep) {
+    var d = document.getElementById('wf-path');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });
+    }
+    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
+    if (r && r.width) {
+      var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
+      if (y + d.offsetHeight > innerHeight - 8) y = Math.max(8, r.top - d.offsetHeight - 6);
+      d.style.left = x + 'px'; d.style.top = y + 'px';
+    }
+    var f = d.querySelector('form');
+    if (f) f.onsubmit = function (e) {
+      e.preventDefault(); var v = f.querySelector('input').value;
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
+    };
+    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+  }
+  function help(k, el) {
+    var p = path(k), name = NAME[k];
+    if (p && copy(p)) return toast('<b>' + name + '</b> path copied. In the Open window press <kbd>Alt</kbd>+<kbd>N</kbd> (File name box), <kbd>Ctrl</kbd>+<kbd>V</kbd>, <kbd>Enter</kbd>. <a href="#" data-wf-wow-reset>Change folder</a>', el);
+    var w = get();
+    toast('<b>' + name + '</b> is in <code>' + where(k) + '</code>' +
+      '<form data-k="' + k + '"><label>Save time next load: paste the ' + (k === 'snap' && w.acct ? 'character' : 'account') + ' folder path once (copy it from the Open window\'s address bar).</label>' +
+      '<span><input type="text" spellcheck="false" placeholder="' + (k === 'snap' ? '...\\WTF\\Account\\NAME\\Realm\\Character' : '...\\WTF\\Account\\NAME') + '"><button type="submit">Save</button></span><small></small></form>', el, true);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest('[data-wf-wow-reset]')) { e.preventDefault(); try { localStorage.removeItem(KEY); } catch (x) {} var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; return; }
+    for (var sel in COPY) { var b = t.closest(sel); if (b) { e.preventDefault(); e.stopImmediatePropagation(); help(COPY[sel], b); return; } }
+    if (t.tagName !== 'INPUT' || t.type !== 'file' || !FILES[t.id]) return;
+    help(FILES[t.id], (t.labels && t.labels[0]) || t);
+  }, true);
+  document.addEventListener('change', function (e) {
+    var d = document.getElementById('wf-path');
+    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+  }, true);
+})();
+
+window.wfAge = function (when) {
+  var t = when instanceof Date ? when.getTime() : typeof when === 'number' ? (when < 1e11 ? when * 1000 : when)
+        : Date.parse(/^\d{4}-\d\d-\d\d$/.test(String(when)) ? when + 'T12:00:00' : when);
+  return isNaN(t) ? null : Math.max(0, Math.floor((Date.now() - t) / 864e5));
+};
+window.wfStale = function (when, maxDays, what) {
+  var d = wfAge(when); if (d == null || d <= maxDays) return '';
+  return ' <span class="wf-stale" title="' + (what || 'This data is') + ' ' + d + ' days old, so it may have changed since.">' + d + ' days old</span>';
+};
+
+(function () {
+  var KEY = 'wf-char', subs = [];
+  function get() { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function set(patch) {
+    var c = get(), ch = false;
+    for (var k in patch) if (patch[k] !== undefined && patch[k] !== null && patch[k] !== '' && c[k] !== patch[k]) { c[k] = patch[k]; ch = true; }
+    if (ch) { c.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} }
+    return c;
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) subs.forEach(function (f) { try { f(get()); } catch (x) {} }); });
+  window.WFCHAR = { get: get, set: set, on: function (f) { subs.push(f); } };
+})();
+
+(function () {
+  var G = [
+    ['Gear score', 'How good an item is for your class and spec: its stats times the stat weights of the Forever Leveling BiS addon. Higher is better.'],
+    ["Merchant's Favor", "A Forever currency for rare patterns and formulas, earned by turning in Waylaid Supplies crates (a Journeyman Fabrics crate gives 20)."],
+    ['Sayaad', 'The Succubus (or Incubus), a Warlock demon.'],
+    ['BUY line', 'What to buy for one step, with a small safety margin, after what is already in your bags.'],
+    ['sale rate', 'How often an item actually sells, from TradeSkillMaster data (0.1 = about 1 in 10 listings sell).'],
+    ['Stuck', 'Listings are piling up faster than the rest of the auction house, or sellers are cutting the price hard.'],
+    ['disenchant', 'Destroying a green or blue item with Enchanting to get dust, essences or shards.'],
+    ['Big crowd', 'Many Horde players are at the levels that can use this item right now.']
+  ];
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|ABBR|CODE|SVG|TITLE|LABEL)$/;
+  var done = {};
+  function scan() {
+    var root = document.querySelector('main') || document.body; if (!root) return;
+    var left = G.filter(function (g) { return !done[g[0]]; }); if (!left.length) return;
+    var re = new RegExp('\\b(' + left.map(function (g) { return g[0].replace(/[.*+?^${}()|[\]\\']/g, '\\$&'); }).join('|') + ')s?\\b');
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      for (var e = n.parentNode; e && e !== root; e = e.parentNode) { if (SKIP.test(e.nodeName) || e.hidden || (e.classList && (e.classList.contains('gl') || e.classList.contains('mkt')))) return NodeFilter.FILTER_REJECT; }
+      return re.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; } });
+    var hits = []; for (var n = w.nextNode(); n; n = w.nextNode()) hits.push(n);
+    hits.forEach(function (n) {
+      var m = n.nodeValue.match(re); if (!m || done[m[1]]) return;
+      var g = G.filter(function (x) { return x[0] === m[1]; })[0]; done[m[1]] = 1;
+      var a = document.createElement('abbr'); a.className = 'gl'; a.title = g[1]; a.tabIndex = 0;
+      var rest = n.splitText(m.index); rest.splitText(m[0].length); a.textContent = rest.nodeValue; rest.parentNode.replaceChild(a, rest);
+    });
+  }
+  var t = 0; function later() { clearTimeout(t); t = setTimeout(scan, 400); }
+  addEventListener('load', function () { scan(); if (window.MutationObserver) new MutationObserver(later).observe(document.body, { childList: true, subtree: true }); });
+  // phones: tap a tag or term to read its title
+  if (window.matchMedia && matchMedia('(hover: none)').matches) {
+    var tip;
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('abbr[title], .gl, .mkt[title], .pill[title], .mv[title], [data-tip]');
+      if (tip) { tip.remove(); tip = null; }
+      if (!el) return;
+      var txt = el.getAttribute('title') || el.getAttribute('data-tip'); if (!txt) return;
+      tip = document.createElement('div'); tip.className = 'wf-tapTip'; tip.setAttribute('role', 'tooltip'); tip.textContent = txt; document.body.appendChild(tip);
+      var r = el.getBoundingClientRect(), x = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left));
+      tip.style.left = x + 'px'; tip.style.top = (r.bottom + 6 + tip.offsetHeight > innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+    }, true);
+    addEventListener('scroll', function () { if (tip) { tip.remove(); tip = null; } }, { passive: true });
+  }
+})();
+
+(function () {
+  var KEY = 'wf-ah', cache, subs = [];
+  function findBytes(buf, str, from) {
+    var pat = str.split('').map(function (c) { return c.charCodeAt(0); });
+    outer: for (var i = from || 0; i <= buf.length - pat.length; i++) { for (var j = 0; j < pat.length; j++) if (buf[i + j] !== pat[j]) continue outer; return i; }
+    return -1;
+  }
+  function luaString(buf, i) {
+    var out = [], map = { 110: 10, 114: 13, 116: 9, 92: 92, 34: 34, 39: 39, 10: 10, 97: 7, 98: 8, 102: 12, 118: 11 }; i++;
+    while (i < buf.length) {
+      var c = buf[i];
+      if (c === 92) {
+        var n = buf[i + 1];
+        if (n >= 48 && n <= 57) { var k = i + 1, d = ''; while (k < i + 4 && buf[k] >= 48 && buf[k] <= 57) { d += String.fromCharCode(buf[k]); k++; } out.push(parseInt(d, 10)); i = k; continue; }
+        if (n === 13 && buf[i + 2] === 10) { out.push(10); i += 3; continue; }
+        out.push(map[n] !== undefined ? map[n] : n); i += 2; continue;
+      }
+      if (c === 34) return { bytes: new Uint8Array(out), end: i + 1 };
+      out.push(c); i++;
+    }
+    throw new Error('unterminated string');
+  }
+  function cbor(bytes) {
+    var p = 0, dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    function str(n) { var s = ''; for (var k = 0; k < n; k++) s += String.fromCharCode(bytes[p + k]); p += n; return s; }
+    function len(ai) { if (ai < 24) return ai; if (ai === 24) return bytes[p++]; if (ai === 25) { var v = dv.getUint16(p); p += 2; return v; } if (ai === 26) { v = dv.getUint32(p); p += 4; return v; } if (ai === 27) { v = Number(dv.getBigUint64(p)); p += 8; return v; } throw new Error('bad length'); }
+    function item() {
+      var b = bytes[p++], mt = b >> 5, ai = b & 31, n, k, o, a, v;
+      if (mt === 0) return len(ai); if (mt === 1) return -1 - len(ai);
+      if (mt === 2 || mt === 3) return str(len(ai));
+      if (mt === 4) { n = len(ai); a = []; for (k = 0; k < n; k++) a.push(item()); return a; }
+      if (mt === 5) { n = len(ai); o = {}; for (k = 0; k < n; k++) { var key = item(); o[key] = item(); } return o; }
+      if (mt === 6) { len(ai); return item(); }
+      if (mt === 7) {
+        if (ai === 20) return false; if (ai === 21) return true; if (ai === 22 || ai === 23) return null;
+        if (ai === 25) { var h = dv.getUint16(p); p += 2; var e = (h >> 10) & 31, f = h & 1023; v = e === 0 ? f * Math.pow(2, -24) : e === 31 ? (f ? NaN : Infinity) : (1 + f / 1024) * Math.pow(2, e - 15); return h & 0x8000 ? -v : v; }
+        if (ai === 26) { v = dv.getFloat32(p); p += 4; return v; }
+        if (ai === 27) { v = dv.getFloat64(p); p += 8; return v; }
+      }
+      throw new Error('unsupported CBOR');
+    }
+    return item();
+  }
+  function ascii(buf, a, b) { var s = ''; for (var i = a; i < b; i++) s += String.fromCharCode(buf[i]); return s; }
+  function parse(buf, opt) {
+    var text = ascii(buf, 0, Math.min(buf.length, buf.length));
+    var mm = /AUCTIONATOR_PRICE_DATABASE\s*=\s*(\{|nil)/.exec(text);
+    if (!mm) throw new Error(/AUCTIONATOR_[A-Z_]+\s*=/.test(text) ? 'this Auctionator file has no prices in it. Load the one in your account\'s SavedVariables folder' : 'this is not Auctionator\'s save file (Auctionator.lua)');
+    if (mm[1] === 'nil') throw new Error('Auctionator has not saved any prices yet. Do a full scan at the auction house, then /reload');
+    var i = mm.index + mm[0].length, realms = {};
+    while (i < buf.length) {
+      while (buf[i] === 10 || buf[i] === 13 || buf[i] === 32 || buf[i] === 9 || buf[i] === 44) i++;
+      if (buf[i] === 125) break;
+      if (buf[i] !== 91 || buf[i + 1] !== 34) throw new Error('unexpected format in the price database');
+      var kEnd = findBytes(buf, '"]', i + 2), key = ascii(buf, i + 2, kEnd);
+      i = kEnd + 2; while (buf[i] === 32 || buf[i] === 61) i++;
+      if (buf[i] === 34) { var s = luaString(buf, i); i = s.end; if (key !== '__dbversion') realms[key] = s.bytes; }
+      else if (buf[i] === 123) throw new Error('this Auctionator version stores prices in an older format. Update Auctionator and scan again');
+      else { while (buf[i] !== 44 && buf[i] !== 10) i++; }
+    }
+    var best = null, bestN = -1;
+    Object.keys(realms).forEach(function (k) { var db = cbor(realms[k]), n = Object.keys(db).length; if (n > bestN) { bestN = n; best = db; } });
+    if (!best) throw new Error('no prices saved yet. Do a full scan at the auction house, then /reload');
+    var out = {}, today = 0;
+    Object.keys(best).forEach(function (id) { var e = best[id]; if (e && e.h && typeof e.h === 'object') Object.keys(e.h).forEach(function (d) { if (+d > today) today = +d; }); });
+    Object.keys(best).forEach(function (id) {
+      var e = best[id]; if (!e || typeof e !== 'object' || typeof e.m !== 'number' || !/^\d+$/.test(id)) return;
+      var a = 0; if (e.a && typeof e.a === 'object') { var days = Object.keys(e.a).map(Number).sort(function (x, y) { return y - x; }); if (days.length) a = e.a[days[0]] || 0; }
+      // usual price: median daily price of the 7 days before the scan day (3+ days needed, item seen on the scan day)
+      var h = e.h || {}, l = e.l || {}, u = 0, prev = [];
+      if (h[today] || l[today]) for (var d = today - 7; d < today; d++) { var v = h[d] || l[d]; if (v > 0) prev.push(v); }
+      if (prev.length >= 3) { prev.sort(function (x, y) { return x - y; }); u = prev[prev.length >> 1]; }
+      out[id] = u ? [e.m, a, u] : [e.m, a];
+    });
+    // opt.sfx: random-suffix gear ("gr:<id>:of the Owl" keys) listed on the scan day, as g[id][suffix] = [price, count]
+    var g = null;
+    if (opt && opt.sfx) { g = {}; Object.keys(best).forEach(function (k) {
+      var mt = /^gr:(\d+):(.+)$/.exec(k), e = best[k]; if (!mt || !e || typeof e.m !== 'number' || !e.h || !e.h[today]) return;
+      (g[mt[1]] = g[mt[1]] || {})[mt[2]] = [e.m, (e.a && e.a[today]) || 0];
+    }); }
+    var scan = Math.floor(Date.now() / 1000), ts = findBytes(buf, '["TimeOfLastBrowseScan"] = ');
+    if (ts >= 0) { var m2 = ascii(buf, ts, ts + 60).match(/= (\d+)/); if (m2) scan = parseInt(m2[1], 10); }
+    return g ? { scan: scan, items: bestN, p: out, g: g } : { scan: scan, items: bestN, p: out };
+  }
+  function get() {
+    if (cache !== undefined) return cache;
+    try { cache = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { cache = null; }
+    return cache;
+  }
+  function fire(err, name) { subs.forEach(function (f) { try { f(get(), err, name); } catch (e) { if (window.console) console.error(e); } }); }
+  function load(file) {
+    return file.arrayBuffer().then(function (ab) {
+      var rec = parse(new Uint8Array(ab)); rec.name = file.name; rec.at = Date.now();
+      try { localStorage.setItem(KEY, JSON.stringify(rec)); } catch (e) {}
+      cache = rec; fire(null, file.name); return rec;
+    }, function (e) { throw e; }).catch(function (e) { fire(e, file.name); throw e; });
+  }
+  addEventListener('storage', function (e) { if (e.key === KEY) { cache = undefined; fire(null); } });
+  // every page's own #file loader (and the Hub / website feeding it) fills the shared store
+  document.addEventListener('change', function (e) {
+    var el = e.target; if (!el || el.id !== 'file' || !el.files) return;
+    Array.prototype.forEach.call(el.files, function (f) { if (!/tradeskillmaster|gearsnapshot/i.test(f.name)) load(f).catch(function () {}); });
+  }, true);
+  window.WFAH = { parse: parse, get: get, load: load, on: function (f) { subs.push(f); },
+    // "Prices from ..." label for a page: whose scan it is and how old
+    label: function (rec) { var d = new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      return /site scan/i.test(rec.name) ? 'Horde auction house scan (PvP realm), ' + d : 'your Auctionator scan (' + rec.name + '), ' + d; } };
+})();
+window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
+(function () {
+  var ZIP = window.WF_SNAPZIP || '';
+  if (!ZIP) return;
+  var TIP = 'Unzip it into World of Warcraft\\_forever_\\Interface\\AddOns\\ and tick Gear Snapshot in the AddOns list at character select.';
+  function add() {
+    document.querySelectorAll('label[for="gearfile"], .kn-btn').forEach(function (el) {
+      if (el.parentElement.querySelector('.wf-addon')) return;
+      var a = document.createElement('a'); a.className = 'wf-addon'; a.href = ZIP; a.download = 'GearSnapshot.zip'; a.title = TIP;
+      a.textContent = 'Get the Gear Snapshot addon'; el.insertAdjacentElement('afterend', a);
+    });
+    document.querySelectorAll('[data-wf-addon]').forEach(function (a) { a.href = ZIP; a.download = 'GearSnapshot.zip'; });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  var q = 0;  // pages redraw often: check at most once per frame
+  new MutationObserver(function () { if (q) return; q = 1; requestAnimationFrame(function () { q = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+<style id="wf-qol">
+.wf-fold { all: unset; cursor: pointer; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 8px; border-radius: 5px;
+  color: var(--muted); border: 1px solid var(--line); vertical-align: middle; flex: none; }
+.wf-fold:hover { color: var(--ink); border-color: var(--line2); background: var(--hover); }
+.wf-fold svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.wf-folded .wf-fold svg { transform: rotate(-90deg); }
+.wf-fold-h { cursor: pointer; }
+.wf-folded > :not(.wf-fold-head) { display: none !important; }
+.wf-folded { padding-bottom: 8px !important; }
+.wf-folded > .wf-fold-head .hint, .wf-folded > .wf-fold-head > p { display: none; }
+.wf-sec { scroll-margin-top: 44px; }
+.wf-jump { position: sticky; top: 0; z-index: 40; display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none;
+  margin: 0 0 8px; padding: 5px 0; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line); }
+.wf-jump::-webkit-scrollbar { display: none; }
+.wf-jump > span { font: 600 10.5px var(--body); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 0 4px 0 2px; flex: none; }
+.wf-jump button { all: unset; cursor: pointer; flex: none; font: 500 12px var(--body); color: var(--muted); padding: 3px 9px; border-radius: 99px; border: 1px solid transparent; white-space: nowrap; }
+.wf-jump button:hover { color: var(--ink); background: var(--hover); }
+.wf-jump button.on { color: var(--ink); border-color: var(--line2); background: var(--panel); }
+.wf-jump button.folded { opacity: .6; }
+.wf-top { position: fixed; right: 12px; bottom: 50px; z-index: 60; display: none; align-items: center; gap: 4px; font: 600 12px var(--body); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line2); border-radius: 99px; padding: 5px 10px; cursor: pointer; box-shadow: var(--elev); }
+.wf-in-hub .wf-top { bottom: 12px; }
+.wf-top.show { display: inline-flex; }
+.wf-top:hover { background: var(--hover); }
+</style>
+<script>
+(function () {
+  var KEY = 'wf-fold:' + location.pathname.split('/').pop() + ':' + (document.title || ''), state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  var secs = [], bar = null, topBtn = null;
+  function name(h) { return (h.dataset.wfName || h.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function setFold(sec, on, remember) {
+    sec.el.classList.toggle('wf-folded', on);
+    sec.btn.setAttribute('aria-expanded', !on); sec.btn.title = on ? 'Show this section' : 'Fold this section away';
+    if (remember) { state[sec.key] = on ? 1 : 0; save(); }
+    if (bar) paintBar();
+  }
+  function scan() {
+    var found = false;
+    document.querySelectorAll('h2').forEach(function (h) {
+      if (h.dataset.wfq) { if (h._wfBtn && !h.contains(h._wfBtn)) h.appendChild(h._wfBtn); return; }
+      var el = h.closest('section, .card');
+      if (!el || el.tagName === 'DETAILS' || el.closest('details:not([open])')) return;
+      var head = h; while (head.parentElement && head.parentElement !== el) head = head.parentElement;
+      if (head.parentElement !== el) return;
+      var others = [].filter.call(el.children, function (c) { return c !== head; });
+      if (!others.length) return;
+      h.dataset.wfq = '1'; found = true;
+      var key = name(h).slice(0, 60);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'wf-fold'; b.innerHTML = CHEV;
+      h.appendChild(b); h._wfBtn = b;
+      head.classList.add('wf-fold-head'); h.classList.add('wf-fold-h'); el.classList.add('wf-sec');
+      var sec = { el: el, h: h, btn: b, key: key };
+      secs = secs.filter(function (s) { return s.el !== el; }); secs.push(sec);
+      function toggle(e) { e.preventDefault(); e.stopPropagation(); setFold(sec, !el.classList.contains('wf-folded'), true); }
+      b.addEventListener('click', toggle); h.addEventListener('click', toggle);
+      var start = state[key] !== undefined ? state[key] === 1 : el.getAttribute('data-wf-fold') === 'closed';
+      setFold(sec, start, false);
+    });
+    secs = secs.filter(function (s) { return s.el.isConnected && s.h.isConnected; });
+    secs.sort(function (a, b) { return a.el.compareDocumentPosition(b.el) & 2 ? 1 : -1; });
+    if (found) buildBar();
+  }
+  function buildBar() {
+    if (document.querySelector('nav') || secs.length < 3) { if (bar) { bar.remove(); bar = null; } return; }
+    if (!bar) {
+      bar = document.createElement('div'); bar.className = 'wf-jump'; bar.setAttribute('role', 'navigation'); bar.setAttribute('aria-label', 'Jump to section');
+      var first = secs[0].el;  // sits in the content column, right above the first section
+      first.parentElement.insertBefore(bar, first);
+    }
+    bar.innerHTML = '<span>Jump to</span>' + secs.map(function (s, i) { return '<button type="button" data-i="' + i + '">' + name(s.h).replace(/[&<>]/g, '').slice(0, 30) + '</button>'; }).join('');
+    bar.querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () { var s = secs[+b.dataset.i]; if (!s) return; if (s.el.classList.contains('wf-folded')) setFold(s, false, true); s.el.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+    });
+    paintBar(); setTimeout(paintBar, 1500);
+  }
+  function paintBar() {
+    if (!bar) return;
+    bar.querySelectorAll('button').forEach(function (b) { var s = secs[+b.dataset.i]; b.hidden = !!(s && s.el.closest('[hidden]')); });  // sections a page hid
+    var cur = -1, y = (bar.getBoundingClientRect().bottom || 0) + 12;
+    secs.forEach(function (s, i) { if (s.el.getBoundingClientRect().top <= y) cur = i; });
+    bar.querySelectorAll('button').forEach(function (b) { var i = +b.dataset.i, s = secs[i]; b.classList.toggle('on', i === cur); b.classList.toggle('folded', !!(s && s.el.classList.contains('wf-folded'))); });
+  }
+  var ticking = false;
+  addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; paintBar(); if (topBtn) topBtn.classList.toggle('show', (document.scrollingElement || document.documentElement).scrollTop > 700); });
+  }, { passive: true });
+  function init() {
+    scan();
+    var hasTop = [].some.call(document.querySelectorAll('button, a'), function (b) { return /^\s*(back to )?top\s*$/i.test(b.textContent) && !b.classList.contains('wf-top'); });
+    if (!hasTop && !topBtn) {
+      topBtn = document.createElement('button'); topBtn.type = 'button'; topBtn.className = 'wf-top'; topBtn.innerHTML = '<span aria-hidden="true">↑</span> Top';
+      topBtn.onclick = function () { scrollTo({ top: 0, behavior: 'smooth' }); };
+      document.body.appendChild(topBtn);
+    }
+    var t = null;
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 250); }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 0); }); else setTimeout(init, 0);
+})();
+</script>
+<!--/wf-theme-->
+<meta name="ws-prices" content="1795427094">
+<link rel="canonical" href="https://wow.junhots.com/dungeons/">
+<meta name="description" content="Every Forever dungeon: the map with each boss, what each boss drops (upgrades for your spec marked), its quests and how to get in. Linked with your Level 1-60 route.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="junhots WoW tools">
+<meta property="og:title" content="Dungeons · WoW Forever · junhots">
+<meta property="og:description" content="Every Forever dungeon: the map with each boss, what each boss drops (upgrades for your spec marked), its quests and how to get in. Linked with your Level 1-60 route.">
+<meta property="og:url" content="https://wow.junhots.com/dungeons/">
+<meta property="og:image" content="https://wow.junhots.com/assets/og/default.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#141413">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Leveling</div><a href="/level-route/" title="Level 1-60 route"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="20" height="20"><span>Level 1-60 route</span></a><a href="/dungeons/" aria-current="page" title="Dungeons"><img src="/assets/icons/inv_misc_bone_humanskull_01.webp" alt="" width="20" height="20"><span>Dungeons</span><i class="ws-ind" aria-hidden="true"></i></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Profession leveling"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Profession leveling</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><a href="/vendor-flips/" title="Vendor flips"><img src="/assets/icons/inv_misc_bag_10.webp" alt="" width="20" height="20"><span>Vendor flips</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank, quests done, flights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/level-route/" aria-current="page">Leveling<i class="ws-tab" aria-hidden="true"></i></a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div><div class="ws-sub" role="navigation" aria-label="Leveling"><div><a href="/level-route/"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="18" height="18">Level 1-60 route</a><a href="/dungeons/" aria-current="page"><img src="/assets/icons/inv_misc_bone_humanskull_01.webp" alt="" width="18" height="18">Dungeons</a></div></div></div>
+<div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
+
+<div class="wrap">
+<nav class="hidden" aria-hidden="true"></nav><!-- no theme "Jump to" bar: it would land inside the map grid -->
+<header class="wf-head">
+  <h1>Dungeons</h1>
+  <p class="wf-lead">Maps, bosses, drops and quests for every Forever dungeon.</p>
+</header>
+
+<section class="card" id="you">
+  <div class="pick">
+    <label>Race <select id="race"></select></label>
+    <label>Class <select id="cls"></select></label>
+    <label>Spec <select id="spec"></select></label>
+    <span class="rt" id="rt"></span>
+  </div>
+  <div class="srch"><input id="qs" type="search" placeholder="Find a dungeon, boss or item" autocomplete="off"></div>
+  <div id="sres"></div>
+</section>
+
+<section class="card" id="pickSec">
+  <div class="bands" id="bands"></div>
+  <div class="chips" id="chips"></div>
+  <select id="dsel" aria-label="Dungeon"></select>
+</section>
+
+<section class="card" id="dSec">
+  <div class="dhead" id="dhead"></div>
+  <p class="wf-answer" id="dans"></p>
+</section>
+
+<div class="grid" id="grid">
+  <section class="card" id="mapSec"><div id="map"></div></section>
+  <section class="card" id="bossSec">
+    <h2 data-wf-name="Bosses">Bosses <span class="muted" id="bossSum"></span></h2>
+    <div class="bfilter" id="bfilter"></div>
+    <div id="bosses"></div>
+  </section>
+</div>
+
+<section class="card" id="qSec">
+  <h2 data-wf-name="Quests"><i class="wf-i wf-i-quest" aria-hidden="true"></i>Quests <span class="muted" id="qSum"></span></h2>
+  <table class="qt"><tbody id="quests"></tbody></table>
+</section>
+
+<section class="card ent" id="entSec">
+  <h2 data-wf-name="Getting in">Getting in</h2>
+  <div id="ent"></div>
+</section>
+
+<footer>Bosses, drops, quests and boss spots: the Dungeon Journal addon (by Exehn). Lower Blackrock Spire's boss spots and the map file list: <a href="https://github.com/openmap-world/openmap" target="_blank" rel="noopener">OpenMap</a> (MIT licence). Maps: Blizzard's own dungeon maps. Upgrades for your spec: the same scoring as the <a href="/level-route/">Level 1-60 route</a> and Gear upgrades.</footer>
+</div>
+<script>
+/* Dungeon map with numbered boss spots. Shared by the Dungeons page and the Level route (both inline this file).
+   DGMap(el, d, base, opt) draws dungeon d (dungeons.json) into el: floor tabs, the map picture, a numbered pin per boss.
+   base = where data/ is ('/dungeons/data/'). opt.onPin(i) when a pin is clicked; returns { show(i): select boss i }.
+   Boss numbers: DGNum(d) -> [number or '' per boss], the order the journal lists them, trash and chests unnumbered. */
+(function () {
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  window.DGNum = function (d) {
+    var n = 0;
+    return d.b.map(function (b) { return b.tr || b.ch ? '' : b.r && !b.p ? 'R' : String(++n); });
+  };
+  window.DGMap = function (el, d, base, opt) {
+    opt = opt || {};
+    var nums = DGNum(d), fl = d.fl || [], sel = -1;
+    var cur = Math.max(0, (d.b.filter(function (b) { return b.p; })[0] || { p: [1] }).p[0] - 1);   // open on the first boss's floor
+    if (!fl.length) { el.innerHTML = ''; return { show: function () {} }; }
+    var floorOf = function (i) { var b = d.b[i]; return b && b.p ? b.p[0] - 1 : -1; };
+    function draw() {
+      var f = fl[cur], h = [];
+      if (fl.length > 1) h.push('<div class="dgm-fl" role="tablist">' + fl.map(function (x, k) {
+        var nb = d.b.filter(function (b) { return b.p && b.p[0] === k + 1; }).length;
+        return '<button type="button" role="tab" data-fl="' + k + '" class="' + (k === cur ? 'on' : '') + '" aria-selected="' + (k === cur) + '">' + esc(x.nm || 'Floor ' + (k + 1)) + (nb ? ' <small>' + nb + '</small>' : '') + '</button>';
+      }).join('') + '</div>');
+      h.push('<div class="dgm-map"><img src="' + base + f.img + '" alt="' + esc(d.n) + ' map' + (f.nm ? ': ' + esc(f.nm) : '') + '" width="1002" height="668" loading="lazy">');
+      (d.me || []).forEach(function (e) {
+        if (e[0] - 1 === cur) h.push('<span class="dgm-in" style="left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3] === 'Way in' ? 'In' : e[3].split(' ')[0]) + '</span>');
+      });
+      (d.mt || []).forEach(function (t) {
+        if (t[0] - 1 === cur && fl[t[1] - 1]) h.push('<button type="button" class="dgm-to" data-fl="' + (t[1] - 1) + '" style="left:' + t[2] * 100 + '%;top:' + t[3] * 100 + '%" title="To ' + esc(fl[t[1] - 1].nm || 'floor ' + t[1]) + '">' + (t[1] > t[0] ? '↓' : '↑') + '</button>');
+      });
+      d.b.forEach(function (b, i) {
+        if (!b.p || b.p[0] - 1 !== cur) return;
+        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" title="' + esc(b.n + (b.lv ? ' · level ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
+      });
+      h.push('</div>');
+      el.innerHTML = h.join('');
+    }
+    el.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-fl]');
+      if (t) { cur = +t.dataset.fl; draw(); return; }
+      var p = e.target.closest('[data-pin]');
+      if (p) { sel = +p.dataset.pin; draw(); if (opt.onPin) opt.onPin(sel); }
+    });
+    if (opt.hover) el.addEventListener('mouseover', function (e) { var p = e.target.closest('[data-pin]'); opt.hover(p ? +p.dataset.pin : -1); });
+    draw();
+    return {
+      show: function (i) { sel = i; var f = floorOf(i); if (f >= 0) cur = f; draw(); },
+      hot: function (i) { var p = el.querySelectorAll('.dgm-pin'); for (var k = 0; k < p.length; k++) p[k].classList.toggle('hot', +p[k].dataset.pin === i); }
+    };
+  };
+  window.DGMAP_CSS = '.dgm-fl{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}' +
+    '.dgm-fl button{font:inherit;font-size:12.5px;padding:3px 10px;border-radius:7px;border:0;background:none;color:var(--muted);cursor:pointer}' +
+    '.dgm-fl button.on{background:var(--raised);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}.dgm-fl small{color:var(--muted);font-size:11px}' +
+    '.dgm-map{position:relative;border-radius:8px;overflow:hidden;line-height:0;background:#2a2318}.dgm-map img{width:100%;height:auto;display:block}' +
+    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
+    '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
+    '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
+    '.dgm-in{position:absolute;transform:translate(-50%,-50%);padding:0 6px;height:18px;border-radius:5px;background:#3f9d52;color:#fff;font:700 10.5px/18px Inter,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:auto}' +
+    '.dgm-to{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;padding:0;border:0;border-radius:5px;background:#2f6fb0;color:#fff;font:700 12px/20px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5)}';
+})();
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  var BASE = 'data/', ROUTES = '/level-route/data/', ICON = 'https://wow.zamimg.com/images/wow/icons/medium/';
+  // the same picks as the Level 1-60 route (same saved keys, so both pages follow each other)
+  var RACES = { Orc: 'Orc', Troll: 'Troll', Tauren: 'Tauren', Undead: 'Undead', SkyborneH: 'Skyborne (Horde)', Human: 'Human', Dwarf: 'Dwarf', Gnome: 'Gnome', NightElf: 'Night Elf', SkyborneA: 'Skyborne (Alliance)' };
+  var SPECS = { Warrior: ['arms', 'fury', 'protection'], Paladin: ['holy', 'protection', 'retribution'], Hunter: ['beastmastery', 'marksmanship', 'survival', 'survivalmelee'], Rogue: ['assassination', 'combat', 'subtlety'], Priest: ['discipline', 'holy', 'shadow'], Shaman: ['elemental', 'enhancement', 'restoration'], Mage: ['arcane', 'fire', 'frost'], Warlock: ['affliction', 'demonology', 'destruction'], Druid: ['balance', 'feral', 'bear', 'restoration'] };
+  var SPEC_LABEL = { beastmastery: 'Beast Mastery', survival: 'Survival (ranged)', survivalmelee: 'Survival (melee)', feral: 'Feral (cat)', bear: 'Feral (bear)' };
+  var specLabel = function (k) { return SPEC_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1); };
+  var BANDS = [[13, 25], [25, 35], [35, 45], [45, 55], [55, 61]];
+  var DB, IT, R = null, BG = {}, RT = {}, LINK = null, cur = null, band = 0, map = null, openB = new Set();
+  var startOf = function (race) {
+    for (var k in DB.starts) { var s = DB.starts[k]; if (s.races.indexOf(race.replace(/Skyborne[AH]/, 'Skyborne')) >= 0 && (race.indexOf('Skyborne') < 0 || s.fac === (race === 'SkyborneH' ? 'Horde' : 'Alliance'))) return k; }
+  };
+  var fac = function () { var s = DB.starts[startOf($('race').value)]; return s ? s.fac : 'Horde'; };
+  var bySlug = function (s) { return DB.d.find(function (d) { return d.s === s; }); };
+  var icon = function (n) { return ICON + (n || 'inv_misc_questionmark') + '.jpg'; };
+  var dun = function (n) { return n.replace('Scarlet Monastery: ', 'SM '); };
+
+  // ---- race / class / spec
+  function fillPick() {
+    var race = ls.get('lr.race'), cls = ls.get('lr.cls'), wc = window.WFCHAR ? WFCHAR.get() : {};
+    if (!race && wc.race) race = ({ 'Night Elf': 'NightElf', NightElf: 'NightElf', Scourge: 'Undead' })[wc.race] || wc.race;
+    if (!cls && wc.cls) cls = wc.cls.charAt(0).toUpperCase() + wc.cls.slice(1).toLowerCase();
+    if (!RACES[race]) race = 'Orc';
+    $('race').innerHTML = Object.keys(RACES).map(function (r) { return '<option value="' + r + '">' + RACES[r] + '</option>'; }).join('');
+    $('race').value = race;
+    fillCls(cls);
+  }
+  function fillCls(cls) {
+    var list = DB.combos[$('race').value] || [];
+    $('cls').innerHTML = list.map(function (c) { return '<option>' + c + '</option>'; }).join('');
+    $('cls').value = list.indexOf(cls) >= 0 ? cls : list[0];
+    fillSpec(); loadRoute();
+  }
+  function fillSpec() {
+    var cls = $('cls').value, list = SPECS[cls] || [], wc = window.WFCHAR ? WFCHAR.get() : {}, sp = ls.get('lr.spec.' + cls);
+    if (list.indexOf(sp) < 0 && wc.cls && wc.cls.toUpperCase() === cls.toUpperCase()) sp = wc.spec;
+    if (list.indexOf(sp) < 0) sp = list[0];
+    $('spec').innerHTML = list.map(function (k) { return '<option value="' + k + '">' + esc(specLabel(k)) + '</option>'; }).join('');
+    $('spec').value = sp;
+  }
+  $('race').onchange = function () { ls.set('lr.race', this.value); fillCls($('cls').value); };
+  $('cls').onchange = function () { ls.set('lr.cls', this.value); fillSpec(); loadRoute(); };
+  $('spec').onchange = function () {
+    var cls = $('cls').value, wc = window.WFCHAR ? WFCHAR.get() : {};
+    ls.set('lr.spec.' + cls, this.value);
+    if (window.WFCHAR && wc.cls && wc.cls.toUpperCase() === cls.toUpperCase()) WFCHAR.set({ spec: this.value });
+    BG = R ? (R.bg || {})[this.value] || {} : {}; draw();
+  };
+
+  // ---- your route: where each dungeon is on it (the route file), and what the route page saw last (lr.link)
+  function loadRoute() {
+    var race = $('race').value, cls = $('cls').value, id = startOf(race) + '-' + race + '-' + cls;
+    ls.set('lr.race', race); ls.set('lr.cls', cls);
+    fetch(ROUTES + 'routes/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) {
+      R = j; RT = {};
+      j.steps.forEach(function (s) {
+        var n = s.dq || (s.in && s.dun);
+        if (!n) return;
+        var t = RT[n] || (RT[n] = { lv: null, qs: new Set() });
+        if (s.in && s.dun === n && t.lv == null) t.lv = s.lv;
+        if (s.q) t.qs.add(s.q);
+      });
+      (j.far || []).forEach(function (f) { var t = RT[f[1]] || (RT[f[1]] = { lv: null, qs: new Set(), far: true }); (t.fq = t.fq || new Set()).add(f[0]); });
+      BG = (j.bg || {})[$('spec').value] || {};
+      try { LINK = JSON.parse(ls.get('lr.link') || 'null'); } catch (e) { LINK = null; }
+      if (LINK && LINK.id !== id) LINK = null;
+      $('rt').innerHTML = '<a href="/level-route/">Your ' + esc(RACES[race]) + ' ' + esc(cls) + ' route ›</a>';
+      if (!cur) pickStart();
+      draw();
+    }).catch(function () { R = null; RT = {}; BG = {}; if (!cur) pickStart(); draw(); });
+  }
+  var onRoute = function (d) { var t = RT[d.n]; return t && t.lv != null ? t : null; };
+  var linkOf = function (d) { return LINK && LINK.d && LINK.d[d.n]; };
+  var doneQ = function (q) { return !!(LINK && LINK.done && LINK.done.indexOf(q) >= 0); };
+  var level = function () { var w = window.WFCHAR ? WFCHAR.get() : {}; return +w.level || 0; };
+  function pickStart() {
+    var h = decodeURIComponent(location.hash.slice(1)), d = bySlug(h) || bySlug(ls.get('dg.last'));
+    if (!d && LINK && LINK.d) d = DB.d.find(function (x) { var l = LINK.d[x.n]; return l && !l[4]; });
+    if (!d && level()) d = DB.d.find(function (x) { return level() >= x.lv[0] && level() <= x.lv[1]; });
+    setDun(d || DB.d[0], true);
+  }
+  function setDun(d, quiet) {
+    cur = d; openB = new Set(); ls.set('dg.last', d.s);
+    band = BANDS.findIndex(function (b) { return d.lv[0] >= b[0] && d.lv[0] < b[1]; }); if (band < 0) band = 0;
+    if (location.hash.slice(1) !== d.s) history.replaceState(null, '', '#' + d.s);
+    if (!quiet) draw();
+  }
+  addEventListener('hashchange', function () { var d = bySlug(decodeURIComponent(location.hash.slice(1))); if (d && d !== cur) setDun(d); });
+
+  // ---- picker
+  function drawPick() {
+    $('bands').innerHTML = BANDS.map(function (b, k) { return '<button type="button" class="band' + (k === band ? ' on' : '') + '" data-band="' + k + '">Level ' + b[0] + '-' + Math.min(60, b[1]) + '</button>'; }).join('');
+    $('chips').innerHTML = DB.d.filter(function (d) { return d.lv[0] >= BANDS[band][0] && d.lv[0] < BANDS[band][1]; }).map(chip).join('');
+    $('dsel').innerHTML = DB.d.map(function (d) { return '<option value="' + d.s + '">' + esc(d.n) + ' (' + d.lv[0] + '-' + d.lv[1] + ')</option>'; }).join('');
+    $('dsel').value = cur.s;
+  }
+  function chip(d) {
+    var r = onRoute(d), l = linkOf(d), lv = level();
+    var dot = r ? '<span class="dot" title="On your route at about level ' + Math.floor(r.lv) + '"></span>' : '';
+    var t = lv && lv >= d.lv[0] && lv <= d.lv[1] ? ' title="Right level for you"' : '';
+    return '<button type="button" class="chip' + (d === cur ? ' on' : '') + (l && l[4] ? ' done' : '') + '" data-d="' + d.s + '"' + t + '>' + dot + esc(dun(d.n)) + ' <small>' + d.lv[0] + '-' + d.lv[1] + '</small></button>';
+  }
+  $('bands').onclick = function (e) { var b = e.target.closest('[data-band]'); if (b) { band = +b.dataset.band; drawPick(); } };
+  $('chips').onclick = function (e) { var b = e.target.closest('[data-d]'); if (b) setDun(bySlug(b.dataset.d)); };
+  $('dsel').onchange = function () { setDun(bySlug(this.value)); };
+
+  // ---- one dungeon
+  function draw() {
+    if (!cur) return;
+    drawPick();
+    var d = cur, r = onRoute(d), l = linkOf(d), ups = BG[d.n] || [], fromRoute = /\/level-route\//.test(document.referrer);
+    document.title = d.n + ' · Dungeons';
+    var nb = d.b.filter(function (b) { return !b.tr && !b.ch; }).length;
+    var tags = [];
+    if (d.leg) tags.push('<span class="tg leg" title="Kill ' + esc(d.lb || 'the last boss') + ' for this Legacy challenge">' + esc(d.leg) + '</span>');
+    if (fromRoute) tags.push('<button type="button" class="go back" id="backBtn">‹ Back to your route</button>');
+    if (l) tags.push('<a class="go" href="/level-route/#dun=' + encodeURIComponent(d.n) + '" title="Opens your route at this dungeon">' + (l[4] ? '✓ Done on your route' : 'Your route: stop ' + l[2] + (l[3] ? ', level ' + l[3] : '') + ' ›') + '</a>');
+    else if (r) tags.push('<a class="go" href="/level-route/#dun=' + encodeURIComponent(d.n) + '">On your route at level ' + Math.floor(r.lv) + ' ›</a>');
+    $('dhead').innerHTML = '<img class="dico" src="' + icon(d.ic) + '" alt="">' +
+      '<div><div class="dname" role="heading" aria-level="2">' + esc(d.n) + '</div><p class="muted">Level ' + d.lv[0] + '-' + d.lv[1] + ' · ' + esc(d.z) + ' · ' + nb + ' bosses' + (d.fl.length > 1 ? ' · ' + d.fl.length + ' floors' : '') + '</p></div>' +
+      '<div class="dtags">' + tags.join('') + '</div>' + (d.tx ? '<p class="lead2" style="flex-basis:100%">' + esc(d.tx) + '</p>' : '');
+    if ($('backBtn')) $('backBtn').onclick = function () { history.back(); };
+    var spec = specLabel($('spec').value) + ' ' + $('cls').value;
+    var a = $('dans');
+    if (ups.length) { a.className = 'wf-answer good'; a.innerHTML = '<span>' + ups.length + (ups.length === 1 ? ' upgrade' : ' upgrades') + ' for ' + esc(spec) + ': ' + ups.map(function (x) { return '<b class="q' + x[5] + '">' + esc(x[1]) + '</b>'; }).join(', ') + '.</span>'; }
+    else if (r) { a.className = 'wf-answer'; a.innerHTML = '<span>No drop here beats the gear your route gives you by level ' + Math.floor(r.lv) + ' (' + esc(spec) + ').</span>'; }
+    else { a.className = 'wf-answer'; a.innerHTML = '<span>Not on your route' + (R && d.lv[0] >= 50 ? ': you reach level 60 before it' : '') + '. Drops that suit ' + esc(spec) + ' are not marked.</span>'; }
+    // map + bosses
+    var has = d.fl.length > 0;
+    $('grid').classList.toggle('nomap', !has);
+    $('mapSec').classList.toggle('hidden', !has);
+    if (!has) $('map').innerHTML = '';
+    map = has ? DGMap($('map'), d, BASE, { onPin: function (i) { openBoss(i, true); }, hover: function (i) { hotRow(i); } }) : null;
+    drawBosses();
+    drawQuests();
+    drawEnt();
+  }
+  function hotRow(i) { var r = $('bosses').querySelectorAll('.boss'); for (var k = 0; k < r.length; k++) r[k].classList.toggle('hot', +r[k].dataset.b === i); }
+  function drawBosses() {
+    var d = cur, nums = DGNum(d), ups = BG[d.n] || [], upIds = {};
+    ups.forEach(function (x) { upIds[x[0]] = 1; });
+    var nUp = 0;
+    $('bossSum').textContent = d.fl.length ? 'click one for its drops' : 'no map yet for this Forever dungeon';
+    $('bfilter').innerHTML = '';
+    $('bosses').innerHTML = d.b.map(function (b, i) {
+      var u = b.l.filter(function (x) { return upIds[x[0]]; }).length; nUp += u;
+      var num = nums[i], cls = b.tr || b.ch ? 'x' : num === 'R' ? 'r' : '';
+      var w = b.tr ? 'Any monster in the dungeon' : b.ch ? 'Chest' : b.rl ? b.rl.replace(/^[\d.]+ /, '') : b.r ? 'Rare, not always there' : b.of ? 'Part of ' + b.of : (b.w || '').split('. ')[0];
+      return '<div class="boss' + (openB.has(i) ? ' open' : '') + '" data-b="' + i + '"><button type="button" class="bh" aria-expanded="' + openB.has(i) + '"><span class="bn ' + cls + '">' + (num || (b.ch ? '◆' : '·')) + '</span>' +
+        '<span class="bname">' + esc(b.n) + '</span>' + (b.lv ? '<span class="blv">' + b.lv + '</span>' : '') + '<span class="bw">' + esc(w) + '</span>' +
+        (b.fo ? '<span class="tg">' + esc(b.fo) + ' only</span>' : '') + (u ? '<span class="tg up">' + u + (u === 1 ? ' upgrade' : ' upgrades') + '</span>' : '') + '<span class="bcar">▶</span></button>' +
+        '<div class="bbody">' + (b.w && !b.tr ? '<p class="bdesc">' + esc(b.w) + '</p>' : '') + lootHtml(b, upIds) + '</div></div>';
+    }).join('');
+  }
+  function lootHtml(b, upIds) {
+    var l = b.l.slice().sort(function (x, y) { return (upIds[y[0]] ? 1 : 0) - (upIds[x[0]] ? 1 : 0); });
+    var h = '<ul class="loot">' + l.map(function (x) {
+      var it = IT[x[0]] || ['Item ' + x[0], 1, '', '', 0], u = upIds[x[0]];
+      return '<li' + (u ? ' class="isup"' : '') + '><img src="' + icon(it[2]) + '" alt="" loading="lazy"><a class="nm q' + it[1] + '" href="https://www.wowhead.com/forever/item=' + x[0] + '" target="_blank" rel="noopener">' + esc(it[0]) + '</a>' +
+        '<span class="sl">' + esc(it[3]) + (it[4] ? ' · level ' + it[4] : '') + (x[2] ? ' · ' + esc(x[2]) : '') + (x[3] ? ' · ' + esc(x[3]) : '') + '</span>' +
+        (x[1] ? '<span class="pc">' + Math.round(x[1]) + '%</span>' : '') + (u ? '<span class="tg up">upgrade</span>' : '') + '</li>';
+    }).join('') + '</ul>';
+    if (b.rc && b.rc.length) h += '<p class="recs">Also drops ' + b.rc.length + (b.rc.length === 1 ? ' recipe: ' : ' recipes: ') + b.rc.map(function (x) { return esc((IT[x[0]] || [''])[0]); }).join(', ') + '</p>';
+    return b.l.length || b.rc ? h : '<p class="recs">No loot listed.</p>';
+  }
+  function openBoss(i, fromMap) {
+    if (openB.has(i) && !fromMap) openB.delete(i); else openB.add(i);
+    var el = $('bosses').querySelector('[data-b="' + i + '"]');
+    if (el) { el.classList.toggle('open', openB.has(i)); el.querySelector('.bh').setAttribute('aria-expanded', openB.has(i)); if (fromMap) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  }
+  $('bosses').addEventListener('click', function (e) {
+    var h = e.target.closest('.bh'); if (!h) return;
+    var i = +h.parentNode.dataset.b; openBoss(i);
+    if (map && openB.has(i) && cur.b[i].p) map.show(i);
+  });
+  $('bosses').addEventListener('mouseover', function (e) { var b = e.target.closest('.boss'); if (map) map.hot(b ? +b.dataset.b : -1); });
+  $('bosses').addEventListener('mouseleave', function () { if (map) map.hot(-1); });
+
+  function drawQuests() {
+    var d = cur, f = fac()[0], cls = $('cls').value.toUpperCase(), r = RT[d.n] || {}, ups = BG[d.n] || [];
+    var byId = {}; d.q.forEach(function (q) { byId[q.id] = q; });
+    var qs = d.q.filter(function (q) { return !q.lead && (q.f === 'B' || q.f === f) && (!q.cls || q.cls === cls); });
+    var nOn = qs.filter(function (q) { return r.qs && r.qs.has(q.id); }).length;
+    $('qSum').textContent = qs.length ? qs.length + ' for ' + fac() + (q2(cls)) + (nOn ? ' · ' + nOn + ' on your route' : '') : '';
+    $('qSec').classList.toggle('hidden', !qs.length);
+    $('quests').innerHTML = qs.map(function (q) {
+      var rw = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i] || ['', 1, '']; return '<img class="rwi" src="' + icon(it[2]) + '" alt="' + esc(it[0]) + '" title="' + esc(it[0]) + (it[3] ? ' · ' + esc(it[3]) : '') + '" loading="lazy">'; }).join('');
+      var t = [];
+      if (doneQ(q.id)) t.push('<span class="tg done">✓ done</span>');
+      else if (r.qs && r.qs.has(q.id)) t.push('<span class="tg route">on your route</span>');
+      else if (r.fq && r.fq.has(q.id)) t.push('<span class="tg opt" title="Starts far off your route: turn on Optional quests on the route page">optional</span>');
+      if (q.in) t.push('<span class="tg in">starts inside</span>');
+      if (q.cls) t.push('<span class="tg">' + esc(q.cls.charAt(0) + q.cls.slice(1).toLowerCase()) + ' quest</span>');
+      var lead = q.after && byId[q.after] ? '<span class="lead-in">Starts with ' + esc(byId[q.after].n) + ' (' + esc(byId[q.after].p) + ')</span>' : '';
+      return '<tr><td class="qn"><i class="wf-i wf-i-quest" aria-hidden="true"></i>' + esc(q.n) + '<span class="qo">' + esc(q.o) + '</span>' + lead + '</td>' +
+        '<td class="ql">' + (q.lv || '') + (q.rq ? '<span class="muted"> · from ' + q.rq + '</span>' : '') + '</td>' +
+        '<td class="qg">' + esc(q.p) + '</td><td class="qr">' + (rw || (q.m ? '<span class="muted">' + esc(q.m) + '</span>' : '')) + (q.pick && rw ? '<span class="muted" style="font-size:11.5px"> pick one</span>' : '') + '</td>' +
+        '<td><div class="qtags">' + t.join('') + '</div></td></tr>';
+    }).join('');
+  }
+  var q2 = function () { return ''; };
+  function drawEnt() {
+    var d = cur, e = d.ent;
+    $('entSec').classList.toggle('hidden', !e);
+    if (!e) return;
+    $('ent').innerHTML = '<p>' + esc(e.t || d.z) + '</p>' + (e.um ? '<div class="entmap"><img src="' + ROUTES + 'maps/' + e.um + '.webp" alt="Map of ' + esc(d.z) + '" width="1002" height="668" loading="lazy" onerror="this.parentNode.remove()"><span class="pin" style="left:' + e.x * 100 + '%;top:' + e.y * 100 + '%" title="' + esc(d.n) + '"></span></div>' : '');
+  }
+
+  // ---- search: dungeons, bosses, items
+  var SI = null;
+  function index() {
+    SI = [];
+    DB.d.forEach(function (d) {
+      SI.push({ k: 'dungeon', t: d.n, d: d, ic: d.ic });
+      d.b.forEach(function (b, i) {
+        if (!b.tr && !b.ch) SI.push({ k: 'boss', t: b.n, d: d, b: i });
+        b.l.forEach(function (x) { var it = IT[x[0]]; if (it) SI.push({ k: 'item', t: it[0], d: d, b: i, ic: it[2], q: it[1], by: b.n }); });
+      });
+    });
+  }
+  $('qs').addEventListener('input', function () {
+    var v = this.value.trim().toLowerCase();
+    if (v.length < 2) { $('sres').innerHTML = ''; return; }
+    if (!SI) index();
+    var seen = {}, hit = SI.filter(function (x) { var k = x.k + x.t + x.d.n; if (seen[k] || x.t.toLowerCase().indexOf(v) < 0) return false; seen[k] = 1; return true; }).slice(0, 40);
+    $('sres').innerHTML = hit.length ? hit.map(function (x, n) {
+      return '<button type="button" class="sr" data-n="' + n + '"><span class="k">' + x.k + '</span>' + (x.ic ? '<img src="' + icon(x.ic) + '" alt="">' : '') +
+        '<span class="' + (x.q ? 'q' + x.q : '') + '">' + esc(x.t) + '</span><span class="muted">' + (x.k === 'dungeon' ? x.d.lv[0] + '-' + x.d.lv[1] : esc((x.by ? x.by + ', ' : '') + x.d.n)) + '</span></button>';
+    }).join('') : '<div class="muted" style="font-size:13px;padding:4px 6px">Nothing found.</div>';
+    $('sres').hits = hit;
+  });
+  $('sres').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-n]'); if (!b) return;
+    var x = this.hits[+b.dataset.n];
+    $('qs').value = ''; this.innerHTML = '';
+    setDun(x.d);
+    if (x.b != null) { openBoss(x.b, true); if (map && x.d.b[x.b].p) map.show(x.b); }
+    $('dSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // the route page saved new progress in another tab
+  addEventListener('storage', function (e) { if (e.key === 'lr.link' || e.key === 'lr.race' || e.key === 'lr.cls') { if (e.key === 'lr.link') { try { LINK = JSON.parse(e.newValue); } catch (x) {} } draw(); } });
+
+  fetch(BASE + 'dungeons.json').then(function (r) { return r.json(); }).then(function (j) { DB = j; IT = j.it; fillPick(); })
+    .catch(function () { $('dhead').innerHTML = '<p class="muted">Could not load the dungeon data.</p>'; });
+  var st = document.createElement('style'); st.textContent = window.DGMAP_CSS; document.head.appendChild(st);
+})();
+
+</script>
+
+<div class="ws-foot" role="contentinfo"><div><span>Made by junhots for the WoW Forever realm.</span><a href="/updates/">Updates</a><a href="/about/">Data sources</a><button type="button" data-ws-feedback>Report a problem</button><a href="https://junhots.com">Heroes of the Storm site</a><span class="ws-social"><a href="https://www.twitch.tv/junhots_" rel="me noopener" target="_blank">Twitch</a><a href="https://www.youtube.com/@junhots" rel="me noopener" target="_blank">YouTube</a><a href="https://x.com/junhots_" rel="me noopener" target="_blank">Twitter</a></span><span class="ws-legal">Fan-made and free. Not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft and its game icons are trademarks and property of Blizzard Entertainment, Inc. Files you load stay in your browser and are never uploaded.</span><a class="ws-login" href="/admin/" rel="nofollow">Log in</a></div></div>
+<script>if (!window.wsHash0 && location.hash) history.replaceState(history.state, "", location.pathname + location.search);</script>
+</body>
+</html>

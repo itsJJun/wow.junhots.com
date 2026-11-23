@@ -268,6 +268,25 @@ h2 .wi { width: 18px; height: 18px; vertical-align: -3px; margin-right: 7px; }
 :root[data-theme="light"] .wi.bare { filter: drop-shadow(0 0 .6px color-mix(in srgb, var(--shade) 90%, transparent)); }
 .ac.q { display: inline-block; width: 16px; margin-right: 6px; text-align: center; font: 800 15px/1 Georgia, 'Times New Roman', serif; color: var(--wowgold); opacity: 1; text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000; }
 .side.short li.done .wi, .stop li.ck .wi { filter: grayscale(1); }
+/* Dungeons page links + the map and bosses at the stop where you go in */
+.dgl { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.dgl:hover { color: var(--accent); }
+.dglk { margin: 4px 0 2px; font-size: 12.5px; } .dglk a { color: var(--muted); text-decoration: none; } .dglk a:hover { color: var(--accent); }
+.dgbox { margin: 8px 0 4px; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; background: var(--sunken, var(--bg)); }
+.dgbox:empty { display: none; }
+.dgh { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.dgh .dgt { white-space: nowrap; }
+.dgt { all: unset; cursor: pointer; font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 4px; }
+.dgt .muted { font-weight: 500; font-size: 12px; }
+.dgin { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(min(200px, 100%), 1fr); gap: 10px; margin-top: 8px; align-items: start; }
+.dgin.nomap { grid-template-columns: 1fr; }
+.dgbl { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 12.5px; }
+.dgbl li { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; padding: 2px 4px; border-radius: 5px; cursor: default; }
+.dgbl li.hot { background: var(--hover); }
+.dgbl .bn { flex: none; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1px #e0a64a; font: 700 10.5px/18px Inter, sans-serif; text-align: center; transform: translateY(3px); }
+.dgbl .bn.r { box-shadow: inset 0 0 0 1px var(--line2); color: var(--muted); }
+.dgbl .bgu { flex-basis: 100%; padding-left: 24px; font-size: 12px; }
+@media (max-width: 900px) { .dgin { grid-template-columns: 1fr; } }
 </style>
 <!--wf-theme-->
 <style id="wf-theme">
@@ -825,8 +844,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [data-no-prerender]"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
-<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Leveling</div><a href="/level-route/" aria-current="page" title="Level 1-60 route"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="20" height="20"><span>Level 1-60 route</span><i class="ws-ind" aria-hidden="true"></i></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Profession leveling"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Profession leveling</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><a href="/vendor-flips/" title="Vendor flips"><img src="/assets/icons/inv_misc_bag_10.webp" alt="" width="20" height="20"><span>Vendor flips</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank, quests done, flights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
-<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/level-route/" aria-current="page">Leveling<i class="ws-tab" aria-hidden="true"></i></a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div></div>
+<aside class="ws-side" aria-label="Site menu"><div class="ws-sbrand"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><span class="t"><b>junhots</b><small>WoW Forever tools</small></span></a><button type="button" class="ws-ico ws-min" title="Make the menu smaller" aria-label="Make the menu smaller"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div><div class="ws-snav" role="navigation" aria-label="Tools"><a href="/" title="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><div class="ws-glabel">Character</div><a href="/gear-upgrades/" title="Gear upgrades"><img src="/assets/icons/inv_crown_01.webp" alt="" width="20" height="20"><span>Gear upgrades</span></a><div class="ws-glabel">Leveling</div><a href="/level-route/" aria-current="page" title="Level 1-60 route"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="20" height="20"><span>Level 1-60 route</span><i class="ws-ind" aria-hidden="true"></i></a><a href="/dungeons/" title="Dungeons"><img src="/assets/icons/inv_misc_bone_humanskull_01.webp" alt="" width="20" height="20"><span>Dungeons</span></a><div class="ws-glabel">Professions</div><a href="/profession-leveling/" title="Profession leveling"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Profession leveling</span></a><a href="/enchants/" title="Enchants"><img src="/assets/icons/trade_engraving.webp" alt="" width="20" height="20"><span>Enchants</span></a><a href="/enchant-macros/" title="Enchant macros"><img src="/assets/icons/inv_misc_note_01.webp" alt="" width="20" height="20"><span>Enchant macros</span></a><div class="ws-glabel">Gold</div><a href="/tailoring-finder/" title="Tailoring finder"><img src="/assets/icons/trade_tailoring.webp" alt="" width="20" height="20"><span>Tailoring finder</span></a><a href="/mat-timing/" title="Mat timing"><img src="/assets/icons/inv_fabric_linen_01.webp" alt="" width="20" height="20"><span>Mat timing</span></a><a href="/sell-spare-mats/" title="Sell spare mats"><img src="/assets/icons/inv_misc_bag_09.webp" alt="" width="20" height="20"><span>Sell spare mats</span></a><a href="/vendor-flips/" title="Vendor flips"><img src="/assets/icons/inv_misc_bag_10.webp" alt="" width="20" height="20"><span>Vendor flips</span></a><div class="ws-glabel">Class guides</div><a href="/warlock-guide/" title="Warlock: Orc, Demonology"><img src="/assets/icons/classicon_warlock.webp" alt="" width="20" height="20"><span>Warlock: Orc, Demonology</span></a><a href="/demon-trainer/" title="Warlock demons"><img src="/assets/icons/spell_shadow_summonsuccubus.webp" alt="" width="20" height="20"><span>Warlock demons</span></a><div class="ws-glabel">Site</div><a href="/setup/" title="Set up once"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Set up once</span></a><a href="/updates/" title="Updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Updates</span></a></div><div class="ws-sfoot"><div class="ws-fstat" aria-label="Your loaded game files"></div><button type="button" class="ws-pbtn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Load your WoW files: auction prices, gear and recipes, bags and bank, quests done, flights"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span>Load game files</span></button><div class="ws-srow"><button type="button" class="ws-rep" data-ws-feedback title="Wrong price, wrong item, something broken?">Report a problem</button></div><div class="ws-srow"><a href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS site ↗</a><button type="button" class="wf-toggle inline" data-wf-toggle></button></div></div></aside>
+<div class="ws-head" role="banner"><div class="ws-bar"><a class="ws-brand" href="/" aria-label="junhots WoW tools home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8 21 7v10l-9 5.2L3 17V7z" fill="var(--accent)"/><path d="M14.2 7.2v7a3.2 3.2 0 0 1-6.4.4" fill="none" stroke="var(--on-accent)" stroke-width="2.4" stroke-linecap="round"/></svg><b>junhots</b></a><div class="ws-tabs" role="navigation" aria-label="Sections"><a href="/">Home</a><a href="/gear-upgrades/">Gear</a><a href="/level-route/" aria-current="page">Leveling<i class="ws-tab" aria-hidden="true"></i></a><a href="/profession-leveling/">Professions</a><a href="/tailoring-finder/">Gold</a><a href="/warlock-guide/">Classes</a><a href="/updates/">Updates</a></div><div class="ws-acts"><button type="button" class="ws-btn" data-ws-files aria-expanded="false" aria-controls="wsPop" title="Game files"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 17v-6M9 14l3 3 3-3"/></svg><span class="ws-dots"></span></button><button type="button" class="ws-btn wf-toggle inline" data-wf-toggle></button><a class="ws-btn" href="https://junhots.com" title="Jun's Heroes of the Storm site">HotS</a></div></div><div class="ws-sub" role="navigation" aria-label="Leveling"><div><a href="/level-route/" aria-current="page"><img src="/assets/icons/inv_misc_map_01.webp" alt="" width="18" height="18">Level 1-60 route</a><a href="/dungeons/"><img src="/assets/icons/inv_misc_bone_humanskull_01.webp" alt="" width="18" height="18">Dungeons</a></div></div></div>
 <div class="ws-pop" id="wsPop" role="dialog" aria-label="Game files" hidden></div>
 
 <div class="wrap">
@@ -1180,6 +1199,68 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 
 </script>
 <script>
+/* Dungeon map with numbered boss spots. Shared by the Dungeons page and the Level route (both inline this file).
+   DGMap(el, d, base, opt) draws dungeon d (dungeons.json) into el: floor tabs, the map picture, a numbered pin per boss.
+   base = where data/ is ('/dungeons/data/'). opt.onPin(i) when a pin is clicked; returns { show(i): select boss i }.
+   Boss numbers: DGNum(d) -> [number or '' per boss], the order the journal lists them, trash and chests unnumbered. */
+(function () {
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  window.DGNum = function (d) {
+    var n = 0;
+    return d.b.map(function (b) { return b.tr || b.ch ? '' : b.r && !b.p ? 'R' : String(++n); });
+  };
+  window.DGMap = function (el, d, base, opt) {
+    opt = opt || {};
+    var nums = DGNum(d), fl = d.fl || [], sel = -1;
+    var cur = Math.max(0, (d.b.filter(function (b) { return b.p; })[0] || { p: [1] }).p[0] - 1);   // open on the first boss's floor
+    if (!fl.length) { el.innerHTML = ''; return { show: function () {} }; }
+    var floorOf = function (i) { var b = d.b[i]; return b && b.p ? b.p[0] - 1 : -1; };
+    function draw() {
+      var f = fl[cur], h = [];
+      if (fl.length > 1) h.push('<div class="dgm-fl" role="tablist">' + fl.map(function (x, k) {
+        var nb = d.b.filter(function (b) { return b.p && b.p[0] === k + 1; }).length;
+        return '<button type="button" role="tab" data-fl="' + k + '" class="' + (k === cur ? 'on' : '') + '" aria-selected="' + (k === cur) + '">' + esc(x.nm || 'Floor ' + (k + 1)) + (nb ? ' <small>' + nb + '</small>' : '') + '</button>';
+      }).join('') + '</div>');
+      h.push('<div class="dgm-map"><img src="' + base + f.img + '" alt="' + esc(d.n) + ' map' + (f.nm ? ': ' + esc(f.nm) : '') + '" width="1002" height="668" loading="lazy">');
+      (d.me || []).forEach(function (e) {
+        if (e[0] - 1 === cur) h.push('<span class="dgm-in" style="left:' + e[1] * 100 + '%;top:' + e[2] * 100 + '%" title="' + esc(e[3]) + '">' + esc(e[3] === 'Way in' ? 'In' : e[3].split(' ')[0]) + '</span>');
+      });
+      (d.mt || []).forEach(function (t) {
+        if (t[0] - 1 === cur && fl[t[1] - 1]) h.push('<button type="button" class="dgm-to" data-fl="' + (t[1] - 1) + '" style="left:' + t[2] * 100 + '%;top:' + t[3] * 100 + '%" title="To ' + esc(fl[t[1] - 1].nm || 'floor ' + t[1]) + '">' + (t[1] > t[0] ? '↓' : '↑') + '</button>');
+      });
+      d.b.forEach(function (b, i) {
+        if (!b.p || b.p[0] - 1 !== cur) return;
+        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" title="' + esc(b.n + (b.lv ? ' · level ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
+      });
+      h.push('</div>');
+      el.innerHTML = h.join('');
+    }
+    el.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-fl]');
+      if (t) { cur = +t.dataset.fl; draw(); return; }
+      var p = e.target.closest('[data-pin]');
+      if (p) { sel = +p.dataset.pin; draw(); if (opt.onPin) opt.onPin(sel); }
+    });
+    if (opt.hover) el.addEventListener('mouseover', function (e) { var p = e.target.closest('[data-pin]'); opt.hover(p ? +p.dataset.pin : -1); });
+    draw();
+    return {
+      show: function (i) { sel = i; var f = floorOf(i); if (f >= 0) cur = f; draw(); },
+      hot: function (i) { var p = el.querySelectorAll('.dgm-pin'); for (var k = 0; k < p.length; k++) p[k].classList.toggle('hot', +p[k].dataset.pin === i); }
+    };
+  };
+  window.DGMAP_CSS = '.dgm-fl{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}' +
+    '.dgm-fl button{font:inherit;font-size:12.5px;padding:3px 10px;border-radius:7px;border:0;background:none;color:var(--muted);cursor:pointer}' +
+    '.dgm-fl button.on{background:var(--raised);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}.dgm-fl small{color:var(--muted);font-size:11px}' +
+    '.dgm-map{position:relative;border-radius:8px;overflow:hidden;line-height:0;background:#2a2318}.dgm-map img{width:100%;height:auto;display:block}' +
+    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
+    '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
+    '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
+    '.dgm-in{position:absolute;transform:translate(-50%,-50%);padding:0 6px;height:18px;border-radius:5px;background:#3f9d52;color:#fff;font:700 10.5px/18px Inter,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:auto}' +
+    '.dgm-to{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;padding:0;border:0;border-radius:5px;background:#2f6fb0;color:#fff;font:700 12px/20px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5)}';
+})();
+
+</script>
+<script>
 var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453d3f85d2.webp", "c_hunter": "/assets/i/02c149ee45c030.webp", "c_mage": "/assets/i/98db53b1aa0d3c.webp", "c_paladin": "/assets/i/602722000d2bf0.webp", "c_priest": "/assets/i/7b82eb8dad4e5c.webp", "c_rogue": "/assets/i/27661306a6e6dc.webp", "c_shaman": "/assets/i/358e7838c943b3.webp", "c_warlock": "/assets/i/b38b34d0e83b02.webp", "c_warrior": "/assets/i/d5375fcb0f0bdc.webp", "do": "/assets/i/07fddc350243f5.webp", "escort": "/assets/i/4c7c2e6572f625.webp", "explore": "/assets/i/f04e09bcefe09d.webp", "flight_a": "/assets/i/abc08389860e67.webp", "flight_h": "/assets/i/5ff51601206f80.webp", "grind": "/assets/i/e549bddcacadb7.webp", "hearth": "/assets/i/e9dcd47f2b9e9a.webp", "loot": "/assets/i/b2fe7157ddda02.webp", "map": "/assets/i/fc1d5c287bfd78.webp", "p_darnassus": "/assets/i/324c9681b35f2a.webp", "p_stormwind": "/assets/i/b639b0376fb109.webp", "portal": "/assets/i/b877acf8f001d6.webp", "q_accept": "/assets/i/decf9967c399d9.webp", "q_turnin": "/assets/i/42af79f3e1c08a.webp", "skull": "/assets/i/030a7f4845256c.webp", "swim": "/assets/i/3972e890e444c2.webp", "talk": "/assets/i/31dd17541c6121.webp", "tram": "/assets/i/446119a8aa68c3.webp", "use": "/assets/i/8e57b46989b241.webp", "walk": "/assets/i/9eacbefd4184df.webp", "zeppelin": "/assets/i/573c36919d0cd1.webp"};
 </script>
 <script>
@@ -1339,7 +1420,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return [{ i: r.i, s: r.s }].concat(r.more || []).every(function (m) { return (m.s.q && doneQ.has(m.s.q)) || !!ticks[m.i + ':' + m.s.t]; });
   }
   function setTick(r, on) { rkeys(r).forEach(function (k) { if (on) ticks[k] = 1; else delete ticks[k]; }); }
-  function saveTicks() { ls.set('lr.ticks.' + R.id, JSON.stringify(ticks)); }
+  function saveTicks() { ls.set('lr.ticks.' + R.id, JSON.stringify(ticks)); if (duns.length) saveLink(); }
 
   // ---- chapters (one per guide part) and numbered stops (steps at the same place)
   function group() {
@@ -1471,6 +1552,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('gaps').classList.toggle('hidden', !gp.length);
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
     drawOpt(); drawUp(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
+    saveLink();
+    if (pendDun) { var pd = duns.find(function (d) { return d.name === pendDun; }); pendDun = null; if (pd && pd.stop) goStop(pd.stop.gi); }
+  }
+  var pendDun = (/^#dun=(.+)$/.exec(location.hash) || [])[1]; if (pendDun) pendDun = decodeURIComponent(pendDun);
+  addEventListener('hashchange', function () { var m = /^#dun=(.+)$/.exec(location.hash); if (m && R) { pendDun = decodeURIComponent(m[1]); render(); } });
+  function saveLink() {
+    var o = { id: startOf($('race').value) + '-' + $('race').value + '-' + $('cls').value, d: {}, done: [] };
+    duns.forEach(function (d) { if (d.stop) o.d[d.name] = [d.stop.gi, d.stop.ch.name, d.stop.num, d.lv ? Math.floor(d.lv) : null, d.done ? 1 : 0]; });
+    R.steps.forEach(function (s, i) { if (s.t === 'turnin' && (s.dq || s.in) && (doneQ.has(s.q) || ticks[i + ':turnin'])) o.done.push(s.q); });
+    ls.set('lr.link', JSON.stringify(o));
   }
 
   // far-off journal quests the switch would add, under their dungeon (only while it is off)
@@ -1501,7 +1592,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
       var g = bossGear(d.name);
-      return '<tr><td>' + esc(d.name) + (g ? '<small class="bgl"><span class="muted">Upgrades: </span>' + g + '</small>' : '') + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
+      return '<tr><td><a class="dgl" href="' + DGURL + '#' + dgSlug(d.name) + '" title="Map, bosses, drops and quests">' + esc(d.name) + '</a>' + (g ? '<small class="bgl"><span class="muted">Upgrades: </span>' + g + '</small>' : '') + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
         (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + farOf(d.name) + '</td><td>' +
         (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
           : d.stop ? '<button class="go ok" data-go="' + d.stop.gi + '" type="button" title="Its quests start inside the dungeon">' + esc(d.stop.ch.name) + ', stop ' + d.stop.num + ' →</button>' : '') + '</td></tr>';
@@ -1528,6 +1619,40 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
 
   var dunShort = function (n) { return n.replace('Scarlet Monastery: ', 'SM '); };
+  // Dungeons page (Jun 23 Nov): /dungeons/#<slug> has the map, bosses, drops and quests; the route links to it and
+  // shows the dungeon's map with its bosses at the stop where you go in. Both pages share dungeon-guide/dg-map.js.
+  var DGURL = '/dungeons/', dgSlug = function (n) { return n.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+  var DG = null, dgWait = null;
+  function dgData() {
+    if (!dgWait) dgWait = fetch(DGURL + 'data/dungeons.json').then(function (r) { return r.json(); }).then(function (j) { DG = j; return j; }).catch(function () { dgWait = null; return null; });
+    return dgWait;
+  }
+  var dgOpen = ls.get('lr.dgmap') !== '0';
+  function dgBox(name) {
+    var el = $('dgbox'); if (!el) return;
+    dgData().then(function (j) {
+      var d = j && j.d.find(function (x) { return x.n === name; }), box = $('dgbox');
+      if (!d || !box || box.dataset.dgn !== name) return;
+      var nums = DGNum(d), up = {};
+      (BG[name] || []).forEach(function (x) { (up[x[3]] = up[x[3]] || []).push(x); });
+      var list = d.b.map(function (b, i) {
+        if (b.tr || b.ch) return '';
+        var u = up[b.n] || [];
+        return '<li data-pin="' + i + '"><span class="bn' + (nums[i] === 'R' ? ' r' : '') + '">' + nums[i] + '</span><b>' + esc(b.n) + '</b>' + (b.lv ? ' <span class="muted">' + b.lv + '</span>' : '') +
+          (u.length ? ' <span class="bgu">' + u.map(function (x) { return '<span class="bgi q' + (x[5] || 1) + '">' + esc(x[1]) + '</span>'; }).join(', ') + '</span>' : '') + '</li>';
+      }).join('');
+      box.innerHTML = '<div class="dgh"><button type="button" class="dgt" aria-expanded="' + dgOpen + '">' + wi('skull') + 'Map and bosses <span class="muted">' + nums.filter(Boolean).length + ' bosses</span></button>' +
+        '<a class="go" href="' + DGURL + '#' + d.s + '">Full dungeon guide ›</a></div>' +
+        (dgOpen ? '<div class="dgin' + (d.fl.length ? '' : ' nomap') + '"><div class="dgmap"></div><ol class="dgbl">' + list + '</ol></div>' : '');
+      if (dgOpen && d.fl.length) {
+        var m = DGMap(box.querySelector('.dgmap'), d, DGURL + 'data/', { hover: function (i) { hot(i); } });
+        var hot = function (i) { var li = box.querySelectorAll('.dgbl li'); for (var k = 0; k < li.length; k++) li[k].classList.toggle('hot', +li[k].dataset.pin === i); };
+        box.querySelector('.dgbl').addEventListener('mouseover', function (e) { var li = e.target.closest('[data-pin]'); m.hot(li ? +li.dataset.pin : -1); hot(li ? +li.dataset.pin : -1); });
+        box.querySelector('.dgbl').addEventListener('click', function (e) { var li = e.target.closest('[data-pin]'); if (li && d.b[+li.dataset.pin].p) m.show(+li.dataset.pin); });
+      }
+      box.querySelector('.dgt').onclick = function () { dgOpen = !dgOpen; ls.set('lr.dgmap', dgOpen ? '1' : '0'); dgBox(name); };
+    });
+  }
   // ---- one line of a stop
   function line(r) {
     var dn = isDone(r), miss = false, txt = '', xp = '';
@@ -1589,6 +1714,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b>' +
         (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' + ot +
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
+        (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? '<p class="dglk"><a href="' + DGURL + '#' + dgSlug(st.loc.dun) + '">' + wi('skull') + 'Map and bosses of ' + esc(st.loc.dun) + ' ›</a></p>' : '') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) && bossGear(st.loc.dun) ? '<p class="bgear">' + wi('skull') + ' Upgrades for you: ' + bossGear(st.loc.dun, true) + '</p>' : '') +
         '<ul>' + st.rows.map(line).join('') + '</ul>' +
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
@@ -1647,8 +1773,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun && it.st.loc.um !== lastUm ? ' <em>' + esc(umName((lastUm = it.st.loc.um))) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
     }
     if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
-    $('nbody').innerHTML = '<div>' + stopHtml(st, c, rdy).replace('<span class="herebadge">you are here</span>', '').replace(' id="st', ' data-n="st') + '</div>' +
+    var dIn = st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? st.loc.dun : null;
+    $('nbody').innerHTML = '<div>' + stopHtml(st, c, rdy).replace('<span class="herebadge">you are here</span>', '').replace(' id="st', ' data-n="st').replace(/<p class="dglk">.*?<\/p>/, '') +
+      (dIn ? '<div id="dgbox" class="dgbox" data-dgn="' + esc(dIn) + '"></div>' : '') + '</div>' +
       '<div class="then"><div class="muted">Coming up</div><ul>' + then.join('') + '</ul></div>';
+    if (dIn) dgBox(dIn);
   }
   $('nbody').addEventListener('click', function (e) {
     var cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
@@ -2087,6 +2216,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     });
   }
   $('optSw').onchange = function () { optOn = this.checked; ls.set('lr.opt', optOn ? '1' : '0'); loadRoute(true); };
+  (function () { var e = document.createElement('style'); e.textContent = window.DGMAP_CSS || ''; document.head.appendChild(e); })();
   fileInput('questieFile', loadQuestie);
   fileInput('spfFile', loadSPF);
   Promise.all(['route-meta.json', 'travel.json', 'maps.json', 'maps/mini.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
