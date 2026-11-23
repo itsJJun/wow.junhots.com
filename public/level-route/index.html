@@ -1497,7 +1497,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       return '<tr><td>' + esc(d.name) + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
         (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + farOf(d.name) + '</td><td>' +
         (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
-          : d.stop ? '<button class="go" data-go="' + d.stop.gi + '" type="button">' + esc(d.stop.ch.name) + ' →</button>' : '') + '</td></tr>';
+          : d.stop ? '<button class="go ok" data-go="' + d.stop.gi + '" type="button" title="Its quests start inside the dungeon">' + esc(d.stop.ch.name) + ', stop ' + d.stop.num + ' →</button>' : '') + '</td></tr>';
     }).join('') + '</table>';
   }
 
