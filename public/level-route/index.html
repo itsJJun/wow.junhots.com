@@ -135,6 +135,10 @@ a { color: var(--accent); }
 /* Optional quests switch (far-off journal quests): one color everywhere, dashed = optional */
 :root { --opt: #3fb6d8; }
 :root[data-theme="light"] { --opt: #0b7fa6; }
+:root { --dun: #b48cf0; }
+:root[data-theme="light"] { --dun: #7a4fc9; }
+.tag.dq { color: var(--dun); border-color: var(--dun); }
+.tag.fd { color: var(--dun); border-style: dashed; border-color: color-mix(in srgb, var(--dun) 60%, var(--line)); }
 .tag.of { color: #fff; background: var(--opt); border-color: var(--opt); }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
 .optsw input { appearance: none; width: 28px; height: 16px; border-radius: 99px; background: var(--line2); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
@@ -853,15 +857,16 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <section class="card how" data-wf-fold="closed">
   <h2>How it works</h2>
   <ul>
-    <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups and pre-quests are added (marked <span class="tag add">added</span>).</li>
+    <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups, pre-quests, chain ends, dungeon and class quests are added.</li>
     <li><b>Optional quests:</b> dungeon quests that start far off the route are left out. Turn on <b>Optional quests</b> to take them: the route changes to fit, and their lines are marked <span class="tag of">optional</span>.</li>
+    <li><b>Dungeon quests</b> show their dungeon: <span class="tag dq">Wailing Caverns</span>. Steps that unlock one show <span class="tag fd">for Wailing Caverns</span>.</li>
     <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. Started mid-way? Pick your stop (or search a quest) and press <b>Tick all before this</b>. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
     <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
     <li><b>Flights in your file:</b> Shortest Path Forever saves them after you open a flight master's map once on each continent, then /reload.</li>
     <li><b>Dungeon ready:</b> the stop where you have every quest for that dungeon.</li>
     <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
-    <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level.</li>
+    <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level. <span class="tag">can skip</span> means the guide calls it optional.</li>
     <li><b>Quests done</b> come from Questie.lua (account SavedVariables folder).</li>
   </ul>
 </section>
@@ -1280,7 +1285,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
       if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i]) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
-      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && !plan.travel[i] && !prev.s.nl && !s.nl &&
+      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && prev.s.dq === s.dq && prev.s.fd === s.fd && !plan.travel[i] && !prev.s.nl && !s.nl &&
           (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
         (prev.more = prev.more || []).push({ i: i, s: s });
       } else rows.push({ k: 'step', i: i, s: s });
@@ -1427,11 +1432,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var dl = duns.reduce(function (m, d) { return Math.max(m, d.lv || 0); }, 0), end = chaps.length ? chaps[chaps.length - 1].lv2 : 60, gp = [];
     if (dl < 55) gp.push('Dungeons after level ' + Math.max(10, Math.floor(dl)) + ' are not in the route yet.');
     if (end < 59.5) gp.push('This route ends near level ' + Math.floor(end) + '.');
-    gp.push('Levels are estimates.');
-    $('gaps').innerHTML = '<b>Work in progress:</b> ' + esc(gp.join(' '));
+    $('gaps').innerHTML = gp.length ? '<b>Work in progress:</b> ' + esc(gp.join(' ')) : '';
+    $('gaps').classList.toggle('hidden', !gp.length);
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
-    var fix = R.issues.filter(function (x) { return x.g && /^added|not-for-you|moved/.test(x.k); }).length;
-    $('sum').innerHTML = fix ? '<span>' + fix + ' fixes to the guide for your race and class</span>' : '';
     drawOpt(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
   }
 
@@ -1479,15 +1482,18 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     }).join('') + '</div>';
   }
 
+  var dunShort = function (n) { return n.replace('Scarlet Monastery: ', 'SM '); };
   // ---- one line of a stop
   function line(r) {
     var dn = isDone(r), miss = false, txt = '', xp = '';
-    if (r.k === 'fp') txt = wi(fly()) + 'Get the flight path <span class="tag add">on the way</span>';
+    if (r.k === 'fp') txt = wi(fly()) + 'Get the flight path';
     else {
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
-      if (s.ad && !s.of) tags += '<span class="tag add" title="' + esc(s.ad) + '">' + (s.ad === 'Class quest' ? 'class quest' : 'added') + '</span>';
+      if (s.ad === 'Class quest' && !s.of) tags += '<span class="tag add">class quest</span>';
       if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
-      else if (s.op) tags += '<span class="tag">optional</span>';
+      else if (s.op) tags += '<span class="tag">can skip</span>';
+      if (s.dq && !s.in) tags += '<span class="tag dq">' + esc(dunShort(s.dq)) + '</span>';
+      else if (s.fd) tags += '<span class="tag fd">for ' + esc(dunShort(s.fd)) + '</span>';
       if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
@@ -1532,7 +1538,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (curZone == null || c.zones.indexOf(curZone) < 0) curZone = sel && sel.ch === c && sel.loc && sel.loc.um != null ? sel.loc.um : c.zones[0];
     var rdy = {};
     duns.forEach(function (d) { if (d.ready && d.ready.ch === c && !d.done) (rdy[d.ready.gi] = rdy[d.ready.gi] || []).push(d); });
-    var h = ['<div class="chap"><h3>' + esc(c.name) + '</h3><div class="meta">Level ' + fl(c.lv1) + ' to ' + fl(c.lv2) + (c.part ? ' · guide part ' + esc(c.part) : '') + '</div>' +
+    var h = ['<div class="chap"><h3>' + esc(c.name) + '</h3><div class="meta">Level ' + fl(c.lv1) + ' to ' + fl(c.lv2) + '</div>' +
       c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
     var legHtml = function (r) {
       var tx = r.tr.text, k = c.items.findIndex(function (x) { return x.r === r; }), nx = c.items[k + 1];
@@ -1573,11 +1579,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var c = st.ch, rdy = {};
     duns.forEach(function (d) { if (d.ready === st && !d.done) (rdy[st.gi] = rdy[st.gi] || []).push(d); });
     $('nwhere').textContent = c.name + ' · stop ' + st.num + ' of ' + c.stops.length;
-    var k = c.items.findIndex(function (it) { return it.st === st; }), then = [];
+    var k = c.items.findIndex(function (it) { return it.st === st; }), then = [], lastUm = st.loc ? st.loc.um : null;
     for (var j = k + 1; j < c.items.length && then.length < 5; j++) {
       var it = c.items[j];
       if (it.k === 'leg') then.push('<li class="lg"><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
-      else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun ? ' <em>' + esc(umName(it.st.loc.um)) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
+      else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun && it.st.loc.um !== lastUm ? ' <em>' + esc(umName((lastUm = it.st.loc.um))) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
     }
     if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
     $('nbody').innerHTML = '<div>' + stopHtml(st, c, rdy).replace('<span class="herebadge">you are here</span>', '').replace(' id="st', ' data-n="st') + '</div>' +
