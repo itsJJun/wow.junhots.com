@@ -18,26 +18,29 @@ a { color: var(--accent); }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .hidden { display: none !important; }
 .q1 { color: var(--q1); } .q2 { color: var(--q2); } .q3 { color: var(--q3); } .q4 { color: var(--q4); } .q0 { color: var(--muted); }
-/* you + search */
-.pick { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; }
-.pick label { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+/* top row: title left, your picks right */
+.top { display: flex; gap: 8px 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.top .wf-head { margin-bottom: 0; }
+.pick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; padding-bottom: 2px; }
 .pick select { font: inherit; font-size: 13px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 6px; }
-.pick .rt { margin-left: auto; font-size: 12.5px; }
-.srch { position: relative; margin-top: 8px; }
-.srch input { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 11px; }
+.pick .rt { font-size: 12.5px; margin-left: 4px; }
+/* dungeon picker: level tabs + search, then chips */
+.prow { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; margin: 0 0 8px; }
+.bands { display: flex; flex-wrap: wrap; gap: 4px; }
+.band { font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.band.on { background: var(--raised); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line2); }
+.srch { position: relative; margin-left: auto; width: min(320px, 100%); }
+.srch input { width: 100%; font: inherit; font-size: 13px; color: var(--ink); background: var(--raised); border: 1px solid var(--line2); border-radius: 8px; padding: 5px 10px; }
 .srch input:focus { outline: none; border-color: var(--accent); }
-#sres { display: grid; gap: 2px; margin-top: 4px; max-height: 320px; overflow: auto; }
+#sres { position: absolute; z-index: 30; top: calc(100% + 4px); right: 0; width: min(440px, 92vw); display: grid; gap: 2px; padding: 4px; max-height: 360px; overflow: auto; background: var(--panel); border: 1px solid var(--line2); border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
 #sres:empty { display: none; }
 .sr { all: unset; display: flex; gap: 8px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 13px; cursor: pointer; }
 .sr:hover, .sr:focus-visible { background: var(--hover); }
 .sr img { width: 20px; height: 20px; border-radius: 4px; }
-.sr .k { font-size: 11.5px; color: var(--muted); min-width: 42px; }
-/* dungeon picker */
-.bands { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; }
-.band { font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
-.band.on { background: var(--raised); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line2); }
+.sr .k { font-size: 11.5px; color: var(--muted); min-width: 52px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font: inherit; display: inline-flex; gap: 6px; align-items: center; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); font-size: 13px; color: var(--ink); cursor: pointer; }
+.chip { font: inherit; display: inline-flex; gap: 6px; align-items: center; padding: 3px 9px 3px 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); font-size: 13px; color: var(--ink); cursor: pointer; }
+.chip img { width: 20px; height: 20px; border-radius: 5px; }
 .chip small { color: var(--muted); font-size: 11.5px; }
 .chip.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
@@ -62,8 +65,16 @@ a { color: var(--accent); }
 .go.back { color: var(--ink); border-color: var(--line2); }
 .lead2 { margin: 2px 0 0; font-size: 13.5px; color: color-mix(in srgb, var(--ink) 80%, var(--muted)); max-width: 92ch; }
 .wf-answer { margin: 4px 0 0; }
-.grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(min(320px, 100%), 1fr); gap: 10px; align-items: start; }
-.grid.nomap { grid-template-columns: minmax(0, 1fr); }
+/* map + getting in on the left, bosses on the right; no map: bosses + getting in side by side */
+.grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(min(320px, 100%), 1fr); grid-template-areas: "map boss"; gap: 10px; align-items: start; }
+.grid > * { min-width: 0; }
+.mcol { grid-area: map; display: grid; gap: 10px; min-width: 0; }
+#bossSec { grid-area: boss; }
+.grid.nomap { grid-template-columns: minmax(0, 1.6fr) minmax(min(280px, 100%), 1fr); grid-template-areas: "boss map"; }
+@media (min-width: 901px) and (min-height: 860px) { .mcol { position: sticky; top: 12px; } }   /* map stays in view next to a long boss list */
+.ent .entw { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 12px; align-items: start; }
+.grid.nomap .ent .entw { grid-template-columns: 1fr; }
+.ent .entw .entmap { margin-top: 0; }
 .nomapnote { font-size: 13px; margin: 0; }
 /* bosses */
 .boss { border-top: 1px solid var(--line); }
@@ -81,7 +92,7 @@ a { color: var(--accent); }
 .bbody { display: none; padding: 0 0 8px 28px; }
 .boss.open .bbody { display: block; }
 .bdesc { margin: 0 0 6px; font-size: 12.5px; color: var(--muted); }
-.loot { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.loot { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
 .loot li { display: flex; gap: 8px; align-items: center; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
 .loot li.isup { background: color-mix(in srgb, var(--good) 9%, transparent); }
 .loot img, .rwi { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
@@ -90,38 +101,56 @@ a { color: var(--accent); }
 .loot .sl { color: var(--muted); font-size: 12px; flex: 1; min-width: 0; }
 .loot .pc { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .recs { font-size: 12px; color: var(--muted); margin: 4px 0 0 6px; }
+.recs summary { cursor: pointer; width: max-content; }
+.recs summary:hover { color: var(--ink); }
+.boss.open .bw { display: none; }
 .bfilter { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); margin: -2px 0 6px; }
 .bfilter label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
-/* quests */
-.qt { width: 100%; border-collapse: collapse; font-size: 13px; }
-.qt td { padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: top; }
-.qt tr:first-child td { border-top: 0; }
-.qn { font-weight: 600; }
+/* quests: one line each, the rest on click */
+.qrow { border-top: 1px solid var(--line); }
+.qrow:first-child { border-top: 0; }
+.qh { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 104px 200px 190px 14px; gap: 10px; align-items: center; padding: 6px 2px; cursor: pointer; font-size: 13px; }
+.qh:focus-visible { outline: 2px solid var(--accent); border-radius: 6px; }
+.qh:hover .qn { color: var(--accent); }
+.qn { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .qn .wf-i { margin-right: 4px; }
-.qo { display: block; font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 1px; }
-.ql { white-space: nowrap; }
-.qr { white-space: nowrap; }
-.rwi { display: inline-block; vertical-align: middle; margin: 0 3px 2px 0; }
+.qn .qo1 { font-weight: 400; color: var(--muted); margin-left: 8px; font-size: 12.5px; }
+.ql { white-space: nowrap; font-size: 12.5px; }
+.qr { display: flex; align-items: center; gap: 3px; min-width: 0; overflow: hidden; white-space: nowrap; font-size: 12px; }
+.rwi { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
 .rwi.isup { border-color: var(--good); box-shadow: 0 0 0 1px var(--good); }
 .qtags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-.lead-in { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.qrow .bcar { justify-self: end; }
+.qrow.open .bcar { transform: rotate(90deg); }
+.qb { display: none; padding: 0 2px 8px 24px; font-size: 12.5px; color: var(--muted); }
+.qrow.open .qb { display: block; }
+.qb p { margin: 0 0 3px; }
+.qb b { color: var(--ink); font-weight: 600; }
+.qb .qtags { display: none; }
 .ent p { margin: 0; font-size: 13.5px; }
-.entmap { position: relative; margin-top: 8px; max-width: 460px; border-radius: 8px; overflow: hidden; line-height: 0; }
+.entmap { position: relative; margin-top: 8px; max-width: 520px; border-radius: 8px; overflow: hidden; line-height: 0; }
 .entmap img { width: 100%; height: auto; display: block; aspect-ratio: 1002 / 668; }
 .entmap .pin { position: absolute; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #3f9d52; box-shadow: 0 0 0 3px rgba(63,157,82,.35), 0 1px 4px rgba(0,0,0,.6); }
 footer { font-size: 12px; color: var(--muted); }
 @media (max-width: 900px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid, .grid.nomap { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  .mcol { display: contents; }
+  #mapSec { order: 1; } #bossSec { order: 2; } #entSec { order: 3; }
+  .dhead > div:not(.dtags) { flex: 1 1 0; min-width: 0; }
+  .loot li { flex-wrap: wrap; row-gap: 0; min-width: 0; }
+  .loot .nm { min-width: 0; }
+  .loot .sl { order: 5; flex-basis: 100%; padding-left: 30px; }
+  .ent .entw { grid-template-columns: 1fr; }
   .dtags { margin-left: 0; }
-  .bands, .chips { display: none; }
+  .chips { display: none; }
+  .bands { display: none; }
+  .srch { width: 100%; margin-left: 0; }
+  .top { align-items: flex-start; }
   #dsel { display: block; }
-  .qt .qg { display: none; }
-  .qt, .qt tbody, .qt tr { display: block; }
-  .qt tr { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 7px 0; border-top: 1px solid var(--line); }
-  .qt tr:first-child { border-top: 0; }
-  .qt td { display: block; padding: 0; border: 0; background: none !important; }
-  .qt td:first-child { flex: 1 0 100%; }
-  .qtags { justify-content: flex-start; }
+  .qh { grid-template-columns: minmax(0, 1fr) auto 14px; }
+  .qh .ql { grid-column: 2; grid-row: 1; }
+  .qh .qr, .qh .qtags, .qn .qo1 { display: none; }
+  .qb .qtags { display: flex; justify-content: flex-start; }
   .pick .rt { margin-left: 0; }
 }
 </style>
@@ -687,24 +716,22 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 
 <div class="wrap">
 <nav class="hidden" aria-hidden="true"></nav><!-- no theme "Jump to" bar: it would land inside the map grid -->
+<div class="top">
 <header class="wf-head">
   <h1>Dungeons</h1>
   <p class="wf-lead">Maps, bosses, drops and quests for every Forever dungeon.</p>
 </header>
-
-<section class="card" id="you">
-  <div class="pick">
-    <label>Race <select id="race"></select></label>
-    <label>Class <select id="cls"></select></label>
-    <label>Spec <select id="spec"></select></label>
-    <span class="rt" id="rt"></span>
-  </div>
-  <div class="srch"><input id="qs" type="search" placeholder="Find a dungeon, boss or item" autocomplete="off"></div>
-  <div id="sres"></div>
-</section>
+<div class="pick" id="you">
+  <select id="race" aria-label="Race"></select><select id="cls" aria-label="Class"></select><select id="spec" aria-label="Spec"></select>
+  <span class="rt" id="rt"></span>
+</div>
+</div>
 
 <section class="card" id="pickSec">
-  <div class="bands" id="bands"></div>
+  <div class="prow">
+    <div class="bands" id="bands"></div>
+    <div class="srch"><input id="qs" type="search" placeholder="Find a dungeon, boss or item" autocomplete="off"><div id="sres"></div></div>
+  </div>
   <div class="chips" id="chips"></div>
   <select id="dsel" aria-label="Dungeon"></select>
 </section>
@@ -715,22 +742,22 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 </section>
 
 <div class="grid" id="grid">
+  <div class="mcol" id="mcol">
   <section class="card" id="mapSec"><div id="map"></div></section>
+  <section class="card ent" id="entSec">
+    <h2 data-wf-name="Getting in">Getting in</h2>
+    <div id="ent"></div>
+  </section>
+  </div>
   <section class="card" id="bossSec">
     <h2 data-wf-name="Bosses">Bosses <span class="muted" id="bossSum"></span></h2>
-    <div class="bfilter" id="bfilter"></div>
     <div id="bosses"></div>
   </section>
 </div>
 
 <section class="card" id="qSec">
   <h2 data-wf-name="Quests"><i class="wf-i wf-i-quest" aria-hidden="true"></i>Quests <span class="muted" id="qSum"></span></h2>
-  <table class="qt"><tbody id="quests"></tbody></table>
-</section>
-
-<section class="card ent" id="entSec">
-  <h2 data-wf-name="Getting in">Getting in</h2>
-  <div id="ent"></div>
+  <div id="quests" class="ql2"></div>
 </section>
 
 <footer>Bosses, drops, quests and boss spots: the Dungeon Journal addon (by Exehn). Lower Blackrock Spire's boss spots and the map file list: <a href="https://github.com/openmap-world/openmap" target="_blank" rel="noopener">OpenMap</a> (MIT licence). Maps: Blizzard's own dungeon maps. Upgrades for your spec: the same scoring as the <a href="/level-route/">Level 1-60 route</a> and Gear upgrades.</footer>
@@ -767,7 +794,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       });
       d.b.forEach(function (b, i) {
         if (!b.p || b.p[0] - 1 !== cur) return;
-        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" title="' + esc(b.n + (b.lv ? ' · level ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
+        h.push('<button type="button" class="dgm-pin' + (i === sel ? ' sel' : '') + (nums[i] === 'R' ? ' r' : '') + '" data-pin="' + i + '" style="left:' + b.p[1] * 100 + '%;top:' + b.p[2] * 100 + '%" aria-label="' + esc(b.n) + '" data-n="' + esc(b.n + (b.lv ? ' · ' + b.lv : '')) + '">' + (nums[i] || '•') + '</button>');
       });
       h.push('</div>');
       el.innerHTML = h.join('');
@@ -792,6 +819,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
     '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
     '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
+    '.dgm-pin:hover::after,.dgm-pin.hot::after,.dgm-pin.sel::after{content:attr(data-n);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:5px;background:rgba(20,17,13,.92);color:#f3d9a4;font:600 11.5px/1.3 Inter,system-ui,sans-serif;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.5)}' +
     '.dgm-in{position:absolute;transform:translate(-50%,-50%);padding:0 6px;height:18px;border-radius:5px;background:#3f9d52;color:#fff;font:700 10.5px/18px Inter,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:auto}' +
     '.dgm-to{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;padding:0;border:0;border-radius:5px;background:#2f6fb0;color:#fff;font:700 12px/20px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.5)}';
 })();
@@ -868,7 +896,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       BG = (j.bg || {})[$('spec').value] || {};
       try { LINK = JSON.parse(ls.get('lr.link') || 'null'); } catch (e) { LINK = null; }
       if (LINK && LINK.id !== id) LINK = null;
-      $('rt').innerHTML = '<a href="/level-route/">Your ' + esc(RACES[race]) + ' ' + esc(cls) + ' route ›</a>';
+      $('rt').innerHTML = '<a href="/level-route/">Your route ›</a>';
       if (!cur) pickStart();
       draw();
     }).catch(function () { R = null; RT = {}; BG = {}; if (!cur) pickStart(); draw(); });
@@ -883,8 +911,14 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     if (!d && level()) d = DB.d.find(function (x) { return level() >= x.lv[0] && level() <= x.lv[1]; });
     setDun(d || DB.d[0], true);
   }
+  // the boss opened when a dungeon is picked: the first one with an upgrade for you, else the first numbered boss
+  function firstBoss(d) {
+    var up = {}; (BG[d.n] || []).forEach(function (x) { up[x[0]] = 1; });
+    var k = d.b.findIndex(function (b) { return b.l.some(function (x) { return up[x[0]]; }); });
+    return k >= 0 ? k : d.b.findIndex(function (b) { return !b.tr && !b.ch; });
+  }
   function setDun(d, quiet) {
-    cur = d; openB = new Set(); ls.set('dg.last', d.s);
+    cur = d; openB = new Set(); var f0 = firstBoss(d); if (f0 >= 0) openB.add(f0); ls.set('dg.last', d.s);
     band = BANDS.findIndex(function (b) { return d.lv[0] >= b[0] && d.lv[0] < b[1]; }); if (band < 0) band = 0;
     if (location.hash.slice(1) !== d.s) history.replaceState(null, '', '#' + d.s);
     if (!quiet) draw();
@@ -902,7 +936,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     var r = onRoute(d), l = linkOf(d), lv = level();
     var dot = r ? '<span class="dot" title="On your route at about level ' + Math.floor(r.lv) + '"></span>' : '';
     var t = lv && lv >= d.lv[0] && lv <= d.lv[1] ? ' title="Right level for you"' : '';
-    return '<button type="button" class="chip' + (d === cur ? ' on' : '') + (l && l[4] ? ' done' : '') + '" data-d="' + d.s + '"' + t + '>' + dot + esc(dun(d.n)) + ' <small>' + d.lv[0] + '-' + d.lv[1] + '</small></button>';
+    return '<button type="button" class="chip' + (d === cur ? ' on' : '') + (l && l[4] ? ' done' : '') + '" data-d="' + d.s + '"' + t + '><img src="' + icon(d.ic) + '" alt="" loading="lazy">' + esc(dun(d.n)) + dot + ' <small>' + d.lv[0] + '-' + d.lv[1] + '</small></button>';
   }
   $('bands').onclick = function (e) { var b = e.target.closest('[data-band]'); if (b) { band = +b.dataset.band; drawPick(); } };
   $('chips').onclick = function (e) { var b = e.target.closest('[data-d]'); if (b) setDun(bySlug(b.dataset.d)); };
@@ -935,6 +969,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     $('mapSec').classList.toggle('hidden', !has);
     if (!has) $('map').innerHTML = '';
     map = has ? DGMap($('map'), d, BASE, { onPin: function (i) { openBoss(i, true); }, hover: function (i) { hotRow(i); } }) : null;
+    openB.forEach(function (i) { if (map && d.b[i] && d.b[i].p) map.show(i); });
     drawBosses();
     drawQuests();
     drawEnt();
@@ -944,8 +979,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     var d = cur, nums = DGNum(d), ups = BG[d.n] || [], upIds = {};
     ups.forEach(function (x) { upIds[x[0]] = 1; });
     var nUp = 0;
-    $('bossSum').textContent = d.fl.length ? 'click one for its drops' : 'no map yet for this Forever dungeon';
-    $('bfilter').innerHTML = '';
+    $('bossSum').textContent = d.fl.length ? '' : 'no map yet for this Forever dungeon';
     $('bosses').innerHTML = d.b.map(function (b, i) {
       var u = b.l.filter(function (x) { return upIds[x[0]]; }).length; nUp += u;
       var num = nums[i], cls = b.tr || b.ch ? 'x' : num === 'R' ? 'r' : '';
@@ -964,13 +998,16 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         '<span class="sl">' + esc(it[3]) + (it[4] ? ' · level ' + it[4] : '') + (x[2] ? ' · ' + esc(x[2]) : '') + (x[3] ? ' · ' + esc(x[3]) : '') + '</span>' +
         (x[1] ? '<span class="pc">' + Math.round(x[1]) + '%</span>' : '') + (u ? '<span class="tg up">upgrade</span>' : '') + '</li>';
     }).join('') + '</ul>';
-    if (b.rc && b.rc.length) h += '<p class="recs">Also drops ' + b.rc.length + (b.rc.length === 1 ? ' recipe: ' : ' recipes: ') + b.rc.map(function (x) { return esc((IT[x[0]] || [''])[0]); }).join(', ') + '</p>';
+    if (b.rc && b.rc.length) h += '<details class="recs"><summary>Also drops ' + b.rc.length + (b.rc.length === 1 ? ' recipe' : ' recipes') + '</summary>' + b.rc.map(function (x) { return esc((IT[x[0]] || [''])[0]); }).join(', ') + '</details>';
     return b.l.length || b.rc ? h : '<p class="recs">No loot listed.</p>';
   }
-  function openBoss(i, fromMap) {
-    if (openB.has(i) && !fromMap) openB.delete(i); else openB.add(i);
+  function openBoss(i, fromMap) {   // one boss open at a time
+    var was = openB.has(i);
+    openB = new Set(was && !fromMap ? [] : [i]);
+    var r = $('bosses').querySelectorAll('.boss');
+    for (var k = 0; k < r.length; k++) { var o = openB.has(+r[k].dataset.b); r[k].classList.toggle('open', o); r[k].querySelector('.bh').setAttribute('aria-expanded', o); }
     var el = $('bosses').querySelector('[data-b="' + i + '"]');
-    if (el) { el.classList.toggle('open', openB.has(i)); el.querySelector('.bh').setAttribute('aria-expanded', openB.has(i)); if (fromMap) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    if (el && fromMap) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   $('bosses').addEventListener('click', function (e) {
     var h = e.target.closest('.bh'); if (!h) return;
@@ -989,25 +1026,33 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     $('qSec').classList.toggle('hidden', !qs.length);
     $('quests').innerHTML = qs.map(function (q) {
       var rw = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i] || ['', 1, '']; return '<img class="rwi" src="' + icon(it[2]) + '" alt="' + esc(it[0]) + '" title="' + esc(it[0]) + (it[3] ? ' · ' + esc(it[3]) : '') + '" loading="lazy">'; }).join('');
+      var rwTxt = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i]; return it ? '<span class="q' + it[1] + '">' + esc(it[0]) + '</span>' : ''; }).filter(Boolean).join(', ');
       var t = [];
       if (doneQ(q.id)) t.push('<span class="tg done">✓ done</span>');
       else if (r.qs && r.qs.has(q.id)) t.push('<span class="tg route">on your route</span>');
       else if (r.fq && r.fq.has(q.id)) t.push('<span class="tg opt" title="Starts far off your route: turn on Optional quests on the route page">optional</span>');
       if (q.in) t.push('<span class="tg in">starts inside</span>');
       if (q.cls) t.push('<span class="tg">' + esc(q.cls.charAt(0) + q.cls.slice(1).toLowerCase()) + ' quest</span>');
-      var lead = q.after && byId[q.after] ? '<span class="lead-in">Starts with ' + esc(byId[q.after].n) + ' (' + esc(byId[q.after].p) + ')</span>' : '';
-      return '<tr><td class="qn"><i class="wf-i wf-i-quest" aria-hidden="true"></i>' + esc(q.n) + '<span class="qo">' + esc(q.o) + '</span>' + lead + '</td>' +
-        '<td class="ql">' + (q.lv || '') + (q.rq ? '<span class="muted"> · from ' + q.rq + '</span>' : '') + '</td>' +
-        '<td class="qg">' + esc(q.p) + '</td><td class="qr">' + (rw || (q.m ? '<span class="muted">' + esc(q.m) + '</span>' : '')) + (q.pick && rw ? '<span class="muted" style="font-size:11.5px"> pick one</span>' : '') + '</td>' +
-        '<td><div class="qtags">' + t.join('') + '</div></td></tr>';
+      var lead = q.after && byId[q.after] ? '<p>Starts with <b>' + esc(byId[q.after].n) + '</b> (' + esc(byId[q.after].p) + ').</p>' : '';
+      return '<div class="qrow" data-q="' + q.id + '"><button type="button" class="qh" aria-expanded="false"><span class="qn"><i class="wf-i wf-i-quest" aria-hidden="true"></i>' + esc(q.n) + '<span class="qo1">' + esc(q.o) + '</span></span>' +
+        '<span class="ql">' + (q.lv ? 'level ' + q.lv : '') + (q.rq ? '<span class="muted"> · ' + q.rq + '+</span>' : '') + '</span>' +
+        '<span class="qr">' + (rw || (q.m ? '<span class="muted">' + esc(q.m) + '</span>' : '')) + (q.pick && rw ? '<span class="muted"> pick one</span>' : '') + '</span>' +
+        '<span class="qtags">' + t.join('') + '</span><span class="bcar">▶</span></button>' +
+        '<div class="qb"><p>' + esc(q.o) + '</p><p>From <b>' + esc(q.p) + '</b>' + (q.rq ? ', from level ' + q.rq : '') + '.</p>' + lead +
+        (rwTxt ? '<p class="qrw">Reward' + (q.pick ? ' (pick one)' : '') + ': ' + rwTxt + (q.m ? ' · ' + esc(q.m) : '') + '.</p>' : q.m ? '<p class="qrw">Reward: ' + esc(q.m) + '.</p>' : '') +
+        (t.length ? '<div class="qtags">' + t.join('') + '</div>' : '') + '</div></div>';
     }).join('');
   }
   var q2 = function () { return ''; };
+  $('quests').addEventListener('click', function (e) {
+    var h = e.target.closest('.qh'); if (!h) return;
+    var o = h.parentNode.classList.toggle('open'); h.setAttribute('aria-expanded', o);
+  });
   function drawEnt() {
     var d = cur, e = d.ent;
     $('entSec').classList.toggle('hidden', !e);
     if (!e) return;
-    $('ent').innerHTML = '<p>' + esc(e.t || d.z) + '</p>' + (e.um ? '<div class="entmap"><img src="' + ROUTES + 'maps/' + e.um + '.webp" alt="Map of ' + esc(d.z) + '" width="1002" height="668" loading="lazy" onerror="this.parentNode.remove()"><span class="pin" style="left:' + e.x * 100 + '%;top:' + e.y * 100 + '%" title="' + esc(d.n) + '"></span></div>' : '');
+    $('ent').innerHTML = '<div class="entw"><p>' + esc(e.t || d.z) + '</p>' + (e.um ? '<div class="entmap"><img src="' + ROUTES + 'maps/' + e.um + '.webp" alt="Map of ' + esc(d.z) + '" width="1002" height="668" loading="lazy" onerror="this.parentNode.remove()"><span class="pin" style="left:' + e.x * 100 + '%;top:' + e.y * 100 + '%" title="' + esc(d.n) + '"></span></div>' : '') + '</div>';
   }
 
   // ---- search: dungeons, bosses, items
@@ -1041,6 +1086,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     if (x.b != null) { openBoss(x.b, true); if (map && x.d.b[x.b].p) map.show(x.b); }
     $('dSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+
+  $('qs').addEventListener('keydown', function (e) { if (e.key === 'Escape') { this.value = ''; $('sres').innerHTML = ''; } });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.srch')) $('sres').innerHTML = ''; });
 
   // the route page saved new progress in another tab
   addEventListener('storage', function (e) { if (e.key === 'lr.link' || e.key === 'lr.race' || e.key === 'lr.cls') { if (e.key === 'lr.link') { try { LINK = JSON.parse(e.newValue); } catch (x) {} } draw(); } });
