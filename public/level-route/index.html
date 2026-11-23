@@ -139,6 +139,9 @@ a { color: var(--accent); }
 :root[data-theme="light"] { --dun: #7a4fc9; }
 .tag.dq { color: var(--dun); border-color: var(--dun); }
 .tag.fd { color: var(--dun); border-style: dashed; border-color: color-mix(in srgb, var(--dun) 60%, var(--line)); }
+.tag.up { color: #fff; background: var(--good); border-color: var(--good); }
+.upsum { font-size: 13px; color: var(--good); font-weight: 600; }
+.upsum.muted { color: var(--muted); font-weight: 400; }
 .tag.of { color: #fff; background: var(--opt); border-color: var(--opt); }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
 .optsw input { appearance: none; width: 28px; height: 16px; border-radius: 99px; background: var(--line2); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
@@ -810,13 +813,14 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <header class="wf-head">
   <h1>Level 1-60 route</h1>
   <p class="wf-lead">Every quest in order on a map, with how to get there, trainer visits and dungeons.</p>
-  <ol class="wf-start"><li>Pick your race and class</li><li>Load your game files (quests done, flights)</li><li>Follow the numbered stops</li></ol>
+  <ol class="wf-start"><li>Pick your race, class and spec</li><li>Load your game files (quests done, flights)</li><li>Follow the numbered stops</li></ol>
 </header>
 
 <section class="card" id="you">
   <div class="pick">
     <label>Race <select id="race"></select></label>
     <label>Class <select id="cls"></select></label>
+    <label title="Far-off quests with a gear upgrade for this spec are part of the route">Spec <select id="spec"></select></label> <span id="upSum" class="upsum"></span>
     <label id="startWrap">Start <select id="start"></select></label>
     <label id="charWrap" class="hidden">Character <select id="char"></select></label>
     <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
@@ -859,6 +863,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <ul>
     <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups, pre-quests, chain ends, dungeon and class quests are added.</li>
     <li><b>Optional quests:</b> dungeon quests that start far off the route are left out. Turn on <b>Optional quests</b> to take them: the route changes to fit, and their lines are marked <span class="tag of">optional</span>.</li>
+    <li><b>Gear upgrades:</b> far-off quests with an upgrade for your spec are in the route: <span class="tag up">upgrade: item</span>.</li>
     <li><b>Dungeon quests</b> show their dungeon: <span class="tag dq">Wailing Caverns</span>. Steps that unlock one show <span class="tag fd">for Wailing Caverns</span>.</li>
     <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. Started mid-way? Pick your stop (or search a quest) and press <b>Tick all before this</b>. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
@@ -1168,7 +1173,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var M, T, R, MAPS = new Set(), AREA2UM = {}, UMZ = {};
   var plan, rows = [], chaps = [], stops = [], duns = [], doneQ = new Set(), ticks = {}, known = null, charData = null;
   var bandSel = null, full = ls.get('lr.full') === '1', openRuns = new Set();
-  var optOn = ls.get('lr.opt') === '1';   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
+  var optOn = ls.get('lr.opt') === '1';
+  // gear upgrades (Jun 23 Nov): far-off quests whose reward is an upgrade for your spec are part of the route.
+  // The normal route lists them per spec (ups[spec] = { f: file suffix, q: quests, it: [[quest, item, name, slot, level]], s: travel });
+  // that version is <id><f>.json. UP = the one in use, UPQ quest -> item names.
+  var SPECS = { Warrior: ['arms', 'fury', 'protection'], Paladin: ['holy', 'protection', 'retribution'], Hunter: ['beastmastery', 'marksmanship', 'survival', 'survivalmelee'], Rogue: ['assassination', 'combat', 'subtlety'], Priest: ['discipline', 'holy', 'shadow'], Shaman: ['elemental', 'enhancement', 'restoration'], Mage: ['arcane', 'fire', 'frost'], Warlock: ['affliction', 'demonology', 'destruction'], Druid: ['balance', 'feral', 'bear', 'restoration'] };
+  var SPEC_LABEL = { beastmastery: 'Beast Mastery', survival: 'Survival (ranged)', survivalmelee: 'Survival (melee)', feral: 'Feral (cat)', bear: 'Feral (bear)' };
+  var specLabel = function (k) { return SPEC_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1); };
+  var UP = null, UPQ = {};   // Optional quests switch: load <id>-opt.json (far-off journal quests, steps 'of')
   var view = null, viewKey = '', mapSvg = null, mapFit = null, mapArrow = null;
   var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false;
   // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
@@ -1285,7 +1297,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
       if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i]) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
-      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && prev.s.dq === s.dq && prev.s.fd === s.fd && !plan.travel[i] && !prev.s.nl && !s.nl &&
+      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && prev.s.dq === s.dq && prev.s.fd === s.fd && !UPQ[prev.s.q] && !UPQ[s.q] && !plan.travel[i] && !prev.s.nl && !s.nl &&
           (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
         (prev.more = prev.more || []).push({ i: i, s: s });
       } else rows.push({ k: 'step', i: i, s: s });
@@ -1435,7 +1447,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('gaps').innerHTML = gp.length ? '<b>Work in progress:</b> ' + esc(gp.join(' ')) : '';
     $('gaps').classList.toggle('hidden', !gp.length);
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
-    drawOpt(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
+    drawOpt(); drawUp(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
   }
 
   // far-off journal quests the switch would add, under their dungeon (only while it is off)
@@ -1447,7 +1459,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var o = R.opt, w = $('optWrap');
     if (!o || !o.all) { w.classList.add('hidden'); return; }
     w.classList.remove('hidden'); w.classList.toggle('on', optOn); $('optSw').checked = optOn;
-    $('optCost').textContent = (optOn ? 'on: ' : '') + '+' + o.all + ' optional quests' + (o.s ? ' · +' + Math.round(o.s / 360) / 10 + ' h travel' : '');
+    $('optCost').textContent = (optOn ? 'on: ' : '') + '+' + o.all + ' optional quests' + (o.s > 0 ? ' · +' + Math.round(o.s / 360) / 10 + ' h travel' : '');
+  }
+  // what your spec adds: the gear upgrade quests and the travel they cost
+  function drawUp() {
+    var e = $('upSum');
+    if (!UP || !UP.it.length) { e.textContent = 'No far-off gear upgrades for this spec'; e.className = 'upsum muted'; return; }
+    var n = UP.it.length, m = Math.round((UP.s || 0) / 60);
+    e.className = 'upsum';
+    e.innerHTML = '+' + n + ' gear upgrade quest' + (n > 1 ? 's' : '') + (m > 0 ? ' · +' + (m >= 60 ? Math.round(m / 6) / 10 + ' h' : m + ' min') + ' travel' : '');
+    e.title = UP.it.map(function (x) { return x[2] + ' (' + qn(x[0]) + ', level ' + x[4] + ')'; }).join('\n');
   }
   function drawDuns() {
     if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
@@ -1490,6 +1511,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     else {
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
       if (s.ad === 'Class quest' && !s.of) tags += '<span class="tag add">class quest</span>';
+      if (s.q && UPQ[s.q] && (s.t === 'accept' || s.t === 'turnin')) tags += '<span class="tag up" title="A gear upgrade for your spec, so the route takes this quest">upgrade: ' + esc(UPQ[s.q]) + '</span>';
       if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
       else if (s.op) tags += '<span class="tag">can skip</span>';
       if (s.dq && !s.in) tags += '<span class="tag dq">' + esc(dunShort(s.dq)) + '</span>';
@@ -1877,19 +1899,48 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var race = $('race').value, list = M.combos[race] || [];
     $('cls').innerHTML = list.map(function (c) { return '<option>' + c + '</option>'; }).join('');
     $('cls').value = list.indexOf(cls) >= 0 ? cls : list[0];
+    fillSpec();
     var st = startOf(race);
     $('start').innerHTML = '<option value="' + st + '">' + esc(M.starts[st].label) + '</option>';
     loadRoute();
   }
   $('race').onchange = function () { ls.set('lr.race', this.value); fillCls($('cls').value); };
-  $('cls').onchange = function () { ls.set('lr.cls', this.value); loadRoute(); };
+  $('cls').onchange = function () { ls.set('lr.cls', this.value); fillSpec(); loadRoute(); };
+  // your spec: saved per class here; the Gear upgrades page's pick (WFCHAR) is the default for the same class
+  function fillSpec() {
+    var cls = $('cls').value, list = SPECS[cls] || [], wc = window.WFCHAR ? WFCHAR.get() : {};
+    var sp = ls.get('lr.spec.' + cls);
+    if (list.indexOf(sp) < 0 && wc.cls && wc.cls.toUpperCase() === cls.toUpperCase()) sp = wc.spec;
+    if (list.indexOf(sp) < 0) sp = list[0];
+    $('spec').innerHTML = list.map(function (k) { return '<option value="' + k + '">' + esc(specLabel(k)) + '</option>'; }).join('');
+    $('spec').value = sp;
+  }
+  $('spec').onchange = function () {
+    var cls = $('cls').value; ls.set('lr.spec.' + cls, this.value);
+    var wc = window.WFCHAR ? WFCHAR.get() : {};
+    if (window.WFCHAR && wc.cls && wc.cls.toUpperCase() === cls.toUpperCase()) WFCHAR.set({ spec: this.value });
+    loadRoute(true);
+  };
   $('char').onchange = function () { useChar(this.value); };
   function loadRoute(carry) {
-    var race = $('race').value, cls = $('cls').value, id = startOf(race) + '-' + race + '-' + cls + (optOn ? '-opt' : '');
+    var race = $('race').value, cls = $('cls').value, base = startOf(race) + '-' + race + '-' + cls, id;
     ls.set('lr.race', race); ls.set('lr.cls', cls);
     $('side').innerHTML = '<div class="muted">Loading…</div>';
-    fetch(BASE + 'routes/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) {
-      var old = carry && R ? { steps: R.steps, ticks: ticks } : null;
+    var get = function (f) { return fetch(BASE + 'routes/' + f + '.json').then(function (r) { return r.json(); }); };
+    get(base).then(function (b) {
+      var up = (b.ups || {})[$('spec').value] || null;
+      id = optOn ? base + '-opt' : up ? base + up.f : base;
+      return (id === base ? Promise.resolve(b) : get(id)).then(function (j) { return [j, up]; });
+    }).then(function (a) {
+      var j = a[0], old = carry && R ? { steps: R.steps, ticks: ticks } : null;
+      UP = a[1]; UPQ = {};
+      if (UP) {
+        UP.it.forEach(function (x) { UPQ[x[0]] = UPQ[x[0]] ? UPQ[x[0]] + ', ' + x[2] : x[2]; });
+        // Optional quests on: the upgrade quests (and the chains to them) are part of the route, not optional
+        var inUp = new Set(UP.q);
+        j.steps.forEach(function (s) { if (s.of && inUp.has(s.q)) { delete s.of; s.up = 1; } });
+        if (optOn && j.opt) j.opt = Object.assign({}, j.opt, { all: Math.max(0, j.opt.all - UP.q.length), s: (j.opt.s || 0) - (UP.s || 0) });
+      }
       R = j; try { ticks = JSON.parse(ls.get('lr.ticks.' + id) || '{}'); } catch (e) { ticks = {}; }
       if (old) { ticks = {}; carryTicks(old); saveTicks(); undoTicks = null; }   // your progress is the version you were on
       cur = 0; sel = null; curZone = null; jumped = false;
