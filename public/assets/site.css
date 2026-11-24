@@ -55,6 +55,7 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
 .ws-fstat .ok i { background: var(--good); }
 .ws-fstat .site i { background: transparent; box-shadow: inset 0 0 0 1.5px var(--good); }
 .ws-fstat .ok em { color: var(--ink); }
+.ws-fstat .old i { background: var(--warn); } .ws-fstat .old em { color: var(--warn); }
 .ws-pbtn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 7px 10px; border-radius: 8px;
   background: var(--accent); color: var(--on-accent); font: 600 13px var(--body); white-space: nowrap; }
 .ws-pbtn:hover { filter: brightness(1.08); }

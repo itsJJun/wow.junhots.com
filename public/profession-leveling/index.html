@@ -209,6 +209,7 @@ td.r, th.r { text-align: right; }
 .shopsum b { color: var(--ink); font-weight: 600; }
 .have-in.set { border-color: var(--good, var(--accent)); }
 .havebar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 2px 0 6px; }
+#bagOld::before { background: var(--warn); } #bagOld[hidden] { display: none; }
 tr.covered td { opacity: .62; }
 .srcb { display: inline-block; font-size: 11px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
 .srcb.ah { color: var(--accent); } .srcb.vendor { color: var(--silver); } .srcb.est { color: var(--warn); } .srcb.you { color: var(--good); } .srcb.craft { color: var(--good); }
@@ -1111,6 +1112,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
     <button class="btn tiny" id="clearHave" type="button">Clear</button>
     <span class="hint" id="haveInfo"></span>
   </div>
+  <p class="wf-answer warn" id="bagOld" hidden style="margin:0 0 6px"></p>
   <p class="hint" id="mktNote" style="margin:0 0 6px"></p>
   <div class="tblwrap"><table id="shop"></table></div>
   <div id="shopRanges"></div>
@@ -2221,7 +2223,10 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     $("shop").querySelectorAll(".have-in").forEach(inp => inp.onchange = () => { const v = Math.max(0, Math.floor(+inp.value || 0)); if (v) S.have[inp.dataset.id] = v; else delete S.have[inp.dataset.id]; save(); render(); });
     $("useHave").checked = !!S.useHave;
     const nHave = Object.keys(S.have).filter(k => S.have[k] > 0).length;
-    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + (S.haveAt ? ", saved " + new Date(S.haveAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + (Date.now() - S.haveAt > 864e5 ? " (old: /reload in game and load it again)" : "") : "") + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from your TSM save.";
+    const bagDay = S.haveAt ? new Date(S.haveAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "", bagOld = S.useHave && nHave && S.haveAt && Date.now() - S.haveAt > 864e5;
+    $("bagOld").hidden = !bagOld;
+    if (bagOld) $("bagOld").innerHTML = '<span><b>Your bags are from ' + bagDay + '.</b> In game type /reload, then press <label class="btn tiny" for="bagFile">Load my bags &amp; bank</label> and pick <code>TradeSkillMaster.lua</code>.</span>';
+    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + (bagDay ? ", saved " + bagDay : "") + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from your TSM save.";
     $("shop").querySelectorAll(".price-in:not(.have-in)").forEach(inp => inp.onchange = () => { const v = inp.value.trim(); if (v === "") delete S.over[inp.dataset.id]; else S.over[inp.dataset.id] = Math.max(0, +v); save(); render(); });
   }
 
@@ -2451,6 +2456,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     return { have: tot, chars, money: main ? money[main] : null, moneyWho: main };
   }
   function loadBags(f) {
+    // the site hands this page its saved bags file on every visit: don't let the same old file undo what you typed
+    if (f.lastModified && S.haveAt === f.lastModified && S.haveSrc) { render(); return; }
     const rd = new FileReader();
     rd.onload = () => {
       try {
