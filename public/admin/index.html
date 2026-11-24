@@ -517,7 +517,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     if (!W) { msg.textContent = 'Not ready yet, try again.'; return; }
     msg.textContent = 'Reading your WoW folder…';
     W.sync().then(function () { return W.get('ah'); }).then(function (rec) {
-      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Link your WoW folder in Load game files (bottom left) first.'; return; }
+      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Load your game files (bottom left) first.'; return; }
       upload(new File([rec.data], rec.name, { lastModified: rec.mod || rec.at }));
     }, function (e) { msg.textContent = 'Could not read it: ' + e.message; });
   });
