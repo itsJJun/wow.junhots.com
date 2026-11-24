@@ -171,6 +171,9 @@ a { color: var(--accent); }
 .ys-go { display: inline; }
 .ys-tm { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 8px; white-space: nowrap; }
 .ys-why { font-style: italic; }
+.ys-bk { font-size: 12.5px; color: var(--ink); font-weight: 600; cursor: help; }
+.ys-skip { font: inherit; font-size: 12.5px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; margin-left: auto; }
+.ys-skip:hover { color: var(--ink); border-color: var(--line2); }
 .ys-tiles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ys-t { font: inherit; display: flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
 .ys-t b { font-size: 15px; font-variant-numeric: tabular-nums; }
@@ -1386,7 +1389,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // close-up map (Jun 23 Nov): the game's own minimap pictures (maps/t/<map>_<row>_<col>.webp, one per 533-yard
   // tile) fade in over the zone map as you zoom in, only the tiles in view. MINI = maps/mini.json
   var MINI = null, MINIS = {}, miniG = null, miniHave = {}, TS = 533.3333333;
-  var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false;
+  var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false, pick = null, skipStop = null, skipped = [];
   // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
   var WIC = typeof WI === 'object' ? WI : {};
   (function () { var c = ''; for (var k in WIC) c += '.wi-' + k + '{background-image:url(' + WIC[k] + ')}'; var e = document.createElement('style'); e.textContent = c; document.head.appendChild(e); })();
@@ -1843,8 +1846,53 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     for (n = Math.max(lastDone + 1, win[0]); n < rows.length; n++) if ((rows[n].k === 'step' && rows[n].s.t !== 'note' || rows[n].k === 'fp') && !isDone(rows[n])) { here = n; break; }
     hereStop = null;
     for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
+    catchUp(L, win);
     nextSet = new Set();
     if (hereStop) for (var j = hereStop.gi + 1, c = 0; j < stops.length && c < NEXT; j++) if (!stopDone(stops[j])) { nextSet.add(stops[j]); c++; }
+  }
+  // ---- catch-up first (24 Nov, Jun: "I haven't done Uldaman, and my upgrades are behind me"). A part behind you comes
+  // first when it still has a gear upgrade, an unfinished dungeon for your level, or a quarter level of XP. Upgrades,
+  // then dungeons, then XP; oldest first. Quest XP drops 6+ levels below you (Classic rule), so waiting costs XP.
+  // "Skip" saves those parts in lr.skip and you go on from where you stopped.
+  var XPL = [0,400,900,1400,2100,2800,3600,4500,5400,6500,7600,8800,10100,11400,12900,14400,16000,17700,19400,21300,23200,25200,27300,29400,31700,34000,36400,38900,41400,44300,47400,50800,54500,58600,62800,67100,71600,76100,80800,85700,90700,95800,101000,106300,111800,117500,123200,129100,135100,141200,147500,153900,160400,167100,173900,180800,187900,195000,202300,209800];
+  var xpf = function (d) { return d <= 5 ? 1 : d === 6 ? 0.8 : d === 7 ? 0.6 : d === 8 ? 0.4 : d === 9 ? 0.2 : 0.1; };
+  var stepsOf = function (r) { return r.k === 'step' ? [r.s].concat((r.more || []).map(function (m) { return m.s; })) : []; };
+  function catchUp(L, win) {
+    pick = null; skipStop = null; skipped = [];
+    if (!L || !hereStop || L >= 60) return;
+    var g = greyAt(L), skip = (ls.get('lr.skip') || '').split('|'), best = null;
+    chaps.forEach(function (c) {
+      if (c.idx >= hereStop.ch.idx || !c.rows.length || c.rows[c.rows.length - 1].n < win[0]) return;
+      var inCh = {}, v = { c: c, xp: 0, ups: [], dun: null, st: null };
+      c.rows.forEach(function (r) { stepsOf(r).forEach(function (s) { if (s.t === 'turnin') inCh[s.q] = 1; }); });
+      // you can do it now: in your log, or your level, not grey, and the quests before it done (or in this part)
+      var open = function (q) {
+        var m = M.quests[q]; if (!m || doneQ.has(q)) return false; if (logQ.has(q)) return true;
+        if ((m[1] || 0) <= g || (m[2] || 0) > L) return false;
+        var p = m[9] || [[], []], ok = function (x) { return doneQ.has(x) || logQ.has(x) || inCh[x]; };
+        return p[0].every(ok) && (!p[1].length || p[1].some(ok));
+      };
+      c.stops.forEach(function (st) {
+        st.rows.forEach(function (r) {
+          stepsOf(r).forEach(function (s) {
+            if (!s.q || !open(s.q)) return;
+            if (!v.st && !isDone(r)) v.st = st;
+            if (s.t !== 'turnin') return;
+            var ql = M.quests[s.q][1] || 0;
+            v.xp += (s.xp || 0) / xpf(Math.floor(s.lv || ql) - ql) * xpf(L - ql);
+            if (upMine && upMine.byId[s.q] && v.ups.indexOf(s.q) < 0) v.ups.push(s.q);
+          });
+        });
+      });
+      duns.forEach(function (d) { if (!d.done && d.all.length && d.stop && d.stop.ch === c && d.lv >= L - 5 && d.lv <= L + 3) v.dun = d; });   // its quests still give full XP
+      if (!v.st) return;
+      v.rank = v.ups.length ? 0 : v.dun ? 1 : v.xp >= XPL[L] / 4 ? 2 : 9;
+      if (v.rank > 2) return;
+      if (skip.indexOf(c.name) >= 0) { skipped.push(c.name); return; }
+      if (!best || v.rank < best.rank) best = v;
+    });
+    if (!best) return;
+    pick = best; skipStop = hereStop; hereStop = best.st; here = best.st.rows[0].n;
   }
 
   function render() {
@@ -1984,13 +2032,23 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       trip = tx ? at + '<span class="ys-c ys-go"' + tripAttr(tr, Object.assign({ zone: wh.zone }, from), to, hereStop) + '>' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
         : tr ? at + '<span class="ys-c ys-go">You are there</span>' : '';
     }
-    var why = hereWhy.skipped ? 'Quests before it are grey for you' : hereWhy.past ? hereWhy.past + ' later quests already ticked' : '';
+    var why = pick ? '' : hereWhy.skipped ? 'Quests before it are grey for you' : hereWhy.past ? hereWhy.past + ' later quests already ticked' : '';
+    // catch-up: what makes this part worth going back for, as icon chips (details on hover), and a way to skip it
+    var back = '';
+    if (pick) {
+      var ut = pick.ups.map(function (q) { var u = upMine.byId[q]; return u[0] + ' +' + u[2] + ' ' + String(u[1]).toLowerCase(); }).join('\n');
+      back = (pick.dun && pick.dun.name !== hereStop.title ? '<span class="ys-c ys-bk" title="' + esc(pick.dun.name) + ' not done">' + wi('skull') + esc(pick.dun.name) + '</span>' : '') +
+        (pick.ups.length ? '<span class="ys-c ys-bk" title="' + esc(ut) + '">' + wi('loot') + pick.ups.length + (pick.ups.length === 1 ? ' upgrade' : ' upgrades') + '</span>' : '') +
+        (pick.xp >= 1000 ? '<span class="ys-c ys-bk" title="Full XP now. Less the more you level.">' + Math.round(pick.xp / 1000) + 'k xp</span>' : '');
+    }
+    var skipBtn = pick && skipStop ? '<button type="button" class="ys-skip" data-skip="1" title="Skip the parts behind you">Skip to ' + esc(skipStop.ch.name) + ' →</button>'
+      : skipped.length ? '<button type="button" class="ys-skip" data-unskip="1" title="' + esc(skipped.join(', ')) + '">Go back first</button>' : '';
     // one chip per kind of fact: level, where you are, the trip, its time, why
     var sub = '<span class="ys-c ys-lv" title="Your level">Lv ' + L + '</span>' + trip + (why ? '<span class="ys-c ys-why">' + why + '</span>' : '');
     if (!tiles.some(function (t) { return t.k === ysOpen; })) ysOpen = '';
     var open = tiles.find(function (t) { return t.k === ysOpen; });
     $('startBody').innerHTML =
-      '<div class="ys-top"><button class="btn main ys-go-btn" data-go="' + hereStop.gi + '" type="button" title="' + esc(hereStop.ch.name) + '">' + stRef(hereStop, true) + ' →</button><span class="ys-part">' + esc(hereStop.ch.name) + '</span><div class="ys-sub">' + sub + '</div></div>' +
+      '<div class="ys-top"><button class="btn main ys-go-btn" data-go="' + hereStop.gi + '" type="button" title="' + esc(hereStop.ch.name) + '">' + stRef(hereStop, true) + ' →</button><span class="ys-part">' + esc(hereStop.ch.name) + '</span>' + back + skipBtn + '<div class="ys-sub">' + sub + '</div></div>' +
       (tiles.length ? '<div class="ys-tiles">' + tiles.map(function (t) { return '<button type="button" class="ys-t' + (t.k === ysOpen ? ' on' : '') + '" data-ys="' + t.k + '"><b>' + t.n + '</b><span>' + t.label + '</span></button>'; }).join('') + '</div>' : '') +
       (open ? '<ul class="ys-list">' + open.rows.join('') + '</ul>' : '') +
       (!upMine && snap ? '<p class="ys-hint">Open <a href="/gear-upgrades/">Gear upgrades</a> once with your Gear Snapshot loaded to see quest rewards that beat your gear.</p>' : '');
@@ -2000,7 +2058,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
     $('dunSec').classList.remove('hidden');
     var nd = duns.filter(function (d) { return d.done; }).length, left = duns.filter(function (d) { return !d.done; });
-    $('dunSum').textContent = left.length + ' to go' + (nd ? ' · ' + nd + ' done' : '') + (left.length ? ' · next: ' + left[0].name : '');
+    var Lv = snap && snap.level, dnx = pick && pick.dun || left.find(function (d) { return d.all.length && (!Lv || (d.lv || 0) >= Lv - 5); }) || left[0];   // the catch-up one, or the first whose quests still give full XP
+    $('dunSum').textContent = left.length + ' to go' + (nd ? ' · ' + nd + ' done' : '') + (dnx ? ' · next: ' + dnx.name : '');
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
       var g = bossGear(d.name);
@@ -2544,6 +2603,12 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   $('startBody').addEventListener('click', function (e) {
     var t = e.target.closest('[data-ys]');
     if (t) { ysOpen = ysOpen === t.dataset.ys ? '' : t.dataset.ys; ls.set('lr.ys', ysOpen); drawStart(); return; }
+    var k = e.target.closest('[data-skip], [data-unskip]');
+    if (k) {   // skip every part behind you that would be picked, or bring them back
+      if (k.dataset.skip) { var sk = (ls.get('lr.skip') || '').split('|').filter(Boolean); while (pick) { sk.push(pick.c.name); ls.set('lr.skip', sk.join('|')); findHere(); } }
+      else ls.set('lr.skip', '');
+      jumped = false; sel = null; render(); if (hereStop) goStop(hereStop.gi); return;
+    }
     var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go);
   });
   $('hereBtn').onclick = function () { if (hereStop) goStop(hereStop.gi); };

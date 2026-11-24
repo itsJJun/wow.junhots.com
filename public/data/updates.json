@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-24",
+    "title": "Leveling: go back for what you skipped",
+    "text": "Your start now sends you back first for a skipped gear upgrade, dungeon or full-XP quests. Hover the chips to see why, or press Skip to keep going.",
+    "image": "/assets/updates/2026-11-24-catch-up.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
+    "date": "2026-11-24",
     "title": "Leveling: trips on the world map, clearer places",
     "text": "Hover a travel line on the Leveling route (tap on a phone) to see the trip on the game's own continent or world map, with flight points and the icon of what you do there. When your next place is in another zone, a small map in the corner of the zone map shows how to get there. Places now show their numbered pin and who or where they are, like ② Flight master, Brackenwall Village, instead of \"stop 2\".",
     "image": "/assets/updates/2026-11-24-trip-map.webp",
