@@ -250,11 +250,13 @@
     document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of ' + KINDS.length + ' game files loaded'; });
     if (document.readyState !== 'loading') { factionNote(); startHere(); }   // both depend on which files are loaded
     // side panel: one line per file, like the Hub
+    // a file saved in game over a day before your newest one: you updated the others but not this one
+    var saved = function (i) { return i.mod || i.at; }, newest = Math.max.apply(null, KINDS.map(function (k) { return m[k.key] ? saved(m[k.key]) : 0; }));
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
-        var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null;
-        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + '" title="' + esc(st ? 'Horde auction scan the site uses until you load your own ' + k.file : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
-          (i ? esc(short(i.at)) : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
+        var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5;
+        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? 'Horde auction scan the site uses until you load your own ' + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
+          (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
       }).join('');
     });
   }
