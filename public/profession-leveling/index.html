@@ -1089,7 +1089,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
     <label class="tog"><input type="checkbox" id="sell"> Sell crafted items to a vendor</label>
     <label class="tog"><input type="checkbox" id="patterns"> <span>Buy <span id="patLab">patterns</span> (vendor or auction house)</span></label>
     <span class="kn" id="knownRec" title="Marks patterns you already know, so the route doesn't buy them"></span>
-    <label class="tog"><input type="checkbox" id="profit"> Allow crafts that make a profit</label>
+    <label class="tog" title="On: a craft that sells to a vendor (or disenchants) for more than its materials cost counts as making money, so the route picks it. Off: it counts as free. Not about the auction house."><input type="checkbox" id="profit"> Prefer crafts that profit at the vendor</label>
     <span id="rodBox" class="settings" style="gap:10px 16px"></span>
   </div>
   <p class="hint" id="skillHint"></p>
@@ -1160,7 +1160,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
     <li><b>Expected crafts</b> for one point is 1 ÷ chance. A craft at 25% needs 4 tries on average. The planner adds the time cost you pick so it doesn't send you into hundreds of low-chance crafts to save a few copper.</li>
     <li><b>Prices.</b> Each material uses the cheapest of: the auction house (the Auctionator scan built into this page, or your own once you load it), a vendor, or making it yourself (cloth into bolts). Prices marked <span class="srcb est">est</span> weren't in the scan, so they come from wowtbc.gg's Forever price list.</li>
     <li><b>Bolts are free skill.</b> When later steps need bolts, making them yourself while the bolt recipe still gives points is counted as free, because you were going to make those bolts anyway.</li>
-    <li><b>Money back.</b> With selling on, each crafted item counts its vendor price back. Green and blue items can count their disenchant value instead (dust, essence, shards at the share of AH price you pick), using the classic disenchant tables. The higher of the two is used. Unless you allow profit, a craft never counts as cheaper than free.</li>
+    <li><b>Money back.</b> With selling on, each crafted item counts its vendor price back. Green and blue items can count their disenchant value instead (dust, essence, shards at the share of AH price you pick), using the classic disenchant tables. The higher of the two is used. Unless you tick <i>Prefer crafts that profit at the vendor</i>, a craft never counts as cheaper than free.</li>
     <li><b>Patterns and rods</b> are only bought if they save more than they cost. Vendor patterns are listed with their sellers; some sellers are Alliance only. Press “Can't get this” and the route is rebuilt without it.</li>
     <li><b>Not counted:</b> trainer fees for recipes and ranks, and cheap items to put enchants on. Enchanting needs a matching item in your bags (bracers, boots, gloves, chest, cloak, shield). Any cheap vendor item works, and you can enchant the same one again and again.</li>
   </ul>
@@ -1577,7 +1577,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const skipped = id === "all" || S.banned.includes(id);  // cur is the route that skips it
     const withP = skipped ? other : cur, without = skipped ? cur : other;
     const a = total(withP), b = total(without);
-    return { d: b.net - a.net, cost: a.net, reachWith: reachWith(withP, B, prof), reachWithout: reachWith(without, B, prof), missing: b.missing.length > a.missing.length };
+    // bag materials at AH price, like the route itself: otherwise a route that burns your bags looks "cheaper"
+    return { d: (b.net + b.owned) - (a.net + a.owned), cost: a.net, reachWith: reachWith(withP, B, prof), reachWithout: reachWith(without, B, prof), missing: b.missing.length > a.missing.length };
   }
   function skipBadge(s) {
     if (!s) return '<span class="pill mute" title="Working out what skipping this pattern would cost">if skipped: …</span>';
@@ -2217,7 +2218,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     $("shop").querySelectorAll(".have-in").forEach(inp => inp.onchange = () => { const v = Math.max(0, Math.floor(+inp.value || 0)); if (v) S.have[inp.dataset.id] = v; else delete S.have[inp.dataset.id]; save(); render(); });
     $("useHave").checked = !!S.useHave;
     const nHave = Object.keys(S.have).filter(k => S.have[k] > 0).length;
-    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from your TSM save.";
+    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + (S.haveAt ? ", saved " + new Date(S.haveAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + (Date.now() - S.haveAt > 864e5 ? " (old: /reload in game and load it again)" : "") : "") + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from your TSM save.";
     $("shop").querySelectorAll(".price-in:not(.have-in)").forEach(inp => inp.onchange = () => { const v = inp.value.trim(); if (v === "") delete S.over[inp.dataset.id]; else S.over[inp.dataset.id] = Math.max(0, +v); save(); render(); });
   }
 
@@ -2452,7 +2453,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       try {
         const r = parseTSM(new Uint8Array(rd.result));
         const who = Object.keys(r.chars);
-        S.have = r.have; S.useHave = true; S.haveSrc = who.length ? who.join(" + ") : "TSM";
+        S.have = r.have; S.useHave = true; S.haveSrc = who.length ? who.join(" + ") : "TSM"; S.haveAt = f.lastModified || null;
         if (r.money !== null && r.money !== undefined) { S.budget = String(Math.floor(r.money / 100) / 100); $("budget").value = S.budget; }
         save(); render();
         const pl = viewFor(S.prof, budgetAlloc()); const need = shopping(pl);
@@ -2464,7 +2465,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   }
   $("bagFile").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) loadBags(f); e.target.value = ""; });
   $("useHave").onchange = () => { S.useHave = $("useHave").checked; save(); render(); };
-  $("clearHave").onclick = () => { S.have = {}; S.haveSrc = null; save(); render(); };
+  $("clearHave").onclick = () => { S.have = {}; S.haveSrc = null; S.haveAt = null; save(); render(); };
   if ($("copyTsm")) $("copyTsm").onclick = () => {
     const done = ok => { $("copyTsm").textContent = ok ? "Copied" : "Copy failed"; setTimeout(() => $("copyTsm").textContent = "Copy TSM file path", 2000); };
     try { navigator.clipboard.writeText(TSM_PATH).then(() => done(true), () => done(false)); } catch (e) { done(false); }
