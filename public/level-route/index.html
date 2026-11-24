@@ -186,6 +186,27 @@ a { color: var(--accent); }
 .ys-l { font: inherit; font-size: 12.5px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
 .ys-l:hover { text-decoration: underline; }
 .ys-hint { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+/* trip map: hover a trip line. Game look: tooltip frame, flight-map line, gold map labels */
+[data-trip] { cursor: help; }
+.tw-pop, .tw-inset { box-sizing: border-box; border: 8px solid transparent; border-image: url(/assets/i/4e0a16408278a4.png) 16 stretch; background: rgba(8,8,20,.94); background-clip: padding-box; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+.tw-pop { position: fixed; z-index: 60; display: none; padding: 2px; pointer-events: none; }
+.tw-pop.on { display: block; }
+.tw-map { display: block; width: 100%; aspect-ratio: 3 / 2; background: #1b1712; }
+.tw-map path { fill: none; stroke-linecap: round; }
+.tw-map .tw-walk { stroke: #ffd100; filter: drop-shadow(0 0 1px #000); }
+.tw-map .tw-ship { stroke: #e9f4ff; filter: drop-shadow(0 0 1px #000); }
+.tw-to { fill: #ffd100; stroke: #000; }
+.tw-lab { fill: #ffd100; stroke: #000; paint-order: stroke; text-anchor: middle; font-weight: 700; font-family: inherit; }
+.tw-cap { display: flex; align-items: center; gap: 4px; padding: 5px 3px 1px; font-size: 12.5px; color: #fff; }
+.tw-cap img { width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px; }
+.tw-cap span, .tw-cap b { white-space: nowrap; }
+.tw-cap .wi { margin: 0 0 0 10px; }
+.tw-cap b { margin-left: auto; color: #ffd100; }
+.tw-inset { position: absolute; left: 8px; bottom: 8px; width: 36%; min-width: 190px; padding: 1px; cursor: pointer; }
+.tw-inset:hover { filter: brightness(1.12); }
+.map .tw-inset svg { position: static; width: 100%; height: auto; cursor: pointer; touch-action: auto; }
+.map .tw-inset image { filter: none; }
+@media (max-width: 640px) { .tw-inset { width: 44%; min-width: 0; left: 6px; bottom: 6px; } .tw-inset .tw-cap { font-size: 11px; } .tw-inset .tw-you { display: none; } .tw-inset .tw-cap .wi { margin-left: 0; } }
 @media (max-width: 640px) { .ys-list li { grid-template-columns: 1fr auto; row-gap: 0; } .ys-m { grid-column: 1; grid-row: 2; } .ys-l { grid-column: 2; grid-row: 1; } }
 .status.warn:empty { display: none; }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
@@ -1207,7 +1228,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         if (!r) res.warn.push({ i, k: 'no-route', m: 'no way found from the last step' });
         else {
           const ride = r.legs.some(l => l.k !== 'walk');
-          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs };
+          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs, from: pos, to: dest };
           res.total += r.secs;
           // flight masters you pass on the way
           for (const l of r.all) if (l.k === 'fly') { known.add(l.a); known.add(l.b); }
@@ -1356,6 +1377,108 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (l.k === 'passage') return 'walk';
     return /Darnassus|Rut'theran/.test(l.n || '') ? 'p_darnassus' : /Stormwind/.test(l.n || '') ? 'p_stormwind' : 'portal';
   };
+  // ---- trip map: a trip drawn on the continent map (or Azeroth when it crosses the sea) ----
+  // Map art + bounds from the game (UiMapAssignment): x = north, y = west; u,v = 0..1 across the 1002x668 map
+  var WMAP = {
+    1415: { c: { 0: [0, 0, 1, 1, -16000, 7466.6, -19199.9, 16000] } },
+    1414: { c: { 1: [0, 0, 1, 1, -11733.3, 12799.9, -19733.2, 17066.6] } },
+    947: { c: { 0: [.5505, .0994, .8966, .8691, -16000, 6933.3, -7466.7, 8000], 1: [.0399, .0855, .4083, .9234, -12800, 12266.7, -9600, 6933.3] } }
+  };
+  var wmUV = function (um, p) {
+    var b = WMAP[um].c[p.map]; if (!b) return null;
+    return [1002 * (b[0] + (b[7] - p.y) / (b[7] - b[6]) * (b[2] - b[0])), 668 * (b[1] + (b[5] - p.x) / (b[5] - b[4]) * (b[3] - b[1]))];
+  };
+  var TRIPS = [];
+  var TWI = {"line": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAo0lEQVR42u2XMQpCMQyGv5QOjgoOzl7BQ3k9D+Dk7h3eDToJb5DWQYp9IjiFXzD/WAr/l6QJqc23C7TKSwlfDV6WyEvztwveatU93K+SA+Qnw5D2u7/jGH+UIAAC4BfmQAXYfO5Tb9XS7faiBFw7wEEFYLvtGqD1k9l5FK+WJTb9I5ymE8BR2AUAnNUARb0PlNgHAiAA/n4fQLQPRAnIWJJ+zx+LKCGfBaZ1LwAAAABJRU5ErkJggg==", "fp_cur": "/assets/i/fae4f7a294bfa7.png", "fp": "/assets/i/846dab370ca37b.png", "me": "/assets/i/1dacc1fb2298dd.png", "tip": "/assets/i/4e0a16408278a4.png"}; // game art: flight-map route line, flight points (yellow = where you board), your map dot
+  var stIcon = function (st) {
+    var r = st && st.rows.find(function (x) { return x.k === 'fp' || (x.s && x.s.t); });
+    if (!r) return '';
+    if (r.k === 'fp' || r.s.t === 'fp') return fly();
+    return { accept: 'q_accept', turnin: 'q_turnin', do: 'do', hearth: 'hearth', grind: 'grind' }[r.s.t] || 'q_accept';
+  };
+  var tripAttr = function (tr, from, to, st) { if (!tr || !tr.legs || !from || !to) return ''; TRIPS.push({ tr: tr, from: from, to: to, st: st }); return ' data-trip="' + (TRIPS.length - 1) + '"'; };
+  var tripSvg = function (t) {
+    var tr = t.tr, pts = [{ p: t.from, k: 'start' }];
+    tr.legs.forEach(function (l, i) {
+      if (l.k === 'fly') (l.via || []).forEach(function (v) { var n = T.places['taxi' + v]; if (n) pts.push({ p: n, k: 'fly', via: 1 }); });
+      var e = T.places[l.to] || (i === tr.legs.length - 1 ? t.to : null);
+      if (e) pts.push({ p: e, k: l.k, l: l });
+    });
+    if (pts[pts.length - 1].p !== t.to) pts.push({ p: t.to, k: 'walk' });
+    var conts = {}; pts.forEach(function (x) { if (x.p.map === 0 || x.p.map === 1) conts[x.p.map] = 1; });
+    var cs = Object.keys(conts); if (!cs.length) return '';
+    var um = cs.length > 1 ? 947 : cs[0] === '0' ? 1415 : 1414;
+    var xy = pts.map(function (x) { return wmUV(um, x.p); });
+    // frame the trip (at least a third of the map), keep 3:2
+    var ok = xy.filter(Boolean), X = ok.map(function (q) { return q[0]; }), Y = ok.map(function (q) { return q[1]; });
+    var x0 = Math.min.apply(0, X), x1 = Math.max.apply(0, X), y0 = Math.min.apply(0, Y), y1 = Math.max.apply(0, Y);
+    var w = Math.max(x1 - x0 + 120, 340, (y1 - y0 + 90) * 1.5), h = w / 1.5;
+    if (w > 1002) { w = 1002; h = 668; }
+    var vx = Math.min(Math.max((x0 + x1) / 2 - w / 2, 0), 1002 - w), vy = Math.min(Math.max((y0 + y1) / 2 - h / 2, 0), 668 - h), k = w / 400;
+    var f1 = function (v) { return v.toFixed(1); };
+    var img = function (href, q, s) { return '<image href="' + href + '" x="' + f1(q[0] - s / 2) + '" y="' + f1(q[1] - s / 2) + '" width="' + f1(s) + '" height="' + f1(s) + '"/>'; };
+    var g = ['<image href="' + BASE + 'maps/' + um + '.webp" x="0" y="0" width="1002" height="668"/>'];
+    var boards = [];
+    for (var i = 1; i < pts.length; i++) {
+      var a = xy[i - 1], b = xy[i], kind = pts[i].k;
+      if (!a || !b || kind === 'portal' || kind === 'tram' || kind === 'passage') continue;
+      if (kind === 'fly') { // the flight map's own route line, stretched and turned like the game does
+        var len = Math.hypot(b[0] - a[0], b[1] - a[1]), deg = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, H = 44 * k;
+        g.push('<image href="' + TWI.line + '" x="0" y="' + f1(-H / 2) + '" width="' + f1(len) + '" height="' + f1(H) + '" preserveAspectRatio="none" transform="translate(' + f1(a[0]) + ' ' + f1(a[1]) + ') rotate(' + deg.toFixed(2) + ')"/>');
+        if (!pts[i - 1].via) boards.push([a, 'cur']);
+        boards.push([b, '']);
+      } else {
+        g.push('<path class="tw-' + (kind === 'walk' ? 'walk' : 'ship') + '" d="M' + f1(a[0]) + ' ' + f1(a[1]) + 'L' + f1(b[0]) + ' ' + f1(b[1]) + '" stroke-width="' + f1((kind === 'walk' ? 2.4 : 2.8) * k) + '" stroke-dasharray="0 ' + f1((kind === 'walk' ? 5 : 7) * k) + '"/>');
+        if (kind !== 'walk' && WIC[kind]) g.push(img(WIC[kind], [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], 22 * k));
+      }
+    }
+    // flight points: yellow where you board, green where you land or change
+    var sEnd = xy[xy.length - 1];
+    boards.forEach(function (bd) { if (sEnd && Math.hypot(bd[0][0] - sEnd[0], bd[0][1] - sEnd[1]) < 14 * k) return; g.push(img(bd[1] ? TWI.fp_cur : TWI.fp, bd[0], 16 * k)); });
+    var lab = function (q, txt, below) {
+      if (!q || !txt) return '';
+      var hw = txt.length * 3.7 * k, lx = Math.min(Math.max(q[0], vx + hw + 4 * k), vx + w - hw - 4 * k);
+      var ly = below || q[1] - 13 * k < vy + 14 * k ? q[1] + 24 * k : q[1] - 13 * k;
+      return '<text class="tw-lab" x="' + f1(lx) + '" y="' + f1(ly) + '" font-size="' + f1(13 * k) + '" stroke-width="' + f1(3.2 * k) + '">' + esc(txt) + '</text>';
+    };
+    var s0 = xy[0], s1 = xy[xy.length - 1], ic = stIcon(t.st);
+    if (s1) g.push(ic && WIC[ic] ? img(WIC[ic], s1, 22 * k) : '<circle class="tw-to" cx="' + f1(s1[0]) + '" cy="' + f1(s1[1]) + '" r="' + f1(6 * k) + '" stroke-width="' + f1(2 * k) + '"/>');
+    if (s0) g.push(img(TWI.me, s0, 18 * k));
+    var zAt = function (q) { try { return T.zoneAt(q.map, q.x, q.y); } catch (e) { return ''; } };
+    var la = t.from.zone || zAt(t.from), lb = t.to.zone || zAt(t.to);
+    g.push(lab(s0, la), la !== lb ? lab(s1, lb, s0 && s1 && s1[1] > s0[1] && Math.abs(s1[0] - s0[0]) < 60 * k) : '');
+    return '<svg class="tw-map" viewBox="' + [vx, vy, w, h].map(f1).join(' ') + '" role="img" aria-label="Trip on the map">' + g.join('') + '</svg>';
+  };
+  // the stop a trip leads to, as a small game icon + words for the popup
+  var tripCap = function (t) {
+    var ic = stIcon(t.st);
+    return '<div class="tw-cap"><span class="tw-you"><img src="' + TWI.me + '" alt="">You</span>' + (t.st ? (ic && WIC[ic] ? '<i class="wi bare wi-' + ic + '"></i>' : '') + '<span class="tw-st">Stop ' + t.st.num + '</span>' : '') + '<b>' + mins(t.tr.secs) + '</b></div>';
+  };
+  // the trip that leads to a stop (a leg row right before it), if any
+  var legBefore = function (st) {
+    var it = st.ch.items, k = it.findIndex(function (x) { return x.st === st; });
+    for (var j = k - 1; j >= 0; j--) { if (it[j].k === 'leg') return it[j].r.tr; if (it[j].st) return null; }
+    return null;
+  };
+  // hover (or tap) a trip line: its map pops up
+  var tripPop = null, tripFor = null;
+  var showTrip = function (el) {
+    var t = TRIPS[+el.dataset.trip]; if (!t) return;
+    var svg = ''; try { svg = tripSvg(t); } catch (e) {}
+    if (!svg) return;
+    if (!tripPop) { tripPop = document.createElement('div'); tripPop.className = 'tw-pop'; document.body.appendChild(tripPop); }
+    tripPop.innerHTML = svg + tripCap(t);
+    var r = el.getBoundingClientRect(), VW = document.documentElement.clientWidth, W = Math.min(380, VW - 16);
+    tripPop.style.width = W + 'px';
+    tripPop.style.left = Math.max(8, Math.min(r.left, VW - W - 8)) + 'px';
+    var below = r.bottom + 8, hgt = W / 1.5 + 44;
+    tripPop.style.top = (below + hgt > window.innerHeight && r.top - hgt - 8 > 0 ? r.top - hgt - 8 : below) + 'px';
+    tripPop.classList.add('on'); tripFor = el;
+  };
+  var hideTrip = function () { if (tripPop) tripPop.classList.remove('on'); tripFor = null; };
+  document.addEventListener('mouseover', function (e) { var el = e.target.closest && e.target.closest('[data-trip]'); if (el && el !== tripFor) showTrip(el); else if (!el && tripFor) hideTrip(); });
+  document.addEventListener('click', function (e) { var el = e.target.closest && e.target.closest('[data-trip]'); if (el && matchMedia('(hover: none)').matches) { if (el === tripFor) hideTrip(); else showTrip(el); } else if (!el) hideTrip(); });
+  window.addEventListener('scroll', hideTrip, { passive: true });
   // quest objective icon (route-meta quests[q][6], from Questie objectives)
   var DOI = { kill: 'do', loot: 'loot', use: 'use', explore: 'explore', talk: 'talk', escort: 'escort' };
 
@@ -1828,7 +1951,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       pls = pls.filter(function (x) { return x && x !== 'the dock'; }).map(esc).sort(function (a, b) { return b.length - a.length; });
       var placeHi = function (h) { return pls.length ? h.replace(new RegExp('(' + pls.map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')', 'g'), '<span class="ys-pl">$1</span>') : h; };
       var at = wh.zone ? '<span class="ys-c ys-at" title="Where you are now">' + wi('map') + esc(wh.zone) + '</span>' : '';
-      trip = tx ? at + '<span class="ys-c ys-go" title="How to get there">' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
+      trip = tx ? at + '<span class="ys-c ys-go"' + tripAttr(tr, Object.assign({ zone: wh.zone }, from), to, hereStop) + '>' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
         : tr ? at + '<span class="ys-c ys-go">You are there</span>' : '';
     }
     var why = hereWhy.skipped ? 'Quests before it are grey for you' : hereWhy.past ? hereWhy.past + ' later quests already ticked' : '';
@@ -1991,7 +2114,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
     var legHtml = function (r) {
       var tx = r.tr.text, k = c.items.findIndex(function (x) { return x.r === r; }), nx = c.items[k + 1];
-      return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '">' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
+      return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '"' + tripAttr(r.tr, r.tr.from, r.tr.to, nx && nx.st) + '>' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
     };
     var mini = function (st) {
       return '<div class="stop done mini' + (st === sel ? ' sel' : '') + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '" checked aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b></div></div>';
@@ -2031,7 +2154,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var k = c.items.findIndex(function (it) { return it.st === st; }), then = [], lastUm = st.loc ? st.loc.um : null;
     for (var j = k + 1; j < c.items.length && then.length < 5; j++) {
       var it = c.items[j];
-      if (it.k === 'leg') then.push('<li class="lg"><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
+      if (it.k === 'leg') then.push('<li class="lg"' + tripAttr(it.r.tr, it.r.tr.from, it.r.tr.to, c.items[j + 1] && c.items[j + 1].st) + '><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
       else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun && it.st.loc.um !== lastUm ? ' <em>' + esc(umName((lastUm = it.st.loc.um))) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
     }
     if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
@@ -2178,6 +2301,17 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       zs.onchange = function () { curZone = +zs.value; drawMap(); };
       m.appendChild(zs);
     }
+    // the next stop is off this map: show the trip there in a corner (continent or world map)
+    if (from) {
+      var nx = null; for (var q = from.gi + 1; q < stops.length; q++) if (!stopDone(stops[q])) { nx = stops[q]; break; }
+      var ltr = nx && (!nx.loc || nx.loc.um !== curZone) ? legBefore(nx) : null, tsv = '';
+      if (ltr && ltr.from) { try { tsv = tripSvg({ tr: ltr, from: ltr.from, to: ltr.to, st: nx }); } catch (e) {} }
+      if (tsv) {
+        var ins = document.createElement('div'); ins.className = 'tw-inset'; ins.dataset.st = nx.gi; ins.title = 'Next: ' + nx.num + '. ' + nx.title + '. Click to go there';
+        ins.innerHTML = tsv + tripCap({ tr: ltr, st: nx });
+        m.appendChild(ins);
+      }
+    }
     box.innerHTML = ''; box.appendChild(m);
     mapSvg = svg; applyView();
   }
@@ -2294,13 +2428,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // wheel = zoom at the mouse; drag = move; two fingers = pinch; double click = zoom in
   var ptrs = {}, drag = null, moved = false;
   $('mapbox').addEventListener('wheel', function (e) {
-    if (!mapSvg || !e.target.closest('svg')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
     e.preventDefault();
     var p = toMap(e); zoomAt(p[0], p[1], Math.pow(1.0018, -e.deltaY * (e.deltaMode === 1 ? 30 : 1)));
   }, { passive: false });
-  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
+  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
   $('mapbox').addEventListener('pointerdown', function (e) {
-    if (!mapSvg || !e.target.closest('svg')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
     ptrs[e.pointerId] = [e.clientX, e.clientY]; moved = false;
     drag = { v: view.slice(), p: JSON.parse(JSON.stringify(ptrs)) };
   });
@@ -2373,6 +2507,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       return;
     }
     if (moved) { moved = false; return; }
+    var ti = e.target.closest('.tw-inset'); if (ti) { select(+ti.dataset.st, true); return; }
     var p = e.target.closest('.pin'); if (p) select(+p.dataset.st, true);
   });
   $('duns').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
