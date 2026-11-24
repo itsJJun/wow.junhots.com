@@ -157,6 +157,37 @@ a { color: var(--accent); }
 .upsum { font-size: 13px; color: var(--good); font-weight: 600; }
 .upsum.muted { color: var(--muted); font-weight: 400; }
 .tag.of { color: #fff; background: var(--opt); border-color: var(--opt); }
+.tag.rd { color: #fff; background: var(--good); border-color: var(--good); }
+.tag.pg { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); font-variant-numeric: tabular-nums; }
+.status.warn { color: var(--warn); }
+.have { color: var(--good); font-size: 12px; white-space: nowrap; }
+.ys-top { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; }
+.ys-k { color: var(--muted); font-size: 12.5px; }
+.ys-sub { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.ys-c { display: inline-flex; align-items: center; }
+.ys-c .wi { margin-right: 5px; }
+.ys-lv { font-weight: 700; color: var(--ink); padding: 1px 7px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ys-at, .ys-pl { color: var(--ink); font-weight: 600; }
+.ys-go { display: inline; }
+.ys-tm { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 8px; white-space: nowrap; }
+.ys-why { font-style: italic; }
+.ys-tiles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ys-t { font: inherit; display: flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
+.ys-t b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.ys-t span { color: var(--muted); font-size: 12.5px; }
+.ys-t:hover { border-color: var(--line2); }
+.ys-t.on { border-color: var(--accent); }
+.ys-list { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; }
+.ys-list li { display: grid; grid-template-columns: minmax(0, max-content) 1fr auto; gap: 10px; align-items: baseline; padding: 4px 0; border-top: 1px solid var(--line); }
+.ys-list li:first-child { border-top: 0; }
+.ys-n { font-weight: 600; }
+.ys-m { color: var(--muted); font-size: 12.5px; }
+.ys-m .ok { color: var(--good); }
+.ys-l { font: inherit; font-size: 12.5px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
+.ys-l:hover { text-decoration: underline; }
+.ys-hint { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+@media (max-width: 640px) { .ys-list li { grid-template-columns: 1fr auto; row-gap: 0; } .ys-m { grid-column: 1; grid-row: 2; } .ys-l { grid-column: 2; grid-row: 1; } }
+.status.warn:empty { display: none; }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
 .optsw input { appearance: none; width: 28px; height: 16px; border-radius: 99px; background: var(--line2); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
 .optsw input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: left .15s; }
@@ -866,11 +897,17 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
   </div>
   <div class="status">
-    <span id="qStat">Quests done: <label class="load" for="questieFile">load Questie.lua</label></span><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
+    <span id="qStat">Quests: <label class="load" for="snapFile">load GearSnapshot.lua</label> <span class="muted">or</span> <label class="load" for="questieFile">Questie.lua</label></span><input id="snapFile" class="fin" type="file" accept=".lua,.bak,text/plain"><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
     <span id="fStat">Flights: <label class="load" for="spfFile">load ShortestPathForever.lua</label></span><input id="spfFile" class="fin" type="file" accept=".lua,.bak,text/plain">
     <span id="sum"></span>
   </div>
   <div class="status" id="msg" role="status"></div>
+  <div class="status warn" id="logWarn"></div>
+</section>
+
+<section class="card hidden" id="startSec">
+  <h2 data-wf-name="Your start"><i class="wi wi-map" aria-hidden="true"></i>Your start</h2>
+  <div id="startBody"></div>
 </section>
 
 <section class="card" id="dunSec" data-wf-fold="closed">
@@ -912,7 +949,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <li><b>Dungeon ready:</b> the stop where you have every quest for that dungeon.</li>
     <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
     <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level. <span class="tag">can skip</span> means the guide calls it optional.</li>
-    <li><b>Quests done</b> come from Questie.lua (account SavedVariables folder).</li>
+    <li><b>Your quests</b> come from GearSnapshot.lua (<a href="/downloads/GearSnapshot.zip">Gear Snapshot</a> 1.6): quests done, quests in your log, <span class="tag rd">ready</span> to turn in, and progress like <span class="tag pg">6/10</span>. The route starts you after them. Questie.lua works too, but only knows quests done.</li>
   </ul>
 </section>
 <footer>Quest order: <a href="https://www.curseforge.com/wow/addons/guidelime_tugs" target="_blank" rel="noopener">TUGs The Ultimate Leveling Guides</a> (free, by TUGs). Quest, NPC and map data: Questie / QuestieDB. Travel data: <a href="https://github.com/cjber/shortest-path-forever" target="_blank" rel="noopener">Shortest Path Forever</a> by cjber (GPL-3.0). Trainer spells: What's Training. Dungeon doors: Forever Dungeon Journal. Maps and icons: World of Warcraft game art; zeppelin icon from Shortest Path Forever.</footer>
@@ -1277,6 +1314,17 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var RACES = { Orc: 'Orc', Troll: 'Troll', Tauren: 'Tauren', Undead: 'Undead', SkyborneH: 'Skyborne (Horde)', Human: 'Human', Dwarf: 'Dwarf', Gnome: 'Gnome', NightElf: 'Night Elf', SkyborneA: 'Skyborne (Alliance)' };
   var M, T, R, MAPS = new Set(), AREA2UM = {}, UMZ = {};
   var plan, rows = [], chaps = [], stops = [], duns = [], doneQ = new Set(), ticks = {}, known = null, charData = null;
+  // quest log from Gear Snapshot 1.6 (24 Nov): id -> { ready, obj: [{ done, have, need }] }; snap = { name, done, at, n, folded }
+  var logQ = new Map(), snap = null, hereWhy = {};
+  // quest rewards that beat the gear you wear: the Gear upgrades page works them out (same scores) and shares them
+  // in localStorage 'wf-qup' { cls, spec, level, gear, at, q: { questName: [item, slot, gain, level, quality] } }
+  function myUps() {
+    var u; try { u = JSON.parse(ls.get('wf-qup') || 'null'); } catch (e) { u = null; }
+    if (!u || !u.q || !R || String(u.cls).toUpperCase() !== String(R.cls).toUpperCase()) return null;
+    if (!u.byId) { u.byId = {}; for (var id in M.quests) if (u.q[M.quests[id][0]]) u.byId[id] = u.q[M.quests[id][0]]; }
+    return u;
+  }
+  var upMine = null;
   var bandSel = null, full = ls.get('lr.full') === '1', openRuns = new Set();
   var optOn = ls.get('lr.opt') === '1';
   // gear upgrades (Jun 23 Nov): far-off quests whose reward is an upgrade for your spec are part of the route.
@@ -1351,9 +1399,85 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
   function useChar(n) {
     ls.set('lr.char', n);
-    doneQ = new Set(charData[n] || []);
-    $('qStat').innerHTML = 'Quests done: <b>' + doneQ.size + '</b> (' + esc(n) + ') · <label class="load" for="questieFile">reload</label>';
+    applyQuests();
+  }
+  // finished quests: the game's own list from Gear Snapshot and/or Questie (same character), joined
+  function applyQuests() {
+    var n = $('char').value, qs = charData && n ? charData[n] || [] : [];
+    var mine = snap && (!charData || !n || n.indexOf(snap.name) === 0 || snap.name.indexOf(n) === 0);
+    doneQ = new Set((mine ? snap.done : []).concat(qs));
+    if (!mine) logQ = new Map();
+    var ready = 0; logQ.forEach(function (v) { if (v.ready) ready++; });
+    $('qStat').innerHTML = 'Quests done: <b>' + doneQ.size + '</b>' + (n ? ' (' + esc(n) + ')' : '') +
+      (mine ? ' · in your log: <b>' + logQ.size + '</b>' + (ready ? ', <b>' + ready + '</b> ready to turn in' : '') + ' <span class="muted">(' + esc(snap.at) + ')</span>' : '') +
+      ' · <label class="load" for="snapFile">' + (mine ? 'reload' : 'load GearSnapshot.lua') + '</label>';
+    $('logWarn').innerHTML = mine && snap.folded ? 'Some zones in your quest log are folded, so ' + (snap.n - logQ.size) + ' quests are hidden. Unfold them in the quest log, then /reload.' : '';
     jumped = false; render();
+  }
+  // WoW SavedVariables -> JS objects (Lua lists become {1: .., 2: ..})
+  function parseLua(src) {
+    var i = 0, n = src.length;
+    function ws() {
+      for (;;) {
+        while (i < n && /\s/.test(src[i])) i++;
+        if (src.startsWith('--', i)) {
+          var e = src.startsWith('--[[', i) ? src.indexOf(']]', i) : src.indexOf('\n', i);
+          i = e < 0 ? n : e + (src.startsWith('--[[', i) ? 2 : 1);
+        } else return;
+      }
+    }
+    function str() {
+      var q = src[i++], out = '';
+      while (i < n && src[i] !== q) {
+        var c = src[i++];
+        if (c === '\\') {
+          c = src[i++];
+          if (/\d/.test(c)) { var d = c; while (d.length < 3 && /\d/.test(src[i])) d += src[i++]; out += String.fromCharCode(+d); continue; }
+          out += { n: '\n', t: '\t', r: '\r' }[c] || c;
+        } else out += c;
+      }
+      i++; return out;
+    }
+    function val() {
+      ws(); var c = src[i];
+      if (c === '{') return tbl();
+      if (c === '"' || c === "'") return str();
+      var m = /^(-?(?:0x[0-9a-fA-F]+|\d*\.?\d+(?:[eE][-+]?\d+)?|inf|nan)|true|false|nil)/.exec(src.slice(i, i + 40));
+      if (!m) throw new Error('unexpected text at ' + i);
+      i += m[0].length;
+      return m[0] === 'true' ? true : m[0] === 'false' ? false : m[0] === 'nil' ? null : Number(m[0]);
+    }
+    function tbl() {
+      i++; var o = {}, k = 1;
+      for (;;) {
+        ws(); if (src[i] === '}') { i++; return o; }
+        if (src[i] === '[') { i++; var key = val(); ws(); i++; ws(); i++; o[key] = val(); }
+        else {
+          var m = /^[A-Za-z_]\w*\s*=(?!=)/.exec(src.slice(i, i + 80));
+          if (m) { i += m[0].length; o[m[0].replace(/\s*=$/, '')] = val(); } else o[k++] = val();
+        }
+        ws(); if (src[i] === ',' || src[i] === ';') i++;
+      }
+    }
+    var out = {};
+    for (;;) {
+      ws(); if (i >= n) return out;
+      var m = /^([A-Za-z_]\w*)\s*=/.exec(src.slice(i, i + 200)); if (!m) throw new Error('not a saved-variables file');
+      i += m[0].length; out[m[1]] = val();
+    }
+  }
+  var list = function (o) { return Object.keys(o || {}).sort(function (a, b) { return a - b; }).map(function (k) { return o[k]; }); };
+  // Gear Snapshot 1.6+: finished quests, the quest log, ready to turn in, objective progress
+  function loadSnap(text) {
+    var db = parseLua(text).GearSnapshotDB, q = db && db.quests;
+    if (!q || !q.done) throw new Error('no quests in it yet. Get Gear Snapshot 1.6 (Set up once page), log in, then /reload');
+    logQ = new Map();
+    list(q.log).forEach(function (x) { logQ.set(+x.id, { ready: !!x.ready, obj: list(x.obj), title: x.title || '' }); });
+    var t = new Date((q.logTime || q.doneTime || db.time) * 1000);
+    snap = { name: db.name || '', level: +db.level || 0, where: q.where || null, hearth: q.hearth || '', cls: db.class || '', done: list(q.done).map(Number), n: q.inLog || logQ.size, folded: q.folded,
+             at: t.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) };
+    if (!charData) $('char').innerHTML = '<option>' + esc(snap.name) + '</option>';
+    applyQuests();
   }
   function loadSPF(text) {
     var sv = readSV(text), ids = sv['ShortestPathForeverCharDB/taxi'];
@@ -1405,7 +1529,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
       if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i] && !s.pl && !prev.s.pl) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
-      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && !prev.s.el === !s.el && prev.s.dq === s.dq && prev.s.fd === s.fd && !UPQ[prev.s.q] && !UPQ[s.q] && !plan.travel[i] && !prev.s.nl && !s.nl &&
+      if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && !prev.s.el === !s.el && prev.s.dq === s.dq && prev.s.fd === s.fd && !UPQ[prev.s.q] && !UPQ[s.q] && !(upMine && (upMine.byId[prev.s.q] || upMine.byId[s.q])) && !plan.travel[i] && !prev.s.nl && !s.nl &&
           (M.quests[prev.s.q] || [])[who] === (M.quests[s.q] || [])[who] && String(prev.s.a) === String(s.a)) {
         (prev.more = prev.more || []).push({ i: i, s: s });
       } else rows.push({ k: 'step', i: i, s: s });
@@ -1421,7 +1545,21 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (r.k === 'fp') return !!ticks['fp' + r.i];
     if (r.k !== 'step') return false;
     if (r.s.t === 'note') return false;
-    return [{ i: r.i, s: r.s }].concat(r.more || []).every(function (m) { return (m.s.q && doneQ.has(m.s.q)) || !!ticks[m.i + ':' + m.s.t]; });
+    return [{ i: r.i, s: r.s }].concat(r.more || []).every(function (m) { return (m.s.q && (doneQ.has(m.s.q) || inLogDone(m.s))) || !!ticks[m.i + ':' + m.s.t]; });
+  }
+  // from your quest log: an accept is done when you hold the quest, a 'do' when the quest (or its objective o) is finished
+  function inLogDone(s) {
+    var l = logQ.get(s.q); if (!l) return false;
+    if (s.t === 'accept') return true;
+    if (s.t !== 'do') return false;
+    if (l.ready) return true;
+    var o = s.o && l.obj[s.o - 1]; return !!(o && o.done);
+  }
+  // objective progress for a 'do' line, e.g. 6/10
+  function progress(s) {
+    var l = logQ.get(s.q); if (!l || l.ready) return '';
+    var ob = s.o ? [l.obj[s.o - 1]] : l.obj;
+    return ob.filter(function (o) { return o && o.need > 1 && !o.done; }).map(function (o) { return o.have + '/' + o.need; }).join(', ');
   }
   function setTick(r, on) { rkeys(r).forEach(function (k) { if (on) ticks[k] = 1; else delete ticks[k]; }); }
   function saveTicks() { ls.set('lr.ticks.' + R.id, JSON.stringify(ticks)); if (duns.length) saveLink(); }
@@ -1522,9 +1660,22 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
 
   // ---- you are after the last done quest that has other done quests around it
+  // the game's grey line: quests at or below it give almost no XP (Classic formula)
+  var greyAt = function (L) { return L <= 5 ? 0 : L <= 39 ? L - 5 - Math.floor(L / 10) : L - 1 - Math.floor(L / 5); };
+  // with your level (Gear Snapshot): the part of the route where quests suit you. From the first turn-in whose next
+  // 10 quests are (median) 2 above grey, to the last before they turn red (more than 3 above you). Done quests past
+  // that (a few high quests done with friends) don't move you ahead, and out-levelled stretches are skipped (24 Nov).
+  function levelWindow(L) {
+    var tk = [], lo = 0, hi = rows.length, g = greyAt(L);
+    rows.forEach(function (r, k) { if (r.k === 'step' && r.s.t === 'turnin' && M.quests[r.s.q]) tk.push(k); });
+    var med = function (j) { var l = tk.slice(j, j + 10).map(function (k) { return M.quests[rows[k].s.q][1] || 0; }).sort(function (x, y) { return x - y; }); return l.length ? l[l.length >> 1] : 99; };
+    for (var j = 0; j < tk.length; j++) if (med(j) >= g + 2) { lo = tk[j]; break; }
+    for (j = 0; j < tk.length; j++) if (med(j) > L + 3) { hi = tk[j]; break; }
+    return hi > lo ? [lo, hi] : [0, rows.length];
+  }
   function findHere() {
-    var qrows = [], n;
-    rows.forEach(function (r, k) { if (r.k === 'step' && r.s.q) qrows.push(k); });
+    var qrows = [], n, L = snap && snap.level, win = L ? levelWindow(L) : [0, rows.length];
+    rows.forEach(function (r, k) { if (r.k === 'step' && r.s.q && k < win[1]) qrows.push(k); });
     var dn = qrows.map(function (k) { return isDone(rows[k]) ? 1 : 0; }), cut = 0;
     for (var a = qrows.length - 1; a >= 0; a--) {
       if (!dn[a]) continue;
@@ -1532,9 +1683,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (w.reduce(function (x, y) { return x + y; }, 0) >= Math.min(5, w.length)) { cut = a + 1; break; }
     }
     var lastDone = -1;
-    for (n = 0; n < rows.length && (cut >= qrows.length || n < qrows[cut]); n++) if (isDone(rows[n])) lastDone = n;
+    for (n = 0; n < win[1] && (cut >= qrows.length || n < qrows[cut]); n++) if (isDone(rows[n])) lastDone = n;
+    var past = 0; for (n = win[1]; n < rows.length; n++) if (rows[n].k === 'step' && rows[n].s.t === 'turnin' && doneQ.has(rows[n].s.q)) past++;
+    hereWhy = { L: L, skipped: L && win[0] > lastDone + 1, past: past };
     here = rows.length;
-    for (n = lastDone + 1; n < rows.length; n++) if ((rows[n].k === 'step' && rows[n].s.t !== 'note' || rows[n].k === 'fp') && !isDone(rows[n])) { here = n; break; }
+    for (n = Math.max(lastDone + 1, win[0]); n < rows.length; n++) if ((rows[n].k === 'step' && rows[n].s.t !== 'note' || rows[n].k === 'fp') && !isDone(rows[n])) { here = n; break; }
     hereStop = null;
     for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
     nextSet = new Set();
@@ -1543,6 +1696,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
 
   function render() {
     if (!R) return;
+    upMine = myUps();
     build(); group(); dungeons(); findHere();
     if (sel) sel = stops[sel.gi] || null;   // stops were rebuilt: same place, new object
     if (!jumped && hereStop) { cur = hereStop.ch.idx; sel = hereStop; curZone = null; bandSel = null; jumped = true; }
@@ -1555,7 +1709,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     $('gaps').innerHTML = gp.length ? '<b>Work in progress:</b> ' + esc(gp.join(' ')) : '';
     $('gaps').classList.toggle('hidden', !gp.length);
     $('routeSum').textContent = nq + ' quests · ' + chaps.length + ' parts · about ' + Math.round(plan.total / 3600) + ' h of travel';
-    drawOpt(); drawUp(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
+    drawOpt(); drawUp(); drawStart(); drawDuns(); drawTabs(); drawChapter(); drawNext(); search();
     saveLink();
     if (pendDun) { var pd = duns.find(function (d) { return d.name === pendDun; }); pendDun = null; if (pd && pd.stop) goStop(pd.stop.gi); }
   }
@@ -1588,6 +1742,107 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     e.innerHTML = '+' + n + ' gear upgrade quest' + (n > 1 ? 's' : '') + (m > 0 ? ' · +' + (m >= 60 ? Math.round(m / 6) / 10 + ' h' : m + ' min') + ' travel' : '');
     e.title = UP.it.map(function (x) { return x[2] + ' (' + qn(x[0]) + ', level ' + x[4] + ')'; }).join('\n');
   }
+  // ---- "Your start" (24 Nov, Jun: use everything we know, then "cleaner, simpler"): one start line, then small
+  // count tiles that open their list on click: ready turn-ins, quests worth going back for, gear upgrades,
+  // dungeon quests you hold, log quests the route doesn't use. Shown once your quests are loaded.
+  var ysOpen = ls.get('lr.ys') || '';
+  function drawStart() {
+    var box = $('startSec');
+    if (!doneQ.size && !logQ.size || !hereStop) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    var hr = rows[Math.min(here, rows.length - 1)];
+    var L = hereWhy.L || Math.floor(hr && hr.s && hr.s.lv || 1), g = greyAt(L);
+    var stopAt = function (n) { return stops.find(function (st) { return st.rows.some(function (r) { return r.n >= n; }); }); };
+    var show = function (st) { return st ? '<button class="ys-l" data-go="' + st.gi + '" type="button" title="' + esc(st.ch.name + ', stop ' + st.num) + '">Show</button>' : ''; };
+    var row = function (main, meta, st) { return '<li><span class="ys-n">' + main + '</span><span class="ys-m">' + (meta || '') + '</span>' + (st ? show(st) : '<span></span>') + '</li>'; };
+    var rowOf = {}, accOf = {};
+    rows.forEach(function (r) { if (r.k !== 'step') return; [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (s.t === 'turnin') rowOf[s.q] = r; if (s.t === 'accept' && !accOf[s.q]) accOf[s.q] = { r: r, s: s }; }); });
+    var nm = function (q) { return esc(M.quests[q] ? qn(q) : ((logQ.get(q) || {}).title || 'Quest ' + q)); };
+    var tiles = [];   // { k, n, label, rows }
+
+    // ready to turn in: on your way, behind you, or off the route
+    var rdy = []; logQ.forEach(function (v, q) { if (v.ready && !doneQ.has(q)) rdy.push(q); });
+    if (rdy.length) tiles.push({ k: 'ready', n: rdy.length, label: 'ready to turn in', rows: rdy.map(function (q) {
+      var r = rowOf[q], t = M.quests[q] && M.quests[q][4];
+      return r ? row(nm(q), r.n >= here ? 'on your way' : 'behind you', stopAt(r.n)) : row(nm(q), 'off the route' + (t ? ' · ' + esc(t) : ''));
+    }) });
+    // worth going back for: not done, not grey, level reached, pre-quests done (or in your log), by zone
+    var ok = function (q) {
+      var m = M.quests[q]; if (!m) return false;
+      if (logQ.has(q)) return true;
+      if ((m[1] || 0) <= g || (m[2] || 0) > L) return false;
+      var p = m[9] || [[], []];
+      return p[0].every(function (x) { return doneQ.has(x); }) && (!p[1].length || p[1].some(function (x) { return doneQ.has(x); }));
+    };
+    var zs = {}, seen = {}, bxp = 0;
+    rows.slice(0, here).forEach(function (r) {
+      if (r.k !== 'step') return;
+      [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) {
+        if (s.t !== 'turnin' || seen[s.q] || doneQ.has(s.q) || !ok(s.q) || (M.quests[s.q][1] || 0) <= g) return; seen[s.q] = 1;
+        var a = accOf[s.q] && !logQ.has(s.q) ? accOf[s.q] : { r: r, s: s };   // where you go first
+        var z = zn(a.s.z) || 'Other', e = zs[z] || (zs[z] = { n: 0, xp: 0, log: 0, first: null });
+        e.n++; e.xp += s.xp || 0; bxp += s.xp || 0; if (logQ.has(s.q)) e.log++;
+        if (e.first == null || a.r.n < e.first) e.first = a.r.n;
+      });
+    });
+    var zl = Object.keys(zs).sort(function (x, y) { return zs[y].xp - zs[x].xp; });
+    if (zl.length) tiles.push({ k: 'back', n: Math.round(bxp / 1000) + 'k xp', label: 'left behind', rows: zl.map(function (z) {
+      var e = zs[z]; return row(esc(z), e.n + (e.n === 1 ? ' quest' : ' quests') + (e.log ? ', ' + e.log + ' in your log' : '') + ' · ' + e.xp.toLocaleString() + ' xp', stopAt(e.first));
+    }) });
+    // quest rewards that beat the gear you wear (from the Gear upgrades page)
+    if (upMine) {
+      var ur = [];
+      rows.forEach(function (r) { if (r.k === 'step' && r.s.t === 'turnin' && upMine.byId[r.s.q] && !doneQ.has(r.s.q)) ur.push(r); });
+      if (ur.length) tiles.push({ k: 'gear', n: ur.length, label: ur.length === 1 ? 'gear upgrade' : 'gear upgrades', rows: ur.map(function (r) {
+        var u = upMine.byId[r.s.q]; return row('<span class="q' + (u[4] || 1) + '">' + esc(u[0]) + '</span>', '+' + u[2] + ' ' + esc(String(u[1]).toLowerCase()) + ' · ' + esc(qn(r.s.q)) + (r.n < here ? ' · behind you' : ''), stopAt(r.n));
+      }) });
+    }
+    // dungeons you hold quests for
+    var dr = duns.filter(function (d) { return !d.done && d.all.some(function (q) { return logQ.has(q); }); });
+    if (dr.length) tiles.push({ k: 'dun', n: dr.length, label: dr.length === 1 ? 'dungeon started' : 'dungeons started', rows: dr.map(function (d) {
+      var h = d.all.filter(function (q) { return doneQ.has(q) || logQ.has(q); }).length;
+      return row('<a class="dgl" href="' + DGURL + '#' + dgSlug(d.name) + '">' + esc(d.name) + '</a>', h === d.all.length ? '<span class="ok">all ' + h + ' quests</span>' : h + ' of ' + d.all.length + ' quests', d.ready || d.stop);
+    }) });
+    // in your log but not on this route
+    var nr = []; logQ.forEach(function (v, q) { if (!rowOf[q] && !accOf[q] && !doneQ.has(q) && !v.ready) nr.push(q); });
+    if (nr.length) tiles.push({ k: 'off', n: nr.length, label: 'in your log, not on the route', rows: nr.map(function (q) { return row(nm(q), ''); }) });
+
+    // the start line: where, and how you get there from where you are
+    var wh = snap && snap.where, st0 = hereStop.rows.find(function (r) { return r.s && r.s.w; }), trip = '';
+    if (wh && wh.cont != null && wh.wx != null && st0) {
+      var kn = new Set(known ? Array.from(known) : []);
+      (RouteTravel.START_FP[R.race] || []).forEach(function (x) { kn.add(x); });
+      if (!known) rows.slice(0, here).forEach(function (r) { if (r.k === 'fp') kn.add(r.nd); else if (r.s && r.s.t === 'fp' && r.s.nd) kn.add(r.s.nd); });
+      var from = { map: wh.cont, x: wh.wx, y: wh.wy }, to = { map: st0.s.w[0], x: st0.s.w[1], y: st0.s.w[2], zone: zn(st0.s.z) };
+      var tr = null; try { tr = T.route(from, to, { known: kn, fac: R.fac[0], lvl: L, cls: R.cls }); } catch (e) {}
+      var tx = tr && T.describe(tr, from, to);
+      // place names in the trip, so they can look like places (same as where you are)
+      var pls = [to.zone];
+      if (tr) tr.legs.forEach(function (l) {
+        try {
+          if (l.k === 'fly') pls.push(T.town(l.a), T.town(l.b));
+          else if (l.k === 'boat' || l.k === 'zeppelin') pls.push(T.dockName(l.a), T.dockName(l.b));
+          else if (l.k === 'walk') { var p = T.places[l.to]; if (p) pls.push(T.zoneAt(p.map, p.x, p.y)); }
+        } catch (e) {}
+      });
+      pls = pls.filter(function (x) { return x && x !== 'the dock'; }).map(esc).sort(function (a, b) { return b.length - a.length; });
+      var placeHi = function (h) { return pls.length ? h.replace(new RegExp('(' + pls.map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')', 'g'), '<span class="ys-pl">$1</span>') : h; };
+      var at = wh.zone ? '<span class="ys-c ys-at" title="Where you are now">' + wi('map') + esc(wh.zone) + '</span>' : '';
+      trip = tx ? at + '<span class="ys-c ys-go" title="How to get there">' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
+        : tr ? at + '<span class="ys-c ys-go">You are there</span>' : '';
+    }
+    var why = hereWhy.skipped ? 'Quests before it are grey for you' : hereWhy.past ? hereWhy.past + ' later quests already ticked' : '';
+    // one chip per kind of fact: level, where you are, the trip, its time, why
+    var sub = '<span class="ys-c ys-lv" title="Your level">Lv ' + L + '</span>' + trip + (why ? '<span class="ys-c ys-why">' + why + '</span>' : '');
+    if (!tiles.some(function (t) { return t.k === ysOpen; })) ysOpen = '';
+    var open = tiles.find(function (t) { return t.k === ysOpen; });
+    $('startBody').innerHTML =
+      '<div class="ys-top"><button class="btn main" data-go="' + hereStop.gi + '" type="button">' + esc(hereStop.ch.name) + ' · stop ' + hereStop.num + ' →</button><div class="ys-sub">' + sub + '</div></div>' +
+      (tiles.length ? '<div class="ys-tiles">' + tiles.map(function (t) { return '<button type="button" class="ys-t' + (t.k === ysOpen ? ' on' : '') + '" data-ys="' + t.k + '"><b>' + t.n + '</b><span>' + t.label + '</span></button>'; }).join('') + '</div>' : '') +
+      (open ? '<ul class="ys-list">' + open.rows.join('') + '</ul>' : '') +
+      (!upMine && snap ? '<p class="ys-hint">Open <a href="/gear-upgrades/">Gear upgrades</a> once with your Gear Snapshot loaded to see quest rewards that beat your gear.</p>' : '');
+  }
+
   function drawDuns() {
     if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
     $('dunSec').classList.remove('hidden');
@@ -1665,13 +1920,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
       if (s.ad === 'Class quest' && !s.of) tags += '<span class="tag add">class quest</span>';
       if (s.q && UPQ[s.q] && (s.t === 'accept' || s.t === 'turnin')) tags += '<span class="tag up" title="A gear upgrade for your spec, so the route takes this quest">upgrade: ' + esc(UPQ[s.q]) + '</span>';
+      else if (s.q && upMine && upMine.byId[s.q] && (s.t === 'accept' || s.t === 'turnin') && !doneQ.has(s.q)) { var mu = upMine.byId[s.q]; tags += '<span class="tag up" title="Beats the ' + esc(String(mu[1]).toLowerCase()) + ' you wear (Gear upgrades page)">upgrade: ' + esc(mu[0]) + ' +' + mu[2] + '</span>'; }
       if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
       else if (s.op) tags += '<span class="tag">can skip</span>';
       if (s.dq && !s.in) tags += '<span class="tag dq">' + esc(dunShort(s.dq)) + '</span>';
       else if (s.fd) tags += '<span class="tag fd">for ' + esc(dunShort(s.fd)) + '</span>';
       if (s.el) tags += '<span class="tag el" title="Elite monsters: bring a group">elite</span>';
       if (s.nl) tags += '<span class="tag lv">from level ' + s.nl + '</span>';
-      var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>'; }).join(', '), qd = M.quests[s.q] || [];
+      if (s.t === 'turnin' && !doneQ.has(s.q) && logQ.get(s.q) && logQ.get(s.q).ready) tags += '<span class="tag rd" title="Your quest log says this quest is ready to turn in">ready</span>';
+      else if (s.t === 'do' && !dn) { var pg = progress(s); if (pg) tags += '<span class="tag pg" title="Your progress, from your quest log">' + pg + '</span>'; }
+      var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>' + (x.t === 'accept' && !doneQ.has(x.q) && logQ.has(x.q) ? ' <span class="have" title="Already in your quest log">✓ have it</span>' : ''); }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
       else if (s.t === 'turnin') { txt = wi('q_turnin') + 'Turn in ' + names; var x = all.reduce(function (a, y) { return a + (y.xp || 0); }, 0); if (x) xp = x.toLocaleString() + ' xp'; }
       else if (s.t === 'do') {
@@ -2118,6 +2376,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var p = e.target.closest('.pin'); if (p) select(+p.dataset.st, true);
   });
   $('duns').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
+  $('startBody').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-ys]');
+    if (t) { ysOpen = ysOpen === t.dataset.ys ? '' : t.dataset.ys; ls.set('lr.ys', ysOpen); drawStart(); return; }
+    var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go);
+  });
   $('hereBtn').onclick = function () { if (hereStop) goStop(hereStop.gi); };
 
   // ---- quest search: is it on my route?
@@ -2134,7 +2397,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!hits.length) { out.innerHTML = '<div class="qr"><span class="tx">No quest with that name in the guide.</span></div>'; return; }
     out.innerHTML = hits.slice(0, 8).map(function (id) {
       var q = M.quests[id], a = at[id], d = doneQ.has(+id);
-      var tag = d ? '<span class="tg done">Done</span>' : a ? '<span class="tg route">On your route</span>' : '<span class="tg skip">Not on your route</span>';
+      var lq = logQ.get(+id), tag = d ? '<span class="tg done">Done</span>' : lq ? '<span class="tg done">' + (lq.ready ? 'Ready to turn in' : 'In your log') + '</span>' : a ? '<span class="tg route">On your route</span>' : '<span class="tg skip">Not on your route</span>';
       var tx = a ? esc(a.st.ch.name) + ', stop ' + a.st.num + (a.st.lv ? ' · about level ' + fl(a.st.lv) : '') : 'The guide skips it for your race and class.';
       return '<div class="qr">' + tag + '<span class="nm">' + esc(q[0]) + '</span><span class="muted">' + (q[1] || '') + '</span><span class="tx">' + tx + '</span>' +
         (a ? '<button class="go" data-go="' + a.st.gi + '" type="button">Show stop →</button>' : '') + '</div>';
@@ -2222,6 +2485,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   $('optSw').onchange = function () { optOn = this.checked; ls.set('lr.opt', optOn ? '1' : '0'); loadRoute(true); };
   (function () { var e = document.createElement('style'); e.textContent = window.DGMAP_CSS || ''; document.head.appendChild(e); })();
   fileInput('questieFile', loadQuestie);
+  fileInput('snapFile', loadSnap);
   fileInput('spfFile', loadSPF);
   Promise.all(['route-meta.json', 'travel.json', 'maps.json', 'maps/mini.json'].map(function (f) { return fetch(BASE + f).then(function (r) { return r.json(); }); }))
     .then(function (a) {

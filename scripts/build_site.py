@@ -482,8 +482,8 @@ SETUP_ADDONS = [
     # (name, link, what for, needed by)
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Scans the auction house and saves every price.',
      'Your own prices on every tool (otherwise you get the site\'s Horde scan).'),
-    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions and known recipes. Made for this site.',
-     'Gear upgrades, Enchants, Enchant macros, Profession leveling.'),
+    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes and quests. Made for this site.',
+     'Gear upgrades, Enchants, Enchant macros, Profession leveling, Level 1-60 route.'),
     ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Remembers what is in your bags and bank.',
      'Sell spare mats and the shopping lists (what you already have).'),
     ('Forever Leveling BiS', None, 'Optional. Gear upgrades uses the spec you pick in it and warns when its version differs.',
