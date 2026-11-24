@@ -482,10 +482,10 @@ SETUP_ADDONS = [
     # (name, link, what for, needed by)
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Scans the auction house and saves every price.',
      'Your own prices on every tool (otherwise you get the site\'s Horde scan).'),
-    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes and quests. Made for this site.',
-     'Gear upgrades, Enchants, Enchant macros, Profession leveling, Level 1-60 route.'),
-    ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Remembers what is in your bags and bank.',
-     'Sell spare mats and the shopping lists (what you already have).'),
+    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, and your bags, bank and mail (all your characters). Made for this site.',
+     'Gear upgrades, Enchants, Enchant macros, Profession leveling, Craft finder, Sell spare mats, Level 1-60 route.'),
+    ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Optional. Gear Snapshot 1.7 saves your bags now.',
+     'Bags and bank, if you don\'t use Gear Snapshot.'),
     ('Forever Leveling BiS', None, 'Optional. Gear upgrades uses the spec you pick in it and warns when its version differs.',
      'Gear upgrades (spec).'),
 ]
@@ -507,7 +507,7 @@ def build_setup():
             '<p>WoW only writes addon files when you type <code>/reload</code> or log out, so after each step below type <code>/reload</code>.</p>'
             '<ul class="ws-steps"><li><b>Prices:</b> open the auction house, run an Auctionator full scan, wait for it to finish, then <code>/reload</code>.</li>'
             '<li><b>Gear and recipes:</b> open each profession window once, then <code>/reload</code>.</li>'
-            '<li><b>Bags and bank:</b> open your bank, then <code>/reload</code>.</li></ul>'
+            '<li><b>Bags and bank:</b> open your bank and mailbox, then <code>/reload</code>.</li></ul>'
             '<h2>3. Load them on this site</h2>'
             '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on phones), then <b>Pick WoW folder</b> '
             'and choose <code>World of Warcraft\\_forever_</code>. The site finds the files itself.</p>'
