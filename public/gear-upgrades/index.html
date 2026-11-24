@@ -2609,10 +2609,28 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
 
   let forced = false;
   function changed() { fixProfile(); setSlotNames(); POOL = null; optCache.clear(); for (const k in wCache) delete wCache[k]; forced = false; save(); renderChar(); renderSrc(); renderNotes(); render(); }
+  // Shared with the Level route (24 Nov): quest rewards that beat the gear you wear, by quest name, for this
+  // character. Only with your Gear Snapshot loaded (else "worn" is empty and every reward would count).
+  function shareQuestUps() {
+    try {
+      if (!S.gear || (S.gear.cls && S.gear.cls !== P.cls)) { localStorage.removeItem("wf-qup"); return; }
+      const q = {}, slots = buildPool().slots;
+      for (const s in slots) for (const c of slots[s]) {
+        const parts = c.pair ? c.pair.filter(Boolean) : [c];
+        for (const it of parts) for (const src of it.src || []) {
+          if (src.t !== "quest") continue;
+          const g = gainOf(c); if (!(g > 0.3)) continue;
+          if (!q[src.n] || q[src.n][2] < g) q[src.n] = [it.n, SLOTNAME[c.slot] || c.slot, Math.round(g * 10) / 10, obtainLv(c), it.q];
+        }
+      }
+      localStorage.setItem("wf-qup", JSON.stringify({ cls: P.cls, spec: P.spec, level: +S.level, gear: S.gear.date || "", at: Date.now(), q }));
+    } catch (e) {}
+  }
   function render() {
     optCache.clear();
     renderSettings();
     buildPool();
+    shareQuestUps();
     const P2 = bestPlan(); P2.rec = P2.best;
     if (forced !== undefined && forced !== false) { P2.best = plan(forced, 0); P2.forced = true; }
     renderTop(P2); renderDoll(P2); renderTiles(P2); renderPlan(P2); renderMilestones(P2); renderSlots(P2); renderFav(P2);

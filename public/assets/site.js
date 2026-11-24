@@ -9,8 +9,8 @@
     // GearSnapshot only once per new file, since Gear upgrades saves your gear and you may have edited it since
     { key: 'ah', label: 'AH prices', file: 'Auctionator.lua', match: /auctionator/i, pre: 'Auctionator full scan at the auction house, then /reload', always: true,
       targets: [['#file', '#msg']] },
-    { key: 'snap', label: 'Gear & recipes', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows, then /reload',
-      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg']] },
+    { key: 'snap', label: 'Gear, recipes & quests', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows, then /reload',
+      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg']] },
     { key: 'tsm', label: 'Bags & bank', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
       targets: [['#bagFile', '#haveInfo']] },
     // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)

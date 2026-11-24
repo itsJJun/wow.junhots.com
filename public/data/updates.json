@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-11-24",
+    "title": "Leveling: start where you are",
+    "text": "Load GearSnapshot.lua (Gear Snapshot 1.6) and the Leveling route reads your finished quests and your quest log straight from the game, so it no longer misses quests like Questie did. A new \"Your start\" box shows the best stop for your level and how to get there from where you are. It also counts quests ready to turn in, XP left behind, quest rewards that beat your gear, and dungeons you've started.",
+    "image": "/assets/updates/2026-11-24-your-start.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
     "date": "2026-11-23",
     "title": "Point at an NPC to see where they stand",
     "text": "On Profession leveling, NPC names (trainers, vendors, quest givers) now open a card with their picture, town and a map with a marker. Tap a name on a phone. Once the site knows your race, you only see your own faction's NPCs.",
