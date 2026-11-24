@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-24",
+    "title": "Leveling: trips on the world map, clearer places",
+    "text": "Hover a travel line on the Leveling route (tap on a phone) to see the trip on the game's own continent or world map, with flight points and the icon of what you do there. When your next place is in another zone, a small map in the corner of the zone map shows how to get there. Places now show their numbered pin and who or where they are, like ② Flight master, Brackenwall Village, instead of \"stop 2\".",
+    "image": "/assets/updates/2026-11-24-trip-map.webp",
+    "link": "/level-route/",
+    "linkText": "Open Leveling"
+  },
+  {
+    "date": "2026-11-24",
     "title": "Leveling: start where you are",
     "text": "Load GearSnapshot.lua (Gear Snapshot 1.6) and the Leveling route reads your finished quests and your quest log straight from the game, so it no longer misses quests like Questie did. A new \"Your start\" box shows the best stop for your level and how to get there from where you are. It also counts quests ready to turn in, XP left behind, quest rewards that beat your gear, and dungeons you've started.",
     "image": "/assets/updates/2026-11-24-your-start.webp",

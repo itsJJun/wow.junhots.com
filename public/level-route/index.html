@@ -186,6 +186,42 @@ a { color: var(--accent); }
 .ys-l { font: inherit; font-size: 12.5px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
 .ys-l:hover { text-decoration: underline; }
 .ys-hint { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+.pn { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 6px; border-radius: 50%; background: #1c1814; border: 2px solid #f0a030; color: #f0a030; font: 700 10.5px/1 Inter, system-ui, sans-serif; font-style: normal; box-sizing: border-box; vertical-align: -3px; }
+.btn.main .pn { background: #1c1814; border-color: #1c1814; color: #f0a030; margin-right: 8px; vertical-align: -4px; }
+.ys-go-btn { display: inline-flex; align-items: center; gap: 5px; } .ys-go-btn .pn { margin-right: 3px; }
+.pz { color: var(--muted); font-weight: 400; }
+.btn.main .pz { color: inherit; opacity: .75; }
+.ys-part { color: var(--muted); font-size: 12.5px; }
+.pbar { display: inline-block; width: 60px; height: 4px; border-radius: 2px; background: var(--line); vertical-align: middle; margin: 0 4px; overflow: hidden; }
+.pbar i { display: block; height: 100%; background: var(--accent); }
+/* trip map: hover a trip line. Clean look + the game's icons (flight points, stop icon) */
+[data-trip] { cursor: help; }
+.tw-pop, .tw-inset { box-sizing: border-box; border-radius: 10px; background: rgba(24,21,17,.95); border: 1px solid rgba(0,0,0,.45); box-shadow: 0 6px 20px rgba(0,0,0,.45); }
+.tw-pop { position: fixed; z-index: 60; display: none; padding: 5px; pointer-events: none; }
+.tw-pop.on { display: block; }
+.tw-map { display: block; width: 100%; aspect-ratio: 3 / 2; border-radius: 6px; background: #1b1712; }
+.tw-map path { fill: none; stroke-linecap: round; filter: drop-shadow(0 0 1.5px rgba(0,0,0,.9)); }
+.tw-map .tw-fly { stroke: #fff; }
+.tw-map .tw-walk { stroke: #fff; }
+.tw-map .tw-ship { stroke: #9fd3ff; }
+.tw-me { fill: #4aa3ff; stroke: #fff; }
+.tw-to { fill: #f0a830; stroke: #1b1712; }
+.tw-lab { fill: #fff; stroke: rgba(0,0,0,.85); paint-order: stroke; text-anchor: middle; font-weight: 700; font-family: inherit; }
+.tw-cap { display: flex; align-items: center; gap: 12px; padding: 6px 4px 2px; font-size: 12.5px; color: #cfc4b0; }
+.tw-cap span { white-space: nowrap; display: inline-flex; align-items: center; }
+.tw-cap b { color: #fff; margin-left: 4px; }
+.tw-cap .wi { margin: 0 5px 0 0; }
+.tw-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: #4aa3ff; box-shadow: 0 0 0 1.5px #fff; }
+.tw-tm { margin-left: auto; padding-left: 8px; color: #fff; font-weight: 600; }
+.tw-ar { color: #8d8270; margin: 0 -4px; }
+.tw-cap .tw-stop { flex: 0 1 auto; min-width: 0; }
+.tw-n { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 6px; border-radius: 50%; background: #1c1814; border: 2px solid #f0a030; color: #f0a030; font: 700 10.5px/1 Inter, system-ui, sans-serif; font-style: normal; box-sizing: border-box; }
+.tw-cap .tw-tt { display: block; } .tw-tt { color: #fff; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-inset { position: absolute; left: 8px; bottom: 8px; width: 36%; min-width: 190px; padding: 4px; cursor: pointer; }
+.tw-inset:hover { border-color: var(--accent); }
+.map .tw-inset svg { position: static; width: 100%; height: auto; cursor: pointer; touch-action: auto; }
+.map .tw-inset image { filter: none; }
+@media (max-width: 640px) { .tw-inset { width: 44%; min-width: 0; left: 6px; bottom: 6px; padding: 3px; } .tw-inset .tw-cap { font-size: 11px; gap: 8px; } .tw-n { width: 16px; height: 16px; font-size: 9.5px; } #mapbox .zbar { top: auto; bottom: 6px; right: 6px; } #mapbox .zbar [data-z="in"], #mapbox .zbar [data-z="out"] { display: none; } }
 @media (max-width: 640px) { .ys-list li { grid-template-columns: 1fr auto; row-gap: 0; } .ys-m { grid-column: 1; grid-row: 2; } .ys-l { grid-column: 2; grid-row: 1; } }
 .status.warn:empty { display: none; }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
@@ -241,7 +277,7 @@ footer { font-size: 12px; color: var(--muted); }
 .then { font-size: 12.5px; margin-top: 6px; }
 .then ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
 .then li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
-.then li .n { font-weight: 700; color: var(--accent); text-align: right; }
+.then li .n { justify-self: end; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #f0a030; background: #1c1814; color: #f0a030; font-size: 10.5px; font-weight: 700; box-sizing: border-box; }
 .then li b { font-weight: 600; } .then li em { font-style: normal; color: var(--muted); font-size: 11.5px; }
 .then li i { font-style: normal; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .then li.lg { color: var(--muted); } .then li.lg span:first-child { color: var(--good); text-align: right; }
@@ -925,8 +961,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 </section>
 
 <section class="card" id="nextCard">
-  <div class="nhd"><h2 data-wf-name="Next"><span id="nlab">Next stop</span> <span class="muted" id="nwhere"></span></h2>
-    <div class="nbtn"><button class="btn" id="startBtn" type="button" hidden title="Started mid-way? Ticks every stop before this one">Tick all before this</button><button class="btn" id="undoBtn" type="button" hidden>Undo</button><button class="btn" id="backBtn" type="button">Back</button><button class="btn main" id="doneBtn" type="button">Done, next stop</button></div></div>
+  <div class="nhd"><h2 data-wf-name="Next"><span id="nlab">Next</span> <span class="muted" id="nwhere"></span></h2>
+    <div class="nbtn"><button class="btn" id="startBtn" type="button" hidden title="Started mid-way? Ticks everything before this one">I did everything before this</button><button class="btn" id="undoBtn" type="button" hidden>Undo</button><button class="btn" id="backBtn" type="button">Back</button><button class="btn main" id="doneBtn" type="button">Done ✓</button></div></div>
   <div id="nbody"></div>
 </section>
 
@@ -942,7 +978,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <li><b>Optional quests:</b> dungeon quests that start far off the route are left out. Turn on <b>Optional quests</b> to take them: the route changes to fit, and their lines are marked <span class="tag of">optional</span>.</li>
     <li><b>Gear upgrades:</b> far-off quests with an upgrade for your spec are in the route: <span class="tag up">upgrade: item</span>.</li>
     <li><b>Dungeon quests</b> show their dungeon: <span class="tag dq">Wailing Caverns</span>. Steps that unlock one show <span class="tag fd">for Wailing Caverns</span>.</li>
-    <li><b>Stops:</b> steps at the same place make one numbered stop. Tick a line when it's done, or press Done for the whole stop. Started mid-way? Pick your stop (or search a quest) and press <b>Tick all before this</b>. On the map, the solid amber pin is your stop and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
+    <li><b>Places:</b> steps at the same place share one numbered pin, like <i class="pn">2</i>. The numbers start again in each part. Tick a line when it's done, or press <b>Done ✓</b> for the whole place. Started mid-way? Pick your place (or search a quest) and press <b>I did everything before this</b>. On the map, the solid amber pin is where you are and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
     <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
     <li><b>Flights in your file:</b> Shortest Path Forever saves them after you open a flight master's map once on each continent, then /reload.</li>
@@ -1207,7 +1243,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         if (!r) res.warn.push({ i, k: 'no-route', m: 'no way found from the last step' });
         else {
           const ride = r.legs.some(l => l.k !== 'walk');
-          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs };
+          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs, from: pos, to: dest };
           res.total += r.secs;
           // flight masters you pass on the way
           for (const l of r.all) if (l.k === 'fly') { known.add(l.a); known.add(l.b); }
@@ -1356,6 +1392,107 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (l.k === 'passage') return 'walk';
     return /Darnassus|Rut'theran/.test(l.n || '') ? 'p_darnassus' : /Stormwind/.test(l.n || '') ? 'p_stormwind' : 'portal';
   };
+  // ---- trip map: a trip drawn on the continent map (or Azeroth when it crosses the sea) ----
+  // Map art + bounds from the game (UiMapAssignment): x = north, y = west; u,v = 0..1 across the 1002x668 map
+  var WMAP = {
+    1415: { c: { 0: [0, 0, 1, 1, -16000, 7466.6, -19199.9, 16000] } },
+    1414: { c: { 1: [0, 0, 1, 1, -11733.3, 12799.9, -19733.2, 17066.6] } },
+    947: { c: { 0: [.5505, .0994, .8966, .8691, -16000, 6933.3, -7466.7, 8000], 1: [.0399, .0855, .4083, .9234, -12800, 12266.7, -9600, 6933.3] } }
+  };
+  var wmUV = function (um, p) {
+    var b = WMAP[um].c[p.map]; if (!b) return null;
+    return [1002 * (b[0] + (b[7] - p.y) / (b[7] - b[6]) * (b[2] - b[0])), 668 * (b[1] + (b[5] - p.x) / (b[5] - b[4]) * (b[3] - b[1]))];
+  };
+  var TRIPS = [];
+  var TWI = {"fp_cur": "/assets/i/fae4f7a294bfa7.png", "fp": "/assets/i/846dab370ca37b.png"}; // game art: flight points (yellow = where you board, green = where you land)
+  var stIcon = function (st) {
+    var r = st && st.rows.find(function (x) { return x.k === 'fp' || (x.s && x.s.t); });
+    if (!r) return '';
+    if (r.k === 'fp' || r.s.t === 'fp') return fly();
+    return { accept: 'q_accept', turnin: 'q_turnin', do: 'do', hearth: 'hearth', grind: 'grind' }[r.s.t] || 'q_accept';
+  };
+  var tripAttr = function (tr, from, to, st) { if (!tr || !tr.legs || !from || !to) return ''; TRIPS.push({ tr: tr, from: from, to: to, st: st }); return ' data-trip="' + (TRIPS.length - 1) + '"'; };
+  var tripSvg = function (t) {
+    var tr = t.tr, pts = [{ p: t.from, k: 'start' }];
+    tr.legs.forEach(function (l, i) {
+      if (l.k === 'fly') (l.via || []).forEach(function (v) { var n = T.places['taxi' + v]; if (n) pts.push({ p: n, k: 'fly', via: 1 }); });
+      var e = T.places[l.to] || (i === tr.legs.length - 1 ? t.to : null);
+      if (e) pts.push({ p: e, k: l.k, l: l });
+    });
+    if (pts[pts.length - 1].p !== t.to) pts.push({ p: t.to, k: 'walk' });
+    var conts = {}; pts.forEach(function (x) { if (x.p.map === 0 || x.p.map === 1) conts[x.p.map] = 1; });
+    var cs = Object.keys(conts); if (!cs.length) return '';
+    var um = cs.length > 1 ? 947 : cs[0] === '0' ? 1415 : 1414;
+    var xy = pts.map(function (x) { return wmUV(um, x.p); });
+    // frame the trip (at least a third of the map), keep 3:2
+    var ok = xy.filter(Boolean), X = ok.map(function (q) { return q[0]; }), Y = ok.map(function (q) { return q[1]; });
+    var x0 = Math.min.apply(0, X), x1 = Math.max.apply(0, X), y0 = Math.min.apply(0, Y), y1 = Math.max.apply(0, Y);
+    var w = Math.max(x1 - x0 + 120, 340, (y1 - y0 + 90) * 1.5), h = w / 1.5;
+    if (w > 1002) { w = 1002; h = 668; }
+    var vx = Math.min(Math.max((x0 + x1) / 2 - w / 2, 0), 1002 - w), vy = Math.min(Math.max((y0 + y1) / 2 - h / 2, 0), 668 - h), k = w / 400;
+    var f1 = function (v) { return v.toFixed(1); };
+    var img = function (href, q, s) { return '<image href="' + href + '" x="' + f1(q[0] - s / 2) + '" y="' + f1(q[1] - s / 2) + '" width="' + f1(s) + '" height="' + f1(s) + '"/>'; };
+    var g = ['<image href="' + BASE + 'maps/' + um + '.webp" x="0" y="0" width="1002" height="668"/>'];
+    var boards = [];
+    for (var i = 1; i < pts.length; i++) {
+      var a = xy[i - 1], b = xy[i], kind = pts[i].k;
+      if (!a || !b || kind === 'portal' || kind === 'tram' || kind === 'passage') continue;
+      if (kind === 'fly') { // solid line: flights (flight points mark where you board and land)
+        g.push('<path class="tw-fly" d="M' + f1(a[0]) + ' ' + f1(a[1]) + 'L' + f1(b[0]) + ' ' + f1(b[1]) + '" stroke-width="' + f1(2.4 * k) + '"/>');
+        if (!pts[i - 1].via) boards.push([a, 'cur']);
+        boards.push([b, '']);
+      } else {
+        g.push('<path class="tw-' + (kind === 'walk' ? 'walk' : 'ship') + '" d="M' + f1(a[0]) + ' ' + f1(a[1]) + 'L' + f1(b[0]) + ' ' + f1(b[1]) + '" stroke-width="' + f1((kind === 'walk' ? 2.4 : 2.8) * k) + '" stroke-dasharray="0 ' + f1((kind === 'walk' ? 5 : 7) * k) + '"/>');
+        if (kind !== 'walk' && WIC[kind]) g.push(img(WIC[kind], [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], 22 * k));
+      }
+    }
+    // flight points: yellow where you board, green where you land or change
+    var sEnd = xy[xy.length - 1];
+    boards.forEach(function (bd) { if (sEnd && Math.hypot(bd[0][0] - sEnd[0], bd[0][1] - sEnd[1]) < 14 * k) return; g.push(img(bd[1] ? TWI.fp_cur : TWI.fp, bd[0], 16 * k)); });
+    var lab = function (q, txt, below) {
+      if (!q || !txt) return '';
+      var hw = txt.length * 3.7 * k, lx = Math.min(Math.max(q[0], vx + hw + 4 * k), vx + w - hw - 4 * k);
+      var ly = below || q[1] - 13 * k < vy + 14 * k ? q[1] + 24 * k : q[1] - 13 * k;
+      return '<text class="tw-lab" x="' + f1(lx) + '" y="' + f1(ly) + '" font-size="' + f1(13 * k) + '" stroke-width="' + f1(3.2 * k) + '">' + esc(txt) + '</text>';
+    };
+    var s0 = xy[0], s1 = xy[xy.length - 1], ic = stIcon(t.st);
+    if (s1) g.push(ic && WIC[ic] ? img(WIC[ic], s1, 22 * k) : '<circle class="tw-to" cx="' + f1(s1[0]) + '" cy="' + f1(s1[1]) + '" r="' + f1(6 * k) + '" stroke-width="' + f1(2 * k) + '"/>');
+    if (s0) g.push('<circle class="tw-me" cx="' + f1(s0[0]) + '" cy="' + f1(s0[1]) + '" r="' + f1(5 * k) + '" stroke-width="' + f1(2 * k) + '"/>');
+    var zAt = function (q) { try { return T.zoneAt(q.map, q.x, q.y); } catch (e) { return ''; } };
+    var la = t.from.zone || zAt(t.from), lb = t.to.zone || zAt(t.to);
+    g.push(lab(s0, la), la !== lb ? lab(s1, lb, s0 && s1 && s1[1] > s0[1] && Math.abs(s1[0] - s0[0]) < 60 * k) : '');
+    return '<svg class="tw-map" viewBox="' + [vx, vy, w, h].map(f1).join(' ') + '" role="img" aria-label="Trip on the map">' + g.join('') + '</svg>';
+  };
+  // the stop a trip leads to, as a small game icon + words for the popup
+  var tripCap = function (t, next) {
+    var ic = stIcon(t.st), st = t.st ? '<span class="tw-stop">' + (ic && WIC[ic] ? '<i class="wi bare wi-' + ic + '"></i>' : '') + pin(t.st) + '<span class="tw-tt">' + esc(t.st.title) + '</span></span>' : '';
+    return '<div class="tw-cap">' + (next ? '' : '<span class="tw-you"><i class="tw-dot"></i>You</span><span class="tw-ar">→</span>') + st + '<span class="tw-tm">' + mins(t.tr.secs) + '</span></div>';
+  };
+  // the trip that leads to a stop (a leg row right before it), if any
+  var legBefore = function (st) {
+    var it = st.ch.items, k = it.findIndex(function (x) { return x.st === st; });
+    for (var j = k - 1; j >= 0; j--) { if (it[j].k === 'leg') return it[j].r.tr; if (it[j].st) return null; }
+    return null;
+  };
+  // hover (or tap) a trip line: its map pops up
+  var tripPop = null, tripFor = null;
+  var showTrip = function (el) {
+    var t = TRIPS[+el.dataset.trip]; if (!t) return;
+    var svg = ''; try { svg = tripSvg(t); } catch (e) {}
+    if (!svg) return;
+    if (!tripPop) { tripPop = document.createElement('div'); tripPop.className = 'tw-pop'; document.body.appendChild(tripPop); }
+    tripPop.innerHTML = svg + tripCap(t);
+    var r = el.getBoundingClientRect(), VW = document.documentElement.clientWidth, W = Math.min(380, VW - 16);
+    tripPop.style.width = W + 'px';
+    tripPop.style.left = Math.max(8, Math.min(r.left, VW - W - 8)) + 'px';
+    var below = r.bottom + 8, hgt = W / 1.5 + 44;
+    tripPop.style.top = (below + hgt > window.innerHeight && r.top - hgt - 8 > 0 ? r.top - hgt - 8 : below) + 'px';
+    tripPop.classList.add('on'); tripFor = el;
+  };
+  var hideTrip = function () { if (tripPop) tripPop.classList.remove('on'); tripFor = null; };
+  document.addEventListener('mouseover', function (e) { var el = e.target.closest && e.target.closest('[data-trip]'); if (el && el !== tripFor) showTrip(el); else if (!el && tripFor) hideTrip(); });
+  document.addEventListener('click', function (e) { var el = e.target.closest && e.target.closest('[data-trip]'); if (el && matchMedia('(hover: none)').matches) { if (el === tripFor) hideTrip(); else showTrip(el); } else if (!el) hideTrip(); });
+  window.addEventListener('scroll', hideTrip, { passive: true });
   // quest objective icon (route-meta quests[q][6], from Questie objectives)
   var DOI = { kill: 'do', loot: 'loot', use: 'use', explore: 'explore', talk: 'talk', escort: 'escort' };
 
@@ -1370,6 +1507,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var qn = function (q) { var x = M.quests[q]; return x ? x[0] : 'Quest ' + q; };
   var zn = function (z) { return M.zones[z] || ''; };
   var umName = function (um) { return UMZ[um] ? UMZ[um][6] : ''; };
+  var pin = function (st) { return '<i class="pn">' + st.num + '</i>'; };
+  var stZone = function (st) { return st.loc && st.loc.um != null && !st.loc.dun ? umName(st.loc.um) : st.loc && st.loc.dun ? st.loc.dun : ''; };
+  var stRef = function (st, zone) { var z = zone && stZone(st); return pin(st) + esc(st.title) + (z && st.title.indexOf(z) < 0 ? '<span class="pz"> · ' + esc(z) + '</span>' : ''); };
+  var stTip = function (st) { var z = stZone(st); return st.title + (z && st.title.indexOf(z) < 0 ? ', ' + z : '') + ' (' + st.ch.name + ')'; };
   var mins = function (s) { return s < 90 ? '1 min' : Math.round(s / 60) + ' min'; };
   var fl = function (x) { return Math.floor(x || 1); };
 
@@ -1753,7 +1894,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var hr = rows[Math.min(here, rows.length - 1)];
     var L = hereWhy.L || Math.floor(hr && hr.s && hr.s.lv || 1), g = greyAt(L);
     var stopAt = function (n) { return stops.find(function (st) { return st.rows.some(function (r) { return r.n >= n; }); }); };
-    var show = function (st) { return st ? '<button class="ys-l" data-go="' + st.gi + '" type="button" title="' + esc(st.ch.name + ', stop ' + st.num) + '">Show</button>' : ''; };
+    var show = function (st) { return st ? '<button class="ys-l" data-go="' + st.gi + '" type="button" title="' + esc(stTip(st)) + '">Show</button>' : ''; };
     var row = function (main, meta, st) { return '<li><span class="ys-n">' + main + '</span><span class="ys-m">' + (meta || '') + '</span>' + (st ? show(st) : '<span></span>') + '</li>'; };
     var rowOf = {}, accOf = {};
     rows.forEach(function (r) { if (r.k !== 'step') return; [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (s.t === 'turnin') rowOf[s.q] = r; if (s.t === 'accept' && !accOf[s.q]) accOf[s.q] = { r: r, s: s }; }); });
@@ -1828,7 +1969,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       pls = pls.filter(function (x) { return x && x !== 'the dock'; }).map(esc).sort(function (a, b) { return b.length - a.length; });
       var placeHi = function (h) { return pls.length ? h.replace(new RegExp('(' + pls.map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')', 'g'), '<span class="ys-pl">$1</span>') : h; };
       var at = wh.zone ? '<span class="ys-c ys-at" title="Where you are now">' + wi('map') + esc(wh.zone) + '</span>' : '';
-      trip = tx ? at + '<span class="ys-c ys-go" title="How to get there">' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
+      trip = tx ? at + '<span class="ys-c ys-go"' + tripAttr(tr, Object.assign({ zone: wh.zone }, from), to, hereStop) + '>' + wi(legIcon(tr)) + placeHi(esc(tx)) + '<b class="ys-tm" title="Travel time">' + mins(tr.secs) + '</b></span>'
         : tr ? at + '<span class="ys-c ys-go">You are there</span>' : '';
     }
     var why = hereWhy.skipped ? 'Quests before it are grey for you' : hereWhy.past ? hereWhy.past + ' later quests already ticked' : '';
@@ -1837,7 +1978,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!tiles.some(function (t) { return t.k === ysOpen; })) ysOpen = '';
     var open = tiles.find(function (t) { return t.k === ysOpen; });
     $('startBody').innerHTML =
-      '<div class="ys-top"><button class="btn main" data-go="' + hereStop.gi + '" type="button">' + esc(hereStop.ch.name) + ' · stop ' + hereStop.num + ' →</button><div class="ys-sub">' + sub + '</div></div>' +
+      '<div class="ys-top"><button class="btn main ys-go-btn" data-go="' + hereStop.gi + '" type="button" title="' + esc(hereStop.ch.name) + '">' + stRef(hereStop, true) + ' →</button><span class="ys-part">' + esc(hereStop.ch.name) + '</span><div class="ys-sub">' + sub + '</div></div>' +
       (tiles.length ? '<div class="ys-tiles">' + tiles.map(function (t) { return '<button type="button" class="ys-t' + (t.k === ysOpen ? ' on' : '') + '" data-ys="' + t.k + '"><b>' + t.n + '</b><span>' + t.label + '</span></button>'; }).join('') + '</div>' : '') +
       (open ? '<ul class="ys-list">' + open.rows.join('') + '</ul>' : '') +
       (!upMine && snap ? '<p class="ys-hint">Open <a href="/gear-upgrades/">Gear upgrades</a> once with your Gear Snapshot loaded to see quest rewards that beat your gear.</p>' : '');
@@ -1853,8 +1994,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var g = bossGear(d.name);
       return '<tr><td><a class="dgl" href="' + DGURL + '#' + dgSlug(d.name) + '" title="Map, bosses, drops and quests">' + esc(d.name) + '</a>' + (g ? '<small class="bgl"><span class="muted">Upgrades: </span>' + g + '</small>' : '') + '</td><td class="opt">' + esc(d.where) + '</td><td>about ' + (d.lv ? d.lv.toFixed(1) : '?') + '</td><td class="opt">' +
         (d.all.length ? d.all.length + (d.all.length === 1 ? ' quest' : ' quests') : 'No quests, run it for Legacy') + (d.xp ? ', ' + d.xp.toLocaleString() + ' xp' : '') + farOf(d.name) + '</td><td>' +
-        (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button">' + esc(r.ch.name) + ', stop ' + r.num + ' →</button>'
-          : d.stop ? '<button class="go ok" data-go="' + d.stop.gi + '" type="button" title="Its quests start inside the dungeon">' + esc(d.stop.ch.name) + ', stop ' + d.stop.num + ' →</button>' : '') + '</td></tr>';
+        (d.done ? '<span class="ok">✓ done</span>' : r ? '<button class="go ok" data-go="' + r.gi + '" type="button" title="' + esc(stTip(r)) + '">' + stRef(r) + ' →</button>'
+          : d.stop ? '<button class="go ok" data-go="' + d.stop.gi + '" type="button" title="Its quests start inside the dungeon (' + esc(d.stop.ch.name) + ')">' + stRef(d.stop) + ' →</button>' : '') + '</td></tr>';
     }).join('') + '</table>';
   }
 
@@ -1991,7 +2132,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
     var legHtml = function (r) {
       var tx = r.tr.text, k = c.items.findIndex(function (x) { return x.r === r; }), nx = c.items[k + 1];
-      return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '">' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
+      return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '"' + tripAttr(r.tr, r.tr.from, r.tr.to, nx && nx.st) + '>' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
     };
     var mini = function (st) {
       return '<div class="stop done mini' + (st === sel ? ' sel' : '') + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '" checked aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b></div></div>';
@@ -2021,17 +2162,17 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
 
   function drawNext() {
     var st = sel || hereStop;
-    $('nlab').textContent = st && st !== hereStop ? 'Stop' : 'Next stop';
+    $('nlab').textContent = st && st !== hereStop ? 'Picked' : 'Next';
     var before = st ? stops.slice(0, st.gi).some(function (x) { return !stopDone(x); }) : false;
     $('startBtn').hidden = !before; $('undoBtn').hidden = !undoTicks;
-    if (!st) { $('nbody').innerHTML = '<div class="muted">Route finished. Ding 60!</div>'; $('nwhere').textContent = ''; return; }
+    if (!st) { $('nbody').innerHTML = '<div class="muted">Route finished. Ding 60!</div>'; $('nwhere').innerHTML = ''; return; }
     var c = st.ch, rdy = {};
     duns.forEach(function (d) { if (d.ready === st && !d.done) (rdy[st.gi] = rdy[st.gi] || []).push(d); });
-    $('nwhere').textContent = c.name + ' · stop ' + st.num + ' of ' + c.stops.length;
+    $('nwhere').innerHTML = esc(c.name) + ' <span class="pbar" title="' + st.num + ' of ' + c.stops.length + ' places in this part"><i style="width:' + Math.round(100 * st.num / c.stops.length) + '%"></i></span> ' + st.num + ' / ' + c.stops.length;
     var k = c.items.findIndex(function (it) { return it.st === st; }), then = [], lastUm = st.loc ? st.loc.um : null;
     for (var j = k + 1; j < c.items.length && then.length < 5; j++) {
       var it = c.items[j];
-      if (it.k === 'leg') then.push('<li class="lg"><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
+      if (it.k === 'leg') then.push('<li class="lg"' + tripAttr(it.r.tr, it.r.tr.from, it.r.tr.to, c.items[j + 1] && c.items[j + 1].st) + '><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
       else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun && it.st.loc.um !== lastUm ? ' <em>' + esc(umName((lastUm = it.st.loc.um))) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
     }
     if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
@@ -2167,16 +2308,27 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     m.appendChild(svg);
     var zb = document.createElement('div'); zb.className = 'zbar';
     zb.innerHTML = '<button type="button" data-z="in" title="Zoom in" aria-label="Zoom in">+</button><button type="button" data-z="out" title="Zoom out" aria-label="Zoom out">−</button>' +
-      '<button type="button" data-z="fit" title="Zoom to my next stops">My stops</button><button type="button" data-z="all" title="Show the whole zone">Whole zone</button>';
+      '<button type="button" data-z="fit" title="Zoom to where you go next">Next places</button><button type="button" data-z="all" title="Show the whole zone">Whole zone</button>';
     m.appendChild(zb);
     if (c.zones.length > 1) {
       var zs = document.createElement('select'); zs.className = 'zsel'; zs.setAttribute('aria-label', 'Map');
       zs.innerHTML = c.zones.filter(function (um) { return MAPS.has(um); }).map(function (um) {
         var n = c.stops.filter(function (s) { return s.loc && s.loc.um === um; }).length;
-        return '<option value="' + um + '"' + (um === curZone ? ' selected' : '') + '>' + esc(umName(um)) + ' (' + n + ' stops)</option>';
+        return '<option value="' + um + '"' + (um === curZone ? ' selected' : '') + '>' + esc(umName(um)) + ' (' + n + ')</option>';
       }).join('');
       zs.onchange = function () { curZone = +zs.value; drawMap(); };
       m.appendChild(zs);
+    }
+    // the next stop is off this map: show the trip there in a corner (continent or world map)
+    if (from) {
+      var nx = null; for (var q = from.gi + 1; q < stops.length; q++) if (!stopDone(stops[q])) { nx = stops[q]; break; }
+      var ltr = nx && (!nx.loc || nx.loc.um !== curZone) ? legBefore(nx) : null, tsv = '';
+      if (ltr && ltr.from) { try { tsv = tripSvg({ tr: ltr, from: ltr.from, to: ltr.to, st: nx }); } catch (e) {} }
+      if (tsv) {
+        var ins = document.createElement('div'); ins.className = 'tw-inset'; ins.dataset.st = nx.gi; ins.title = 'Next: ' + nx.num + '. ' + nx.title + '. Click to go there';
+        ins.innerHTML = tsv + tripCap({ tr: ltr, st: nx }, true);
+        m.appendChild(ins);
+      }
     }
     box.innerHTML = ''; box.appendChild(m);
     mapSvg = svg; applyView();
@@ -2294,13 +2446,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // wheel = zoom at the mouse; drag = move; two fingers = pinch; double click = zoom in
   var ptrs = {}, drag = null, moved = false;
   $('mapbox').addEventListener('wheel', function (e) {
-    if (!mapSvg || !e.target.closest('svg')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
     e.preventDefault();
     var p = toMap(e); zoomAt(p[0], p[1], Math.pow(1.0018, -e.deltaY * (e.deltaMode === 1 ? 30 : 1)));
   }, { passive: false });
-  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
+  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
   $('mapbox').addEventListener('pointerdown', function (e) {
-    if (!mapSvg || !e.target.closest('svg')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
     ptrs[e.pointerId] = [e.clientX, e.clientY]; moved = false;
     drag = { v: view.slice(), p: JSON.parse(JSON.stringify(ptrs)) };
   });
@@ -2373,6 +2525,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       return;
     }
     if (moved) { moved = false; return; }
+    var ti = e.target.closest('.tw-inset'); if (ti) { select(+ti.dataset.st, true); return; }
     var p = e.target.closest('.pin'); if (p) select(+p.dataset.st, true);
   });
   $('duns').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
@@ -2398,7 +2551,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     out.innerHTML = hits.slice(0, 8).map(function (id) {
       var q = M.quests[id], a = at[id], d = doneQ.has(+id);
       var lq = logQ.get(+id), tag = d ? '<span class="tg done">Done</span>' : lq ? '<span class="tg done">' + (lq.ready ? 'Ready to turn in' : 'In your log') + '</span>' : a ? '<span class="tg route">On your route</span>' : '<span class="tg skip">Not on your route</span>';
-      var tx = a ? esc(a.st.ch.name) + ', stop ' + a.st.num + (a.st.lv ? ' · about level ' + fl(a.st.lv) : '') : 'The guide skips it for your race and class.';
+      var tx = a ? stRef(a.st, true) + ' <span class="pz">' + esc(a.st.ch.name) + (a.st.lv ? ' · about level ' + fl(a.st.lv) : '') + '</span>' : 'The guide skips it for your race and class.';
       return '<div class="qr">' + tag + '<span class="nm">' + esc(q[0]) + '</span><span class="muted">' + (q[1] || '') + '</span><span class="tx">' + tx + '</span>' +
         (a ? '<button class="go" data-go="' + a.st.gi + '" type="button">Show stop →</button>' : '') + '</div>';
     }).join('');
