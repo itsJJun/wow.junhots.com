@@ -93,7 +93,7 @@ button, select, input { font: 600 12px var(--body); }
 .pother { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); font-weight: 600; }
 .pchip { font: inherit; font-size: 12.5px; font-weight: 500; display: inline-flex; gap: 5px; align-items: center; padding: 2px 9px 2px 3px; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
 .pchip .ico { width: 20px; height: 20px; border-radius: 50%; }
-.pchip[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pchip[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
 @media (max-width: 900px) { .profs { grid-template-columns: 1fr; } .pcards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .wf-off { display: none !important; }
 .bsub { font-size: 11px; color: var(--muted); margin: 3px 0 0 28px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
@@ -111,7 +111,7 @@ button, select, input { font: 600 12px var(--body); }
 #fishBuy td .ico { vertical-align: middle; margin-right: 6px; }
 .prof { display: flex; gap: 7px; align-items: center; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; cursor: pointer; color: var(--ink); }
 .prof .ico { width: 37px; height: 37px; }
-.prof[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--panel2); }
+.prof[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }   /* selected = gold tint, never darker (Jun 25 Nov) */
 .prof .pn { font: 700 16px var(--display); }
 .prof .ps { font-size: 11px; color: var(--muted); font-weight: 500; }
 
@@ -2498,7 +2498,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const bonus = G.buy.some(b => b[1]);
     $("fishBuy").innerHTML = '<thead><tr><th>Item</th>' + (bonus ? '<th class="r">Bonus</th><th class="r">From skill</th>' : '') + '<th>Where</th><th class="r">Price</th></tr></thead><tbody>' +
       G.buy.map(([id, b, from, where]) => { const u = price(id);
-        return '<tr><td>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</td>' + (bonus ? '<td class="r num">' + b + '</td><td class="r num">' + from + '</td>' : '') + '<td>' + nx(where) + '</td><td class="r">' + (u ? coin(u.c) + ' <span class="srcb ' + u.src + '">' + (u.src === "ah" ? "AH" : u.src) + '</span>' : '<span class="muted">—</span>') + '</td></tr>'; }).join("") + '</tbody>';
+        return '<tr><td>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</td>' + (bonus ? '<td class="r num">' + b + '</td><td class="r num">' + from + '</td>' : '') + '<td>' + npcText(where) + '</td><td class="r">' + (u ? coin(u.c) + ' <span class="srcb ' + u.src + '">' + (u.src === "ah" ? "AH" : u.src) + '</span>' : '<span class="muted">—</span>') + '</td></tr>'; }).join("") + '</tbody>';
   }
   // skill from the Gear Snapshot file's skill list (gathering and Fishing have no recipe window)
   function skillFromFile(k) { const g = KNOWN.get(); return g && g.skills && +g.skills[LABEL(k)] || 0; }
