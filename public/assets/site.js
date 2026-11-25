@@ -245,13 +245,14 @@
     var W = window.WFAH; if (!W || !W.label) return;
     var old = W.label;
     W.label = function (rec) {
+      if (/^blizzard \(/i.test(rec.name || '')) return 'Horde auction house, hourly from Blizzard, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       if (/^forever ah/i.test(rec.name || '')) return 'Horde auction house, hourly from Forever AH, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       if (!/^gear snapshot scan/i.test(rec.name || '')) return old(rec);
       return 'your Gear Snapshot scan, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
     };
   });
   window.wsGsToAuctionator = function (text) { var p = gsPrices(text); return p && gsToAuctionator(p); };   // (tests)
-  window.wsFahFile = fahFile;   // (tests)
+  window.wsFahFile = fahFile; window.wsBlizFile = blizFile;   // (tests)
   function takeFiles(best, quiet) {
     return gsAh(best).then(function () { return takeFiles2(best, quiet); });
   }
@@ -331,7 +332,7 @@
   //  - the Horde auction scan uploaded on /admin/ (it also has suffix prices), and
   //  - hourly Horde prices from Forever AH (Blizzard's auction data; the Worker's /api/fah, src/fah.js).
   // Both are named "... site scan", which pages read as "the Horde auction house".
-  var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua';
+  var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua', BLIZ_SCAN = 'Blizzard (Horde site scan).lua';
   // /api/fah text ("#asOf,oldest,items in the house" then "id,price,units,auctions" lines) -> Auctionator-style file, or null
   function fahFile(text) {
     var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
@@ -345,16 +346,31 @@
     // only once (almost) the whole house is in: right after a deploy the Worker has just a few slots
     return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
   }
+  // /api/bliz text (Blizzard's own data, summed up hourly by scripts/blizzard_prices.py) -> Auctionator-style file with
+  // prices, listed counts and a price per random suffix ("gr:<id>:of the Owl", as Auctionator keys them), or null
+  function blizFile(text) {
+    var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
+    var asOf = +head[1], D = String(Math.floor((asOf - 1577836800) / 86400)), db = {}, n = 0;
+    for (var i = 1; i < lines.length; i++) {
+      var f = lines[i].split(','), a = {}, h = {};
+      if (f[0] === 'i' && f.length >= 4 && +f[2] > 0) { a[D] = +f[3]; h[D] = +f[2]; db[f[1]] = { m: +f[2], a: a, h: h, l: {} }; n++; }
+      else if (f[0] === 's' && f.length >= 5 && +f[3] > 0) { a[D] = +f[4]; h[D] = +f[3]; db['gr:' + f[1] + ':of ' + f[2]] = { m: +f[3], a: a, h: h, l: {} }; }
+    }
+    return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
+  }
   function siteScan() {
     if (!window.fetch) return Promise.resolve(null);
     var built = +(($('meta[name="ws-prices"]') || {}).content || 0);
     var up = fetch('/api/ah/meta').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
     var fah = fetch('/api/fah').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && fahFile(t); }).catch(function () { return null; });
-    return Promise.all([up, fah]).then(function (r) {
-      var m = r[0] && r[0].at ? r[0] : null, f = r[1], upT = m ? (m.scan || Math.floor(m.at / 1000)) : 0;
-      if (f && f.asOf >= upT && !(built && f.asOf < built)) {
-        ls.set('ws.site', JSON.stringify({ scan: f.asOf, at: f.asOf * 1000, src: 'fah' })); drawDots();
-        return { key: 'ah', name: FAH_SCAN, at: f.asOf * 1000, data: new TextEncoder().encode(f.text).buffer };
+    var bliz = fetch('/api/bliz').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && blizFile(t); }).catch(function () { return null; });
+    return Promise.all([up, fah, bliz]).then(function (r) {
+      var m = r[0] && r[0].at ? r[0] : null, upT = m ? (m.scan || Math.floor(m.at / 1000)) : 0;
+      // Blizzard's own data first (it also has suffix prices), unless Forever AH is over 2 hours newer
+      var f = r[2] && !(r[1] && r[1].asOf > r[2].asOf + 7200) ? { x: r[2], src: 'bliz', name: BLIZ_SCAN } : r[1] ? { x: r[1], src: 'fah', name: FAH_SCAN } : null;
+      if (f && f.x.asOf >= upT && !(built && f.x.asOf < built)) {
+        ls.set('ws.site', JSON.stringify({ scan: f.x.asOf, at: f.x.asOf * 1000, src: f.src })); drawDots();
+        return { key: 'ah', name: f.name, at: f.x.asOf * 1000, data: new TextEncoder().encode(f.x.text).buffer };
       }
       if (!m || (m.scan && built && m.scan < built)) { ls.set('ws.site', ''); return null; }   // the pages' own prices are newer
       ls.set('ws.site', JSON.stringify(m)); drawDots();
@@ -399,7 +415,7 @@
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
         var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5 && !(k.key === 'tsm' && m.snap);   // TSM is optional once Gear Snapshot (1.7) saves bags
-        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
+        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'bliz' ? 'Hourly Horde prices from Blizzard\'s auction data, used until you load your own ' : st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
           (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
       }).join('');
     });

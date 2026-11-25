@@ -373,7 +373,8 @@ CREDITS = [
     ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Craft finder.'),
     ('classicplus.io', 'https://classicplus.io/', 'The daily level census of Horde characters that Mat timing and the "level crowd" tags read.'),
     ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Craft finder and Sell spare mats.'),
-    ('Forever AH', 'https://forever-ah.com/', 'Hourly Horde auction prices and listed counts, read from Blizzard\'s Battle.net API, for visitors who have not loaded their own scan.'),
+    ('Blizzard Battle.net API', 'https://develop.battle.net/', 'Hourly Horde auction prices, listed counts and random suffix prices, for visitors who have not loaded their own scan.'),
+    ('Forever AH', 'https://forever-ah.com/', 'Backup for the hourly Horde prices (also read from Blizzard\'s Battle.net API).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'In-game auction scans (with Gear Snapshot\'s own scan): the file you load yourself, and the prices for each random suffix.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
@@ -483,7 +484,7 @@ SETUP_ADDONS = [
     # (name, link, what for, needed by)
     ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, flight points, your bags, bank and mail (all your characters), '
      'and auction prices for every item and every random suffix: click Gear Snapshot scan at the auction house. Made for this site.',
-     'Every tool: your own prices, gear, bags and quests (otherwise: hourly Horde prices, no suffix prices).'),
+     'Every tool: your own prices, gear, bags and quests (otherwise: hourly Horde prices).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Optional. Gear Snapshot 1.8 scans the auction house itself, and it also saves the prices when Auctionator scans.',
      'Prices, if you don\'t use Gear Snapshot\'s scan.'),
     ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Optional. Gear Snapshot 1.7 saves your bags now.',

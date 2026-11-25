@@ -2,7 +2,7 @@
   {
     "date": "2026-11-25",
     "title": "Fresh prices with no addon",
-    "text": "Every price page now gets the Horde auction house's prices every hour, with how many are listed, even if you load nothing. They come from Forever AH, which reads Blizzard's own auction data. Your own scan still wins, and prices for random suffixes (like \"of the Owl\") still need one.",
+    "text": "Every price page now gets the Horde auction house's prices every hour, with how many are listed, even if you load nothing. They come straight from Blizzard's auction data, with prices for random suffixes (like \"of the Owl\") too. Your own scan still wins.",
     "image": "/assets/updates/2026-11-25-hourly-prices.webp",
     "link": "/setup/",
     "linkText": "Load your own scan"
