@@ -1376,7 +1376,44 @@ const ENGINE = (function () {
         total += best.e;
         steps.push({ s, x: best.x, p: best.p, e: best.e, net: best.net, free: best.free });
       }
+      total -= smooth(steps, unlocked);
       return { steps, total, missing: steps.some(z => z.none) };
+    }
+    // expected cost of one skill point with x at skill s (no bolt credit), or null if x can't be used there
+    function stepAt(x, s, unlocked) {
+      if (s < x.r.l || s >= x.r.s[2] || !usable(x, s, unlocked)) return null;
+      const p = chance(x.r, s); if (p <= 0) return null;
+      let net = x.cost - x.cred; if (!opts.profit && net < 0) net = 0; net += opts.perCraft || 0;
+      return { s, x, p, e: net / p, net, free: false };
+    }
+    // No short detours (Jun, 25 Nov: one point of Jungle Stew between Rockscale Cod and Spider Sausage, a near tie that
+    // cost 12s 95c up front instead of 3s 74c). A run of one recipe is replaced by the recipe just before or after it when
+    // that recipe works for the whole run and costs at most 10% more there (3% for runs over 5 points): every switch means
+    // another shopping list and leftover safety-margin materials. Bolt runs ("free points") are left alone.
+    // Returns how much cheaper the route got (negative = a bit dearer).
+    function smooth(steps, unlocked) {
+      let saved = 0;
+      for (let guard = 0; guard < 60; guard++) {
+        const runs = [];
+        steps.forEach((st, i) => { const L = runs[runs.length - 1];
+          if (L && !st.none && !L.none && L.x === st.x && L.free === st.free) L.j = i; else runs.push({ x: st.x, free: st.free, none: st.none, i, j: i }); });
+        let done = true;
+        for (let k = 0; k < runs.length && done; k++) {
+          const R = runs[k]; if (R.none || R.free) continue;
+          let cost = 0; for (let i = R.i; i <= R.j; i++) cost += steps[i].e;
+          const tol = cost * (R.j - R.i < 5 ? 0.10 : 0.03);
+          let best = null;
+          [runs[k - 1], runs[k + 1]].forEach(N => {
+            if (!N || N.none || N.free || N.x === R.x) return;
+            const alt = []; let c = 0;
+            for (let i = R.i; i <= R.j; i++) { const a = stepAt(N.x, steps[i].s, unlocked); if (!a) return; alt.push(a); c += a.e; }
+            if (c <= cost + tol && (!best || c < best.c)) best = { c, alt };
+          });
+          if (best) { best.alt.forEach((a, n) => { steps[R.i + n] = a; }); saved += cost - best.c; done = false; }
+        }
+        if (done) break;
+      }
+      return saved;
     }
     function boltNeeds(steps) {
       const need = {};
