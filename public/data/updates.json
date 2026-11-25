@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: clear \"going back\" stops",
+    "text": "When the route sends you back to an earlier part, that part now says how many stops to do there, marks them GO, folds the rest as skip, and flags the last one. The button at the bottom takes you back to where you left off instead of the next part.",
+    "image": "/assets/updates/2026-11-25-route-going-back.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Profession leveling: recipe prices on the auction house",
     "text": "Each recipe, pattern and formula now shows its auction house price and how many are listed, next to the vendor price, so you can skip a long trip. If only the other faction's vendor sells it, the route counts the auction house price.",
     "image": "/assets/updates/2026-11-25-recipe-ah.webp",
