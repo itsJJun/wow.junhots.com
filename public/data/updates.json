@@ -9,6 +9,14 @@
   },
   {
     "date": "2026-11-25",
+    "title": "Talent planner",
+    "text": "Plan your talents on Forever's own trees, for every class. Pick your level and the Talented perk to see how many points you have, then share the build with a link.",
+    "image": "/assets/updates/2026-11-25-talent-planner.webp",
+    "link": "/talent-planner/",
+    "linkText": "Open the Talent planner"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Patch and server status",
     "text": "Load game files now shows the game's patch, and whether each auction house is getting new prices. If yours stops updating for 2 hours (servers down), the site tells you once that prices are older.",
     "image": "/assets/updates/2026-11-25-server-status.webp",
