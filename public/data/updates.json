@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: every quest, your chains, Dungeons switch",
+    "text": "The route now picks up quests it used to skip, and search finds every quest on Forever with its chain. Quests in your log that the route skipped are added where it passes, if they still give XP (Leave out to drop one). If you skipped a chain step, the route goes back for it when the XP beats the travel time or it has a gear upgrade, and leaves the chain out if not. New Dungeons switch: off skips dungeons and their quests, on brings them back.",
+    "image": "/assets/updates/2026-11-25-route-every-quest.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Fresh prices with no addon",
     "text": "Every price page now gets the Horde auction house's prices every hour, with how many are listed, even if you load nothing. They come straight from Blizzard's auction data, with prices for random suffixes (like \"of the Owl\") too. Your own scan still wins.",
     "image": "/assets/updates/2026-11-25-hourly-prices.webp",
