@@ -909,11 +909,11 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 <!--/wf-theme-->
 <meta name="ws-prices" content="1795427094">
 <link rel="canonical" href="https://wow.junhots.com/level-route/">
-<meta name="description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Questie to start…">
+<meta name="description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Gear Snapshot to start…">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="junhots WoW tools">
 <meta property="og:title" content="Level 1-60 route · WoW Forever · junhots">
-<meta property="og:description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Questie to start…">
+<meta property="og:description" content="Every quest from level 1 to 60 in order for your race and class: how to get to each place with the flights you know, when to visit your trainer and which dungeons to run. Load Gear Snapshot to start…">
 <meta property="og:url" content="https://wow.junhots.com/level-route/">
 <meta property="og:image" content="https://wow.junhots.com/assets/og/default.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -948,8 +948,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
   </div>
   <div class="status">
-    <span id="qStat">Quests: <label class="load" for="snapFile">load GearSnapshot.lua</label> <span class="muted">or</span> <label class="load" for="questieFile">Questie.lua</label></span><input id="snapFile" class="fin" type="file" accept=".lua,.bak,text/plain"><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
-    <span id="fStat">Flights: <label class="load" for="spfFile">load ShortestPathForever.lua</label></span><input id="spfFile" class="fin" type="file" accept=".lua,.bak,text/plain">
+    <span id="qStat">Quests: <label class="load" for="snapFile">load GearSnapshot.lua</label></span><input id="snapFile" class="fin" type="file" accept=".lua,.bak,text/plain"><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
+    <span id="fStat">Flights: <label class="load" for="snapFile">load GearSnapshot.lua</label></span><input id="spfFile" class="fin" type="file" accept=".lua,.bak,text/plain">
     <span id="sum"></span>
   </div>
   <div class="status" id="msg" role="status"></div>
@@ -1000,7 +1000,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <li><b>Dungeon ready:</b> the stop where you have every quest for that dungeon.</li>
     <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
     <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level. <span class="tag">can skip</span> means the guide calls it optional.</li>
-    <li><b>Your quests</b> come from GearSnapshot.lua (<a href="/downloads/GearSnapshot.zip">Gear Snapshot</a> 1.6): quests done, quests in your log, <span class="tag rd">ready</span> to turn in, and progress like <span class="tag pg">6/10</span>. The route starts you after them. Questie.lua works too, but only knows quests done.</li>
+    <li><b>Your quests</b> come from GearSnapshot.lua (<a href="/downloads/GearSnapshot.zip">Gear Snapshot</a> 1.6): quests done, quests in your log, <span class="tag rd">ready</span> to turn in, and progress like <span class="tag pg">6/10</span>. The route starts you after them.</li>
   </ul>
 </section>
 <footer>Quest order: <a href="https://www.curseforge.com/wow/addons/guidelime_tugs" target="_blank" rel="noopener">TUGs The Ultimate Leveling Guides</a> (free, by TUGs). Quest, NPC and map data: Questie / QuestieDB. Travel data: <a href="https://github.com/cjber/shortest-path-forever" target="_blank" rel="noopener">Shortest Path Forever</a> by cjber (GPL-3.0). Trainer spells: What's Training. Dungeon doors: Forever Dungeon Journal. Maps and icons: World of Warcraft game art; zeppelin icon from Shortest Path Forever.</footer>
@@ -1636,7 +1636,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     // Gear Snapshot 1.8: flight points you know (saved when you open a flight master's map)
     if (db.flights && Object.keys(db.flights).length) {
       known = new Set([...(known || []), ...Object.keys(db.flights).map(Number)]);
-      $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="spfFile">reload</label>';
+      $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="snapFile">reload</label>';
     }
     applyQuests();
   }
@@ -1644,7 +1644,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var sv = readSV(text), ids = sv['ShortestPathForeverCharDB/taxi'];
     if (!ids) throw new Error('no flights in this file. Load the ShortestPathForever.lua inside your character\'s SavedVariables folder');
     known = new Set([...(known || []), ...ids]);
-    $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="spfFile">reload</label>';
+    $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="snapFile">reload</label>';
     render();
   }
   function fileInput(id, fn) {

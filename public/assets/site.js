@@ -16,7 +16,7 @@
     { key: 'tsm', label: 'Bags (TSM, optional)', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
       targets: [['#bagFile', '#haveInfo']] },
     // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)
-    { key: 'quests', label: 'Quests done', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
+    { key: 'quests', label: 'Quests done (Questie, optional)', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
       targets: [['#questieFile', '#msg']] },
     { key: 'flights', label: 'Known flights (optional)', file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
       targets: [['#spfFile', '#msg']] }
