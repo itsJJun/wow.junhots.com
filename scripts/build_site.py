@@ -579,6 +579,7 @@ def main():
     print('Done: %s' % PUB)
     check_updates()
     check_vendor_prices()
+    check_routes()
 
 
 def check_updates():
@@ -607,6 +608,20 @@ def check_vendor_prices():
     if r.returncode:
         sys.exit('Vendor price check FAILED: fix the prices above before opening a pull request.')
 
+
+
+def check_routes():
+    """Profession leveling never picks a pricier recipe or a short detour (scripts/check-routes.cjs, 25 Nov: one point
+    of Jungle Stew between Rockscale Cod and Spider Sausage)."""
+    import subprocess
+    try:
+        r = subprocess.run(['node', os.path.join(REPO, 'scripts', 'check-routes.cjs')], cwd=REPO, capture_output=True, text=True, timeout=600)
+    except Exception as e:
+        print('\nWARNING: route check did not run (%s). Run: node scripts/check-routes.cjs' % e)
+        return
+    print('\n' + (r.stdout + r.stderr).strip())
+    if r.returncode:
+        sys.exit('Route check FAILED: fix the planner before opening a pull request.')
 
 if __name__ == '__main__':
     main()

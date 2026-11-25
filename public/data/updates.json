@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Profession leveling: no more one-point detours",
+    "text": "The route no longer switches to another recipe for a point or two when it saves almost nothing (one point of Jungle Stew between Rockscale Cod and Spider Sausage). A switch now has to save over 10%, so you buy fewer different materials.",
+    "image": "/assets/updates/2026-11-25-no-detours.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Level 1-60 route: Skyborne druid cat form",
     "text": "Skyborne druids now get their own cat form quests (The Great Windborne Cat Spirit) instead of the Night Elf ones. Quest search shows the chain for your race. Checked against Blizzard's quest data.",
     "image": "/assets/updates/2026-11-25-route-race-chains.webp",
