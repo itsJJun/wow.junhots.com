@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Profession leveling: recipe prices on the auction house",
+    "text": "Each recipe, pattern and formula now shows its auction house price and how many are listed, next to the vendor price, so you can skip a long trip. If only the other faction's vendor sells it, the route counts the auction house price.",
+    "image": "/assets/updates/2026-11-25-recipe-ah.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Level 1-60 route: every quest, your chains, Dungeons switch",
     "text": "The route now picks up quests it used to skip, and search finds every quest on Forever with its chain. Quests in your log that the route skipped are added where it passes, if they still give XP (Leave out to drop one). If you skipped a chain step, the route goes back for it when the XP beats the travel time or it has a gear upgrade, and leaves the chain out if not. New Dungeons switch: off skips dungeons and their quests, on brings them back.",
     "image": "/assets/updates/2026-11-25-route-every-quest.webp",
