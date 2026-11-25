@@ -1,7 +1,8 @@
-# Hourly auction prices from Blizzard's Battle.net API (scripts/blizzard_prices.py) -> the site's /api/bliz.
-# Blizzard's snapshot changes about :26 past each hour, so this runs at :40.
+# Hourly auction data from Blizzard's Battle.net API (scripts/blizzard_prices.py) -> the site's /api/bliz and /api/blizh.
+# Blizzard's snapshot changes about :22 (EU) and :26 (US) past each hour, so this runs at :40.
+# The job keeps the last snapshot and 14 days of history in the Actions cache (.bliz-state) to count what sold.
 # Secrets (repo Settings > Secrets and variables > Actions): BLIZZARD_CLIENT_ID, BLIZZARD_CLIENT_SECRET, ADMIN_PASSWORD.
-# A push to a claude/* branch that changes the job only builds the summary (artifact), it does not send it.
+# A push to a claude/* branch that changes the job only builds the bundles (artifact), it does not send them.
 name: Blizzard prices
 on:
   schedule:
@@ -13,28 +14,33 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: blizzard-prices
+  group: blizzard-prices-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   prices:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        with:
+          path: .bliz-state
+          key: bliz-state-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: bliz-state-${{ github.ref_name }}-
       - name: Fetch, sum up and send
-        run: python3 scripts/blizzard_prices.py --out bliz.txt ${{ github.event_name == 'push' && '--no-post' || '' }}
+        run: python3 scripts/blizzard_prices.py --out out ${{ github.event_name == 'push' && '--no-post' || '' }}
         env:
           BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
           BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      - name: Admin password secret present?
-        if: github.event_name == 'push'
-        run: '[ -n "$P" ] && echo "ADMIN_PASSWORD: set" || echo "ADMIN_PASSWORD: MISSING"'
-        env:
-          P: ${{ secrets.ADMIN_PASSWORD }}
+      - uses: actions/cache/save@v4
+        if: always() && hashFiles('.bliz-state/*') != ''
+        with:
+          path: .bliz-state
+          key: bliz-state-${{ github.ref_name }}-${{ github.run_id }}
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push'
+        if: github.event_name != 'schedule'
         with:
           name: bliz
-          path: bliz.txt
+          path: out/
           retention-days: 2

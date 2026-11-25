@@ -129,6 +129,10 @@ html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); z-index: 85; }  /* above
 .ws-fold { padding: 12px 10px 12px; }
 .ws-fold > b { font-weight: 600; font-size: 15px; }
 .ws-fold code { font: 12px var(--mono); color: var(--muted); }
+.ws-house { padding: 8px 10px 10px; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.ws-house label { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.ws-house select { font: inherit; font-size: 13px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); border-color: var(--line2); max-width: 100%; }
+.ws-house .ws-hint { margin-left: 0; }
 .ws-fold p { margin: 5px 0 10px; color: var(--muted); font-size: 13px; }
 .ws-fstats { display: grid; gap: 2px; margin: 8px 0 10px; font-size: 12.5px; color: var(--muted); }
 .ws-fstats .ok { color: var(--good); }

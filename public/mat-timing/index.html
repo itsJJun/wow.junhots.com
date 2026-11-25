@@ -904,7 +904,7 @@ const ICONS = {"2589": "/assets/i/352091a3a20a48.jpg", "2592": "/assets/i/d83e7c
   render();
   if (window.WFAH) {
     const st = r => { if (!r) return ''; const w = new Date(r.scan * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-      const who = /site scan/i.test(r.name) ? 'The latest Horde auction scan' : 'Your scan';
+      const who = /site scan/i.test(r.name) ? 'The latest scan of the ' + (window.wsSiteName ? wsSiteName() : 'Horde auction house') : 'Your scan';
       return MKT.ahUsed() ? who + ' (' + w + ') is added to the price history below.' : who + ' (' + w + ') is older than the built-in prices (' + day(Object.values(D.mats).reduce((a, m) => { const l = (m.h || []).slice(-1)[0]; return l && l[0] > a ? l[0] : a; }, '')) + '), so those are shown.'; };
     $('msg').textContent = st(WFAH.get());
     WFAH.on((rec, err) => { if (err) { $('msg').textContent = err; return; } MKT.refresh(rec); $('msg').textContent = st(rec); render(); });

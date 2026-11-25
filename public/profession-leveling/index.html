@@ -2367,7 +2367,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   function renderSource() {
     const scan = market ? market.scan : DATA.scan;
     const d = new Date(scan * 1000);
-    $("srcInfo").innerHTML = "Prices: " + (market ? (/site scan/i.test(market.name || "") ? "latest Horde auction house scan, PvP realm" : "file you loaded") : "built-in scan of the Horde auction house, PvP realm") + ", <b>" + d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + "</b>" + (market ? " · " + fmtN(market.items) + " items" : (window.wfStale ? wfStale(scan, 7, "These prices are") : "")) + (Object.keys(S.over).length ? ' · <a href="#" id="clearOver">clear ' + Object.keys(S.over).length + ' typed price' + (Object.keys(S.over).length > 1 ? "s" : "") + '</a>' : "");
+    $("srcInfo").innerHTML = "Prices: " + (market ? (/site scan/i.test(market.name || "") ? "latest scan of the " + (window.wsSiteName ? wsSiteName() : "Horde auction house") : "file you loaded") : "built-in scan of the Horde auction house, PvP realm") + ", <b>" + d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + "</b>" + (market ? " · " + fmtN(market.items) + " items" : (window.wfStale ? wfStale(scan, 7, "These prices are") : "")) + (Object.keys(S.over).length ? ' · <a href="#" id="clearOver">clear ' + Object.keys(S.over).length + ' typed price' + (Object.keys(S.over).length > 1 ? "s" : "") + '</a>' : "");
     if ($("clearOver")) $("clearOver").onclick = e => { e.preventDefault(); S.over = {}; save(); render(); };
   }
   let pending = null;

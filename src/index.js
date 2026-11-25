@@ -9,14 +9,16 @@
 //   fb:<time>-<id>       one feedback report (JSON), kept 180 days; /api/fb/new counts the ones after a time
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
 //   census, census:try   the daily level census from classicplus.io (src/census.js)
-//   bliz:latest          hourly prices + suffix prices from Blizzard's Battle.net API, summed up by the GitHub job
-//                        scripts/blizzard_prices.py (text, see there), metadata {asOf, house, items, at}
+//   bliz:p:<region>      hourly prices for every auction house in the region (us, eu) from Blizzard's Battle.net API,
+//   bliz:h:<region>      and 14 days of history: bundles posted by the GitHub job scripts/blizzard_prices.py (src/bliz.js)
+//   bliz:latest          (old) the first version's prices for US house 113 only, until the bundles arrive
 //   fah:<house>:<slot>   hourly prices from Forever AH (Blizzard's auction data), one slot of the market table each (src/fah.js)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
 
 import { CENSUS_PAGES, censusPage, refreshCensus } from './census.js';
 import { refreshFah, fahPrices } from './fah.js';
+import { storeBundle, section, houses, parseHouse } from './bliz.js';
 
 const MAX_AH = 8 * 1024 * 1024;
 const FAH_CRON = '*/5 * * * *';   // must match wrangler.jsonc
@@ -97,7 +99,12 @@ async function admin(request, env, url) {
     await env.WOW.put('sfx:latest', JSON.stringify(merged));
     return json({ ok: true, at: merged.at, count: Object.keys(merged.items).length, full: merged.full });
   }
-  // hourly Blizzard summary from the GitHub job (scripts/blizzard_prices.py): stored as is, only the head line is checked
+  // hourly Blizzard bundles from the GitHub job (scripts/blizzard_prices.py, src/bliz.js): ?r=us|eu&k=p|h
+  if (p === '/api/admin/bliz' && request.method === 'POST' && url.searchParams.get('r')) {
+    const res = await storeBundle(request, env, url);
+    return json(res.body, res.status);
+  }
+  // (old) the first version of the job: one text summary for US house 113
   if (p === '/api/admin/bliz' && request.method === 'POST') {
     const text = await request.text();
     if (!text || text.length > MAX_BLIZ) return json({ error: 'The summary must be under 4 MB.' }, 400);
@@ -181,12 +188,24 @@ export default {
         const v = await env.WOW.get('sfx:latest', 'text');
         return new Response(v || '{"items":{}}', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
       }
-      // hourly Blizzard prices with suffix prices (scripts/blizzard_prices.py), "#asOf,house,items" then i,/s, lines
-      if (p === '/api/bliz' && request.method === 'GET') {
-        const v = await env.WOW.get('bliz:latest', { type: 'text', cacheTtl: 300 });
-        if (!v) return json({ error: 'No prices yet.' }, 404);
-        return new Response(v, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300' } });
+      // hourly Blizzard data (src/bliz.js): one house's prices (?h=us-113; no h = us-113), its history, the
+      // fingerprints that tell which house a visitor's own scan came from, and the list of houses
+      if ((p === '/api/bliz' || p === '/api/blizh') && request.method === 'GET') {
+        const hs = parseHouse(url.searchParams.get('h') || 'us-113');
+        if (!hs) return json({ error: 'Bad house.' }, 400);
+        const res = await section(env, p === '/api/bliz' ? 'p' : 'h', hs[0], hs[1]);
+        if (res) return res;
+        if (p === '/api/bliz' && hs[0] === 'us' && hs[1] === '113') {   // until the first bundle arrives
+          const v = await env.WOW.get('bliz:latest', { type: 'text', cacheTtl: 300 });
+          if (v) return new Response(v, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300' } });
+        }
+        return json({ error: 'No prices yet.' }, 404);
       }
+      if (p === '/api/blizfp' && request.method === 'GET') {
+        const res = await section(env, 'p', url.searchParams.get('r') || 'us', 'fp');
+        return res || json({ error: 'No prices yet.' }, 404);
+      }
+      if (p === '/api/bliz/houses' && request.method === 'GET') return json(await houses(env), 200, { 'cache-control': 'public, max-age=300' });
       // hourly Forever AH prices for the Horde house (src/fah.js): "#asOf,oldest" then "id,price,units,auctions" lines
       if (p === '/api/fah' && request.method === 'GET') {
         const f = await fahPrices(env);
