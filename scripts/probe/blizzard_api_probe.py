@@ -27,53 +27,30 @@ def get(path, ns, region='us', extra=None, keep=2500):
     except Exception: return None
 
 S, D, P = 'static-forever', 'dynamic-forever', 'profile-forever'
-for path in ['/data/wow/item/19019', '/data/wow/media/item/19019', '/data/wow/item/2589', '/data/wow/item-class/index',
-             '/data/wow/item-set/index', '/data/wow/playable-class/index', '/data/wow/playable-class/9', '/data/wow/playable-race/index',
-             '/data/wow/playable-specialization/index', '/data/wow/power-type/index', '/data/wow/creature-family/index',
-             '/data/wow/creature-type/index', '/data/wow/creature/1', '/data/wow/creature/6109', '/data/wow/media/creature-display/1',
-             '/data/wow/quest/index', '/data/wow/quest/2', '/data/wow/quest/category/index', '/data/wow/quest/area/index',
-             '/data/wow/profession/index', '/data/wow/profession/197', '/data/wow/recipe/1', '/data/wow/spell/686',
-             '/data/wow/media/spell/686', '/data/wow/talent-tree/index', '/data/wow/talent/index', '/data/wow/pvp-talent/index',
-             '/data/wow/journal-instance/index', '/data/wow/journal-encounter/index', '/data/wow/journal-expansion/index',
-             '/data/wow/mount/index', '/data/wow/pet/index', '/data/wow/achievement/index', '/data/wow/achievement-category/index',
-             '/data/wow/reputation-faction/index', '/data/wow/reputation-tiers/index', '/data/wow/title/index', '/data/wow/toy/index',
-             '/data/wow/heirloom/index', '/data/wow/guild-crest/index', '/data/wow/keystone-affix/index', '/data/wow/region/index',
-             '/data/wow/modified-crafting/index']:
-    get(path, S)
-get('/data/wow/search/item', S, extra={'name.en_US': 'Robe of the Archmage', 'orderby': 'id', '_page': 1})
-get('/data/wow/search/creature', S, extra={'name.en_US': 'Hogger', 'orderby': 'id', '_page': 1})
-get('/data/wow/search/spell', S, extra={'name.en_US': 'Shadow Bolt', 'orderby': 'id', '_page': 1})
-for path in ['/data/wow/realm/index', '/data/wow/connected-realm/index', '/data/wow/ruleset/index', '/data/wow/ruleset/1/auctions/',
-             '/data/wow/region/index', '/data/wow/token/index', '/data/wow/pvp-season/index', '/data/wow/pvp-region/index',
-             '/data/wow/mythic-keystone/index', '/data/wow/search/connected-realm']:
-    get(path, D)
-ri = get('/data/wow/realm/index', D)
-realms = [r.get('slug') for r in (ri or {}).get('realms', [])][:12]
-for slug in realms[:6]:
-    get('/data/wow/realm/' + slug, D, keep=1500)
-cri = get('/data/wow/connected-realm/index', D)
-for c in ((cri or {}).get('connected_realms') or [])[:3]:
-    href = c.get('href', ''); path = urllib.parse.urlparse(href).path
-    if path: get(path, D, keep=3000)
-ps = get('/data/wow/pvp-season/index', D)
-names = []
-if ps and ps.get('current_season'):
-    sid = ps['current_season']['id']
-    get('/data/wow/pvp-season/%d' % sid, D)
-    lb = get('/data/wow/pvp-season/%d/pvp-leaderboard/index' % sid, D)
-    for l in ((lb or {}).get('leaderboards') or [])[:2]:
-        path = urllib.parse.urlparse(l['key']['href']).path
-        d = get(path, D, keep=1500)
-        for e in ((d or {}).get('entries') or [])[:3]:
-            c = e.get('character') or {}
-            if c.get('name') and (c.get('realm') or {}).get('slug'): names.append((c['realm']['slug'], c['name'].lower()))
-# guilds/characters: only names that the API itself gave out (public leaderboards)
-for slug, name in names[:2]:
-    base = '/profile/wow/character/%s/%s' % (slug, urllib.parse.quote(name))
-    for sub in ['', '/equipment', '/specializations', '/statistics', '/character-media', '/professions', '/reputations',
-                '/achievements', '/quests', '/quests/completed', '/hunter-pets', '/titles', '/pvp-summary', '/appearance', '/status']:
-        get(base + sub, P, keep=3000)
-for region in ['eu', 'kr', 'tw']:
-    get('/data/wow/ruleset/index', D, region=region)
-    get('/data/wow/realm/index', D, region=region, keep=800)
+for r in [1, 2, 3, 15]:
+    get('/data/wow/ruleset/%d' % r, D, keep=3000)
+    get('/data/wow/ruleset/%d/auctions/' % r, D, keep=200)
+get('/data/wow/region/91', D)
+for path in ['/data/wow/quest/area/14', '/data/wow/quest/area/17', '/data/wow/quest/type/index', '/data/wow/quest/788',
+             '/data/wow/quest/790', '/data/wow/quest/804', '/data/wow/quest/2161', '/data/wow/quest/1505', '/data/wow/quest/category/61',
+             '/data/wow/profession/197/skill-tier/2948', '/data/wow/profession/333', '/data/wow/item/2589',
+             '/data/wow/item/4334', '/data/wow/item/863', '/data/wow/item-set/index', '/data/wow/spell/14673', '/data/wow/media/spell/14673',
+             '/data/wow/talent-tree/index', '/data/wow/reputation-faction/76', '/data/wow/item-class/4', '/data/wow/achievement/6',
+             '/data/wow/mount/index', '/data/wow/playable-race/2', '/data/wow/quest/type/1']:
+    get(path, S, keep=6000)
+tt = get('/data/wow/talent-tree/index', S, keep=200)
+for t in ((tt or {}).get('spec_talent_trees') or []):
+    if 'Demonology' in t.get('name', ''):
+        get(urllib.parse.urlparse(t['key']['href']).path, S, keep=8000)
+for t in ((tt or {}).get('class_talent_trees') or [])[:1]:
+    get(urllib.parse.urlparse(t['key']['href']).path, S, keep=4000)
+st = get('/data/wow/profession/197/skill-tier/2948', S, keep=200)
+for c in ((st or {}).get('categories') or [])[:1]:
+    for r in (c.get('recipes') or [])[:2]:
+        get('/data/wow/recipe/%d' % r['id'], S, keep=3000)
+for q in [{'id': '[19000,]', 'orderby': 'id', '_page': 1, '_pageSize': 1000}, {'orderby': 'id', '_page': 1000},
+          {'name.en_US': 'Cloth', 'orderby': 'id', '_page': 1}]:
+    get('/data/wow/search/item', S, extra=q, keep=600)
+for path in ['/data/wow/search/quest', '/data/wow/search/mount', '/data/wow/search/journal-encounter', '/data/wow/search/media']:
+    get(path, S, extra={'orderby': 'id', '_page': 1}, keep=600)
 json.dump(OUT, open('probe.json', 'w'), indent=1)
