@@ -373,7 +373,8 @@ CREDITS = [
     ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Craft finder.'),
     ('classicplus.io', 'https://classicplus.io/', 'The daily level census of Horde characters that Mat timing and the "level crowd" tags read.'),
     ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Craft finder and Sell spare mats.'),
-    ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'The auction house scans every price on this site comes from, including the file you load yourself.'),
+    ('Forever AH', 'https://forever-ah.com/', 'Hourly Horde auction prices and listed counts, read from Blizzard\'s Battle.net API, for visitors who have not loaded their own scan.'),
+    ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'In-game auction scans (with Gear Snapshot\'s own scan): the file you load yourself, and the prices for each random suffix.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
     ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC stands, for the NPC cards (hover a name) and the Level 1-60 route (GPL-3.0).'),
@@ -427,7 +428,7 @@ ADMIN_JS = r"""
   $('ownLock').addEventListener('submit', function (e) {
     e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { return uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
+  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { var lua = window.wsGsToAuctionator && window.wsGsToAuctionator(t); return lua ? upload(new File([lua], 'Gear Snapshot scan.lua', { lastModified: f.lastModified })) : uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
   // Gear Snapshot saves a price per random suffix (Auctionator keeps one per item): every item you click in the AH,
   // or all of them after a full scan. Pull those entries out of the Lua file: ["Name of Suffix"] = { ["p"] = …, ["t"] = …, ["n"] = … }
   function sfxFromSnap(text) {
@@ -482,7 +483,7 @@ SETUP_ADDONS = [
     # (name, link, what for, needed by)
     ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, flight points, your bags, bank and mail (all your characters), '
      'and auction prices for every item and every random suffix: click Gear Snapshot scan at the auction house. Made for this site.',
-     'Every tool: your own prices, gear, bags and quests (otherwise prices come from the site\'s Horde scan).'),
+     'Every tool: your own prices, gear, bags and quests (otherwise: hourly Horde prices, no suffix prices).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Optional. Gear Snapshot 1.8 scans the auction house itself, and it also saves the prices when Auctionator scans.',
      'Prices, if you don\'t use Gear Snapshot\'s scan.'),
     ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Optional. Gear Snapshot 1.7 saves your bags now.',
@@ -525,7 +526,7 @@ def build_admin():
             '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
             '<div id="ownBody" class="ws-prose" hidden>'
             '<h2>Auction prices</h2><p id="ownScan"></p>'
-            '<p>In game: Auctionator full scan, then /reload. Then press Upload latest scan. It also sends the suffix prices Gear Snapshot saved (items you clicked in the auction house).</p>'
+            '<p>In game: click Gear Snapshot scan (or Auctionator\'s Full Scan), wait for 100%%, then /reload. Then press Upload latest scan. The newest of the two is sent, with every suffix price.</p>'
             '<p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> '
             '<label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
             '<h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul>'

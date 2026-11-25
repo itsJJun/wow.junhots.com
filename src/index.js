@@ -9,12 +9,15 @@
 //   fb:<time>-<id>       one feedback report (JSON), kept 180 days; /api/fb/new counts the ones after a time
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
 //   census, census:try   the daily level census from classicplus.io (src/census.js)
+//   fah:<house>:<slot>   hourly prices from Forever AH (Blizzard's auction data), one slot of the market table each (src/fah.js)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
 
 import { CENSUS_PAGES, censusPage, refreshCensus } from './census.js';
+import { refreshFah, fahPrices } from './fah.js';
 
 const MAX_AH = 8 * 1024 * 1024;
+const FAH_CRON = '*/5 * * * *';   // must match wrangler.jsonc
 const MAX_SFX = 2 * 1024 * 1024;
 const SFX_KEEP_DAYS = 30;
 
@@ -162,6 +165,12 @@ export default {
         const v = await env.WOW.get('sfx:latest', 'text');
         return new Response(v || '{"items":{}}', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
       }
+      // hourly Forever AH prices for the Horde house (src/fah.js): "#asOf,oldest" then "id,price,units,auctions" lines
+      if (p === '/api/fah' && request.method === 'GET') {
+        const f = await fahPrices(env);
+        if (!f) return json({ error: 'No prices yet.' }, 404);
+        return new Response(f.text, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300' } });
+      }
       if (p === '/api/feedback' && request.method === 'POST') return await feedback(request, env);
       // how many reports came in after ?since= (ms): only a count, for the owner's reminder bar (site.js ownerNudge)
       if (p === '/api/fb/new' && request.method === 'GET') {
@@ -178,8 +187,9 @@ export default {
       return json({ error: 'Something went wrong on the server.' }, 500);
     }
   },
-  // cron (wrangler.jsonc triggers): keep the level census fresh
+  // cron (wrangler.jsonc triggers): every 3 hours the level census, every 5 minutes one slot of Forever AH prices
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(refreshCensus(env));
+    if (event.cron === FAH_CRON) ctx.waitUntil(refreshFah(env, event.scheduledTime).then(r => console.log('fah', r)));
+    else ctx.waitUntil(refreshCensus(env));
   },
 };

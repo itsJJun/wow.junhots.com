@@ -219,10 +219,14 @@
       var bySuf = h.s[id];
       Object.keys(bySuf).forEach(function (suf) { var x = bySuf[suf], a = {}, hh = {}; a[today] = x[2]; hh[today] = x[1]; db['gr:' + id + ':of ' + suf] = { m: x[1], a: a, h: hh, l: {} }; });
     });
+    return luaAuctionator(db, 'Gear Snapshot ' + pick.k, h.t);
+  }
+  // an Auctionator-style save file (CBOR in a Lua string, as Auctionator writes it) that every price page can read
+  function luaAuctionator(db, key, t) {
     var bytes = cborOf(db), esc = '';
     for (var j = 0; j < bytes.length; j++) { var c = bytes[j]; esc += c >= 32 && c < 127 && c !== 34 && c !== 92 ? String.fromCharCode(c) : '\\' + ('00' + c).slice(-3); }
-    return 'AUCTIONATOR_PRICE_DATABASE = {\n["__dbversion"] = 8,\n["Gear Snapshot ' + pick.k + '"] = "' + esc + '",\n}\n' +
-      'AUCTIONATOR_SAVEDVARS = {\n["TimeOfLastBrowseScan"] = ' + h.t + ',\n}\n';
+    return 'AUCTIONATOR_PRICE_DATABASE = {\n["__dbversion"] = 8,\n["' + key + '"] = "' + esc + '",\n}\n' +
+      'AUCTIONATOR_SAVEDVARS = {\n["TimeOfLastBrowseScan"] = ' + t + ',\n}\n';
   }
   function gsAh(best) {
     var gs = best.gsah; delete best.gsah;
@@ -241,11 +245,13 @@
     var W = window.WFAH; if (!W || !W.label) return;
     var old = W.label;
     W.label = function (rec) {
+      if (/^forever ah/i.test(rec.name || '')) return 'Horde auction house, hourly from Forever AH, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       if (!/^gear snapshot scan/i.test(rec.name || '')) return old(rec);
       return 'your Gear Snapshot scan, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
     };
   });
   window.wsGsToAuctionator = function (text) { var p = gsPrices(text); return p && gsToAuctionator(p); };   // (tests)
+  window.wsFahFile = fahFile;   // (tests)
   function takeFiles(best, quiet) {
     return gsAh(best).then(function () { return takeFiles2(best, quiet); });
   }
@@ -321,14 +327,36 @@
     takeFiles(best, false).then(function (got) { toast('✓ Loaded: ' + esc(got.join(', ')) + '.'); drawPop(); });
   }
   window.wsFiles = { sync: function () { return syncFolder(false); }, get: getRec, linked: function () { return !!ls.get('ws.dir'); } };
-  // the newest Horde auction scan uploaded on /admin/: used when the visitor has not loaded their own Auctionator.lua
-  var SITE_SCAN = 'Auctionator (Horde site scan).lua';
+  // Prices for visitors who have not loaded their own: the newer of
+  //  - the Horde auction scan uploaded on /admin/ (it also has suffix prices), and
+  //  - hourly Horde prices from Forever AH (Blizzard's auction data; the Worker's /api/fah, src/fah.js).
+  // Both are named "... site scan", which pages read as "the Horde auction house".
+  var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua';
+  // /api/fah text ("#asOf,oldest,items in the house" then "id,price,units,auctions" lines) -> Auctionator-style file, or null
+  function fahFile(text) {
+    var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
+    var asOf = +head[1], D = String(Math.floor((asOf - 1577836800) / 86400)), db = {}, n = 0;
+    for (var i = 1; i < lines.length; i++) {
+      var f = lines[i].split(','); if (f.length < 3 || !/^\d+$/.test(f[0]) || !(+f[1] > 0)) continue;
+      var a = {}, h = {}; a[D] = +f[2]; h[D] = +f[1];
+      if (!db[f[0]]) n++;
+      db[f[0]] = { m: +f[1], a: a, h: h, l: {} };   // a later slot is newer: it wins
+    }
+    // only once (almost) the whole house is in: right after a deploy the Worker has just a few slots
+    return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
+  }
   function siteScan() {
     if (!window.fetch) return Promise.resolve(null);
-    return fetch('/api/ah/meta').then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
-      if (!m || !m.at) { ls.set('ws.site', ''); return null; }
-      var built = +(($('meta[name="ws-prices"]') || {}).content || 0);
-      if (m.scan && built && m.scan < built) { ls.set('ws.site', ''); return null; }   // the pages' own prices are newer
+    var built = +(($('meta[name="ws-prices"]') || {}).content || 0);
+    var up = fetch('/api/ah/meta').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    var fah = fetch('/api/fah').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && fahFile(t); }).catch(function () { return null; });
+    return Promise.all([up, fah]).then(function (r) {
+      var m = r[0] && r[0].at ? r[0] : null, f = r[1], upT = m ? (m.scan || Math.floor(m.at / 1000)) : 0;
+      if (f && f.asOf >= upT && !(built && f.asOf < built)) {
+        ls.set('ws.site', JSON.stringify({ scan: f.asOf, at: f.asOf * 1000, src: 'fah' })); drawDots();
+        return { key: 'ah', name: FAH_SCAN, at: f.asOf * 1000, data: new TextEncoder().encode(f.text).buffer };
+      }
+      if (!m || (m.scan && built && m.scan < built)) { ls.set('ws.site', ''); return null; }   // the pages' own prices are newer
       ls.set('ws.site', JSON.stringify(m)); drawDots();
       return fetch('/api/ah').then(function (r) { return r.ok ? r.arrayBuffer() : null; })
         .then(function (buf) { return buf && { key: 'ah', name: SITE_SCAN, at: m.at, data: buf }; });
@@ -371,7 +399,7 @@
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
         var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5 && !(k.key === 'tsm' && m.snap);   // TSM is optional once Gear Snapshot (1.7) saves bags
-        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? 'Horde auction scan the site uses until you load your own ' + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
+        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
           (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
       }).join('');
     });
