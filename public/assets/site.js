@@ -90,6 +90,7 @@
       try { input.dispatchEvent(new Event('change', { bubbles: true })); } finally { feeding = window.wsFeeding = false; }
     });
     ls.set(fedKey(k.key), String(rec.at));
+    if (k.key === 'ah' && !/site scan/i.test(rec.name)) setTimeout(function () { houseFromScan(rec); }, 500);
     return true;
   }
 
@@ -245,7 +246,7 @@
     var W = window.WFAH; if (!W || !W.label) return;
     var old = W.label;
     W.label = function (rec) {
-      if (/^blizzard \(/i.test(rec.name || '')) return 'Horde auction house, hourly from Blizzard, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      if (/^blizzard \(/i.test(rec.name || '')) return window.wsSiteName() + ', hourly from Blizzard, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       if (/^forever ah/i.test(rec.name || '')) return 'Horde auction house, hourly from Forever AH, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       if (!/^gear snapshot scan/i.test(rec.name || '')) return old(rec);
       return 'your Gear Snapshot scan, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
@@ -328,11 +329,46 @@
     takeFiles(best, false).then(function (got) { toast('✓ Loaded: ' + esc(got.join(', ')) + '.'); drawPop(); });
   }
   window.wsFiles = { sync: function () { return syncFolder(false); }, get: getRec, linked: function () { return !!ls.get('ws.dir'); } };
-  // Prices for visitors who have not loaded their own: the newer of
-  //  - the Horde auction scan uploaded on /admin/ (it also has suffix prices), and
-  //  - hourly Horde prices from Forever AH (Blizzard's auction data; the Worker's /api/fah, src/fah.js).
-  // Both are named "... site scan", which pages read as "the Horde auction house".
-  var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua', BLIZ_SCAN = 'Blizzard (Horde site scan).lua';
+  // Prices for visitors who have not loaded their own scan:
+  //  - hourly from Blizzard's own auction data for the visitor's auction house (/api/bliz?h=us-113, from the GitHub job
+  //    scripts/blizzard_prices.py), with suffix prices; for US house 113 (the big Horde house) also
+  //  - hourly prices from Forever AH (the Worker's /api/fah, src/fah.js), a backup, and
+  //  - the Horde auction scan uploaded on /admin/.
+  // All are named "... site scan", which pages read as the site's prices (wsSiteName() says which auction house).
+  var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua';
+  // ---- Your auction house. Blizzard lists 12 with listings per region (Alliance, Horde, neutral "Blackwater"); the
+  // ruleset in the API's path changes nothing, so which ruleset a house serves comes from elsewhere (25 Nov):
+  // 110/113/116 PvP (113 = Jun's PvP Horde scan), 111/114/117 Normal (forevermastery.com's Normal pages, worked out
+  // from an in-game scan, match them: 6,939 items on 111, Linen 24c on 114, 27c on 116 at 15:26 UTC), 119-121 and
+  // 123-125 are Roleplay and Roleplay PvP (which is which is not known). 112/115/118 are empty. A scan you load tells
+  // which one is yours (houseFromScan). ----
+  var FNAME = { H: 'Horde', A: 'Alliance', N: 'neutral' };
+  var RULES = { 110: 'PvP', 113: 'PvP', 116: 'PvP', 111: 'Normal', 114: 'Normal', 117: 'Normal',
+    119: 'Roleplay or RP-PvP 1', 120: 'Roleplay or RP-PvP 1', 121: 'Roleplay or RP-PvP 1', 123: 'Roleplay or RP-PvP 2', 124: 'Roleplay or RP-PvP 2', 125: 'Roleplay or RP-PvP 2' };
+  function house() {
+    var h = ls.get('ws.house') || ''; if (/^(us|eu)-\d{3}$/.test(h)) return h;
+    return (ALLIANCE || []).indexOf(+myChar().race) >= 0 ? 'us-110' : 'us-113';   // PvP, until you pick yours or load a scan
+  }
+  function houseList() {   // -> Promise {us: {asOf, h: {"113": [items, "H"]}}, eu: ...} (kept 6 hours)
+    var c = null; try { c = JSON.parse(ls.get('ws.houses') || 'null'); } catch (e) {}
+    if (c && Date.now() - c.at < 6 * 3600e3) return Promise.resolve(c.d);
+    return fetch('/api/bliz/houses').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (d && d.us) ls.set('ws.houses', JSON.stringify({ at: Date.now(), d: d }));
+      return d || (c && c.d) || {};
+    }).catch(function () { return (c && c.d) || {}; });
+  }
+  var FAC = { 110: 'A', 111: 'A', 112: 'A', 119: 'A', 123: 'A', 113: 'H', 114: 'H', 115: 'H', 120: 'H', 124: 'H', 116: 'N', 117: 'N', 118: 'N', 121: 'N', 125: 'N' };
+  function houseFac(list, h) { var x = h.split('-'), r = list[x[0]], v = r && r.h[x[1]]; return v ? v[1] : FAC[x[1]] || ''; }
+  // the realm key an Auctionator-style file gets ("PvP Horde"), which the Craft finder shows as the ruleset
+  function houseKey(h) { var id = h.split('-')[1]; return (RULES[id] || 'PvP').replace(/ \d$/, '') + ' ' + (FNAME[FAC[id]] || 'Horde').replace('neutral', 'Neutral'); }
+  // "Horde auction house (PvP)"; long: "Horde (PvP), US" for the picker
+  function houseLabel(list, h, long) {
+    var x = h.split('-'), f = houseFac(list, h), rule = RULES[x[1]] || 'house ' + x[1];
+    if (long) return (f === 'N' ? 'neutral (Booty Bay)' : FNAME[f] || 'Auction house') + ' · ' + rule;
+    return (FNAME[f] || 'Auction') + ' auction house (' + rule + (x[0] === 'eu' ? ', EU' : '') + ')';
+  }
+  // what pages call the site's prices: "Horde auction house" (or the one you picked)
+  window.wsSiteName = function () { var s = siteMeta(); return s && s.name ? s.name : 'Horde auction house'; };
   // /api/fah text ("#asOf,oldest,items in the house" then "id,price,units,auctions" lines) -> Auctionator-style file, or null
   function fahFile(text) {
     var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
@@ -348,28 +384,41 @@
   }
   // /api/bliz text (Blizzard's own data, summed up hourly by scripts/blizzard_prices.py) -> Auctionator-style file with
   // prices, listed counts and a price per random suffix ("gr:<id>:of the Owl", as Auctionator keys them), or null
-  function blizFile(text) {
+  function blizFile(text, key) {
     var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
-    var asOf = +head[1], D = String(Math.floor((asOf - 1577836800) / 86400)), db = {}, n = 0;
+    var asOf = +head[1], D = String(Math.floor((asOf - 1577836800) / 86400)), db = {}, n = 0, lad = {};
     for (var i = 1; i < lines.length; i++) {
       var f = lines[i].split(','), a = {}, h = {};
+      if (f[0] === 'l') { lad[f[1]] = f.slice(2).map(function (x) { var y = x.split('x'); return [+y[0], +y[1]]; }); continue; }
       if (f[0] === 'i' && f.length >= 4 && +f[2] > 0) { a[D] = +f[3]; h[D] = +f[2]; db[f[1]] = { m: +f[2], a: a, h: h, l: {} }; n++; }
       else if (f[0] === 's' && f.length >= 5 && +f[3] > 0) { a[D] = +f[4]; h[D] = +f[3]; db['gr:' + f[1] + ':of ' + f[2]] = { m: +f[3], a: a, h: h, l: {} }; }
     }
-    return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
+    return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, key || 'PvP Horde', asOf), ladder: lad } : null;
   }
+  // What buying n of an item costs right now, cheapest listings first (Blizzard's hourly data for your auction house):
+  // wsBuy(id, n) -> {cost, got, first, last} (got < n when fewer are listed), or null when not known
+  var LADDER = null;
+  window.wsBuy = function (id, n) {
+    var l = LADDER && LADDER[String(id)]; if (!l || !(n > 0)) return null;
+    var cost = 0, got = 0;
+    for (var i = 0; i < l.length && got < n; i++) { var q = Math.min(l[i][1], n - got); cost += q * l[i][0]; got += q; }
+    return { cost: cost, got: got, first: l[0][0], last: l[Math.max(0, i - 1)][0] };
+  };
   function siteScan() {
     if (!window.fetch) return Promise.resolve(null);
-    var built = +(($('meta[name="ws-prices"]') || {}).content || 0);
-    var up = fetch('/api/ah/meta').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-    var fah = fetch('/api/fah').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && fahFile(t); }).catch(function () { return null; });
-    var bliz = fetch('/api/bliz').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && blizFile(t); }).catch(function () { return null; });
-    return Promise.all([up, fah, bliz]).then(function (r) {
+    var built = +(($('meta[name="ws-prices"]') || {}).content || 0), hs = house(), main = hs === 'us-113';
+    var none = Promise.resolve(null);
+    var up = main ? fetch('/api/ah/meta').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }) : none;
+    var fah = main ? fetch('/api/fah').then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && fahFile(t); }).catch(function () { return null; }) : none;
+    var bliz = fetch('/api/bliz?h=' + hs).then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t && blizFile(t, houseKey(hs)); }).catch(function () { return null; });
+    return Promise.all([up, fah, bliz, houseList()]).then(function (r) {
       var m = r[0] && r[0].at ? r[0] : null, upT = m ? (m.scan || Math.floor(m.at / 1000)) : 0;
+      if (r[2] && r[2].ladder) { LADDER = r[2].ladder; try { dispatchEvent(new Event('ws-ladder')); } catch (e) {} }
+      var fac = houseFac(r[3], hs) || 'H', name = houseLabel(r[3], hs);
       // Blizzard's own data first (it also has suffix prices), unless Forever AH is over 2 hours newer
-      var f = r[2] && !(r[1] && r[1].asOf > r[2].asOf + 7200) ? { x: r[2], src: 'bliz', name: BLIZ_SCAN } : r[1] ? { x: r[1], src: 'fah', name: FAH_SCAN } : null;
-      if (f && f.x.asOf >= upT && !(built && f.x.asOf < built)) {
-        ls.set('ws.site', JSON.stringify({ scan: f.x.asOf, at: f.x.asOf * 1000, src: f.src })); drawDots();
+      var f = r[2] && !(r[1] && r[1].asOf > r[2].asOf + 7200) ? { x: r[2], src: 'bliz', name: 'Blizzard (' + FNAME[fac] + ' site scan).lua' } : r[1] ? { x: r[1], src: 'fah', name: FAH_SCAN } : null;
+      if (f && f.x.asOf >= upT && !(main && built && f.x.asOf < built)) {
+        ls.set('ws.site', JSON.stringify({ scan: f.x.asOf, at: f.x.asOf * 1000, src: f.src, house: hs, name: name })); drawDots();
         return { key: 'ah', name: f.name, at: f.x.asOf * 1000, data: new TextEncoder().encode(f.x.text).buffer };
       }
       if (!m || (m.scan && built && m.scan < built)) { ls.set('ws.site', ''); return null; }   // the pages' own prices are newer
@@ -378,11 +427,54 @@
         .then(function (buf) { return buf && { key: 'ah', name: SITE_SCAN, at: m.at, data: buf }; });
     }).catch(function () { return null; });
   }
+  // AH prices for this page: your own scan, or the site's prices for your auction house when you have none. Once the
+  // site knows your auction house (found from your scan, or picked), Blizzard's hourly data for it wins over a scan
+  // of yours that is over an hour older.
+  function feedAh() {
+    var k = KINDS[0], info = meta().ah;
+    if (!info) return siteScan().then(function (rec) { if (rec && !meta().ah) feed(k, rec); });
+    var own = getRec('ah');
+    if (!ls.get('ws.houseBy')) return own.then(function (rec) { if (rec) feed(k, rec); });
+    return Promise.all([own, siteScan()]).then(function (r) {
+      var mine = r[0], site = r[1], t = mine ? (mine.mod || mine.at) : 0;
+      if (site && /^blizzard/i.test(site.name) && site.at > t + 3600e3) feed(k, site); else if (mine) feed(k, mine);
+    });
+  }
+  // Which auction house a scan you load comes from: its prices against the cheapest price of ~300 common items in
+  // every house (/api/blizfp). The middle gap must be small and clearly smaller than the next house's.
+  function houseFromScan(rec) {
+    if (!window.WFAH || !WFAH.parse || !window.fetch || ls.get('ws.houseChk') === String(rec.at)) return;
+    ls.set('ws.houseChk', String(rec.at));
+    var own; try { own = WFAH.parse(new Uint8Array(rec.data)); } catch (e) { return; }
+    if (!own || !own.p) return;
+    Promise.all(['us', 'eu'].map(function (r) {
+      return fetch('/api/blizfp?r=' + r).then(function (x) { return x.ok ? x.text() : ''; }).catch(function () { return ''; }).then(function (t) { return [r, t]; });
+    })).then(function (all) {
+      var res = [];
+      all.forEach(function (rt) {
+        var L = rt[1].split('\n'), ids = (L[1] || '').split(',').slice(1);
+        L.slice(2).forEach(function (l) {
+          var f = l.split(','), d = []; if (f[0] !== 'f') return;
+          for (var i = 0; i < ids.length; i++) { var p = +f[i + 2], o = own.p[ids[i]]; if (p > 0 && o && o[0] > 0) d.push(Math.abs(Math.log(o[0] / p))); }
+          if (d.length >= 50) { d.sort(function (a, b) { return a - b; }); res.push({ h: rt[0] + '-' + f[1], m: d[d.length >> 1] }); }
+        });
+      });
+      res.sort(function (a, b) { return a.m - b.m; });
+      if (!res.length || res[0].m > 0.15 || (res[1] && res[1].m < res[0].m * 1.5)) return;
+      var was = house(), by = ls.get('ws.houseBy');
+      ls.set('ws.house', res[0].h); ls.set('ws.houseBy', 'scan');
+      if (was !== res[0].h || by !== 'scan') houseList().then(function (l) {
+        toast('Your scan is from the <b>' + esc(houseLabel(l, res[0].h)) + '</b>. Hourly prices from Blizzard now follow it.');
+        drawPop(); factionNote();
+      });
+    });
+  }
+  window.wsHouse = { get: house, fromScan: houseFromScan };   // (tests)
   function autoFeed() {
     var m = meta();
     KINDS.forEach(function (k) {
       var info = m[k.key];
-      if (!info && k.key === 'ah' && targetsHere(k).length) { siteScan().then(function (rec) { if (rec && !meta().ah) feed(k, rec); }); return; }
+      if (k.key === 'ah' && targetsHere(k).length) { feedAh(); return; }
       if (!info || !targetsHere(k).length) return;
       var always = k.always || (k.alwaysOn || []).some(function (sel) { return $(sel); });
       if (!always && +ls.get(fedKey(k.key)) >= info.at) return;   // this page already has this file
@@ -415,7 +507,7 @@
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
         var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5 && !(k.key === 'tsm' && m.snap);   // TSM is optional once Gear Snapshot (1.7) saves bags
-        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'bliz' ? 'Hourly Horde prices from Blizzard\'s auction data, used until you load your own ' : st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
+        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'bliz' ? 'Hourly prices from Blizzard for the ' + (st.name || 'Horde auction house') + ', used until you load your own ' : st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
           (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
       }).join('');
     });
@@ -435,13 +527,26 @@
         '<button type="button" class="ws-fbtn main ws-big" data-ws-refresh>↻ Refresh</button> <span class="ws-hint">after /reload in game</span></div>'
       : '<div class="ws-fold"><b>Load your WoW files</b><p>Pick the <code>WTF</code> folder inside <code>_forever_</code>. Do it again after /reload in game.</p>' +
         '<label class="ws-fbtn main ws-big">Pick WTF folder<input type="file" webkitdirectory data-ws-dir></label>' + (Object.keys(m).length ? '<div class="ws-fstats">' + stat + '</div>' : '') + '</div>';
+    var by = ls.get('ws.houseBy');
+    top += '<div class="ws-house"><label><b>Your auction house</b> <select data-ws-house><option>' + esc(house()) + '</option></select></label>' +
+      '<span class="ws-hint">' + (by === 'scan' ? 'Found from your scan.' : by ? 'Picked by you.' : 'Load a scan once and the site finds it.') + ' Prices update hourly from Blizzard.</span></div>';
+    houseList().then(function (l) {
+      var sel = $('[data-ws-house]', pop); if (!sel) return;
+      var order = { H: 0, A: 1, N: 2 }, cur = house(), rk = function (k) { return { PvP: 0, Normal: 1 }[RULES[k]] === undefined ? 2 + (+k > 121) : { PvP: 0, Normal: 1 }[RULES[k]]; };
+      sel.innerHTML = [['us', 'US'], ['eu', 'Europe']].map(function (rg) {
+        var r = l[rg[0]]; if (!r) return '';
+        var ks = Object.keys(r.h).sort(function (a, b) { return (rk(a) - rk(b)) || (order[r.h[a][1]] - order[r.h[b][1]]); });
+        return '<optgroup label="' + rg[1] + '">' + ks.map(function (k) { var h = rg[0] + '-' + k;
+          return '<option value="' + h + '"' + (h === cur ? ' selected' : '') + '>' + esc(houseLabel(l, h, true)) + '</option>'; }).join('') + '</optgroup>';
+      }).join('') || '<option>' + esc(cur) + '</option>';
+    });
     pop.innerHTML = top + '<details class="ws-single"><summary>Single files</summary>' + KINDS.map(function (k) {
       var i = m[k.key];
       return '<div class="ws-frow"><div><b>' + esc(k.label) + '</b> <code>' + esc(k.file) + '</code></div>' +
         '<span class="ws-acts2"><label class="ws-fbtn main">Load<input type="file" accept=".lua,.bak,text/plain" multiple data-ws-kind="' + k.key + '"></label>' +
         (k.noCopy ? '' : '<button type="button" class="ws-fbtn" data-wf-copy="' + k.key + '">Copy path</button>') + '</span>' +
         '<span class="ws-st' + (i ? ' ok' : '') + '">' + (i ? '✓ ' + esc(i.name) + ', ' + esc(when(i.at)) :
-          (k.key === 'ah' && site ? 'Using the site\'s Horde auction scan from ' + esc(when(site.scan ? site.scan * 1000 : site.at)) + '. Load yours for your own realm and faction.' : 'Not loaded. In game: ' + esc(k.pre))) + '</span></div>';
+          (k.key === 'ah' && site ? 'Using the site\'s prices for the ' + esc(site.name || 'Horde auction house') + ' from ' + esc(when(site.scan ? site.scan * 1000 : site.at)) + '.' : 'Not loaded. In game: ' + esc(k.pre))) + '</span></div>';
     }).join('') +
       (matchMedia('(max-width: 899px), (pointer: coarse)').matches ? '<div class="ws-tip ws-ptip"><b>On a phone?</b> These files are on your gaming PC, so load them there. Files are kept per browser.</div>' : '') +
       '</details><div class="ws-tip">Files stay in this browser. <a href="/setup/">Help</a>' +
@@ -518,6 +623,12 @@
       pop.addEventListener('change', function (e) {
         var dirIn = e.target.closest('[data-ws-dir]');
         if (dirIn) { e.stopPropagation(); var l = Array.prototype.slice.call(dirIn.files || []); dirIn.value = ''; if (l.length) pickedFolder(l); return; }
+        var hsel = e.target.closest('[data-ws-house]');
+        if (hsel) {
+          e.stopPropagation(); ls.set('ws.house', hsel.value); ls.set('ws.houseBy', 'pick');
+          if (targetsHere(KINDS[0]).length) feedAh();
+          drawPop(); factionNote(); return;
+        }
         var inp = e.target.closest('[data-ws-kind]'); if (!inp) return;
         e.stopPropagation();
         var files = Array.prototype.slice.call(inp.files || []); inp.value = '';
@@ -545,12 +656,14 @@
   function myChar() { try { return JSON.parse(ls.get('wf-char') || '{}') || {}; } catch (e) { return {}; } }
   function factionNote() {
     var old = $('.ws-fnote'); if (old) old.remove();
-    if (ALLIANCE.indexOf(+myChar().race) < 0 || meta().ah) return;   // Horde, or their own scan is loaded
+    var c = null; try { c = JSON.parse(ls.get('ws.houses') || 'null'); } catch (e) {}
+    var fac = houseFac((c && c.d) || {}, house());
+    if (ALLIANCE.indexOf(+myChar().race) < 0 || meta().ah || fac !== 'H') return;   // Horde, their own scan, or an Alliance house picked
     if (!targetsHere(KINDS[0]).length && !/^\/sell-spare-mats\//.test(PAGE)) return;   // no auction prices on this page
     var lead = $('.wf-lead') || $('.wf-head') || $('h1'); if (!lead) return;
     var p = document.createElement('p');
     p.className = 'ws-fnote';
-    p.innerHTML = 'These are <b>Horde</b> auction prices. <a href="#" data-ws-open-files>Load your own scan</a> for Alliance prices.';
+    p.innerHTML = 'These are <b>Horde</b> auction prices. <a href="#" data-ws-open-files>Pick your auction house</a> or load your own scan.';
     lead.insertAdjacentElement('afterend', p);
   }
 
