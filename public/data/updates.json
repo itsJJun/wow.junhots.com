@@ -17,6 +17,14 @@
   },
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: clear \"going back\" stops",
+    "text": "When the route sends you back to an earlier part, that part now says how many stops to do there, marks them GO, folds the rest as skip, and flags the last one. The button at the bottom takes you back to where you left off instead of the next part.",
+    "image": "/assets/updates/2026-11-25-route-going-back.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Real cost to buy, and sales on your own auction house",
     "text": "Profession leveling now shows what buying everything really costs once the cheap listings run out, or how few are listed. Craft finder counts sales on your own auction house every hour; after 3 full days it uses those instead of TSM to tell you if an item sells, with a day-by-day table.",
     "image": "/assets/updates/2026-11-25-buy-cost.webp",
