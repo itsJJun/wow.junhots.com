@@ -58,3 +58,23 @@ export function parseHouse(s) {
   const m = /^(us|eu)-(\d{3})$/.exec(s || '');
   return m ? [m[1], m[2]] : null;
 }
+
+// Backstop for the hourly price job (25 Nov): GitHub's own schedule (cron '40 * * * *') never fired, so the job only
+// ran when started by hand. Every 5 minutes the Worker checks when the job last sent prices; when that is over
+// 75 minutes ago it starts the job itself (workflow_dispatch), at most once per 50 minutes. When GitHub's schedule
+// does run, the data is fresh and this does nothing. Needs the Worker secret GH_TOKEN: a fine-grained GitHub token
+// for this repository with "Actions: Read and write".
+const KICK_URL = 'https://api.github.com/repos/itsJJun/wow.junhots.com/actions/workflows/blizzard-prices.yml/dispatches';
+export async function kickPriceJob(env, now) {
+  if (!env.GH_TOKEN) return 'no GH_TOKEN';
+  const meta = (await env.WOW.getWithMetadata('bliz:p:us', 'stream'));
+  if (meta.value) await meta.value.cancel();
+  const sent = meta.metadata && meta.metadata.at || 0;
+  if (now - sent < 75 * 60e3) return 'fresh';
+  const last = +(await env.WOW.get('bliz:kick')) || 0;
+  if (now - last < 50 * 60e3) return 'kicked ' + Math.round((now - last) / 60e3) + ' min ago';
+  await env.WOW.put('bliz:kick', String(now));
+  const r = await fetch(KICK_URL, { method: 'POST', body: JSON.stringify({ ref: 'main' }), headers: {
+    authorization: 'Bearer ' + env.GH_TOKEN, accept: 'application/vnd.github+json', 'user-agent': 'junhots-wow-worker', 'x-github-api-version': '2022-11-28' } });
+  return 'kick ' + r.status;
+}

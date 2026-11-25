@@ -32,5 +32,6 @@ This Worker is separate from the junhots.com (Heroes of the Storm) site: its own
 | `ADMIN_PASSWORD` | secret | password for `/admin/` (price upload, feedback inbox) |
 | `TURNSTILE_SECRET` | secret | Turnstile secret key for the feedback form |
 | `TURNSTILE_SITEKEY` | variable | Turnstile site key (public) |
+| `GH_TOKEN` | secret | fine-grained GitHub token, this repo only, *Actions: Read and write*. The Worker starts the hourly Blizzard price job when GitHub's own schedule misses it |
 
 `keep_vars: true` in `wrangler.jsonc` keeps them when the Worker is deployed.
