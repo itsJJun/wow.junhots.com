@@ -407,11 +407,11 @@
   // 14 days of history for your auction house (/api/blizh, the GitHub job): wsHist() -> Promise
   // {asOf, today, items: {id: [[day, lowest, usual, most listed, sold, ran out], ...]}} (null = not known), and
   // wsSales(hist, id) -> {days, since, spd (sold per day), sr (share of listings that sell), usual} from full days
-  var HISTP = null, HISTH = null;
-  window.wsHist = function () {
-    if (HISTP && HISTH === house()) return HISTP;
-    HISTH = house();
-    HISTP = fetch('/api/blizh?h=' + HISTH).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+  var HISTP = {};
+  window.wsHist = function (hs) {
+    hs = hs || house();
+    if (HISTP[hs]) return HISTP[hs];
+    return (HISTP[hs] = fetch('/api/blizh?h=' + hs).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
       var L = t.split('\n'), head = /^#(\d+),\d+/.exec(L[0] || ''); if (!head) return null;
       var items = {}, today = Math.floor((+head[1] - 1577836800) / 86400), num = function (v) { return v === '' || v === undefined ? null : +v; };
       for (var i = 1; i < L.length; i++) {
@@ -419,9 +419,37 @@
         items[f[1]] = f[2].split(';').map(function (d) { var x = d.split(':'); return [+x[0], num(x[1]), num(x[2]), +x[3] || 0, num(x[4]), num(x[5])]; });
       }
       return { asOf: +head[1], today: today, items: items };
-    }).catch(function () { return null; });
-    return HISTP;
+    }).catch(function () { return null; }));
   };
+  // Any auction house's hourly prices: wsRaw(h) -> Promise {asOf, items: {id: [cheapest, units, listings]},
+  // ladder: {id: [[price, units], ...]}, sfx: {id: 1 (has random suffixes)}} or null
+  var RAWP = {};
+  window.wsRaw = function (hs) {
+    hs = hs || house();
+    if (RAWP[hs]) return RAWP[hs];
+    return (RAWP[hs] = fetch('/api/bliz?h=' + hs).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      var L = t.split('\n'), head = /^#(\d+),\d+/.exec(L[0] || ''); if (!head) return null;
+      var items = {}, ladder = {}, sfx = {};
+      for (var i = 1; i < L.length; i++) {
+        var f = L[i].split(',');
+        if (f[0] === 'i') items[f[1]] = [+f[2], +f[3], +f[4]];
+        else if (f[0] === 'l') ladder[f[1]] = f.slice(2).map(function (x) { var y = x.split('x'); return [+y[0], +y[1]]; });
+        else if (f[0] === 's') sfx[f[1]] = 1;
+      }
+      return { asOf: +head[1], house: hs, items: items, ladder: ladder, sfx: sfx };
+    }).catch(function () { return null; }));
+  };
+  // Your faction's auction house and the neutral one (Booty Bay) of the same realm type: wsPair() -> {mine, neutral}
+  var NEUTRAL = { 110: 116, 113: 116, 111: 117, 114: 117, 119: 121, 120: 121, 123: 125, 124: 125 };
+  window.wsPair = function () {
+    var x = house().split('-'), id = +x[1];
+    if (!NEUTRAL[id]) {   // neutral picked: your race's faction
+      var a = ALLIANCE.indexOf(+myChar().race) >= 0;
+      for (var k in NEUTRAL) if (NEUTRAL[k] === id && (FAC[k] === 'A') === a) { id = +k; break; }
+    }
+    return NEUTRAL[id] ? { mine: x[0] + '-' + id, neutral: x[0] + '-' + NEUTRAL[id] } : null;
+  };
+  window.wsHouseLabel = function (h, long) { return houseList().then(function (l) { return houseLabel(l, h, long); }); };
   window.wsSales = function (hist, id) {
     var h = hist && hist.items[String(id)]; if (!hist) return null;
     // full days with sales counted; the first such day of the whole house started part way, so it is left out
@@ -492,6 +520,7 @@
       if (!res.length || res[0].m > 0.15 || (res[1] && res[1].m < res[0].m * 1.5)) return;
       var was = house(), by = ls.get('ws.houseBy');
       ls.set('ws.house', res[0].h); ls.set('ws.houseBy', 'scan');
+      if (was !== res[0].h) try { dispatchEvent(new Event('ws-house')); } catch (e) {}
       if (was !== res[0].h || by !== 'scan') houseList().then(function (l) {
         toast('Your scan is from the <b>' + esc(houseLabel(l, res[0].h)) + '</b>. Hourly prices from Blizzard now follow it.');
         drawPop(); factionNote();
@@ -656,7 +685,7 @@
         if (hsel) {
           e.stopPropagation(); ls.set('ws.house', hsel.value); ls.set('ws.houseBy', 'pick');
           if (targetsHere(KINDS[0]).length) feedAh();
-          drawPop(); factionNote(); return;
+          drawPop(); factionNote(); try { dispatchEvent(new Event('ws-house')); } catch (e2) {} return;
         }
         var inp = e.target.closest('[data-ws-kind]'); if (!inp) return;
         e.stopPropagation();
