@@ -376,7 +376,7 @@ CREDITS = [
     ('Blizzard Battle.net API', 'https://develop.battle.net/', 'Hourly Horde auction prices, listed counts and random suffix prices, for visitors who have not loaded their own scan.'),
     ('Forever AH', 'https://forever-ah.com/', 'Backup for the hourly Horde prices (also read from Blizzard\'s Battle.net API).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'In-game auction scans (with Gear Snapshot\'s own scan): the file you load yourself, and the prices for each random suffix.'),
-    ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Item tooltips, vendor prices and the Warlock guide links.'),
+    ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Vendor prices, the Warlock guide links and item pages for items this site has no card for yet.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
     ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC stands, for the NPC cards (hover a name) and the Level 1-60 route (GPL-3.0).'),
     ('AzerothCore', 'https://www.azerothcore.org/', 'Which game model each NPC uses, so the NPC cards can show Blizzard\'s picture of it (AGPL-3.0 data).'),
@@ -576,6 +576,7 @@ def main():
     build_admin()
     build_404()
     build_seo(updates)
+    import item_data; item_data.main()   # item hover cards: /data/items.json from the gear page's item data
     print('Done: %s' % PUB)
     check_updates()
     check_vendor_prices()
