@@ -2,7 +2,7 @@
   {
     "date": "2026-11-25",
     "title": "Level 1-60 route: every quest, your chains, Dungeons switch",
-    "text": "The route now picks up quests it used to skip, and search finds every quest on Forever with its chain and why it's not on your route. Quests in your log that the route doesn't take say where to do them. If you skipped a chain step, the route leaves out what it unlocks and shows you the step. New Dungeons switch: turn it off to skip dungeons and their quests, turn it on to get them back.",
+    "text": "The route now picks up quests it used to skip, and search finds every quest on Forever with its chain. Quests in your log that the route skipped are added where it passes, if they still give XP (Leave out to drop one). If you skipped a chain step, the route goes back for it when the XP beats the travel time or it has a gear upgrade, and leaves the chain out if not. New Dungeons switch: off skips dungeons and their quests, on brings them back.",
     "image": "/assets/updates/2026-11-25-route-every-quest.webp",
     "link": "/level-route/",
     "linkText": "Open the route"
