@@ -2883,14 +2883,20 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var hasBit = function (m, b) { return Math.floor(m / b) % 2 === 1; };
   function qaName(q) { var x = QA && QA.q[q]; return x ? x[0] : M.quests[q] ? qn(q) : 'Quest ' + q; }
   // the chain around a quest: pre-quests back to the first, then what it opens, up to 4 each way
+  // a quest your race and class can take: a chain that splits by race (Skyborne vs Night Elf cat form) shows your branch
+  function forMe(y) {
+    var x = QA.q[y]; return !!x && (!x[3] || x[3] === R.fac[0]) && (!x[13] || hasBit(x[13], CBIT[R.cls] || 0)) && (!x[14] || hasBit(x[14], RBIT[R.race] || 0));
+  }
   function chainOf(q) {
-    var out = [+q], cur = +q, x, k;
+    var out = [+q], cur = +q, x, k, me = forMe(+q);
     for (k = 0; k < 4 && (x = QA.q[cur]); k++) {
-      var p = x[10].concat(x[11]).filter(function (y) { return QA.q[y] && (!QA.q[y][3] || QA.q[y][3] === R.fac[0]); })[0];
+      var ps = x[10].concat(x[11]).filter(function (y) { return QA.q[y] && (!QA.q[y][3] || QA.q[y][3] === R.fac[0]); });
+      var p = (me && ps.filter(forMe)[0]) || ps[0];
       if (!p || out.indexOf(p) >= 0) break; out.unshift(p); cur = p;
     }
     for (cur = +q, k = 0; k < 4 && (x = QA.q[cur]); k++) {
-      var n = x[12] && QA.q[x[12]] ? x[12] : (QUNL[cur] || []).length === 1 ? QUNL[cur][0] : 0;
+      var u = QUNL[cur] || [], n = x[12] && QA.q[x[12]] ? x[12] : u.length === 1 ? u[0] : 0;
+      if (me && !(n && forMe(n))) { var m2 = u.filter(forMe); n = m2.length === 1 ? m2[0] : 0; }
       if (!n || out.indexOf(n) >= 0) break; out.push(n); cur = n;
     }
     return out;

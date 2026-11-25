@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: Skyborne druid cat form",
+    "text": "Skyborne druids now get their own cat form quests (The Great Windborne Cat Spirit) instead of the Night Elf ones. Quest search shows the chain for your race. Checked against Blizzard's quest data.",
+    "image": "/assets/updates/2026-11-25-route-race-chains.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Talent planner",
     "text": "Plan your talents on Forever's own trees, for every class. Pick your level and the Talented perk to see how many points you have, then share the build with a link.",
     "image": "/assets/updates/2026-11-25-talent-planner.webp",
