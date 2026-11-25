@@ -1432,7 +1432,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const d = new Date(market.scan * 1000);
     const hrs = Math.max(0, (Date.now() - d.getTime()) / 3600000);
     const ago = hrs < 1 ? "under an hour ago" : hrs < 48 ? Math.round(hrs) + " hours ago" : Math.round(hrs / 24) + " days ago";
-    $("srcInfo").innerHTML = "Prices from " + (market.items ? (/site scan/i.test(market.name || "") ? "the latest scan of the Horde auction house, PvP realm" : "your Auctionator scan") : "the built-in Auctionator scan of the Horde auction house, PvP realm") + ": <b>" + d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + "</b> (" + ago + ")" + (market.realm ? ", ruleset " + esc(market.realm) : "") +
+    $("srcInfo").innerHTML = "Prices from " + (market.items ? (/site scan/i.test(market.name || "") ? "the latest scan of the " + (window.wsSiteName ? wsSiteName() : "Horde auction house") : "your Auctionator scan") : "the built-in Auctionator scan of the Horde auction house, PvP realm") + ": <b>" + d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + "</b> (" + ago + ")" + (market.realm ? ", ruleset " + esc(market.realm) : "") +
       (market.items ? (hrs > 12 ? ' <span class="pill warn">old prices</span>' : "") : (window.wfStale ? wfStale(market.scan, 7, "These prices are") : "")) +
       '<br>Sale rates: TradeSkillMaster, <b>' + (TSM_AT ? new Date(TSM_AT.replace(" ", "T") + (/Z|[+-]\d\d:?\d\d$/.test(TSM_AT) ? "" : "Z")).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "not loaded") + '</b>' +
       '';

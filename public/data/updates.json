@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Your own auction house, found from your scan",
+    "text": "Hourly prices from Blizzard now cover every auction house: Horde, Alliance and neutral, in the US and Europe. Load a scan once and the site finds which one is yours, then keeps your prices fresh every hour, even when your scan gets old. Or pick it under Load game files.",
+    "image": "/assets/updates/2026-11-25-auction-house.webp",
+    "link": "/enchants/",
+    "linkText": "See it on Enchants"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Profession leveling: recipe prices on the auction house",
     "text": "Each recipe, pattern and formula now shows its auction house price and how many are listed, next to the vendor price, so you can skip a long trip. If only the other faction's vendor sells it, the route counts the auction house price.",
     "image": "/assets/updates/2026-11-25-recipe-ah.webp",
