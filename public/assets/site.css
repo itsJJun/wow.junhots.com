@@ -19,7 +19,7 @@ html { scrollbar-gutter: stable; }
 :root { --ws-sw: 236px; }
 html.ws-mini { --ws-sw: 60px; }
 html.ws-site body { padding-left: var(--ws-sw); }
-html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); }
+html.ws-site #wf-path { left: calc(var(--ws-sw) + 8px); z-index: 85; }  /* above the Load files box, so the tip under its buttons can be read */
 .ws-head { display: none; }
 
 /* ---- side panel (the Hub's layout) ---- */
