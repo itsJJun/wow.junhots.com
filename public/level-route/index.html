@@ -174,6 +174,8 @@ a { color: var(--accent); }
 .ys-bk { font-size: 12.5px; color: var(--ink); font-weight: 600; cursor: help; }
 .ys-skip { font: inherit; font-size: 12.5px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; margin-left: auto; }
 .ys-skip:hover { color: var(--ink); border-color: var(--line2); }
+.ys-then { font: inherit; background: none; border: 1px dashed var(--line2); cursor: pointer; color: var(--muted); gap: 5px; }
+.ys-then:hover { color: var(--ink); }
 .ys-tiles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ys-t { font: inherit; display: flex; align-items: baseline; gap: 6px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
 .ys-t b { font-size: 15px; font-variant-numeric: tabular-nums; }
@@ -1719,16 +1721,17 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // pre-quests: on the route behind you (before here) and not done. Only those: a pre-quest the route never has is
   // left to the game.
   function locked() {
-    var tin = {}, acc = {}, lk = {}, h = pick && skipStop ? skipStop.rows[0].n : here;   // where you are, not the catch-up stop
+    var tin = {}, acc = {}, took = {}, lk = {}, h = pick && skipStop ? skipStop.rows[0].n : here;   // where you are, not the catch-up stop
     LKST = {};
     rows.forEach(function (r) { stepsOf(r).forEach(function (s) {
       if (!s.q) return;
       if (s.t === 'turnin') tin[s.q] = r.n;
       if (s.t === 'accept' && acc[s.q] == null) acc[s.q] = r.n;
+      if ((s.t === 'accept' || s.t === 'turnin') && isDone(r)) took[s.q] = 1;   // ticked on the page
       if (r.n >= h) (LKST[s.q] = LKST[s.q] || []).push(s);   // the steps ahead of you are the ones left out
     }); });
     // a quest you can't have: not done, not in your log, and you passed where you take it (or hand it in)
-    var gone = function (x) { return !doneQ.has(x) && !logQ.has(x) && ((acc[x] != null && acc[x] < h) || (tin[x] != null && tin[x] < h)); };
+    var gone = function (x) { return !doneQ.has(x) && !logQ.has(x) && !took[x] && ((acc[x] != null && acc[x] < h) || (tin[x] != null && tin[x] < h)); };
     var bad = function (x) { return lk[x] || gone(x); };
     var miss = function (x) {
       var p = (M.quests[x] || [])[9]; if (!p) return [];
@@ -1740,7 +1743,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     rows.forEach(function (r) {
       if (r.n < h) return;
       stepsOf(r).forEach(function (s) {
-        var q = s.q; if (!q || doneQ.has(q) || logQ.has(q) || lk[q]) return;
+        var q = s.q; if (!q || doneQ.has(q) || logQ.has(q) || took[q] || lk[q]) return;
         if (s.t === 'accept') { var m = miss(q); if (m.length) lk[q] = rootOf(m[0], 0); }
         else if (acc[q] != null && acc[q] < h) lk[q] = rootOf(q, 0);   // you passed where you take it
       });
@@ -1998,6 +2001,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
     catchUp(L, win);
     nextSet = new Set();
+    // catch-up: next are the stops worth it in that part, then back to where you left off
+    if (pick && skipStop) { catchNext().slice(0, NEXT).forEach(function (s) { nextSet.add(s); }); return; }
     if (hereStop) for (var j = hereStop.gi + 1, c = 0; j < stops.length && c < NEXT; j++) if (!stopDone(stops[j])) { nextSet.add(stops[j]); c++; }
   }
   // ---- catch-up first (24 Nov, Jun: "I haven't done Uldaman, and my upgrades are behind me"). A part behind you comes
@@ -2007,13 +2012,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var XPL = [0,400,900,1400,2100,2800,3600,4500,5400,6500,7600,8800,10100,11400,12900,14400,16000,17700,19400,21300,23200,25200,27300,29400,31700,34000,36400,38900,41400,44300,47400,50800,54500,58600,62800,67100,71600,76100,80800,85700,90700,95800,101000,106300,111800,117500,123200,129100,135100,141200,147500,153900,160400,167100,173900,180800,187900,195000,202300,209800];
   var xpf = function (d) { return d <= 5 ? 1 : d === 6 ? 0.8 : d === 7 ? 0.6 : d === 8 ? 0.4 : d === 9 ? 0.2 : 0.1; };
   var stepsOf = function (r) { return r.k === 'step' ? [r.s].concat((r.more || []).map(function (m) { return m.s; })) : []; };
+  function catchNext() {
+    return pick.sts.filter(function (s) { return s.gi > hereStop.gi && !stopDone(s); }).concat([skipStop]);
+  }
   function catchUp(L, win) {
     pick = null; skipStop = null; skipped = [];
     if (!L || !hereStop || L >= 60) return;
     var g = greyAt(L), skip = (ls.get('lr.skip') || '').split('|'), best = null;
     chaps.forEach(function (c) {
       if (c.idx >= hereStop.ch.idx || !c.rows.length || c.rows[c.rows.length - 1].n < win[0]) return;
-      var inCh = {}, v = { c: c, xp: 0, ups: [], dun: null, st: null };
+      var inCh = {}, v = { c: c, xp: 0, ups: [], dun: null, st: null, sts: [] };
       c.rows.forEach(function (r) { stepsOf(r).forEach(function (s) { if (s.t === 'turnin') inCh[s.q] = 1; }); });
       // you can do it now: in your log, or your level, not grey, and the quests before it done (or in this part)
       var open = function (q) {
@@ -2026,7 +2034,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         st.rows.forEach(function (r) {
           stepsOf(r).forEach(function (s) {
             if (!s.q || !open(s.q)) return;
-            if (!v.st && !isDone(r)) v.st = st;
+            if (!isDone(r)) { if (!v.st) v.st = st; if (v.sts.indexOf(st) < 0) v.sts.push(st); }
             if (s.t !== 'turnin') return;
             if (WORTH[s.q]) { var p = s.q; v.xp += WORTH[s.q]; v.chain = s.q; Object.keys(lkAll).filter(function (q) { return +lkAll[q] === +p && upMine && upMine.byId[q]; }).map(Number).forEach(function (q) { if (v.ups.indexOf(q) < 0) v.ups.push(q); }); }
             var ql = M.quests[s.q][1] || 0;
@@ -2042,11 +2050,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (skip.indexOf(c.name) >= 0) { skipped.push(c.name); return; }
       if (!best || v.rank < best.rank) best = v;
     });
-    // a chain worth going back for, earlier in the part you're in
+    // a chain worth going back for, earlier in the part you're in: its steps behind you, in route order
     if (!best && skip.indexOf(hereStop.ch.name) < 0) Object.keys(WORTH).forEach(function (p) {
-      var r = rows.find(function (r) { return r.n < here && r.k === 'step' && stepsOf(r).some(function (s) { return s.t === 'accept' && s.q === +p; }); });
-      var st = r && stops.find(function (st) { return st.rows.indexOf(r) >= 0; });
-      if (st && st.ch === hereStop.ch && !best) best = { c: st.ch, xp: WORTH[p], ups: Object.keys(lkAll).filter(function (q) { return +lkAll[q] === +p && upMine && upMine.byId[q]; }).map(Number), dun: null, st: st, chain: +p, rank: 2 };
+      if (best) return;
+      var sts = [];
+      rows.forEach(function (r) {
+        if (r.n >= here || r.k !== 'step' || isDone(r) || !stepsOf(r).some(function (s) { return s.q && (s.q === +p || +lkAll[s.q] === +p); })) return;
+        var st = stops.find(function (st) { return st.rows.indexOf(r) >= 0; });
+        if (st && st.ch === hereStop.ch && sts.indexOf(st) < 0) sts.push(st);
+      });
+      if (sts.length) best = { sts: sts, c: hereStop.ch, xp: WORTH[p], ups: Object.keys(lkAll).filter(function (q) { return +lkAll[q] === +p && upMine && upMine.byId[q]; }).map(Number), dun: null, st: sts[0], chain: +p, rank: 2 };
     });
     if (!best) return;
     pick = best; skipStop = hereStop; hereStop = best.st; here = best.st.rows[0].n;
@@ -2232,10 +2245,22 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         (pick.chain ? '<span class="ys-c ys-bk" title="' + esc('Opens ' + Object.keys(lkAll).filter(function (q) { return +lkAll[q] === pick.chain && +q !== pick.chain; }).map(function (q) { return qn(q); }).join(', ') + (WTRIP[pick.chain] ? '\n' + (WTRIP[pick.chain].up ? 'Gear upgrade. ' : '') + mins(WTRIP[pick.chain].secs) + ' there and back' : '')) + '">' + wi('q_accept') + esc(qn(pick.chain)) + '</span>' : '') +
         (pick.xp >= 1000 ? '<span class="ys-c ys-bk" title="Full XP now. Less the more you level.">' + Math.round(pick.xp / 1000) + 'k xp</span>' : '');
     }
-    var skipBtn = pick && skipStop ? '<button type="button" class="ys-skip" data-skip="1" title="Skip the parts behind you">Skip to ' + esc(skipStop.ch.name) + ' →</button>'
+    // after the catch-up part: back to where you left off (Jun: "how does it tell you to go back to Zone B?")
+    var thenBack = '';
+    if (pick && skipStop && skipStop !== hereStop) {
+      var cn = [hereStop].concat(catchNext()).filter(function (x) { return x !== skipStop; }), ls0 = cn[cn.length - 1];
+      var lastW = ls0.rows.map(function (r) { return r.s; }).filter(function (s) { return s && s.w; }).pop();
+      var bw = skipStop.rows.map(function (r) { return r.s; }).find(function (s) { return s && s.w; }), bt = null;
+      if (lastW && bw) {
+        var kb = new Set(known ? Array.from(known) : []); (RouteTravel.START_FP[R.race] || []).forEach(function (x) { kb.add(x); });
+        try { bt = T.route({ map: lastW.w[0], x: lastW.w[1], y: lastW.w[2] }, { map: bw.w[0], x: bw.w[1], y: bw.w[2] }, { known: kb, fac: R.fac[0], lvl: L, cls: R.cls }); } catch (e) {}
+      }
+      thenBack = '<button type="button" class="ys-c ys-then" data-go="' + skipStop.gi + '" title="When this part is done, the route goes back to where you left off">Then back to ' + stRef(skipStop, true) + (bt ? '<b class="ys-tm">' + mins(bt.secs) + '</b>' : '') + '</button>';
+    }
+    var skipBtn = pick && skipStop ? '<button type="button" class="ys-skip" data-skip="1" title="Skip the parts behind you">Skip to ' + esc(skipStop.ch === pick.c ? skipStop.title : skipStop.ch.name) + ' →</button>'
       : skipped.length ? '<button type="button" class="ys-skip" data-unskip="1" title="' + esc(skipped.join(', ')) + '">Go back first</button>' : '';
     // one chip per kind of fact: level, where you are, the trip, its time, why
-    var sub = '<span class="ys-c ys-lv" title="Your level">Lv ' + L + '</span>' + trip + (why ? '<span class="ys-c ys-why">' + why + '</span>' : '');
+    var sub = '<span class="ys-c ys-lv" title="Your level">Lv ' + L + '</span>' + trip + (why ? '<span class="ys-c ys-why">' + why + '</span>' : '') + thenBack;
     if (!tiles.some(function (t) { return t.k === ysOpen; })) ysOpen = '';
     var open = tiles.find(function (t) { return t.k === ysOpen; });
     $('startBody').innerHTML =
@@ -2433,12 +2458,19 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     duns.forEach(function (d) { if (d.ready === st && !d.done) (rdy[st.gi] = rdy[st.gi] || []).push(d); });
     $('nwhere').innerHTML = esc(c.name) + ' <span class="pbar" title="' + st.num + ' of ' + c.stops.length + ' places in this part"><i style="width:' + Math.round(100 * st.num / c.stops.length) + '%"></i></span> ' + st.num + ' / ' + c.stops.length;
     var k = c.items.findIndex(function (it) { return it.st === st; }), then = [], lastUm = st.loc ? st.loc.um : null;
+    if (st === hereStop && pick && skipStop) {   // catch-up: the stops worth it here, then back to where you left off
+      catchNext().slice(0, 5).forEach(function (x) {
+        then.push(x === skipStop ? '<li class="lg"><span>→</span><span>Then back to <b>' + esc(x.title) + '</b> · ' + esc(stZone(x) || x.ch.name) + '</span><i></i></li>'
+          : '<li><span class="n">' + x.num + '</span><span><b>' + esc(x.title) + '</b></span><i></i></li>');
+      });
+      k = c.items.length;
+    }
     for (var j = k + 1; j < c.items.length && then.length < 5; j++) {
       var it = c.items[j];
       if (it.k === 'leg') then.push('<li class="lg"' + tripAttr(it.r.tr, it.r.tr.from, it.r.tr.to, c.items[j + 1] && c.items[j + 1].st) + '><span>' + wi(legIcon(it.r.tr)) + '</span><span>' + esc(it.r.tr.text) + '</span><i>' + mins(it.r.tr.secs) + '</i></li>');
       else then.push('<li><span class="n">' + it.st.num + '</span><span><b>' + esc(it.st.title) + '</b>' + (it.st.loc && it.st.loc.um != null && !it.st.loc.dun && it.st.loc.um !== lastUm ? ' <em>' + esc(umName((lastUm = it.st.loc.um))) + '</em>' : '') + '</span><i>' + (stopDone(it.st) ? '✓' : '') + '</i></li>');
     }
-    if (then.length < 5 && chaps[c.idx + 1]) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
+    if (then.length < 5 && chaps[c.idx + 1] && !(st === hereStop && pick)) then.push('<li class="lg"><span>→</span><span>Next part: <b>' + esc(chaps[c.idx + 1].name) + '</b></span><i></i></li>');
     var dIn = st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? st.loc.dun : null;
     $('nbody').innerHTML = '<div>' + stopHtml(st, c, rdy).replace('<span class="herebadge">you are here</span>', '').replace(' id="st', ' data-n="st').replace(/<p class="dglk">.*?<\/p>/, '') +
       (dIn ? '<div id="dgbox" class="dgbox" data-dgn="' + esc(dIn) + '"></div>' : '') + '</div>' +
