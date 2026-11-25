@@ -9,6 +9,14 @@
   },
   {
     "date": "2026-11-25",
+    "title": "Level route: sharper close-up map",
+    "text": "Zoomed-in maps now look crisp like the game's minimap. Picking a step shows the whole zone.",
+    "image": "/assets/updates/2026-11-25-sharper-route-map.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Profession leveling: \"makes 2 per craft\"",
     "text": "Steps whose recipe makes more than one item now say so: Undermine Clam Chowder makes 2 a craft, so money back is 2 times its 1s vendor price per craft.",
     "image": "/assets/updates/2026-11-25-makes-2.webp",

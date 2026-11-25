@@ -120,6 +120,8 @@ a { color: var(--accent); }
 @media (max-width: 640px) { .wloc { display: none; } }
 /* close-up tiles and the quiet map icons (flight masters, boats, zeppelins, dungeon entrances) */
 .mini { pointer-events: none; transition: opacity .25s; }
+/* crisp pixels like the game's minimap (the browser's smoothing made close-ups look blurry) */
+.mini image { image-rendering: pixelated; }
 .poi circle { fill: rgba(20, 16, 10, .55); stroke: rgba(255, 220, 150, .55); stroke-width: .12; }
 .poi { opacity: .9; }
 .poi:hover { opacity: 1; }
@@ -2644,7 +2646,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       fit = clampView((x0 + x1) / 2, (y0 + y1) / 2, Math.max(36, x1 - x0, (y1 - y0) / AR));
     }
     var key = cur + ':' + curZone + ':' + (ks ? ks.rep.gi : '');
-    if (!view || viewKey !== key) { view = fit.slice(); viewKey = key; }
+    if (!view || viewKey !== key) { view = [0, 0, 100, 100 * AR]; viewKey = key; }   // whole zone first (Jun 25 Nov)
     mapFit = fit;
     svg.appendChild(objLayer([from, sel && sel.ch === c ? sel : null]));
     mapArrow = null;
@@ -2793,8 +2795,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function closeWorld() { if (worldEl) worldEl.hidden = true; worldOn = null; }
   // label nudges (continent pixels) where a zone's box centre sits off its land or on a neighbour's label
   var LBL = { 1427: [-13, -3], 1418: [9, 0], 1429: [-11, 0], 1433: [9, 2], 1421: [-9, 5], 1416: [6, -3], 1422: [3, 5], 1413: [7, -26], 1412: [-4, 0], 1457: [-4, 9] };
+  // deepest zoom: a close-up tile (512 px, 533 yards) shown at most 3x its size
+  function minW() {
+    var b = MINI && MINI.um[curZone], pw = mapSvg ? mapSvg.getBoundingClientRect().width : 0;
+    if (!b || !pw) return 10;
+    return Math.min(50, Math.max(10, TS * pw * 100 / ((b[4] - b[2]) * 1536)));
+  }
   function clampView(cx, cy, w) {
-    w = Math.min(100, Math.max(10, w)); var h = w * AR;
+    w = Math.min(100, Math.max(minW(), w)); var h = w * AR;
     return [Math.min(Math.max(0, cx - w / 2), 100 - w), Math.min(Math.max(0, cy - h / 2), 100 * AR - h), w, h];
   }
   function applyView() {
@@ -2895,7 +2903,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return g;
   }
   function zoomAt(px, py, f) {
-    var w = Math.min(100, Math.max(10, view[2] / f)), s = w / view[2];
+    var w = Math.min(100, Math.max(minW(), view[2] / f)), s = w / view[2];
     view = clampView(px - (px - view[0]) * s + w / 2, py - (py - view[1]) * s + w * AR / 2, w);
     applyView();
   }
