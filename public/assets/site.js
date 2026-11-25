@@ -9,9 +9,9 @@
     // GearSnapshot only once per new file, since Gear upgrades saves your gear and you may have edited it since
     { key: 'ah', label: 'AH prices', file: 'Auctionator.lua', match: /auctionator/i, pre: 'Auctionator full scan at the auction house, then /reload', always: true,
       targets: [['#file', '#msg']] },
-    { key: 'snap', label: 'Gear, recipes & quests', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows, then /reload',
-      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg']] },
-    { key: 'tsm', label: 'Bags & bank', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
+    { key: 'snap', label: 'Gear, recipes, quests & bags', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows and bank, then /reload',
+      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg'], ['#bagFile', '#haveInfo']] },
+    { key: 'tsm', label: 'Bags (TSM, optional)', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
       targets: [['#bagFile', '#haveInfo']] },
     // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)
     { key: 'quests', label: 'Quests done', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
@@ -67,6 +67,8 @@
     if (!k) return Promise.resolve(null);
     // raw bytes, not text: Auctionator.lua holds binary (CBOR) strings that a text round-trip would break
     return file.arrayBuffer().then(function (data) {
+      // Gear Snapshot's account-wide file (bags only) is not the character file the gear and quest pages need
+      if (k.key === 'snap' && !/GearSnapshotDB\s*=/.test(new TextDecoder('latin1').decode(new Uint8Array(data, 0, Math.min(data.byteLength, 4096))))) return null;
       var rec = { key: k.key, name: file.name, at: Date.now(), mod: file.lastModified || 0, size: data.byteLength, data: data };
       return putRec(rec).then(function () { setMeta(k.key, { name: rec.name, at: rec.at, mod: rec.mod, size: rec.size }); drawDots(); return rec; });
     });
@@ -81,8 +83,9 @@
       var input = $(t[0]), dt = new DataTransfer();
       dt.items.add(new File([rec.data], rec.name, { type: 'text/plain', lastModified: rec.mod || rec.at }));
       input.files = dt.files;
-      feeding = true;
-      try { input.dispatchEvent(new Event('change', { bubbles: true })); } finally { feeding = false; }
+      // window.wsFeeding: the page can tell this hand-over from a file the visitor picked (e.g. stay quiet about an older file)
+      feeding = window.wsFeeding = true;
+      try { input.dispatchEvent(new Event('change', { bubbles: true })); } finally { feeding = window.wsFeeding = false; }
     });
     ls.set(fedKey(k.key), String(rec.at));
     return true;
@@ -99,9 +102,13 @@
   // Auctionator and TSM keep their data account-wide (Account/<id>/SavedVariables). Each character also gets a tiny
   // Auctionator.lua (Account/<id>/<realm>/<char>/SavedVariables, 38 bytes, written a moment later): never let it win.
   var ACCT = { ah: 1, tsm: 1, quests: 1 };
+  // Gear Snapshot 1.7 also writes an account-wide GearSnapshot.lua (bags of all your characters, which every character's
+  // own file copies): the character's file is the one to use.
+  var CHAR = { snap: 1 };
   function better(k, file, isChar, old) {
     if (!old) return true;
     if (ACCT[k] && old.isChar !== isChar) return !isChar;
+    if (CHAR[k] && old.isChar !== isChar) return isChar;
     return file.lastModified > old.file.lastModified;
   }
   // folders below "Account" before SavedVariables: 1 = account-wide, 3 = one character, -1 = unknown
@@ -254,7 +261,7 @@
     var saved = function (i) { return i.mod || i.at; }, newest = Math.max.apply(null, KINDS.map(function (k) { return m[k.key] ? saved(m[k.key]) : 0; }));
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
       el.innerHTML = KINDS.map(function (k) {
-        var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5;
+        var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5 && !(k.key === 'tsm' && m.snap);   // TSM is optional once Gear Snapshot (1.7) saves bags
         return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? 'Horde auction scan the site uses until you load your own ' + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
           (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
       }).join('');

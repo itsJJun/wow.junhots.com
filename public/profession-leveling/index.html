@@ -1078,7 +1078,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
         <option value="this">The profession I'm viewing</option>
         <option value="both">My 2 professions, for the most points</option>
       </select></label>
-    <span class="hint" id="budgetHint" style="max-width:440px">The gold you have (or want to spend). Loading TradeSkillMaster.lua fills it in. The plan buys one step's materials at a time and sells that step's crafts to a vendor before the next, so it never needs more gold at once than this. Leave empty for no limit.</span>
+    <span class="hint" id="budgetHint" style="max-width:440px">The gold you have (or want to spend). Loading GearSnapshot.lua fills it in. The plan buys one step's materials at a time and sells that step's crafts to a vendor before the next, so it never needs more gold at once than this. Leave empty for no limit.</span>
   </div>
   <div class="settings">
     <label class="field"><span>My skill now</span><input id="skill" type="number" min="1" max="300"></label>
@@ -1118,7 +1118,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
     <span class="hint"><span id="shopScope"></span>Type your own price in any row and the whole route is recalculated. Clear the box to go back to the scanned price.</span>
   </div>
   <div class="havebar">
-    <label class="btn" for="bagFile" title="TradeSkillMaster.lua, in the same SavedVariables folder as Auctionator.lua">Load my bags &amp; bank</label>
+    <label class="btn" for="bagFile" title="GearSnapshot.lua (Gear Snapshot 1.7, all your characters) or TradeSkillMaster.lua">Load my bags &amp; bank</label>
     <input id="bagFile" type="file" accept=".lua,.bak,text/plain" hidden>
     <label class="tog"><input type="checkbox" id="useHave"> Use materials I have</label>
     <button class="btn tiny" id="clearHave" type="button">Clear</button>
@@ -2237,8 +2237,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const nHave = Object.keys(S.have).filter(k => S.have[k] > 0).length;
     const bagDay = S.haveAt ? new Date(S.haveAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "", bagOld = S.useHave && nHave && S.haveAt && Date.now() - S.haveAt > 864e5;
     $("bagOld").hidden = !bagOld;
-    if (bagOld) $("bagOld").innerHTML = '<span><b>Your bags are from ' + bagDay + '.</b> In game type /reload, then press <label class="btn tiny" for="bagFile">Load my bags &amp; bank</label> and pick <code>TradeSkillMaster.lua</code>.</span>';
-    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + (bagDay ? ", saved " + bagDay : "") + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from your TSM save.";
+    if (bagOld) $("bagOld").innerHTML = '<span><b>Your bags are from ' + bagDay + '.</b> In game type /reload, then press <label class="btn tiny" for="bagFile">Load my bags &amp; bank</label> and pick <code>GearSnapshot.lua</code>.</span>';
+    $("haveInfo").textContent = nHave ? (S.haveSrc ? "From " + S.haveSrc + (bagDay ? ", saved " + bagDay : "") + ". " : "") + nHave + " materials entered. The route still values them at AH price (you could sell them instead), but they come off what you buy, the cost and your budget." : "Type what you already own in the I have column, or load it from Gear Snapshot (1.7).";
     $("shop").querySelectorAll(".price-in:not(.have-in)").forEach(inp => inp.onchange = () => { const v = inp.value.trim(); if (v === "") delete S.over[inp.dataset.id]; else S.over[inp.dataset.id] = Math.max(0, +v); save(); render(); });
   }
 
@@ -2446,11 +2446,32 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   $("crec").onchange = () => { calcSel = +$("crec").value; renderCalc(); };
   $("csk").oninput = () => { $("csk").dataset.touched = "1"; renderCalc(); };
 
-  // ---------- bags & bank from TradeSkillMaster.lua ----------
+  // ---------- bags & bank from GearSnapshot.lua (1.7) or TradeSkillMaster.lua ----------
+  // (Gear Snapshot 1.7) bags, bank and mail of all your characters on this realm and side, saved by our own addon
+  function parseSnapBags(text, keep) {
+    let db = null;
+    if (/GearSnapshotDB\s*=/.test(text)) db = KNOWN.parseLua(text);
+    else if (/GearSnapshotBags\s*=/.test(text)) db = KNOWN.parseLua(text.replace(/GearSnapshotBags\s*=/, "GearSnapshotDB = { bags =") + "\n}");
+    const chars = db && db.bags && db.bags.chars;
+    if (!chars) { const e = new Error("no bags in it yet. Update Gear Snapshot to 1.7 (Set up once page), then /reload in game."); e.noBags = true; throw e; }
+    // a character's file names its character; the account-wide file doesn't: use the character saved last
+    const me = Object.values(chars).find(c => c.name === db.name && c.realm === db.realm) || (!db.name && Object.values(chars).sort((a, b) => (+b.bagsT || 0) - (+a.bagsT || 0))[0]) || null;
+    const realm = db.realm || (me && me.realm), side = db.faction || (me && me.faction);
+    const have = {}, who = {}; let t = 0;
+    for (const c of Object.values(chars)) {
+      if ((realm && c.realm !== realm) || (side && c.faction !== side)) continue;
+      let n = 0;
+      for (const part of ["bags", "bank", "mail"]) for (const [id, k] of Object.entries(c[part] || {})) { if (keep && !keep(id)) continue; have[id] = (have[id] || 0) + +k; n += +k; }
+      if (n) who[c.name] = n;
+      t = Math.max(t, +c.bagsT || 0, +c.bankT || 0, +c.mailT || 0);
+    }
+    return { have, chars: who, money: me ? me.money : db.money, moneyWho: me ? me.name : db.name, t, noBank: !!me && !me.bankT, gs: true };
+  }
   function parseTSM(buf) {
     let text = ""; try { text = new TextDecoder("latin1").decode(buf); } catch (e) { text = String.fromCharCode.apply(null, buf.subarray(0, 4e6)); }
+    if (/GearSnapshot(DB|Bags)\s*=/.test(text)) return parseSnapBags(text, id => DATA.items[id]);
     if (!/internalData@(bag|bank)Quantity/.test(text)) {
-      if (/AUCTIONATOR_PRICE_DATABASE/.test(text)) throw new Error("that's Auctionator.lua (prices). Pick TradeSkillMaster.lua from the same SavedVariables folder.");
+      if (/AUCTIONATOR_PRICE_DATABASE/.test(text)) throw new Error("that's Auctionator.lua (prices). Pick GearSnapshot.lua (Gear Snapshot 1.7) or TradeSkillMaster.lua.");
       throw new Error("no bag or bank lists in it. Pick TradeSkillMaster.lua from WTF\\Account\\<account>\\SavedVariables (not the one inside a character folder), and log out or /reload first so TSM saves.");
     }
     const tot = {}, chars = {};
@@ -2469,19 +2490,22 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   }
   function loadBags(f) {
     // the site hands this page its saved bags file on every visit: don't let the same old file undo what you typed
+    const auto = !!window.wsFeeding;
     if (f.lastModified && S.haveAt === f.lastModified && S.haveSrc) { render(); return; }
+    // Gear Snapshot and TSM can both be loaded: an older file handed over by the site never replaces newer bags
+    if (auto && f.lastModified && S.haveAt && f.lastModified < S.haveAt && S.haveSrc) { render(); return; }
     const rd = new FileReader();
     rd.onload = () => {
       try {
         const r = parseTSM(new Uint8Array(rd.result));
         const who = Object.keys(r.chars);
-        S.have = r.have; S.useHave = true; S.haveSrc = who.length ? who.join(" + ") : "TSM"; S.haveAt = f.lastModified || null;
+        S.have = r.have; S.useHave = true; S.haveSrc = (who.length ? who.join(" + ") : "") + (r.gs ? " (Gear Snapshot)" : who.length ? "" : "TSM"); S.haveAt = f.lastModified || null;
         if (r.money !== null && r.money !== undefined) { S.budget = String(Math.floor(r.money / 100) / 100); $("budget").value = S.budget; }
         save(); render();
         const pl = viewFor(S.prof, budgetAlloc()); const need = shopping(pl);
         const hit = Object.keys(need).filter(id => r.have[id] > 0).length;
-        showMsg((r.money !== null && r.money !== undefined ? r.moneyWho + " has " + coinTxt(r.money) + ": set as My gold. " : "") + (who.length ? "Loaded your bags and bank (" + who.map(w => w + ": " + fmtN(r.chars[w]) + " items").join(", ") + "). " + hit + " of the " + PROFS[S.prof].label + " materials are already in your bags." : "TSM's bag lists don't hold any profession materials yet. Open your bank once, then log out or /reload and load the file again."), true);
-      } catch (err) { showMsg("Couldn't read your bags: " + err.message, false); }
+        showMsg((r.money !== null && r.money !== undefined ? r.moneyWho + " has " + coinTxt(r.money) + ": set as My gold. " : "") + (who.length ? "Loaded your bags and bank (" + who.map(w => w + ": " + fmtN(r.chars[w]) + " items").join(", ") + "). " + hit + " of the " + PROFS[S.prof].label + " materials are already in your bags." : (r.gs ? "No profession materials in your bags yet." : "TSM's bag lists don't hold any profession materials yet. Open your bank once, then log out or /reload and load the file again.")) + (r.noBank ? " Open your bank once in game, then /reload, so its items count too." : ""), true);
+      } catch (err) { if (auto && err.noBags) return; showMsg("Couldn't read your bags: " + err.message, false); }   // Gear Snapshot before 1.7: no bags, stay quiet
     };
     rd.readAsArrayBuffer(f);
   }
@@ -2593,7 +2617,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     };
     rd.readAsArrayBuffer(f);
   }
-  const loadAny = f => (/tradeskillmaster/i.test(f.name) ? loadBags : loadFile)(f);
+  const loadAny = f => (/tradeskillmaster|gearsnapshot/i.test(f.name) ? loadBags : loadFile)(f);
   $("file").addEventListener("change", e => { [...(e.target.files || [])].forEach(loadAny); e.target.value = ""; });
   const drop = $("drop"); let dragDepth = 0;
   window.addEventListener("dragenter", e => { if (e.dataTransfer && [...e.dataTransfer.types].includes("Files")) { dragDepth++; drop.style.display = "grid"; } });

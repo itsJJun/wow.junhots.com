@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-24",
+    "title": "Bags and bank from Gear Snapshot, no TSM needed",
+    "text": "Gear Snapshot 1.7 now saves what's in your bags, bank and mailbox, for all your characters on the same side. Profession leveling and the Craft finder read it for \"I have\", so you no longer need TradeSkillMaster. Each count carries the time it was saved, so an old bags file can't sneak back in.",
+    "image": "/assets/updates/2026-11-24-bags-gear-snapshot.webp",
+    "link": "/setup/",
+    "linkText": "Get Gear Snapshot 1.7"
+  },
+  {
+    "date": "2026-11-24",
     "title": "Leveling: go back for what you skipped",
     "text": "Your start now sends you back first for a skipped gear upgrade, dungeon or full-XP quests. Hover the chips to see why, or press Skip to keep going.",
     "image": "/assets/updates/2026-11-24-catch-up.webp",

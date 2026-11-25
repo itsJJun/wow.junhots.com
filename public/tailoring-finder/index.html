@@ -1200,7 +1200,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     money: store.money || { g: "", s: "", c: "" },
     affordOnly: store.affordOnly !== undefined ? store.affordOnly : true,
     skillOnly: !!store.skillOnly,
-    inv: store.inv || {},
+    inv: store.inv || {}, invAt: store.invAt || null,
     ovr: store.ovr || {},
     qty: {},
     open: new Set(),
@@ -1270,7 +1270,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   function skillTag(r) { const sk = mySkill(), l = learnOf(r); if (!l) return ""; if (sk === null) return ' \u00b7 skill ' + l; return l <= sk ? ' \u00b7 <span style="color:var(--good)">skill ' + l + '</span>' : ' \u00b7 <span style="color:var(--warn)">needs ' + l + ' (' + (l - sk) + ' to go)</span>'; }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, refund: S.refund, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, refund: S.refund, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, invAt: S.invAt, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
   }
 
   function coin(c, plus) {
@@ -1888,26 +1888,50 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     };
     rd.readAsArrayBuffer(f);
   }
-  // bags, bank and mail from TradeSkillMaster.lua become the batch planner's "materials you have"
+  // bags, bank and mail from GearSnapshot.lua (1.7) or TradeSkillMaster.lua become the batch planner's "materials you have"
+  // (Gear Snapshot 1.7) bags, bank and mail of all your characters on this realm and side, saved by our own addon
+  function parseSnapBags(text, keep) {
+    let db = null;
+    if (/GearSnapshotDB\s*=/.test(text)) db = KNOWN.parseLua(text);
+    else if (/GearSnapshotBags\s*=/.test(text)) db = KNOWN.parseLua(text.replace(/GearSnapshotBags\s*=/, "GearSnapshotDB = { bags =") + "\n}");
+    const chars = db && db.bags && db.bags.chars;
+    if (!chars) { const e = new Error("no bags in it yet. Update Gear Snapshot to 1.7 (Set up once page), then /reload in game."); e.noBags = true; throw e; }
+    // a character's file names its character; the account-wide file doesn't: use the character saved last
+    const me = Object.values(chars).find(c => c.name === db.name && c.realm === db.realm) || (!db.name && Object.values(chars).sort((a, b) => (+b.bagsT || 0) - (+a.bagsT || 0))[0]) || null;
+    const realm = db.realm || (me && me.realm), side = db.faction || (me && me.faction);
+    const have = {}, who = {}; let t = 0;
+    for (const c of Object.values(chars)) {
+      if ((realm && c.realm !== realm) || (side && c.faction !== side)) continue;
+      let n = 0;
+      for (const part of ["bags", "bank", "mail"]) for (const [id, k] of Object.entries(c[part] || {})) { if (keep && !keep(id)) continue; have[id] = (have[id] || 0) + +k; n += +k; }
+      if (n) who[c.name] = n;
+      t = Math.max(t, +c.bagsT || 0, +c.bankT || 0, +c.mailT || 0);
+    }
+    return { have, chars: who, money: me ? me.money : db.money, moneyWho: me ? me.name : db.name, t, noBank: !!me && !me.bankT, gs: true };
+  }
   function parseBags(buf) {
     let text = ""; try { text = new TextDecoder("latin1").decode(buf); } catch (e) { text = String.fromCharCode.apply(null, buf.subarray(0, 4e6)); }
-    if (!/internalData@(bag|bank)Quantity/.test(text)) throw new Error(/AUCTIONATOR_PRICE_DATABASE/.test(text) ? "that's Auctionator.lua (prices), not TradeSkillMaster.lua." : "no bag or bank lists in it. Log out or /reload so TSM saves, then pick SavedVariables\\TradeSkillMaster.lua.");
+    if (/GearSnapshot(DB|Bags)\s*=/.test(text)) { const g = parseSnapBags(text); return { inv: g.have, who: Object.keys(g.chars), gs: true, noBank: g.noBank }; }
+    if (!/internalData@(bag|bank)Quantity/.test(text)) throw new Error(/AUCTIONATOR_PRICE_DATABASE/.test(text) ? "that's Auctionator.lua (prices). Pick GearSnapshot.lua (Gear Snapshot 1.7) or TradeSkillMaster.lua." : "no bag or bank lists in it. Log out or /reload so TSM saves, then pick SavedVariables\\TradeSkillMaster.lua.");
     const inv = {}, who = {}, re = /\["([sg])@([^@"]*)@internalData@(bagQuantity|bankQuantity|reagentBankQuantity|mailQuantity|warbankQuantity)"\]\s*=\s*\{([^}]*)\}/g; let mm;
     while ((mm = re.exec(text))) { const ire = /\["i:(\d+)[^"]*"\]\s*=\s*(\d+)/g; let im, n = 0; while ((im = ire.exec(mm[4]))) { inv[im[1]] = (inv[im[1]] || 0) + +im[2]; n += +im[2]; } if (n) who[mm[1] === "g" ? "Warband bank" : mm[2].split(" - ")[0]] = 1; }
     return { inv, who: Object.keys(who) };
   }
   function loadBags(f) {
+    // Gear Snapshot and TSM can both be loaded: an older file handed over by the site never replaces newer bags
+    const auto = !!window.wsFeeding;
+    if (auto && f.lastModified && S.invAt && f.lastModified <= S.invAt) return;
     const rd = new FileReader();
     rd.onload = () => {
       try {
-        const r = parseBags(new Uint8Array(rd.result)); S.inv = r.inv; save(); render();
-        const txt = "Loaded the materials in your bags and bank" + (r.who.length ? " (" + r.who.join(" + ") + ")" : "") + " from " + f.name + ". The batch planner uses them first.";
-        showMsg(txt, true); if ($("haveInfo")) $("haveInfo").textContent = "Materials you have: from " + (r.who.join(" + ") || "TSM") + ", " + new Date().toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
-      } catch (err) { showMsg("Couldn't read your bags: " + err.message, false); if ($("haveInfo")) $("haveInfo").textContent = "Couldn't read your bags: " + err.message; }
+        const r = parseBags(new Uint8Array(rd.result)); S.inv = r.inv; S.invAt = f.lastModified || null; save(); render();
+        const txt = "Loaded the materials in your bags and bank" + (r.who.length ? " (" + r.who.join(" + ") + ")" : "") + " from " + f.name + ". The batch planner uses them first." + (r.noBank ? " Open your bank once in game, then /reload, so its items count too." : "");
+        showMsg(txt, true); if ($("haveInfo")) $("haveInfo").textContent = "Materials you have: from " + (r.who.join(" + ") || (r.gs ? "Gear Snapshot" : "TSM")) + ", " + new Date(f.lastModified || Date.now()).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
+      } catch (err) { if (auto && err.noBags) return; showMsg("Couldn't read your bags: " + err.message, false); if ($("haveInfo")) $("haveInfo").textContent = "Couldn't read your bags: " + err.message; }
     };
     rd.readAsArrayBuffer(f);
   }
-  const loadAny = f => (/tradeskillmaster/i.test(f.name) ? loadBags : loadFile)(f);
+  const loadAny = f => (/tradeskillmaster|gearsnapshot/i.test(f.name) ? loadBags : loadFile)(f);
   $("file").addEventListener("change", e => { [...(e.target.files || [])].forEach(loadAny); e.target.value = ""; });
   $("bagFile").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) loadBags(f); e.target.value = ""; });
   const drop = $("drop"); let dragDepth = 0;
