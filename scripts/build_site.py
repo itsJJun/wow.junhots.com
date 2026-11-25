@@ -487,7 +487,7 @@ SETUP_ADDONS = [
      'Prices, if you don\'t use Gear Snapshot\'s scan.'),
     ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Optional. Gear Snapshot 1.7 saves your bags now.',
      'Bags and bank, if you don\'t use Gear Snapshot.'),
-    ('Forever Leveling BiS', None, 'Optional. Gear upgrades uses the spec you pick in it and warns when its version differs.',
+    ('Forever Leveling BiS', None, 'Optional. Gear Snapshot 1.8 reads your spec from your talents. A spec you pick in this addon wins.',
      'Gear upgrades (spec).'),
 ]
 
