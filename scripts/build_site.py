@@ -449,7 +449,7 @@ ADMIN_JS = r"""
     if (!W) { msg.textContent = 'Not ready yet, try again.'; return; }
     msg.textContent = 'Reading your WoW folder…';
     W.sync().then(function () { return W.get('ah'); }).then(function (rec) {
-      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Link your WoW folder in Load game files (bottom left) first.'; return; }
+      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Load your game files (bottom left) first.'; return; }
       upload(new File([rec.data], rec.name, { lastModified: rec.mod || rec.at }));
     }, function (e) { msg.textContent = 'Could not read it: ' + e.message; });
   });
@@ -509,13 +509,8 @@ def build_setup():
             '<li><b>Gear and recipes:</b> open each profession window once, then <code>/reload</code>.</li>'
             '<li><b>Bags and bank:</b> open your bank and mailbox, then <code>/reload</code>.</li></ul>'
             '<h2>3. Load them on this site</h2>'
-            '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on phones), then <b>Pick WoW folder</b> '
-            'and choose <code>World of Warcraft\\_forever_</code>. The site finds the files itself.</p>'
-            '<ul class="ws-steps"><li><b>Chrome or Edge:</b> next time you open the site, press <b>Load new game files</b>, then <b>Allow on every visit</b>. '
-            'After that, new files load by themselves.</li>'
-            '<li><b>Chrome says “system files”?</b> WoW is in <code>Program Files</code>, which Chrome won\'t link. Press <b>Pick the WTF folder</b> instead, after each <code>/reload</code>. '
-            'Want it automatic? Move <code>World of Warcraft</code> to <code>C:\\Games</code>, then in Battle.net press <b>Locate the game</b>.</li>'
-            '<li><b>Other browsers:</b> pick the <code>WTF</code> folder again after each <code>/reload</code>.</li></ul>'
+            '<p>Press <b>Load game files</b> (bottom of the side panel, or the folder button at the top on phones), then <b>Pick WTF folder</b> '
+            'and choose <code>World of Warcraft\\_forever_\\WTF</code>. The site finds the files itself. Do it again after each <code>/reload</code>.</p>'
             '<p>Load a file once and every tool uses it. Files stay in your browser and are never uploaded.</p>'
             '<p><a class="ws-cta" href="#" data-ws-open-files>Load game files</a></p></div>' % rows)
     os.makedirs(os.path.join(PUB, 'setup'), exist_ok=True)

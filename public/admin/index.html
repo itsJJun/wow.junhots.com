@@ -48,7 +48,9 @@ input, select, textarea { color-scheme: inherit; }
 .wf-in-hub :is(label[for="file"], label[for="bagFile"], label[for="gearfile"], .kn-btn, .kn-copy, #gearbar details, details.how) { display: none !important; }
 #wf-path { display: none; position: fixed; left: 8px; top: 8px; z-index: 70; max-width: min(560px, 92vw);
   font: 500 13px/1.45 var(--body); color: var(--ink); background: var(--raised); border: 1px solid var(--line2);
-  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 12px; box-shadow: var(--elev); }
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 30px 8px 12px; box-shadow: var(--elev); }
+#wf-path .wf-x { position: absolute; top: 4px; right: 6px; border: 0; background: none; color: var(--muted); font: 600 16px/1 var(--body); cursor: pointer; padding: 2px 4px; }
+#wf-path .wf-x:hover { color: var(--ink); }
 #wf-path kbd { font: 600 11px var(--mono); padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; background: var(--panel); }
 #wf-path code { display: block; margin-top: 4px; font: 12px var(--mono); user-select: all; word-break: break-all; }
 #wf-path code i { font-style: normal; color: var(--accent); }
@@ -219,13 +221,18 @@ abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%,
     if (!ok && navigator.clipboard) try { navigator.clipboard.writeText(t).catch(function () {}); ok = true; } catch (e) {}
     return ok;
   }
+  // the tip goes away by itself, with Esc, the x, a click elsewhere, scrolling, or once a file is picked
+  function hide() { var d = document.getElementById('wf-path'); if (d) d.style.display = 'none'; clearTimeout(timer); }
+  function later(ms) { clearTimeout(timer); timer = setTimeout(hide, ms); }
   function toast(html, el, keep) {
     var d = document.getElementById('wf-path');
     if (!d) {
-      d = document.createElement('div'); d.id = 'wf-path'; document.body.appendChild(d);
-      d.addEventListener('focusin', function () { clearTimeout(timer); });
+      d = document.createElement('div'); d.id = 'wf-path'; d.setAttribute('role', 'status'); document.body.appendChild(d);
+      d.addEventListener('focusin', function () { clearTimeout(timer); });   // typing a path: stay while you type
+      d.addEventListener('focusout', function () { if (!d.querySelector('form')) later(6000); });
     }
-    d.innerHTML = html; d.style.display = 'block'; clearTimeout(timer);
+    d.innerHTML = '<button type="button" class="wf-x" aria-label="Close" title="Close (Esc)">×</button>' + html; d.style.display = 'block'; clearTimeout(timer);
+    d.querySelector('.wf-x').onclick = hide;
     var r = el && el.getBoundingClientRect();  // sit just under the button that was clicked
     if (r && r.width) {
       var w = d.offsetWidth, x = Math.max(8, Math.min(r.left, innerWidth - w - 8)), y = r.bottom + 6;
@@ -235,10 +242,10 @@ abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%,
     var f = d.querySelector('form');
     if (f) f.onsubmit = function (e) {
       e.preventDefault(); var v = f.querySelector('input').value;
-      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); timer = setTimeout(function () { d.style.display = 'none'; }, 6000); }
+      if (set(v)) { var p = path(f.dataset.k); d.innerHTML = 'Saved. ' + (p && copy(p) ? '<b>' + NAME[f.dataset.k] + '</b> path copied, so next time Load copies it for you.' : 'Next time Load copies the path for you.'); later(6000); }
       else f.querySelector('small').textContent = 'That is not a path inside WTF\\Account\\<your account>. Copy it from the Open window\'s address bar.';
     };
-    if (!keep) timer = setTimeout(function () { d.style.display = 'none'; }, 12000);
+    if (!keep) later(12000);
   }
   function help(k, el) {
     var p = path(k), name = NAME[k];
@@ -257,8 +264,13 @@ abbr.gl { text-decoration: underline dotted color-mix(in srgb, var(--muted) 70%,
   }, true);
   document.addEventListener('change', function (e) {
     var d = document.getElementById('wf-path');
-    if (d && e.target && FILES[e.target.id] && !d.querySelector('form')) d.style.display = 'none';
+    if (d && e.target && e.target.type === 'file' && !d.querySelector('form')) hide();
   }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+  document.addEventListener('pointerdown', function (e) { var d = document.getElementById('wf-path'); if (d && d.style.display === 'block' && !d.contains(e.target)) hide(); }, true);
+  addEventListener('scroll', function () { var d = document.getElementById('wf-path'); if (d && d.style.display === 'block' && !d.querySelector('form')) hide(); }, { passive: true });
+  addEventListener('blur', function () { var d = document.getElementById('wf-path'); if (d && d.style.display === 'block') clearTimeout(timer); });  // keep it while the Open window is up
+  addEventListener('focus', function () { var d = document.getElementById('wf-path'); if (d && d.style.display === 'block' && !d.querySelector('form')) later(4000); });  // back from the Open window
 })();
 
 window.wfAge = function (when) {
@@ -517,7 +529,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     if (!W) { msg.textContent = 'Not ready yet, try again.'; return; }
     msg.textContent = 'Reading your WoW folder…';
     W.sync().then(function () { return W.get('ah'); }).then(function (rec) {
-      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Link your WoW folder in Load game files (bottom left) first.'; return; }
+      if (!rec) { msg.textContent = 'No Auctionator.lua yet. Load your game files (bottom left) first.'; return; }
       upload(new File([rec.data], rec.name, { lastModified: rec.mod || rec.at }));
     }, function (e) { msg.textContent = 'Could not read it: ' + e.message; });
   });
