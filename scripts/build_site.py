@@ -28,7 +28,7 @@ CF_BEACON = os.environ.get('CF_BEACON', '')
 # tool id (hub/build_hub.py TOOLS) -> page address on the site
 SLUG = {'crafted': 'gear-upgrades', 'leveling': 'profession-leveling', 'enchants': 'enchants', 'macros': 'enchant-macros',
         'tailoring': 'tailoring-finder', 'timing': 'mat-timing', 'sell': 'sell-spare-mats', 'flips': 'vendor-flips',
-        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route', 'dungeons': 'dungeons'}
+        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route', 'dungeons': 'dungeons', 'talents': 'talent-planner'}
 # tools that fetch their own data files (<tool folder>/data/ -> /<slug>/data/)
 DATA_DIRS = {'route': 'level-route/data', 'dungeons': 'dungeon-guide/data'}
 HUB_ARTIFACT = 'CHaDEsKnVJdVHSheWPz7XF'
