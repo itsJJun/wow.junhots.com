@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Clearer maps and hover cards",
+    "text": "Point at an item to see a game-style tooltip with Forever's own stats. NPC maps zoom in, the route's World map shows where your zone is, and stop numbers are easier to read.",
+    "image": "/assets/updates/2026-11-25-hover-cards-maps.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Profession leveling: no more one-point detours",
     "text": "The route no longer switches to another recipe for a point or two when it saves almost nothing (one point of Jungle Stew between Rockscale Cod and Spider Sausage). A switch now has to save over 10%, so you buy fewer different materials.",
     "image": "/assets/updates/2026-11-25-no-detours.webp",

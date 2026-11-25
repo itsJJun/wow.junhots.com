@@ -78,6 +78,46 @@ a { color: var(--accent); }
 .zbar button[data-z=in], .zbar button[data-z=out] { font-size: 16px; font-weight: 700; padding: 0; }
 .zbar button:hover { background: rgba(24,21,17,.97); }
 .nomap { border: 1px dashed var(--line2); border-radius: 10px; padding: 26px; color: var(--muted); text-align: center; font-size: 13px; }
+/* where the zone is (25 Nov): a small continent map in the corner, and the World view with every zone */
+.wloc { position: absolute; right: 8px; bottom: 8px; width: 132px; padding: 3px 3px 0; border-radius: 9px; background: rgba(24,21,17,.92); border: 1px solid rgba(0,0,0,.45); box-shadow: 0 4px 14px rgba(0,0,0,.4); cursor: pointer; color: #f3ead9; font: 11.5px/1.3 Inter, system-ui, sans-serif; text-align: center; }
+.wloc:hover { border-color: var(--accent); }
+.wloc svg { position: static; display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 6px; cursor: pointer; touch-action: auto; }
+.wloc b { display: block; padding: 3px 0 4px; font-weight: 600; }
+.wz-dim { fill: rgba(10,9,8,.5); fill-rule: evenodd; }
+.wz-box { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.wvm { position: fixed; inset: 0; z-index: 9000; background: rgba(8,7,6,.72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.wvp { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.5); max-width: 100%; max-height: 100%; overflow: auto; padding: 10px 12px 12px; }
+.wvh { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.wvh b { color: var(--ink); font-size: 15px; }
+.wvh .wvk { display: inline-block; width: 14px; height: 10px; border-radius: 2px; border: 2px solid #ffe08a; box-shadow: 0 0 0 1px #000; background: rgba(255,236,170,.2); vertical-align: -1px; margin-right: 4px; }
+.wvh .wva { margin-left: auto; font: inherit; font-size: 13px; height: 30px; padding: 0 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
+.wvh .wva:hover { border-color: var(--accent); }
+.wvc.near svg { height: auto; width: min(1000px, calc(100vw - 60px), calc((100vh - 110px) * 4 / 3)); }
+.wvc .wl.hov, .wvc .wlv.hov { display: none; }
+.wvc .wzg:hover .hov { display: inline; }
+.wvh .wvx { font: inherit; font-size: 13px; height: 30px; padding: 0 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
+.wvh .wvx:hover { border-color: var(--accent); }
+.wvc { display: flex; gap: 10px; }
+.wvc figure { margin: 0; position: relative; }
+.wvc figcaption { position: absolute; left: 8px; top: 6px; font-size: 13px; font-weight: 700; color: #f3ead9; text-shadow: 0 1px 3px #000; pointer-events: none; }
+.wvc svg { display: block; height: min(calc(100vh - 110px), 880px); width: auto; border-radius: 8px; background: #2a2219; }
+.wvc .wz { fill: transparent; stroke: none; }
+.wvc path.wz:hover { fill: rgba(255,240,200,.14); stroke: #fff4d8; stroke-width: 1.3; vector-effect: non-scaling-stroke; }
+.wvc .wdim { fill: rgba(12,10,8,.45); fill-rule: evenodd; pointer-events: none; }
+.wvc .wzh { fill: none; stroke: rgba(0,0,0,.8); stroke-width: 6; vector-effect: non-scaling-stroke; stroke-linejoin: round; pointer-events: none; }
+.wvc .wzh.cur { stroke-width: 7.5; }
+.wvc .wz.on, .wvc path.wz.on:hover { fill: rgba(255,236,170,.10); stroke: #ffe08a; stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: pointer; }
+.wvc .wz.on:hover { fill: rgba(255,236,170,.24); }
+.wvc .wz.cur { stroke: #fff3c4; stroke-width: 3.5; fill: rgba(255,236,170,.16); }
+.wvc text { font-family: Inter, system-ui, sans-serif; text-anchor: middle; paint-order: stroke; stroke: #15120e; stroke-linejoin: round; pointer-events: none; }
+.wvc .wl { fill: #efe6d4; font-weight: 600; font-size: 9px; stroke-width: 2.6px; }
+.wvc .wl.city { font-size: 7.5px; font-style: italic; fill: #e2d8c6; stroke-width: 2.2px; }
+.wvc .wl.on { fill: #ffd27a; font-weight: 800; font-size: 10.5px; stroke-width: 3px; }
+.wvc .wlv { fill: #ffd27a; font-size: 8px; font-weight: 600; stroke-width: 2.4px; }
+.wvc .wme { fill: #4fa3ff; stroke: #fff; stroke-width: 1.4; }
+.wvc .wmel { fill: #9fd0ff; font-weight: 700; font-size: 9px; stroke-width: 2.4px; }
+@media (max-width: 900px) { .wvc { flex-direction: column; } .wvc svg { width: 100%; height: auto; } .wvm { padding: 6px; } }
+@media (max-width: 640px) { .wloc { display: none; } }
 /* close-up tiles and the quiet map icons (flight masters, boats, zeppelins, dungeon entrances) */
 .mini { pointer-events: none; transition: opacity .25s; }
 .poi circle { fill: rgba(20, 16, 10, .55); stroke: rgba(255, 220, 150, .55); stroke-width: .12; }
@@ -236,6 +276,10 @@ a { color: var(--accent); }
 .map .tw-inset svg { position: static; width: 100%; height: auto; cursor: pointer; touch-action: auto; }
 .map .tw-inset image { filter: none; }
 @media (max-width: 640px) { .tw-inset { width: 44%; min-width: 0; left: 6px; bottom: 6px; padding: 3px; } .tw-inset .tw-cap { font-size: 11px; gap: 8px; } .tw-n { width: 16px; height: 16px; font-size: 9.5px; } #mapbox .zbar { top: auto; bottom: 6px; right: 6px; } #mapbox .zbar [data-z="in"], #mapbox .zbar [data-z="out"] { display: none; } }
+/* stop numbers: solid tags (25 Nov) */
+.pn, .tw-n, .tw-cap .tw-n { display: inline-block; text-align: center; width: auto; min-width: 18px; height: 18px; padding: 0 4px; border: 0; border-radius: 5px; background: #f0a030; color: #1c1814; font: 800 11px/18px Inter, system-ui, sans-serif; vertical-align: 1px; letter-spacing: 0; font-variant-numeric: normal; box-shadow: none; }
+.btn.main .pn { background: #1c1814; color: #f0a030; vertical-align: 1px; }
+@media (max-width: 640px) { .tw-n, .tw-cap .tw-n { min-width: 16px; height: 16px; border-radius: 4px; padding: 0 3px; font-size: 10px; line-height: 16px; } }
 @media (max-width: 640px) { .ys-list li { grid-template-columns: 1fr auto; row-gap: 0; } .ys-m { grid-column: 1; grid-row: 2; } .ys-l { grid-column: 2; grid-row: 1; } }
 .status.warn:empty { display: none; }
 .optsw { display: inline-flex; align-items: center; gap: 7px; border: 1.5px dashed var(--opt); border-radius: 99px; padding: 3px 10px 3px 6px; cursor: pointer; color: var(--ink); font-size: 13px; }
@@ -1363,7 +1407,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     '.dgm-fl button{font:inherit;font-size:12.5px;padding:3px 10px;border-radius:7px;border:0;background:none;color:var(--muted);cursor:pointer}' +
     '.dgm-fl button.on{background:var(--raised);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}.dgm-fl small{color:var(--muted);font-size:11px}' +
     '.dgm-map{position:relative;border-radius:8px;overflow:hidden;line-height:0;background:#2a2318}.dgm-map img{width:100%;height:auto;display:block}' +
-    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
+    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
     '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
     '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
     '.dgm-pin:hover::after,.dgm-pin.hot::after,.dgm-pin.sel::after{content:attr(data-n);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:5px;background:rgba(20,17,13,.92);color:#f3d9a4;font:600 11.5px/1.3 Inter,system-ui,sans-serif;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.5)}' +
@@ -1926,10 +1970,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var r = st.rows[0], s = r.s || {}, qd = M.quests[s.q] || [], t;
       if (r.k === 'fp') t = 'Flight master, ' + T.town(r.nd);
       else if (st.loc && st.loc.dun) t = st.loc.dun;
-      else if (s.t === 'accept') t = qd[3] || qn(s.q);
-      else if (s.t === 'turnin') t = qd[4] || qn(s.q);
+      else if (s.t === 'accept') { t = qd[3] || qn(s.q); if (qd[3] && !qd[7]) st.npc = qd[3]; }
+      else if (s.t === 'turnin') { t = qd[4] || qn(s.q); if (qd[4]) st.npc = qd[4]; }
       else if (s.t === 'do') t = qn(s.q);
-      else if (s.t === 'train') t = (M.npcs[s.npc] || 'Class trainer');
+      else if (s.t === 'train') { t = (M.npcs[s.npc] || 'Class trainer'); if (M.npcs[s.npc]) st.npc = s.npc; }
       else if (s.t === 'fp') t = 'Flight master' + (s.nd && T.taxi[s.nd] ? ', ' + T.town(s.nd) : '');
       else if (s.t === 'bind') t = 'Innkeeper, ' + zn(s.z);
       else if (s.t === 'hearth') t = 'Hearth' + (s._to ? ' to ' + s._to : '');
@@ -2197,7 +2241,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var ur = [];
       rows.forEach(function (r) { if (r.k === 'step' && r.s.t === 'turnin' && upMine.byId[r.s.q] && !doneQ.has(r.s.q)) ur.push(r); });
       if (ur.length) tiles.push({ k: 'gear', n: ur.length, label: ur.length === 1 ? 'gear upgrade' : 'gear upgrades', rows: ur.map(function (r) {
-        var u = upMine.byId[r.s.q]; return row('<span class="q' + (u[4] || 1) + '">' + esc(u[0]) + '</span>', '+' + u[2] + ' ' + esc(String(u[1]).toLowerCase()) + ' · ' + esc(qn(r.s.q)) + (r.n < here ? ' · behind you' : ''), stopAt(r.n));
+        var u = upMine.byId[r.s.q]; return row('<span class="q' + (u[4] || 1) + '" data-item="' + esc(u[0]) + '" tabindex="0">' + esc(u[0]) + '</span>', '+' + u[2] + ' ' + esc(String(u[1]).toLowerCase()) + ' · ' + esc(qn(r.s.q)) + (r.n < here ? ' · behind you' : ''), stopAt(r.n));
       }) });
     }
     // dungeons you hold quests for
@@ -2355,8 +2399,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     else {
       var s = r.s, all = [s].concat((r.more || []).map(function (m) { return m.s; })), tags = '';
       if (s.ad === 'Class quest' && !s.of) tags += '<span class="tag add">class quest</span>';
-      if (s.q && UPQ[s.q] && (s.t === 'accept' || s.t === 'turnin')) tags += '<span class="tag up" title="A gear upgrade for your spec, so the route takes this quest">upgrade: ' + esc(UPQ[s.q]) + '</span>';
-      else if (s.q && upMine && upMine.byId[s.q] && (s.t === 'accept' || s.t === 'turnin') && !doneQ.has(s.q)) { var mu = upMine.byId[s.q]; tags += '<span class="tag up" title="Beats the ' + esc(String(mu[1]).toLowerCase()) + ' you wear (Gear upgrades page)">upgrade: ' + esc(mu[0]) + ' +' + mu[2] + '</span>'; }
+      if (s.q && UPQ[s.q] && (s.t === 'accept' || s.t === 'turnin')) tags += '<span class="tag up" data-item="' + esc(UPQ[s.q].split(', ')[0]) + '" data-item-note="An upgrade for your spec" tabindex="0">upgrade: ' + esc(UPQ[s.q]) + '</span>';
+      else if (s.q && upMine && upMine.byId[s.q] && (s.t === 'accept' || s.t === 'turnin') && !doneQ.has(s.q)) { var mu = upMine.byId[s.q]; tags += '<span class="tag up" data-item="' + esc(mu[0]) + '" data-item-note="Beats your ' + esc(String(mu[1]).toLowerCase()) + ' by +' + mu[2] + '" tabindex="0">upgrade: ' + esc(mu[0]) + ' +' + mu[2] + '</span>'; }
       if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
       else if (s.op) tags += '<span class="tag">can skip</span>';
       if (s.dq && !s.in) tags += '<span class="tag dq">' + esc(dunShort(s.dq)) + '</span>';
@@ -2398,7 +2442,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function bossGear(name, withBoss) {
     var l = BG[name]; if (!l || !l.length) return '';
     return l.map(function (x) {
-      return '<span class="bgi q' + (x[5] || 1) + '" title="' + esc(x[3] + (x[4] ? ' · ' + Math.round(x[4]) + '% drop' : '') + ' · ' + x[2]) + '">' + esc(x[1]) + '</span>' + (withBoss ? ' <span class="muted">(' + esc(x[3]) + ')</span>' : '');
+      return '<span class="bgi q' + (x[5] || 1) + '" data-item="' + x[0] + '" tabindex="0">' + esc(x[1]) + '</span>' + (withBoss ? ' <span class="muted">(' + esc(x[3]) + ')</span>' : '');
     }).join(', ');
   }
   function stopHtml(st, c, rdy) {
@@ -2409,7 +2453,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (st.loc && st.loc.dun) cls += ' isdun';
       var ot = optTrip(st); if (ot) cls += ' isopt';
       var where = st.loc && st.loc.x != null && !st.loc.dun ? (st.loc.um !== curZone || c.zones.length > 1 ? umName(st.loc.um) + ' ' : '') + st.loc.x.toFixed(1) + ', ' + st.loc.y.toFixed(1) : st.loc && st.loc.dun ? 'inside' : '';
-    return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b>' + esc(st.title) + '</b>' +
+    return ('<div class="' + cls + '" id="st' + st.gi + '" data-st="' + st.gi + '"><div class="hd"><input type="checkbox" data-stop="' + st.gi + '"' + (dn ? ' checked' : '') + ' aria-label="stop done"><span class="n">' + st.num + '</span><b' + (st.npc ? ' data-npc="' + esc(st.npc) + '" data-card-pass tabindex="0"' : '') + '>' + esc(st.title) + '</b>' +
         (st === hereStop ? '<span class="herebadge">you are here</span>' : '') + '</div><div class="where">' + esc(where) + (where && st.lv ? ' · ' : '') + (st.lv ? 'level ' + fl(st.lv) : '') + '</div>' + ot +
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? '<p class="dglk"><a href="' + DGURL + '#' + dgSlug(st.loc.dun) + '">' + wi('skull') + 'Map and bosses of ' + esc(st.loc.dun) + ' ›</a></p>' : '') +
@@ -2632,7 +2676,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     m.appendChild(svg);
     var zb = document.createElement('div'); zb.className = 'zbar';
     zb.innerHTML = '<button type="button" data-z="in" title="Zoom in" aria-label="Zoom in">+</button><button type="button" data-z="out" title="Zoom out" aria-label="Zoom out">−</button>' +
-      '<button type="button" data-z="fit" title="Zoom to where you go next">Next places</button><button type="button" data-z="all" title="Show the whole zone">Whole zone</button>';
+      '<button type="button" data-z="fit" title="Zoom to where you go next">Next places</button><button type="button" data-z="all" title="Show the whole zone">Whole zone</button>' +
+      (contOf(curZone) ? '<button type="button" data-wv="' + contOf(curZone) + '" title="See where this zone is in the world">World</button>' : '');
     m.appendChild(zb);
     if (c.zones.length > 1) {
       var zs = document.createElement('select'); zs.className = 'zsel'; zs.setAttribute('aria-label', 'Map');
@@ -2654,9 +2699,100 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         m.appendChild(ins);
       }
     }
+    if (contOf(curZone)) m.insertAdjacentHTML('beforeend', locHtml(curZone));
     box.innerHTML = ''; box.appendChild(m);
     mapSvg = svg; applyView();
   }
+  // ---- where the zone is (Jun 25 Nov: a new player didn't know where a zone is): a small continent map in the
+  // corner of the zone map, and the World view (World button, or zoom out past the whole zone): the continent with
+  // every zone's name and levels, this part's zones marked (click one to open it), and you when your snapshot says where.
+  var worldOn = null;
+  var CONTS = { 1415: 'Eastern Kingdoms', 1414: 'Kalimdor' };
+  var contOf = function (um) { var z = UMZ[um]; return z ? (z[1] === 0 ? 1415 : z[1] === 1 ? 1414 : null) : null; };
+  var zRect = function (cm, z) {   // a zone's map on the continent map: [x, y, w, h] (travel zones: [um, map, x0, x1, y0, y1])
+    var a = wmUV(cm, { map: z[1], x: z[3], y: z[5] }), b = wmUV(cm, { map: z[1], x: z[2], y: z[4] });
+    return a && b ? [a[0], a[1], b[0] - a[0], b[1] - a[1]] : null;
+  };
+  var f1w = function (v) { return (+v).toFixed(1); };
+  var ZS = {};   // uiMap -> [svg path on the continent map, label x, label y]
+  fetch(BASE + 'maps/zones.json').then(function (r) { return r.json(); }).then(function (j) { ZS = j; try { if (curZone != null) drawMap(); } catch (e) {} }).catch(function () {});
+  function locHtml(um) {
+    var cm = contOf(um), r = cm && zRect(cm, UMZ[um]); if (!r) return '';
+    var S = 600, cx = r[0] + r[2] / 2, vx = Math.min(Math.max(0, cx - S / 2), 1002 - S), vy = Math.min(Math.max(0, r[1] + r[3] / 2 - S / 2), 668 - S);
+    var q = r.map(f1w);
+    return '<div class="wloc" data-wv="' + cm + '" title="Where ' + esc(umName(um)) + ' is. Click for the world map">' +
+      '<svg viewBox="' + [vx, vy, S, S].map(f1w).join(' ') + '" aria-hidden="true"><image href="' + BASE + 'maps/' + cm + '.webp" x="0" y="0" width="1002" height="668"/>' +
+      (ZS[um] ? '<path class="wz-dim" d="M0 0H1002V668H0Z ' + ZS[um][0] + '"/><path class="wz-box" d="' + ZS[um][0] + '"/>' :
+        '<path class="wz-dim" d="M0 0H1002V668H0Z M' + q[0] + ' ' + q[1] + 'h' + q[2] + 'v' + q[3] + 'h-' + q[2] + 'Z"/>' +
+        '<rect class="wz-box" x="' + q[0] + '" y="' + q[1] + '" width="' + q[2] + '" height="' + q[3] + '" rx="6"/>') + '</svg><b>' + CONTS[cm] + '</b></div>';
+  }
+  // both continents side by side (Kalimdor west, Eastern Kingdoms east), cropped to their zones; labels from LBL
+  function worldHtml(all) {
+    var c = chaps[cur], mine = new Set(c.zones.filter(function (um) { return MAPS.has(um); }));
+    var wh = snap && snap.where, home = contOf(curZone) || contOf(c.zones.find(function (um) { return contOf(um); }));
+    return (all || !home ? [1414, 1415] : [home]).map(function (cm) {
+      var zs = T.d.zones.filter(function (z) { return contOf(z[0]) === cm && MAPS.has(z[0]); }), g = [], labs = [], hov = [], dim = [], U = null, A = null;
+      var grow = function (B, r) { return B ? [Math.min(B[0], r[0]), Math.min(B[1], r[1]), Math.max(B[2], r[0] + r[2]), Math.max(B[3], r[1] + r[3])] : [r[0], r[1], r[0] + r[2], r[1] + r[3]]; };
+      zs.forEach(function (z) { var r = zRect(cm, z); if (!r || z[8] == null) return; U = grow(U, r); if (mine.has(z[0]) || z[0] === curZone) A = grow(A, r); });
+      if (!U) return '';
+      // the view: whole continent, or this part's zones with their neighbours around them (4:3)
+      var vb;
+      if (all || !A) vb = [U[0] - 12, Math.max(0, U[1] - 14), U[2] - U[0] + 24, Math.min(668, U[3] + 8) - Math.max(0, U[1] - 14)];
+      else {
+        var cx = (A[0] + A[2]) / 2, cy = (A[1] + A[3]) / 2, w = Math.max(430, (A[2] - A[0]) * 1.8, (A[3] - A[1]) * 1.8 * 4 / 3);
+        w = Math.min(w, 668 * 4 / 3); var h = w * 3 / 4;
+        vb = [Math.min(Math.max(0, cx - w / 2), 1002 - w), Math.min(Math.max(0, cy - h / 2), 668 - h), w, h];
+      }
+      var k = all || !A ? 1 : vb[2] / 640;   // names keep about the same size on screen in both views
+      var tx = function (cls, x, y, s, fs, sw) { return '<text class="' + cls + '" x="' + f1w(x) + '" y="' + f1w(y) + '" style="font-size:' + (fs * k).toFixed(2) + 'px;stroke-width:' + (sw * k).toFixed(2) + 'px">' + esc(s) + '</text>'; };
+      zs.forEach(function (z) {
+        var r = zRect(cm, z), sh = ZS[z[0]], city = z[8] == null; if (!r || (!sh && city)) return;
+        var on = mine.has(z[0]), lv = city ? '' : z[8] + '-' + z[9], o = LBL[z[0]] || [0, 0];
+        var x = sh ? sh[1] : r[0] + r[2] / 2 + o[0], y = sh ? sh[2] - 3 : r[1] + r[3] / 2 + o[1];
+        var shape = sh ? '<path class="wz' + (on ? ' on' : '') + (z[0] === curZone ? ' cur' : '') + '"' + (on ? ' data-wz="' + z[0] + '"' : '') + ' d="' + sh[0] + '"/>' :
+          '<rect class="wz' + (on ? ' on' : '') + (z[0] === curZone ? ' cur' : '') + '"' + (on ? ' data-wz="' + z[0] + '"' : '') + ' x="' + f1w(r[0]) + '" y="' + f1w(r[1]) + '" width="' + f1w(r[2]) + '" height="' + f1w(r[3]) + '" rx="3"/>';
+        if (on) { g.push(shape.replace('class="wz', 'class="wzh').replace(/ data-wz="\d+"/, '') + shape); dim.push(sh ? sh[0] : 'M' + f1w(r[0]) + ' ' + f1w(r[1]) + 'h' + f1w(r[2]) + 'v' + f1w(r[3]) + 'h-' + f1w(r[2]) + 'Z'); labs.push({ x: x, y: y, n: z[6], lv: lv, a: r[2] * r[3] }); }
+        else { g.push('<g class="wzg">' + shape.replace('"/>', '"><title>' + esc(z[6]) + (lv ? ', level ' + lv : '') + '</title></' + (sh ? 'path' : 'rect') + '>')); hov.push(z[0]);
+          g[g.length - 1] += tx('wl hov', x, y, z[6], 10, 2.8) + (lv ? tx('wlv hov', x, y + 9.5 * k, lv, 8.5, 2.4) : '') + '</g>'; }
+      });
+      // this part's names: biggest zone first; a name that would cover another moves up or down a little
+      var put = [];
+      labs = labs.sort(function (a, b) { return b.a - a.a; }).map(function (L) {
+        var w = L.n.length * 10.5 * 0.6 * k + 4 * k, h = 20 * k, ok = 0;
+        [0, -1, 1, -2, 2, -3, 3].some(function (t) {
+          var y = L.y + t * 7 * k, b = [L.x - w / 2, y - 9 * k, L.x + w / 2, y - 9 * k + h];
+          if (put.some(function (p) { return b[0] < p[2] && b[2] > p[0] && b[1] < p[3] && b[3] > p[1]; })) return false;
+          put.push(b); ok = y; return true;
+        });
+        var y = ok || L.y;
+        return tx('wl on', L.x, y, L.n, 10.5, 3) + (L.lv ? tx('wlv', L.x, y + 9.5 * k, L.lv, 8.5, 2.4) : '');
+      });
+      var me = wh && wh.wx != null ? wmUV(cm, { map: wh.cont, x: wh.wx, y: wh.wy }) : null;
+      if (me && wh.cont === (cm === 1415 ? 0 : 1)) labs.push('<circle class="wme" cx="' + f1w(me[0]) + '" cy="' + f1w(me[1]) + '" r="' + (4 * k).toFixed(2) + '"/>' + tx('wmel', me[0], me[1] - 7 * k, 'You', 9, 2.4));
+      return '<figure><figcaption>' + CONTS[cm] + '</figcaption><svg viewBox="' + vb.map(f1w).join(' ') + '" role="img" aria-label="Map of ' + CONTS[cm] + '">' +
+        '<image href="' + BASE + 'maps/' + cm + '.webp" x="0" y="0" width="1002" height="668"/>' + (dim.length ? '<path class="wdim" d="M0 0H1002V668H0Z' + dim.join('') + '"/>' : '') + g.join('') + labs.join('') + '</svg></figure>';
+    }).join('');
+  }
+  var worldEl = null, worldAll = false;
+  function openWorld() {
+    if (!worldEl) {
+      worldEl = document.createElement('div'); worldEl.className = 'wvm'; worldEl.setAttribute('role', 'dialog'); worldEl.setAttribute('aria-label', 'World map');
+      worldEl.addEventListener('click', function (e) {
+        var wz = e.target.closest('[data-wz]');
+        if (wz) { curZone = +wz.dataset.wz; closeWorld(); drawMap(); return; }
+        if (e.target.closest('.wva')) { worldAll = !worldAll; openWorld(); return; }
+        if (e.target === worldEl || e.target.closest('.wvx')) closeWorld();
+      });
+      document.body.appendChild(worldEl);
+    }
+    worldEl.innerHTML = '<div class="wvp"><div class="wvh"><b>World map</b><span><i class="wvk"></i>' + esc(chaps[cur].name) + '</span>' +
+      '<button type="button" class="wva">' + (worldAll ? 'Just this area' : 'Whole world') + '</button><button type="button" class="wvx">Close</button></div>' +
+      '<div class="wvc' + (worldAll ? '' : ' near') + '">' + worldHtml(worldAll) + '</div></div>';
+    worldEl.hidden = false; worldOn = 1;
+  }
+  function closeWorld() { if (worldEl) worldEl.hidden = true; worldOn = null; }
+  // label nudges (continent pixels) where a zone's box centre sits off its land or on a neighbour's label
+  var LBL = { 1427: [-13, -3], 1418: [9, 0], 1429: [-11, 0], 1433: [9, 2], 1421: [-9, 5], 1416: [6, -3], 1422: [3, 5], 1413: [7, -26], 1412: [-4, 0], 1457: [-4, 9] };
   function clampView(cx, cy, w) {
     w = Math.min(100, Math.max(10, w)); var h = w * AR;
     return [Math.min(Math.max(0, cx - w / 2), 100 - w), Math.min(Math.max(0, cy - h / 2), 100 * AR - h), w, h];
@@ -2770,13 +2906,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // wheel = zoom at the mouse; drag = move; two fingers = pinch; double click = zoom in
   var ptrs = {}, drag = null, moved = false;
   $('mapbox').addEventListener('wheel', function (e) {
-    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset, .wloc')) return;
     e.preventDefault();
     var p = toMap(e); zoomAt(p[0], p[1], Math.pow(1.0018, -e.deltaY * (e.deltaMode === 1 ? 30 : 1)));
   }, { passive: false });
-  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
+  $('mapbox').addEventListener('dblclick', function (e) { if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset, .wloc')) return; var p = toMap(e); zoomAt(p[0], p[1], 1.8); });
   $('mapbox').addEventListener('pointerdown', function (e) {
-    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset')) return;
+    if (!mapSvg || !e.target.closest('svg') || e.target.closest('.tw-inset, .wloc')) return;
     ptrs[e.pointerId] = [e.clientX, e.clientY]; moved = false;
     drag = { v: view.slice(), p: JSON.parse(JSON.stringify(ptrs)) };
   });
@@ -2843,9 +2979,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var s = e.target.closest('[data-st]'); if (s) select(+s.dataset.st, false);
   });
   $('mapbox').addEventListener('click', function (e) {
+    if (e.target.closest('[data-wv]')) { openWorld(); return; }
     var z = e.target.closest('[data-z]');
     if (z) {
       var z0 = z.dataset.z, cx = view[0] + view[2] / 2, cy = view[1] + view[3] / 2;
+      if (z0 === 'out' && view[2] >= 99.9 && contOf(curZone)) { openWorld(); return; }
       if (z0 === 'in') zoomAt(cx, cy, 1.6); else if (z0 === 'out') zoomAt(cx, cy, 1 / 1.6);
       else { view = z0 === 'fit' ? mapFit.slice() : [0, 0, 100, 100 * AR]; applyView(); }
       return;
@@ -2854,6 +2992,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var ti = e.target.closest('.tw-inset'); if (ti) { select(+ti.dataset.st, true); return; }
     var p = e.target.closest('.pin'); if (p) select(+p.dataset.st, true);
   });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && worldOn) closeWorld(); });
   $('duns').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
   $('startBody').addEventListener('click', function (e) {
     var t = e.target.closest('[data-ys]');

@@ -96,8 +96,7 @@ a { color: var(--accent); }
 .loot li { display: flex; gap: 8px; align-items: center; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
 .loot li.isup { background: color-mix(in srgb, var(--good) 9%, transparent); }
 .loot img, .rwi { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
-.loot .nm { font-weight: 600; text-decoration: none; }
-.loot .nm:hover { text-decoration: underline; }
+.loot .nm { font-weight: 600; }
 .loot .sl { color: var(--muted); font-size: 12px; flex: 1; min-width: 0; }
 .loot .pc { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .recs { font-size: 12px; color: var(--muted); margin: 4px 0 0 6px; }
@@ -126,7 +125,7 @@ a { color: var(--accent); }
 .qrow.open .qb { display: block; }
 .qb p { margin: 0 0 3px; }
 .qb b { color: var(--ink); font-weight: 600; }
-.qb .qrw a { text-decoration: none; font-weight: 600; } .qb .qrw a:hover { text-decoration: underline; }
+.qb .qrw [data-item] { font-weight: 600; }
 .qb .qtags { display: none; }
 .ent p { margin: 0; font-size: 13.5px; }
 .entmap { position: relative; margin-top: 8px; max-width: 520px; border-radius: 8px; overflow: hidden; line-height: 0; }
@@ -776,9 +775,6 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 
 <footer>Bosses, drops, quests and boss spots: the Dungeon Journal addon (by Exehn). Lower Blackrock Spire's boss spots and the map file list: <a href="https://github.com/openmap-world/openmap" target="_blank" rel="noopener">OpenMap</a> (MIT licence). Maps: Blizzard's own dungeon maps. Upgrades for your spec: the same scoring as the <a href="/level-route/">Level 1-60 route</a> and Gear upgrades.</footer>
 </div>
-<!-- item tooltips like in game: Wowhead's tooltip script, Forever data (links to wowhead.com/forever/item=...) -->
-<script>var whTooltips = { colorLinks: false, iconizeLinks: false, renameLinks: false };</script>
-<script src="https://wow.zamimg.com/js/tooltips.js" async></script>
 <script>
 /* Dungeon map with numbered boss spots. Shared by the Dungeons page and the Level route (both inline this file).
    DGMap(el, d, base, opt) draws dungeon d (dungeons.json) into el: floor tabs, the map picture, a numbered pin per boss.
@@ -835,7 +831,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     '.dgm-fl button{font:inherit;font-size:12.5px;padding:3px 10px;border-radius:7px;border:0;background:none;color:var(--muted);cursor:pointer}' +
     '.dgm-fl button.on{background:var(--raised);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}.dgm-fl small{color:var(--muted);font-size:11px}' +
     '.dgm-map{position:relative;border-radius:8px;overflow:hidden;line-height:0;background:#2a2318}.dgm-map img{width:100%;height:auto;display:block}' +
-    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11.5px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
+    '.dgm-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:#1d1a16;color:#f3d9a4;font:700 11px/22px Inter,system-ui,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 0 2px #e0a64a,0 2px 5px rgba(0,0,0,.55)}' +
     '.dgm-pin.r{box-shadow:0 0 0 2px #b9b2a6,0 2px 5px rgba(0,0,0,.55);color:#ddd}' +
     '.dgm-pin.sel,.dgm-pin.hot{background:#e0a64a;color:#1d1a16;box-shadow:0 0 0 3px rgba(224,166,74,.4),0 2px 5px rgba(0,0,0,.55);z-index:2}' +
     '.dgm-pin:hover::after,.dgm-pin.hot::after,.dgm-pin.sel::after{content:attr(data-n);position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:5px;background:rgba(20,17,13,.92);color:#f3d9a4;font:600 11.5px/1.3 Inter,system-ui,sans-serif;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.5)}' +
@@ -979,7 +975,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     if ($('backBtn')) $('backBtn').onclick = function () { history.back(); };
     var spec = specLabel($('spec').value) + ' ' + $('cls').value;
     var a = $('dans');
-    if (ups.length) { a.className = 'wf-answer good'; a.innerHTML = '<span>' + ups.length + (ups.length === 1 ? ' upgrade' : ' upgrades') + ' for ' + esc(spec) + ': ' + ups.map(function (x) { return '<b class="q' + x[5] + '">' + esc(x[1]) + '</b>'; }).join(', ') + '.</span>'; }
+    if (ups.length) { a.className = 'wf-answer good'; a.innerHTML = '<span>' + ups.length + (ups.length === 1 ? ' upgrade' : ' upgrades') + ' for ' + esc(spec) + ': ' + ups.map(function (x) { return '<b class="q' + x[5] + '" data-item="' + x[0] + '" tabindex="0">' + esc(x[1]) + '</b>'; }).join(', ') + '.</span>'; }
     else if (r) { a.className = 'wf-answer'; a.innerHTML = '<span>No drop here beats the gear your route gives you by level ' + Math.floor(r.lv) + ' (' + esc(spec) + ').</span>'; }
     else { a.className = 'wf-answer'; a.innerHTML = '<span>Not on your route' + (R && d.lv[0] >= 50 ? ': you reach level 60 before it' : '') + '. Drops that suit ' + esc(spec) + ' are not marked.</span>'; }
     // map + bosses
@@ -1013,7 +1009,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     var l = b.l.slice().sort(function (x, y) { return (upIds[y[0]] ? 1 : 0) - (upIds[x[0]] ? 1 : 0); });
     var h = '<ul class="loot">' + l.map(function (x) {
       var it = IT[x[0]] || ['Item ' + x[0], 1, '', '', 0], u = upIds[x[0]];
-      return '<li' + (u ? ' class="isup"' : '') + '><img src="' + icon(it[2]) + '" alt="" loading="lazy"><a class="nm q' + it[1] + '" href="https://www.wowhead.com/forever/item=' + x[0] + '" target="_blank" rel="noopener">' + esc(it[0]) + '</a>' +
+      return '<li' + (u ? ' class="isup"' : '') + '><img src="' + icon(it[2]) + '" alt="" loading="lazy"><span class="nm q' + it[1] + '" data-item="' + x[0] + '" tabindex="0">' + esc(it[0]) + '</span>' +
         '<span class="sl">' + esc(it[3]) + (it[4] ? ' · level ' + it[4] : '') + (x[2] ? ' · ' + esc(x[2]) : '') + (x[3] ? ' · ' + esc(x[3]) : '') + '</span>' +
         (x[1] ? '<span class="pc">' + Math.round(x[1]) + '%</span>' : '') + (u ? '<span class="tg up">upgrade</span>' : '') + '</li>';
     }).join('') + '</ul>';
@@ -1044,8 +1040,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     $('qSum').textContent = qs.length ? qs.length + ' for ' + fac() + (q2(cls)) + (nOn ? ' · ' + nOn + ' on your route' : '') : '';
     $('qSec').classList.toggle('hidden', !qs.length);
     $('quests').innerHTML = qs.map(function (q) {
-      var rw = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i] || ['', 1, '']; return '<img class="rwi" src="' + icon(it[2]) + '" alt="' + esc(it[0]) + '" title="' + esc(it[0]) + (it[3] ? ' · ' + esc(it[3]) : '') + '" loading="lazy">'; }).join('');
-      var rwTxt = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i]; return it ? '<a class="q' + it[1] + '" href="https://www.wowhead.com/forever/item=' + i + '" target="_blank" rel="noopener">' + esc(it[0]) + '</a>' : ''; }).filter(Boolean).join(', ');
+      var rw = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i] || ['', 1, '']; return '<img class="rwi" src="' + icon(it[2]) + '" alt="' + esc(it[0]) + '" data-item="' + i + '" data-card-pass loading="lazy">'; }).join('');
+      var rwTxt = (q.rw || []).concat(q.rw2 || []).map(function (i) { var it = IT[i]; return it ? '<span class="q' + it[1] + '" data-item="' + i + '" tabindex="0">' + esc(it[0]) + '</span>' : ''; }).filter(Boolean).join(', ');
       var t = [];
       if (doneQ(q.id)) t.push('<span class="tg done">✓ done</span>');
       else if (r.qs && r.qs.has(q.id)) t.push('<span class="tg route">on your route</span>');
@@ -1057,12 +1053,14 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         '<span class="ql">' + (q.lv ? 'level ' + q.lv : '') + (q.rq ? '<span class="muted"> · ' + q.rq + '+</span>' : '') + '</span>' +
         '<span class="qr">' + (rw || (q.m ? '<span class="muted">' + esc(q.m) + '</span>' : '')) + (q.pick && rw ? '<span class="muted"> pick one</span>' : '') + '</span>' +
         '<span class="qtags">' + t.join('') + '</span><span class="bcar">▶</span></button>' +
-        '<div class="qb"><p>' + esc(q.o) + '</p><p>From <b>' + esc(q.p) + '</b>' + (q.rq ? ', from level ' + q.rq : '') + '.</p>' + lead +
+        '<div class="qb"><p>' + esc(q.o) + '</p><p>From <b>' + giver(q.p) + '</b>' + (q.rq ? ', from level ' + q.rq : '') + '.</p>' + lead +
         (rwTxt ? '<p class="qrw">Reward' + (q.pick ? ' (pick one)' : '') + ': ' + rwTxt + (q.m ? ' · ' + esc(q.m) : '') + '.</p>' : q.m ? '<p class="qrw">Reward: ' + esc(q.m) + '.</p>' : '') +
         (t.length ? '<div class="qtags">' + t.join('') + '</div>' : '') + '</div></div>';
     }).join('');
   }
   var q2 = function () { return ''; };
+  // "Scout Riell, Sentinel Hill tower, Westfall": the NPC's name gets the NPC card (picture + map)
+  function giver(p) { var i = String(p || '').indexOf(', '), n = i > 0 ? p.slice(0, i) : p; return n ? '<span data-npc="' + esc(n) + '" tabindex="0">' + esc(n) + '</span>' + esc(p.slice(n.length)) : ''; }
   $('quests').addEventListener('click', function (e) {
     var h = e.target.closest('.qh'); if (!h) return;
     var o = h.parentNode.classList.toggle('open'); h.setAttribute('aria-expanded', o);

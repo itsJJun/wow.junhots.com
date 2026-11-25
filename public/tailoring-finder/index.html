@@ -1258,7 +1258,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const p = PATSRC[r.id]; if (!p) return "";
     let t;
     if (p.k === "t") t = GI("trainer") + esc(profName()) + " trainer, skill " + p.l;
-    else if (p.k === "v") t = GI("vendor") + "<b>" + coin(p.b) + "</b> from " + p.v.map(n => "<b>" + esc(n) + "</b>" + (VPLACE[n] ? " (" + esc(VPLACE[n]) + ")" : "")).join(" or ");
+    else if (p.k === "v") t = GI("vendor") + "<b>" + coin(p.b) + "</b> from " + p.v.map(n => '<b data-npc="' + esc(n) + '" tabindex="0">' + esc(n) + "</b>" + (VPLACE[n] ? " (" + esc(VPLACE[n]) + ")" : "")).join(" or ");
     else if (p.k === "a") t = "monster drop (no vendor). " + GI("ah") + "Auction house about <b>" + coin(p.b) + "</b>" + (p.q ? ", " + p.q + " listed" : "");
     else t = "monster drop (no vendor), none on the auction house";
     if (p.rep) t += ", needs " + esc(p.rep);
@@ -1505,7 +1505,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     $("picks").innerHTML = top.map((x, i) => {
       const how = x.bestWay === "AH" ? (x.depEach ? "After the cut and " + coin(x.depEach) + (x.tries > 1.05 ? " of deposits (about " + x.tries.toFixed(1) + " listings per sale)" : " deposit") + ". " : "") + "Sell on the AH at " + coin(x.ah).replace(/class="coin"/, 'class="coin"') : "Sell to a vendor for " + coin(x.r.s);
       const warn = x.bestWay !== "AH" ? "" : x.listed > 300 ? '<span class="line"><span class="pill warn">crowded</span> ' + fmtN(x.listed) + ' already listed, so sales may be slow.</span>' : x.listed <= 2 ? '<span class="line"><span class="pill warn">thin market</span> Only ' + x.listed + ' listed. One seller set this price, so it may sell slowly or the price may drop.</span>' : "";
-      return '<div class="pick"><span class="rank">#' + (i + 1) + (PROFS[S.prof].tl === "Skill" ? "" : ' \u00b7 ' + x.r.t) + skillTag(x.r) + '</span><span class="name">' + ricon(x.r.id) + esc(x.r.n) + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</span><span class="big">' + coin(x.best, true) + ' <span class="muted small">each</span></span>' + (x.c > 1 ? '<span class="line muted small">Makes ' + x.c + ' per craft: ' + coin(x.best * x.c, true) + ' a craft.</span>' : '') +
+      return '<div class="pick"><span class="rank">#' + (i + 1) + (PROFS[S.prof].tl === "Skill" ? "" : ' \u00b7 ' + x.r.t) + skillTag(x.r) + '</span><span class="name">' + ricon(x.r.id) + '<span data-item="' + x.r.id + '" tabindex="0">' + esc(x.r.n) + '</span>' + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</span><span class="big">' + coin(x.best, true) + ' <span class="muted small">each</span></span>' + (x.c > 1 ? '<span class="line muted small">Makes ' + x.c + ' per craft: ' + coin(x.best * x.c, true) + ' a craft.</span>' : '') +
         '<span class="line">' + how + '. Materials cost ' + coin(x.cost) + '.</span>' +
         (x.bestWay === "AH" ? '<span class="line">' + mvPill(x.mv) + ' ' + esc(x.mv.why) + '</span>' : '') + '<span class="line">Other way: ' + (x.bestWay === "AH" ? "vendor " + coin(x.pV, true) : (x.pAH !== null ? "AH " + coin(x.pAH, true) : "no AH price")) + '</span>' + warn + '</div>';
     }).join("");
@@ -1701,7 +1701,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
       const way = x.bestWay === null ? '<span class="pill mute">missing price</span>' : x.best < 0 ? '<span class="pill bad">loses money</span>' : '<span class="best">' + (x.bestWay === "AH" ? GI("ah") + "Auction house" : GI("vendor") + "Vendor") + '</span>';
       return '<tr class="rec ' + cls(x.best) + '" data-id="' + id + '" aria-expanded="' + open + '">' +
         '<td style="width:44px"><button class="star" type="button" data-star="' + id + '" aria-pressed="' + S.known.has(id) + '" aria-label="I have the ' + esc(x.r.n) + ' recipe" title="Tick if you already know this recipe"><span class="bx">\u2713</span>' + (S.known.has(id) ? "have" : "") + '</button></td>' +
-        '<td><div class="rname">' + ricon(id) + esc(x.r.n) + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</div><div class="rmeta">' + x.r.r.map(([a, q]) => q + " " + esc(names[a])).join(", ") + (x.c > 1 ? " \u00b7 makes " + x.c : "") + skillTag(x.r) + '</div>' + (S.known.has(id) ? '' : getHtml(x.r)) + '</td>' +
+        '<td><div class="rname">' + ricon(id) + '<span data-item="' + id + '" data-card-pass>' + esc(x.r.n) + '</span>' + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</div><div class="rmeta">' + x.r.r.map(([a, q]) => q + " " + esc(names[a])).join(", ") + (x.c > 1 ? " \u00b7 makes " + x.c : "") + skillTag(x.r) + '</div>' + (S.known.has(id) ? '' : getHtml(x.r)) + '</td>' +
         '<td class="num">' + (x.cost !== null ? coin(x.cost) : '<span class="pill bad">no price: ' + esc(x.missing.join(", ")) + '</span>') + '</td>' +
         '<td class="num">' + coin(x.pV, true) + '<div class="rmeta">pays ' + coin(x.r.s) + '</div></td>' +
         '<td class="num">' + coin(x.pAH, true) + '<div class="rmeta">' + (x.ah !== null ? coin(x.ah) + " " + crowd(x.listed) : "not listed") + '</div></td>' +

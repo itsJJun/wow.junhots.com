@@ -91,7 +91,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, .tile:focus-visible 
 .rot-step { display: grid; justify-items: center; gap: 2px; width: 77px; text-align: center; font-size: 11px; line-height: 1.25; position: relative; }
 .rot-step b { font-size: 11px; }
 .rot-step small { color: var(--muted); font-size: 11px; }
-.rot-step .n { position: absolute; top: -6px; left: 14px; background: var(--gold); color: var(--on-accent); font-weight: 700; font-size: 11px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+.rot-step .n { position: absolute; top: -6px; left: 14px; background: var(--gold); color: var(--on-accent); font-weight: 700; font-size: 11px; line-height: 18px; width: 18px; height: 18px; border-radius: 50%; display: block; text-align: center; }
 
 .rules { margin: 0; padding-left: 11px; display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
 .rules b { color: var(--ink); }
@@ -1403,7 +1403,7 @@ function renderNow() {
   const cr = document.getElementById('cTrainer');
   const next = TRAINER.find(([lv]) => lv >= L);
   if (L < 20) {
-    cr.innerHTML = `<span class="k">Trainer</span><h3>${GI('trainer')}Train whenever you're in town</h3><p class="muted" style="font-size:14px">Most even levels add a new spell or rank until 20. Trainers: Nartok (Valley of Trials), Dhugru Gorelust in Razor Hill, and the Cleft of Shadow in Orgrimmar.</p><p class="muted" style="font-size:14px">First big stop after that: level 24.</p>`;
+    cr.innerHTML = `<span class="k">Trainer</span><h3>${GI('trainer')}Train whenever you're in town</h3><p class="muted" style="font-size:14px">Most even levels add a new spell or rank until 20. Trainers: <span data-npc="Nartok" tabindex="0">Nartok</span> (Valley of Trials), <span data-npc="Dhugru Gorelust" tabindex="0">Dhugru Gorelust</span> in Razor Hill, and the Cleft of Shadow in Orgrimmar.</p><p class="muted" style="font-size:14px">First big stop after that: level 24.</p>`;
   } else if (next) {
     const [lv, buys] = next;
     cr.innerHTML = `<span class="k">Next trainer visit</span><h3>${GI('trainer')}${lv === L ? 'Go train now!' : 'At level ' + lv}</h3>
