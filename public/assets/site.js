@@ -9,16 +9,16 @@
     // GearSnapshot only once per new file, since Gear upgrades saves your gear and you may have edited it since
     { key: 'ah', label: 'AH prices', file: 'Auctionator.lua', match: /auctionator|gear snapshot scan/i, pre: 'full scan at the auction house (Gear Snapshot or Auctionator), then /reload', always: true,
       targets: [['#file', '#msg']] },
-    { key: 'snap', label: 'Gear, recipes, quests & bags', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows and bank, then /reload',
+    { key: 'snap', label: 'Your character', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows and bank, then /reload',
       targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg'], ['#bagFile', '#haveInfo']],
       // pages that don't keep it themselves (Level 1-60 route, Craft finder) get it on every visit, like the other files
       alwaysOn: ['#snapFile', '#bagFile'] },
-    { key: 'tsm', label: 'Bags (TSM, optional)', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
+    { key: 'tsm', label: 'Bags (TSM, backup)', backup: true, file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
       targets: [['#bagFile', '#haveInfo']] },
     // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)
-    { key: 'quests', label: 'Quests done (Questie, optional)', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
+    { key: 'quests', label: 'Quests done (Questie, backup)', backup: true, file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
       targets: [['#questieFile', '#msg']] },
-    { key: 'flights', label: 'Known flights (optional)', file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
+    { key: 'flights', label: 'Flights (Shortest Path, backup)', backup: true, file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
       targets: [['#spfFile', '#msg']] }
   ];
   var BY_INPUT = { file: 'ah', gearfile: 'snap', knownFile: 'snap', bagFile: 'tsm', questieFile: 'quests', spfFile: 'flights' };
@@ -360,11 +360,13 @@
   // Patch and which auction houses are getting new hourly data (/api/bliz/houses, kept 10 minutes):
   // -> Promise {patch: "1.60.1", down: [house], late: bool}. A house is down when its snapshot is 2+ hours behind the
   // newest one of its region (the servers are offline); late = no new data for anyone in 3+ hours (Blizzard or our job).
+  var stP = null;
   function siteStatus() {
+    if (stP) return stP;
     var c = null; try { c = JSON.parse(ls.get('ws.status') || 'null'); } catch (e) {}
     var get = c && Date.now() - c.at < 600e3 ? Promise.resolve(c.d) : fetch('/api/bliz/houses').then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) { if (d) ls.set('ws.status', JSON.stringify({ at: Date.now(), d: d })); return d; }).catch(function () { return null; });
-    return get.then(function (d) {
+    return (stP = get.then(function (d) {
       if (!d) return null;
       var out = { patch: null, down: [], late: false }, now = Date.now() / 1000;
       ['us', 'eu'].forEach(function (r) {
@@ -375,7 +377,13 @@
         Object.keys(x.h).forEach(function (k) { var t = x.h[k][2]; if (t && top - t >= 7200) out.down.push(r + '-' + k); });
       });
       return out;
-    });
+    }));
+  }
+  // when Blizzard's prices for your auction house were last updated (ms), from the cached /api/bliz/houses
+  function houseT() {
+    var c = null; try { c = JSON.parse(ls.get('ws.status') || 'null'); } catch (e) {}
+    var x = house().split('-'), r = c && c.d && c.d[x[0]], v = r && r.h[x[1]];
+    return v ? (v[2] || r.asOf || 0) * 1000 : 0;
   }
   var FAC = { 110: 'A', 111: 'A', 112: 'A', 119: 'A', 123: 'A', 113: 'H', 114: 'H', 115: 'H', 120: 'H', 124: 'H', 116: 'N', 117: 'N', 118: 'N', 121: 'N', 125: 'N' };
   function houseFac(list, h) { var x = h.split('-'), r = list[x[0]], v = r && r.h[x[1]]; return v ? v[1] : FAC[x[1]] || ''; }
@@ -579,14 +587,21 @@
     });
     document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of ' + KINDS.length + ' game files loaded'; });
     if (document.readyState !== 'loading') { factionNote(); startHere(); }   // both depend on which files are loaded
-    // side panel: one line per file, like the Hub
-    // a file saved in game over a day before your newest one: you updated the others but not this one
-    var saved = function (i) { return i.mod || i.at; }, newest = Math.max.apply(null, KINDS.map(function (k) { return m[k.key] ? saved(m[k.key]) : 0; }));
+    // side panel: one line per file. Backups (TSM, Questie, Shortest Path) only when Gear Snapshot is not loaded.
+    // AH prices: the age of the prices the pages use: Blizzard's hourly prices for your auction house, or your own scan
+    // when it is newer (same rule as feedAh).
+    var saved = function (i) { return i.mod || i.at; }, shown = KINDS.filter(function (k) { return !k.backup || (m[k.key] && !m.snap); });
+    var sm = siteMeta(), own = m.ah, bt = Math.max(houseT(), sm && sm.house === house() && sm.scan ? sm.scan * 1000 : 0), site = bt && (!own || (ls.get('ws.houseBy') && bt > saved(own) + 3600e3)), late = bt && Date.now() - bt > 3 * 3600e3;
+    var newest = Math.max.apply(null, shown.map(function (k) { return m[k.key] && !(k.key === 'ah' && site) ? saved(m[k.key]) : 0; }));
+    var age = function (ms) { return new Date(ms).toDateString() === new Date().toDateString() ? new Date(ms).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : short(ms); };
     document.querySelectorAll('.ws-fstat').forEach(function (el) {
-      el.innerHTML = KINDS.map(function (k) {
-        var i = m[k.key], st = k.key === 'ah' && !i ? siteMeta() : null, old = i && newest - saved(i) > 864e5 && !(k.key === 'tsm' && m.snap);   // TSM is optional once Gear Snapshot (1.7) saves bags
-        return '<div class="' + (i ? 'ok' : st ? 'site' : '') + (old ? ' old' : '') + '" title="' + esc(st ? (st.src === 'bliz' ? 'Hourly prices from Blizzard for the ' + (st.name || 'Horde auction house') + ', used until you load your own ' : st.src === 'fah' ? 'Hourly Horde prices from Forever AH (Blizzard\'s auction data), used until you load your own ' : 'Horde auction scan the site uses until you load your own ') + k.file : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : k.file) + '"><i></i>' + esc(k.label) + '<em>' +
-          (i ? esc(short(saved(i))) + (old ? ' · old' : '') : st ? 'site, ' + esc(short(st.scan ? st.scan * 1000 : st.at)) : 'not loaded') + '</em></div>';
+      el.innerHTML = shown.map(function (k) {
+        var i = m[k.key], ah = k.key === 'ah', t = ah && site ? bt : i ? saved(i) : 0;
+        var old = ah && site ? late : i && newest - saved(i) > 864e5;
+        var tip = ah && site ? 'Hourly prices for your auction house, updated ' + when(bt) + (late ? '. No new prices for 3+ hours.' : '. Nothing to load.')
+          : old ? k.file + ' is older than your other files. In game /reload, then load it again.' : i ? k.file + ', saved ' + when(t) : k.file + ': not loaded';
+        return '<div class="' + (t ? 'ok' : '') + (old ? ' old' : '') + '" title="' + esc(tip) + '"><i></i><span>' + esc(k.label) + '</span><em>' +
+          (t ? esc(age(t)) : 'not loaded') + '</em></div>';
       }).join('');
     });
   }
@@ -594,7 +609,7 @@
   function drawPop() {
     var pop = $('#wsPop'), m = meta(), site = siteMeta();
     var dname = ls.get('ws.dir');
-    var stat = KINDS.map(function (k) {
+    var stat = KINDS.filter(function (k) { return !k.backup || (m[k.key] && !m.snap); }).map(function (k) {
       var i = m[k.key];
       return '<span class="ws-st' + (i ? ' ok' : '') + '">' + (i ? '✓ ' + esc(k.label) + ', ' + esc(when(i.at)) : '– ' + esc(k.label) + ': in game, ' + esc(k.pre)) + '</span>';
     }).join('');
@@ -673,6 +688,7 @@
   }
   function init() {
     drawDots();
+    siteStatus().then(function () { drawDots(); });
     try { downNote(); } catch (e) {}
     ownerNudge();
     addEventListener('storage', function (e) { if (e.key === 'wf-char' || e.key === 'ws.files') { factionNote(); startHere(); } });
@@ -798,15 +814,13 @@
     steps.slice(0, 3).forEach(function (st, i) { var a = cards[i]; if (!a) return; a.href = st[0]; a.innerHTML = '<b>' + esc(st[1]) + '</b><span>' + esc(st[2]) + '</span>'; });
   }
 
-  // ---- the site owner's reminder (browsers that logged in on /admin/ once): old site prices, new reports ----
+  // ---- the site owner's reminder (browsers that logged in on /admin/ once): Blizzard prices stopped, new reports ----
   function ownerNudge() {
     if (!ls.get('ws.owner') || /^\/admin/.test(PAGE) || ls.get('ws.nudge') === new Date().toDateString()) return;
-    var get = function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
-    Promise.all([get('/api/ah/meta'), get('/api/fb/new?since=' + (+ls.get('ws.fbseen') || 0))]).then(function (r) {
-      var m = r[0], f = r[1], bits = [], t = m && (m.scan ? m.scan * 1000 : m.at);
-      var days = t ? Math.floor((Date.now() - t) / 864e5) : 0;
-      if (m && m.none) bits.push('No prices uploaded');
-      else if (days >= 2) bits.push('Prices ' + days + ' days old');
+    var fb = fetch('/api/fb/new?since=' + (+ls.get('ws.fbseen') || 0)).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    Promise.all([siteStatus(), fb]).then(function (r) {
+      var st = r[0], f = r[1], bits = [];
+      if (st && st.late) bits.push('No new prices for 3+ hours');
       if (f && f.n) bits.push(f.n + ' new report' + (f.n > 1 ? 's' : ''));
       if (!bits.length) return;
       var bar = document.createElement('div');

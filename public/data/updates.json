@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Side menu shows how fresh prices are",
+    "text": "AH prices now show when your auction house's prices last updated. Nothing to load for prices: they update hourly. Backup files (TSM, Questie, Shortest Path) only show when Gear Snapshot is not loaded.",
+    "image": "/assets/updates/2026-11-25-price-age.webp",
+    "link": "/setup/",
+    "linkText": "Open Set up once"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Profession leveling: \"makes 2 per craft\"",
     "text": "Steps whose recipe makes more than one item now say so: Undermine Clam Chowder makes 2 a craft, so money back is 2 times its 1s vendor price per craft.",
     "image": "/assets/updates/2026-11-25-makes-2.webp",
