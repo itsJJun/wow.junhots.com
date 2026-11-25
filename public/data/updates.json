@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: every quest, your chains, Dungeons switch",
+    "text": "The route now picks up quests it used to skip, and search finds every quest on Forever with its chain and why it's not on your route. Quests in your log that the route doesn't take say where to do them. If you skipped a chain step, the route leaves out what it unlocks and shows you the step. New Dungeons switch: turn it off to skip dungeons and their quests, turn it on to get them back.",
+    "image": "/assets/updates/2026-11-25-route-every-quest.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Prices from Gear Snapshot, no Auctionator needed",
     "text": "Gear Snapshot 1.8 has its own Scan button at the auction house, with a % so you know when it's done. It saves the price of every item and every random suffix (like \"of the Owl\"), plus 14 days of history. Every price page uses it, so Auctionator is now optional. It also saves the prices when Auctionator scans, the flight points you know for the Level 1-60 route, and your spec from your talents for Gear upgrades.",
     "image": "/assets/updates/2026-11-25-gear-snapshot-scan.webp",

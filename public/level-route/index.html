@@ -235,6 +235,14 @@ a { color: var(--accent); }
 .optsw.on { border-style: solid; background: color-mix(in srgb, var(--opt) 14%, transparent); }
 .optsw .oc { color: var(--muted); font-size: 12px; }
 .optsw.on .oc { color: var(--opt); font-weight: 600; }
+.optsw.dsw { border-color: var(--dun); border-style: solid; }
+.optsw.dsw input:checked { background: var(--dun); }
+.optsw.dsw:not(.on) { border-style: dashed; }
+.optsw.dsw.on { background: none; }
+.optsw.dsw:not(.on) .oc { color: var(--dun); font-weight: 600; }
+.qch { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); }
+.qch .me { color: var(--ink); font-weight: 600; }
+.qch .dn { color: var(--ok, #5bbf6a); }
 .stop.isopt { box-shadow: inset 3px 0 0 var(--opt); }
 .optrip { display: block; color: var(--opt); font-size: 12px; font-weight: 600; margin: 2px 0 0; }
 .leg.opt { color: var(--opt); }
@@ -946,6 +954,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <label id="startWrap">Start <select id="start"></select></label>
     <label id="charWrap" class="hidden">Character <select id="char"></select></label>
     <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
+    <label id="dunWrap" class="optsw dsw" title="Off: no dungeons or dungeon quests. On again: the route works out where you are."><input type="checkbox" id="dunSw"> Dungeons <span class="oc" id="dunCost"></span></label>
   </div>
   <div class="status">
     <span id="qStat">Quests: <label class="load" for="snapFile">load GearSnapshot.lua</label></span><input id="snapFile" class="fin" type="file" accept=".lua,.bak,text/plain"><input id="questieFile" class="fin" type="file" accept=".lua,.bak,text/plain">
@@ -1677,13 +1686,63 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
   var near = function (a, b) { return a && b && a.um === b.um && a.um != null && Math.hypot(a.x - b.x, (a.y - b.y) * AR) < 2.2; };
 
+  // ---- steps left out (25 Nov). Dungeons switch off (Jun: "don't want the dungeon for now ... when I toggle back it
+  // works out where I am and does the dungeon stuff"): dungeon runs, dungeon quests and quests that need them.
+  // Chain steps you skipped (mid-leveling): a quest whose pre-quest is behind you and not done can't be taken, so it
+  // and what needs it are left out until you do the pre-quest (Your start lists them).
+  var dunOn = ls.get('lr.dun') !== '0', DH = new Set(), LOCK = {};
+  var hidden = function (s) { return (!dunOn && (s.in || (s.q && DH.has(s.q)))) || !!(s.q && LOCK[s.q]); };
+  var cumXP = function (lv) { var l = Math.min(60, Math.floor(lv || 1)), x = 0; for (var k = 1; k < l; k++) x += XPL[k]; return x + (l < 60 ? (lv - l) * XPL[l] : 0); };
+  var lvOf = function (x) { var l = 1; while (l < 60 && x >= XPL[l]) { x -= XPL[l]; l++; } return l < 60 ? l + x / XPL[l] : 60; };
+  function applyHide() {
+    DH = new Set();
+    var inR = {};
+    R.steps.forEach(function (s) { if (s._lv0 == null) s._lv0 = s.lv; s.lv = s._lv0; if (s.q) inR[s.q] = 1; if (s.q && (s.in || s.dq)) DH.add(s.q); });
+    // quests that need a left-out one (Questie pre-quests), until nothing changes
+    for (var more = true; more;) {
+      more = false;
+      Object.keys(inR).forEach(function (k) {
+        var q = +k, p = (M.quests[q] || [])[9]; if (!p || DH.has(q)) return;
+        if (p[0].some(function (x) { return DH.has(x); }) || (p[1].length && p[1].every(function (x) { return DH.has(x); }))) { DH.add(q); more = true; }
+      });
+    }
+    $('dunCost').textContent = dunOn ? '' : 'off · −' + R.steps.filter(function (s) { return s.t === 'turnin' && DH.has(s.q); }).length + ' quests';
+    $('dunWrap').classList.toggle('on', dunOn); $('dunSw').checked = dunOn;
+    if (dunOn) return;
+    // levels without the dungeon XP: each step's level less the quest XP left out before it
+    var lost = 0;
+    R.steps.forEach(function (s) { s.lv = Math.round(lvOf(Math.max(0, cumXP(s._lv0) - lost)) * 100) / 100; if (s.t === 'turnin' && hidden(s)) lost += s.xp || 0; });
+  }
+  // pre-quests: on the route behind you (before here) and not done. Only those: a pre-quest the route never has is
+  // left to the game.
+  function locked() {
+    var tin = {}, lk = {};
+    rows.forEach(function (r) { stepsOf(r).forEach(function (s) { if (s.t === 'turnin' && s.q) tin[s.q] = r.n; }); });
+    var bad = function (x) { return lk[x] || (!doneQ.has(x) && !logQ.has(x) && tin[x] != null && tin[x] < here); };
+    rows.forEach(function (r) {
+      if (r.n < here) return;
+      stepsOf(r).forEach(function (s) {
+        if (s.t !== 'accept' || !s.q || doneQ.has(s.q) || logQ.has(s.q) || lk[s.q]) return;
+        var p = (M.quests[s.q] || [])[9]; if (!p) return;
+        var miss = p[0].filter(bad);
+        if (!miss.length && p[1].length && p[1].every(bad)) miss = p[1].filter(function (x) { return tin[x] != null; }).slice(0, 1);
+        if (miss.length) lk[s.q] = lk[miss[0]] || miss[0];   // the first quest you have to go back for
+      });
+    });
+    return lk;
+  }
+
   // ---- rows: steps in order, plus travel legs and flight paths picked up on the way
   function build() {
-    plan = T.plan(R.steps, { race: R.race, cls: R.cls, fac: R.fac[0], known: known }, zn);
+    var vis = [];
+    R.steps.forEach(function (s, i) { if (!hidden(s)) vis.push(i); });
+    var p = T.plan(vis.map(function (i) { return R.steps[i]; }), { race: R.race, cls: R.cls, fac: R.fac[0], known: known }, zn);
+    plan = { total: p.total, travel: {}, fp: {}, skip: {}, warn: p.warn };
+    ['travel', 'fp', 'skip'].forEach(function (k) { for (var j in p[k]) plan[k][vis[j]] = p[k][j]; });
     rows = [];
     var bindZone = null;
     R.steps.forEach(function (s, i) {
-      if (s.t === 'fly' || (s.t === 'grind' && s.sko) || plan.skip[i]) return;
+      if (s.t === 'fly' || (s.t === 'grind' && s.sko) || plan.skip[i] || hidden(s)) return;
       if (s.t === 'bind') bindZone = zn(s.z);
       if (s.t === 'hearth') s._to = bindZone;
       if (plan.travel[i]) rows.push({ k: 'travel', i: i, tr: plan.travel[i] });
@@ -1834,8 +1893,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     for (j = 0; j < tk.length; j++) if (med(j) > L + 3) { hi = tk[j]; break; }
     return hi > lo ? [lo, hi] : [0, rows.length];
   }
+  // your level: Gear Snapshot, else the Gear upgrades page's (same class)
+  function myLevel() {
+    if (snap && snap.level) return snap.level;
+    var wc = window.WFCHAR ? WFCHAR.get() : {};
+    return wc.level && R && (!wc.cls || wc.cls.toUpperCase() === R.cls.toUpperCase()) ? +wc.level : 0;
+  }
   function findHere() {
-    var qrows = [], n, L = snap && snap.level, win = L ? levelWindow(L) : [0, rows.length];
+    var qrows = [], n, L = myLevel(), win = L ? levelWindow(L) : [0, rows.length];
     rows.forEach(function (r, k) { if (r.k === 'step' && r.s.q && k < win[1]) qrows.push(k); });
     var dn = qrows.map(function (k) { return isDone(rows[k]) ? 1 : 0; }), cut = 0;
     for (var a = qrows.length - 1; a >= 0; a--) {
@@ -1903,11 +1968,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function render() {
     if (!R) return;
     upMine = myUps();
+    LOCK = {}; applyHide();
     build(); group(); dungeons(); findHere();
+    var lk = doneQ.size ? locked() : {};
+    if (Object.keys(lk).length) { LOCK = lk; build(); group(); dungeons(); findHere(); }
     if (sel) sel = stops[sel.gi] || null;   // stops were rebuilt: same place, new object
     if (!jumped && hereStop) { cur = hereStop.ch.idx; sel = hereStop; curZone = null; bandSel = null; jumped = true; }
     if (cur >= chaps.length) cur = 0;
-    var nq = R.steps.filter(function (s) { return s.t === 'turnin'; }).length;
+    var nq = R.steps.filter(function (s) { return s.t === 'turnin' && !hidden(s); }).length;
     // known gaps, said plainly: dungeons the guide doesn't cover yet, routes that stop before 60, estimated levels
     var dl = duns.reduce(function (m, d) { return Math.max(m, d.lv || 0); }, 0), end = chaps.length ? chaps[chaps.length - 1].lv2 : 60, gp = [];
     if (dl < 55) gp.push('Dungeons after level ' + Math.max(10, Math.floor(dl)) + ' are not in the route yet.');
@@ -1995,6 +2063,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (zl.length) tiles.push({ k: 'back', n: Math.round(bxp / 1000) + 'k xp', label: 'left behind', rows: zl.map(function (z) {
       var e = zs[z]; return row(esc(z), e.n + (e.n === 1 ? ' quest' : ' quests') + (e.log ? ', ' + e.log + ' in your log' : '') + ' · ' + e.xp.toLocaleString() + ' xp', stopAt(e.first));
     }) });
+    // chain steps you skipped: the quests they open are left out of the route until you do them
+    var lroots = {};
+    Object.keys(LOCK).forEach(function (q) { var p = LOCK[q]; (lroots[p] = lroots[p] || []).push(+q); });
+    var lr = Object.keys(lroots).filter(function (p) { return accOf[p] || rowOf[p]; });
+    if (lr.length) tiles.push({ k: 'lock', n: Object.keys(LOCK).length, label: 'need a quest you skipped', rows: lr.map(function (p) {
+      var l = lroots[p], a = accOf[p] ? accOf[p].r : rowOf[p];
+      return row(nm(+p), 'opens ' + l.slice(0, 3).map(function (q) { return nm(q); }).join(', ') + (l.length > 3 ? ' +' + (l.length - 3) : ''), stopAt(a.n));
+    }) });
     // quest rewards that beat the gear you wear (from the Gear upgrades page)
     if (upMine) {
       var ur = [];
@@ -2011,7 +2087,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     }) });
     // in your log but not on this route
     var nr = []; logQ.forEach(function (v, q) { if (!rowOf[q] && !accOf[q] && !doneQ.has(q) && !v.ready) nr.push(q); });
-    if (nr.length) tiles.push({ k: 'off', n: nr.length, label: 'in your log, not on the route', rows: nr.map(function (q) { return row(nm(q), ''); }) });
+    if (nr.length) tiles.push({ k: 'off', n: nr.length, label: 'in your log, not on the route', rows: nr.map(function (q) { if (!dunOn && DH.has(q)) return row(nm(q), 'Dungeons off'); var w = logWhere(q); return row(nm(q), w ? esc(logText(w)) : '', w && w.st); }) });
 
     // the start line: where, and how you get there from where you are
     var wh = snap && snap.where, st0 = hereStop.rows.find(function (r) { return r.s && r.s.w; }), trip = '';
@@ -2060,10 +2136,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
 
   function drawDuns() {
+    if (!dunOn) { $('dunSec').classList.remove('hidden'); $('dunSum').textContent = 'off'; $('duns').innerHTML = '<p class="muted">Dungeons are off. Turn them on above to add them back.</p>'; return; }
     if (!duns.length) { $('dunSec').classList.add('hidden'); return; }
     $('dunSec').classList.remove('hidden');
     var nd = duns.filter(function (d) { return d.done; }).length, left = duns.filter(function (d) { return !d.done; });
-    var Lv = snap && snap.level, dnx = pick && pick.dun || left.find(function (d) { return d.all.length && (!Lv || (d.lv || 0) >= Lv - 5); }) || left[0];   // the catch-up one, or the first whose quests still give full XP
+    var Lv = myLevel(), dnx = pick && pick.dun || left.find(function (d) { return d.all.length && (!Lv || (d.lv || 0) >= Lv - 5); }) || left[0];   // the catch-up one, or the first whose quests still give full XP
     $('dunSum').textContent = left.length + ' to go' + (nd ? ' · ' + nd + ' done' : '') + (dnx ? ' · next: ' + dnx.name : '');
     $('duns').innerHTML = '<table class="dt"><tr><th>Dungeon</th><th class="opt">Door</th><th>You will be</th><th class="opt">Quests</th><th>All quests ready at</th></tr>' + left.map(function (d, k) {
       var r = d.ready;
@@ -2622,19 +2699,82 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var qt;
   $('qs').addEventListener('input', function () { clearTimeout(qt); qt = setTimeout(search, 120); });
   $('qres').addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) goStop(+b.dataset.go); });
+  // every quest players were seen doing on Forever (quests-all.json, 25 Nov, Jun: "data on every single quest and
+  // chain"): any quest can be found, with its chain and why it isn't on your route
+  // [name, lv, reqlv, fac, giver, zone, x, y, ender, endzone, all-of, one-of, next, class mask, race mask]
+  var QA = null, QUNL = {};
+  var CBIT = { Warrior: 1, Paladin: 2, Hunter: 4, Rogue: 8, Priest: 16, Shaman: 64, Mage: 128, Warlock: 256, Druid: 1024 };
+  var RBIT = { Human: 1, Orc: 2, Dwarf: 4, NightElf: 8, Undead: 16, Tauren: 32, Gnome: 64, Troll: 128, SkyborneA: 4294967296, SkyborneH: 8589934592 };
+  var hasBit = function (m, b) { return Math.floor(m / b) % 2 === 1; };
+  function qaName(q) { var x = QA && QA.q[q]; return x ? x[0] : M.quests[q] ? qn(q) : 'Quest ' + q; }
+  // the chain around a quest: pre-quests back to the first, then what it opens, up to 4 each way
+  function chainOf(q) {
+    var out = [+q], cur = +q, x, k;
+    for (k = 0; k < 4 && (x = QA.q[cur]); k++) {
+      var p = x[10].concat(x[11]).filter(function (y) { return QA.q[y] && (!QA.q[y][3] || QA.q[y][3] === R.fac[0]); })[0];
+      if (!p || out.indexOf(p) >= 0) break; out.unshift(p); cur = p;
+    }
+    for (cur = +q, k = 0; k < 4 && (x = QA.q[cur]); k++) {
+      var n = x[12] && QA.q[x[12]] ? x[12] : (QUNL[cur] || []).length === 1 ? QUNL[cur][0] : 0;
+      if (!n || out.indexOf(n) >= 0) break; out.push(n); cur = n;
+    }
+    return out;
+  }
+  // a quest in your log the route doesn't take: the first stop ahead in its objective zone, then the turn-in zone
+  function logWhere(q) {
+    var x = QA && QA.q[q]; if (!x) return null;
+    var oz = x[15] || x[9], tz = x[9], a = null, b = null;
+    for (var i = Math.max(here, 0); i < rows.length && !b; i++) {
+      var r = rows[i]; if (!r || r.k !== 'step' || !r.s) continue;
+      if (!a) { if (r.s.z === oz) { a = r; if (oz === tz) b = r; } } else if (r.s.z === tz) b = r;
+    }
+    var stOf = function (r) { return r && stops.find(function (st) { return st.rows.indexOf(r) >= 0; }); };
+    return { x: x, oz: oz, a: a, st: stOf(a), lv: a && a.s.lv };
+  }
+  function logText(w) {
+    var x = w.x, tz = (QA.z[x[9]] || zn(x[9]));
+    if (!w.a) return 'Turn in at ' + (x[8] || '?') + (tz ? ', ' + tz : '') + '. Your route doesn\'t go there.';
+    return (x[15] ? 'Do it in ' + (QA.z[w.oz] || zn(w.oz)) + ' (route gets there at level ' + Math.floor(w.lv || 1) + '). ' : '') + 'Turn in at ' + (x[8] || '?') + (tz ? ', ' + tz : '') + '.';
+  }
+  function whyNot(q) {
+    var x = QA && QA.q[q]; if (!x) return 'The guide skips it for your race and class.';
+    if (x[3] && x[3] !== R.fac[0]) return (x[3] === 'A' ? 'Alliance' : 'Horde') + ' quest.';
+    if (x[13] && !hasBit(x[13], CBIT[R.cls] || 0)) return 'Class quest, not for ' + R.cls + '.';
+    if (x[14] && !hasBit(x[14], RBIT[R.race] || 0)) return 'Not for your race.';
+    var at = function (n, z, a, b) { return (n || '?') + (z ? ', ' + (QA.z[z] || zn(z)) + (a != null ? ' (' + a + ', ' + b + ')' : '') : ''); };
+    if (logQ.has(+q)) { var w = logWhere(+q); if (w) return logText(w); }
+    return 'Starts at ' + at(x[4], x[5], x[6], x[7]) + '. Off your route.';
+  }
+  function chainHtml(q) {
+    if (!QA) return '';
+    var c = chainOf(q); if (c.length < 2) return '';
+    return '<span class="qch">' + c.map(function (y) {
+      var t = esc(qaName(y)), d = doneQ.has(y);
+      return '<span class="' + (y === +q ? 'me' : '') + (d ? ' dn' : '') + '">' + (d ? '✓ ' : '') + t + '</span>';
+    }).join(' → ') + '</span>';
+  }
   function search() {
     var v = $('qs').value.trim().toLowerCase(), out = $('qres');
     if (!M || !R || v.length < 3) { out.innerHTML = ''; return; }
     var at = {};
     stops.forEach(function (st) { st.rows.forEach(function (r) { if (r.k === 'step') [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (s.q && (!at[s.q] || s.t === 'accept')) at[s.q] = at[s.q] && at[s.q].t === 'accept' ? at[s.q] : { st: st, t: s.t }; }); }); });
-    var hits = Object.keys(M.quests).filter(function (id) { return M.quests[id][0].toLowerCase().indexOf(v) >= 0; });
-    hits.sort(function (a, b) { return (at[b] ? 1 : 0) - (at[a] ? 1 : 0) || M.quests[a][1] - M.quests[b][1]; });
-    if (!hits.length) { out.innerHTML = '<div class="qr"><span class="tx">No quest with that name in the guide.</span></div>'; return; }
-    out.innerHTML = hits.slice(0, 8).map(function (id) {
-      var q = M.quests[id], a = at[id], d = doneQ.has(+id);
-      var lq = logQ.get(+id), tag = d ? '<span class="tg done">Done</span>' : lq ? '<span class="tg done">' + (lq.ready ? 'Ready to turn in' : 'In your log') + '</span>' : a ? '<span class="tg route">On your route</span>' : '<span class="tg skip">Not on your route</span>';
-      var tx = a ? stRef(a.st, true) + ' <span class="pz">' + esc(a.st.ch.name) + (a.st.lv ? ' · about level ' + fl(a.st.lv) : '') + '</span>' : 'The guide skips it for your race and class.';
-      return '<div class="qr">' + tag + '<span class="nm">' + esc(q[0]) + '</span><span class="muted">' + (q[1] || '') + '</span><span class="tx">' + tx + '</span>' +
+    var seen = {}, hits = [];
+    var add = function (id) { var n = qaName(id), lv = (QA && QA.q[id] || M.quests[id] || [])[1]; if (seen[id]) return; seen[id] = 1; hits.push({ id: +id, n: n, lv: lv || 0 }); };
+    Object.keys(M.quests).forEach(function (id) { if (M.quests[id][0].toLowerCase().indexOf(v) >= 0) add(id); });
+    if (QA) Object.keys(QA.q).forEach(function (id) { if (QA.q[id][0] && QA.q[id][0].toLowerCase().indexOf(v) >= 0) add(id); });
+    var mine = function (h) { var x = QA && QA.q[h.id]; return !x || !x[3] || x[3] === R.fac[0] ? 1 : 0; };
+    hits.sort(function (a, b) { return (at[b.id] ? 1 : 0) - (at[a.id] ? 1 : 0) || mine(b) - mine(a) || a.lv - b.lv; });
+    // same name and level: the one on your route (Questie keeps a copy per race for some quests)
+    var nm = {}; hits = hits.filter(function (h) { var k = h.n + '|' + h.lv; if (nm[k]) return false; nm[k] = 1; return true; });
+    if (!hits.length) { out.innerHTML = '<div class="qr"><span class="tx">No quest with that name' + (QA ? '' : ' in the guide') + '.</span></div>'; return; }
+    out.innerHTML = hits.slice(0, 8).map(function (h) {
+      var id = h.id, a = at[id], d = doneQ.has(id), lq = logQ.get(id), lk = LOCK[id], dh = !dunOn && DH.has(id);
+      var tag = d ? '<span class="tg done">Done</span>' : lq ? '<span class="tg done">' + (lq.ready ? 'Ready to turn in' : 'In your log') + '</span>' : a ? '<span class="tg route">On your route</span>'
+        : lk ? '<span class="tg skip">Needs ' + esc(qaName(lk)) + ' first</span>' : dh ? '<span class="tg skip">Dungeons off</span>' : '<span class="tg skip">Not on your route</span>';
+      var sr = a && stRef(a.st, true), lw = !a && lq && !d ? logWhere(id) : null;
+      var tx = a ? sr + ' <span class="pz">· ' + [sr.indexOf(esc(a.st.ch.name)) < 0 ? esc(a.st.ch.name) : '', a.st.lv ? 'about level ' + fl(a.st.lv) : ''].filter(Boolean).join(' · ') + '</span>' : lk || dh || d ? '' : esc(whyNot(id));
+      if (lw && lw.st) a = { st: lw.st };
+      return '<div class="qr">' + tag + '<span class="nm">' + esc(h.n) + '</span><span class="muted">' + (h.lv || '') + '</span><span class="tx">' + tx + chainHtml(id) + '</span>' +
         (a ? '<button class="go" data-go="' + a.st.gi + '" type="button">Show stop →</button>' : '') + '</div>';
     }).join('');
   }
@@ -2718,6 +2858,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     });
   }
   $('optSw').onchange = function () { optOn = this.checked; ls.set('lr.opt', optOn ? '1' : '0'); loadRoute(true); };
+  $('dunSw').onchange = function () { dunOn = this.checked; ls.set('lr.dun', dunOn ? '1' : '0'); jumped = false; sel = null; render(); if (hereStop) goStop(hereStop.gi); };
   (function () { var e = document.createElement('style'); e.textContent = window.DGMAP_CSS || ''; document.head.appendChild(e); })();
   fileInput('questieFile', loadQuestie);
   fileInput('snapFile', loadSnap);
@@ -2728,6 +2869,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       MINI = a[3]; for (var mk in MINI.t) MINIS[mk] = new Set(MINI.t[mk]);
       a[1].zones.forEach(function (z) { if (AREA2UM[z[7]] == null) AREA2UM[z[7]] = z[0]; UMZ[z[0]] = z; });
       fillPick();
+      fetch(BASE + 'quests-all.json').then(function (r) { return r.json(); }).then(function (j) {
+        QA = j;
+        for (var k in j.q) j.q[k][10].concat(j.q[k][11]).forEach(function (p) { (QUNL[p] = QUNL[p] || []).push(+k); });
+        if (R) { search(); if (hereStop) drawStart(); }
+      }).catch(function () {});
     })
     .catch(function () { $('side').innerHTML = '<div class="muted">Could not load the route data.</div>'; });
 })();
