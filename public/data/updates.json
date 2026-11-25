@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Profession leveling: \"makes 2 per craft\"",
+    "text": "Steps whose recipe makes more than one item now say so: Undermine Clam Chowder makes 2 a craft, so money back is 2 times its 1s vendor price per craft.",
+    "image": "/assets/updates/2026-11-25-makes-2.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Clearer maps and hover cards",
     "text": "Point at an item to see a game-style tooltip with Forever's own stats. NPC maps zoom in, the route's World map shows where your zone is, and stop numbers are easier to read.",
     "image": "/assets/updates/2026-11-25-hover-cards-maps.webp",
