@@ -1663,15 +1663,17 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     const W = []; const ss = setups(L);
     const worn = myWorn();
     const haveIt = (w, hand) => { if (!w || !w.id) return null; const h = Object.assign({}, w, { other: true, src: [{ t: "have", lv: 0 }], olv: 0 }); h.id = "h" + hand + w.id; byId[h.id] = h; return h; };
-    const mains = raw.mainhand.filter(c => handFits("main", c, L));
+    // the weapon you wear is listed once, as yours (free), not also as a drop or auction (25 Nov, Jun saw pairs twice)
+    const notWorn = (list, h) => h ? list.filter(c => !(String(c.id).split("s")[0] === String(h.id).slice(2) && (!c.suf || c.n === h.n))) : list;
     const wm = haveIt(worn.mainhand && worn.mainhand.inv !== 17 ? worn.mainhand : null, "m");
+    const mains = notWorn(raw.mainhand.filter(c => handFits("main", c, L)), wm);
     if (wm) mains.push(wm);
     for (const k of ss) {
       if (k === "twohand") { top(raw.twohand, 30).forEach(c => { c.slot = "twohand"; W.push(c); }); continue; }
       const m4 = best(mains, k === "onehand" ? 12 : 4, c => score(c, Math.max(L, obtainLv(c)), "main"));
       if (k === "onehand") { m4.forEach(a => W.push(makePair(a, null, k))); continue; }
-      const offs = raw.offhand.filter(c => SETUP_OFF[k][c.inv] && handFits("off", c, L));
-      const wo = haveIt(worn.offhand && SETUP_OFF[k][worn.offhand.inv] ? worn.offhand : null, "o"); if (wo) offs.push(wo);
+      const wo = haveIt(worn.offhand && SETUP_OFF[k][worn.offhand.inv] ? worn.offhand : null, "o");
+      const offs = notWorn(raw.offhand.filter(c => SETUP_OFF[k][c.inv] && handFits("off", c, L)), wo); if (wo) offs.push(wo);
       const o4 = best(offs, 4, c => score(c, Math.max(L, obtainLv(c)), "off"));
       m4.forEach(a => o4.forEach(b => { if (a.id === b.id || (a.id + "").replace(/^h./, "") === (b.id + "").replace(/^h./, "") && (a.uniq || b.uniq)) return; W.push(makePair(a, b, k)); }));
     }
@@ -1783,6 +1785,8 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     return score(c, le) - score(w, le);
   }
   function avail(c) { return obtainLv(c) <= +S.level + +S.ahead; }
+  // one card per item: the same name and gain is the same item (Precision Bow is both a quest reward and an AH item)
+  const cardKey = (c, g) => c.n + "|" + g.toFixed(2);
   const tailor = () => +S.skill.tailoring > 0;
 
   // ---------- planner: pick a Tailoring target, then per slot the option with the best value ----------
@@ -2176,11 +2180,11 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       }
       const nowO = o => whenTag(o.c, o).includes('wn now');
       list.sort((a, b2) => (nowO(b2.o) - nowO(a.o)) || b2.g - a.g || (!!a.o.unpriced - !!b2.o.unpriced) || (optCost(a.o) || 0) - (optCost(b2.o) || 0));
-      // buy and craft of the same item share one card (the price comparison sits on it)
-      const BC = { buy: 1, craft: 1 }, seen = new Map(); const top = [];
-      for (const x of list) { const k = x.o.c.id + (BC[x.o.kind] ? "bc" : x.o.kind), f = seen.get(k); if (f) { if (BC[x.o.kind] && !f.alt) f.alt = x.o; continue; } const y = Object.assign({}, x); seen.set(k, y); top.push(y); }
+      // one card per item: the best way to get it leads, the other ways (drop, buy, craft) sit on the same card (25 Nov)
+      const seen = new Map(); const top = [];
+      for (const x of list) { const k = cardKey(x.o.c, x.g), f = seen.get(k); if (f) { f.alts.push(x.o); continue; } const y = Object.assign({ alts: [] }, x); seen.set(k, y); top.push(y); }
       const pick = b.picks[slot];
-      const isP = x => pick && x.o.c.id === pick.o.c.id && (x.o.kind === pick.o.kind || (x.alt && x.alt.kind === pick.o.kind));
+      const isP = x => pick && [x.o].concat(x.alts).some(a => a.c.id === pick.o.c.id && a.kind === pick.o.kind);
       // shown first, per group (now / later): the 3 best priced options, and the best suffix with no price yet if it beats them
       const cnt = {}, topPriced = {};
       top.forEach(x => { const g = nowO(x.o) ? "n" : "l"; if (!x.o.unpriced && !(g in topPriced)) topPriced[g] = x.g; });
@@ -2195,10 +2199,11 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
       if (!show.length) h += '<p class="none">Nothing beats it within your look-ahead.</p>';
       show.forEach(x => {
         const o = x.o, c = o.c; const isPick = isP(x);
-        const cost = optCost(o), vs = vsHtml(c), ko = [o, x.alt].find(y => y && y.kind === "craft");
+        const cost = optCost(o), vs = vsHtml(c), ko = [o].concat(x.alts).find(y => y.kind === "craft");
+        const orBuy = !vs && isFree(o) && x.alts.find(a => a.kind === "buy" && !a.unpriced && a.cost);
         h += '<div class="opt' + (isPick ? " best" : "") + (x.xtra ? " xtra" : "") + '" data-cid="' + c.id + '">' + iconC(c, "") + '<div><div class="nm q' + c.q + '">' + esc(c.n) + '</div><div class="small muted">' + whenTag(c, o) + ' ' + (c.setup ? SETUP_NAME[c.setup] : '') + '</div>' + statsHtml(c, w) + '</div>' +
-          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span>' + (vs ? '' : '<span class="small">' + (isFree(o) ? '<span class="muted">free</span>' : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : o.none ? "none listed" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + GI('favor') + o.fav + ' favor</span>' : '') + '</span>') + '</div>' + vs +
-          '<div class="how">' + optHow(o) + (x.alt ? optHow(x.alt) : '') + (ko && ko.lev && !vs ? '<span>Leveling to ' + c.sk + ': <b>' + coin(ko.lev) + '</b></span>' : '') + (ko && !ko.ok ? '<span class="pill bad">pattern not on the AH right now</span>' : '') + '</div>' +
+          '<div class="rt"><span class="gain">' + fmt1(x.g) + '</span>' + (vs && !isFree(o) ? '' : '<span class="small">' + (isFree(o) ? '<span class="muted">free</span>' + (orBuy ? ' <span class="muted">or</span> ' + coin(orBuy.cost) : '') : cost === null ? '<span class="muted">' + (o.kind === "craft" ? "you craft" : o.none ? "none listed" : "price ?") + '</span>' : coin(cost)) + (o.fav ? ' <span class="muted">+' + GI('favor') + o.fav + ' favor</span>' : '') + '</span>') + '</div>' + vs +
+          '<div class="how">' + optHow(o) + x.alts.map(optHow).join('') + (ko && ko.lev && !vs ? '<span>Leveling to ' + c.sk + ': <b>' + coin(ko.lev) + '</b></span>' : '') + (ko && !ko.ok ? '<span class="pill bad">pattern not on the AH right now</span>' : '') + '</div>' +
           '<div class="acts"><button class="btn tiny" type="button" data-got="' + c.id + '">I got this</button>' + (ko && ko.prof && !S.known[c.spell] && ko.patHow !== "trainer" ? '<button class="btn tiny" type="button" data-known="' + c.spell + '">I know the pattern</button>' : (ko && ko.prof && S.known[c.spell] ? '<button class="btn tiny" type="button" data-unknown="' + c.spell + '">forget pattern</button>' : '')) + '</div></div>';
       });
       if (nX) h += '<button class="btn tiny allopts" type="button" data-all="' + slot + '">Show all ' + top.length + '</button>';
@@ -2231,7 +2236,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     }
     const count = {}; CATS.forEach(([k]) => count[k] = 0);
     const seenAll = new Set();
-    rows.forEach(r => { count[r.cat]++; const k = r.o.c.id; if (!seenAll.has(k)) { seenAll.add(k); count.all++; } });
+    rows.forEach(r => { count[r.cat]++; const k = cardKey(r.o.c, r.g); if (!seenAll.has(k)) { seenAll.add(k); count.all++; } });
     $("srcChips").innerHTML = CATS.map(([k, l]) => '<button type="button" class="chip" data-cat="' + k + '" aria-pressed="' + (S.src === k) + '">' + (CAT_ICON[k] ? GI(CAT_ICON[k]) : '') + l + '<span class="n">' + count[k] + '</span></button>').join("");
     $("srcChips").querySelectorAll("[data-cat]").forEach(b => b.onclick = () => { S.src = b.dataset.cat; save(); renderTop(P2); });
     const L = +S.level;
@@ -2240,7 +2245,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     const pickTop = (rs, max) => {
       const seen = new Set(), perSlot = {}, out = [];
       for (const r of rs) {
-        if (seen.has(r.o.c.id)) continue; seen.add(r.o.c.id);
+        const k = cardKey(r.o.c, r.g); if (seen.has(k)) continue; seen.add(k);
         perSlot[r.slot] = (perSlot[r.slot] || 0) + 1; if (perSlot[r.slot] > 2) continue;
         out.push(r); if (out.length >= max) break;
       }
