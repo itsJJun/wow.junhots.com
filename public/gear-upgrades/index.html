@@ -2578,7 +2578,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     const cls = db.class && SPECS[db.class] ? db.class : null;
     let spec = null, specFrom = null;
     if (cls && db.spec && SPECS[cls].includes(db.spec)) { spec = db.spec; specFrom = "Forever Leveling BiS"; }
-    else if (cls && db.talents) { let best = -1; for (const k in db.talents) { const t = db.talents[k], pts = +(t && t.points) || 0; if (pts > best && SPECS[cls][+k - 1]) { best = pts; spec = SPECS[cls][+k - 1]; } } if (best > 0) specFrom = "your talents"; else spec = null; }
+    else if (cls && db.talents) { let best = -1; for (const k in db.talents) { const t = db.talents[k], pts = +(t && t.points) || 0; const sk = cls === "DRUID" && +k === 3 ? "restoration" : SPECS[cls][+k - 1]; if (pts > best && sk) { best = pts; spec = sk; } } if (best > 0) specFrom = "your talents"; else spec = null; }
     const race = +db.raceId || RACE_FILE[db.race] || null;
     const wsk = db.wskills ? Object.fromEntries(Object.keys(db.wskills).map(k => [k, true])) : null;
     const d = db.time ? new Date(db.time * 1000) : null;

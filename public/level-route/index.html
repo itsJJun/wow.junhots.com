@@ -995,8 +995,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <li><b>Dungeon quests</b> show their dungeon: <span class="tag dq">Wailing Caverns</span>. Steps that unlock one show <span class="tag fd">for Wailing Caverns</span>.</li>
     <li><b>Places:</b> steps at the same place share one numbered pin, like <i class="pn">2</i>. The numbers start again in each part. Tick a line when it's done, or press <b>Done ✓</b> for the whole place. Started mid-way? Pick your place (or search a quest) and press <b>I did everything before this</b>. On the map, the solid amber pin is where you are and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
     <li><b>Icons:</b> the game's own. <b>!</b> accept, <b>?</b> turn in, then what the quest asks: swords kill, bag collect, gear use, spyglass explore, shield escort, note talk.</li>
-    <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load ShortestPathForever.lua to use your real flights.</li>
-    <li><b>Flights in your file:</b> Shortest Path Forever saves them after you open a flight master's map once on each continent, then /reload.</li>
+    <li><b>Travel:</b> every trip uses the fastest way with the flights you know: flight paths, boats, zeppelins, portals, or running. Load your game files to use your real flights.</li>
+    <li><b>Flights in your file:</b> Gear Snapshot (or Shortest Path Forever) saves them after you open a flight master's map once on each continent, then /reload.</li>
     <li><b>Dungeon ready:</b> the stop where you have every quest for that dungeon.</li>
     <li><b>Trainer:</b> you train when the route passes your class trainer. If new spells wait 4 levels, it sends you there.</li>
     <li><b>Levels</b> are estimates from quest and kill XP. <span class="tag lv">from level 30</span> means the quest needs that level. <span class="tag">can skip</span> means the guide calls it optional.</li>
@@ -1633,12 +1633,17 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     snap = { name: db.name || '', level: +db.level || 0, where: q.where || null, hearth: q.hearth || '', cls: db.class || '', done: list(q.done).map(Number), n: q.inLog || logQ.size, folded: q.folded,
              at: t.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) };
     if (!charData) $('char').innerHTML = '<option>' + esc(snap.name) + '</option>';
+    // Gear Snapshot 1.8: flight points you know (saved when you open a flight master's map)
+    if (db.flights && Object.keys(db.flights).length) {
+      known = new Set([...(known || []), ...Object.keys(db.flights).map(Number)]);
+      $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="spfFile">reload</label>';
+    }
     applyQuests();
   }
   function loadSPF(text) {
     var sv = readSV(text), ids = sv['ShortestPathForeverCharDB/taxi'];
     if (!ids) throw new Error('no flights in this file. Load the ShortestPathForever.lua inside your character\'s SavedVariables folder');
-    known = new Set(ids);
+    known = new Set([...(known || []), ...ids]);
     $('fStat').innerHTML = 'Flights: <b>' + known.size + '</b> known · <label class="load" for="spfFile">reload</label>';
     render();
   }
