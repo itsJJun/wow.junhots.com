@@ -9,6 +9,14 @@
   },
   {
     "date": "2026-11-25",
+    "title": "Real cost to buy, and sales on your own auction house",
+    "text": "Profession leveling now shows what buying everything really costs once the cheap listings run out, or how few are listed. Craft finder counts sales on your own auction house every hour; after 3 full days it uses those instead of TSM to tell you if an item sells, with a day-by-day table.",
+    "image": "/assets/updates/2026-11-25-buy-cost.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Your own auction house, found from your scan",
     "text": "Hourly prices from Blizzard now cover every auction house: Horde, Alliance and neutral, in the US and Europe. Load a scan once and the site finds which one is yours, then keeps your prices fresh every hour, even when your scan gets old. Or pick it under Load game files.",
     "image": "/assets/updates/2026-11-25-auction-house.webp",
