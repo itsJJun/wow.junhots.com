@@ -43,6 +43,7 @@ h2 { font-size: 17px; }
 h3 { font-size: 14px; }
 p { margin: 0; }
 .muted { color: var(--muted); }
+.allnow { font-size: 12px; white-space: nowrap; }
 .small { font-size: 11px; }
 a { color: var(--accent); }
 button, select, input { font: 600 12px var(--body); }
@@ -2230,11 +2231,15 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     rows.forEach(({ id, n, u, b }) => {
       const hv = S.useHave ? (+S.have[id] || 0) : 0, used = Math.min(hv, n.q), buy = b.buy;
       const c = u ? b.c : null; if (c) tot += c; if (u) ownTot += u.c * used;
+      // what buying them all right now costs, cheapest listings first (site.js wsBuy, Blizzard's hourly data)
+      const all = u && u.src === "ah" && buy > 0 && window.wsBuy ? wsBuy(id, buy) : null;
+      const allTxt = !all ? "" : all.got < buy ? '<div class="muted allnow" title="Listed on the auction house right now">only ' + fmtN(all.got) + ' listed</div>'
+        : all.cost > c * 1.05 ? '<div class="muted allnow" title="Buying all ' + fmtN(buy) + ' right now, cheapest listings first. The cheap ones run out.">all now: ' + coin(all.cost) + '</div>' : "";
       (boltsOf[id] || []).forEach(bid => { const bu = price(bid); if (bu) ownTot += bu.c * bolts[bid].have; });
       h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span>' + (boltsOf[id] || []).map(boltLine).join('') + '</td><td class="r num">' + fmtN(n.q) + '</td>' +
         '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td><td class="r num">' + (buy ? fmtN(buy) : '<span class="muted">none</span>') + '</td>' +
         '<td>' + (u ? '<span class="srcb ' + u.src + '">' + ({ ah: GI('ah') + "AH", vendor: GI('vendor') + "Vendor", est: "est", you: "You", craft: "Craft" }[u.src]) + '</span>' : "") + '</td>' +
-        '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>';
+        '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + allTxt + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>';
     });
     const t = total(pl);
     const nBuy = rows.filter(({ b }) => b.buy > 0).length;
@@ -2646,6 +2651,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   window.addEventListener("dragenter", e => { if (e.dataTransfer && [...e.dataTransfer.types].includes("Files")) { dragDepth++; drop.style.display = "grid"; } });
   window.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) drop.style.display = "none"; });
   window.addEventListener("dragover", e => e.preventDefault());
+  window.addEventListener("ws-ladder", () => render());   // the cheapest listings arrived: "all now" costs in the shopping list
   window.addEventListener("drop", e => { e.preventDefault(); dragDepth = 0; drop.style.display = "none"; [...((e.dataTransfer && e.dataTransfer.files) || [])].forEach(loadAny); });
   if ($("copyPath")) $("copyPath").onclick = () => {
     const done = ok => { $("copyPath").textContent = ok ? "Copied" : "Copy failed"; setTimeout(() => $("copyPath").textContent = "Copy file path", 2000); };
