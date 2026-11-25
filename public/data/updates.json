@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Side menu shows how fresh prices are",
+    "text": "AH prices now show when your auction house's prices last updated. Nothing to load for prices: they update hourly. Backup files (TSM, Questie, Shortest Path) only show when Gear Snapshot is not loaded.",
+    "image": "/assets/updates/2026-11-25-price-age.webp",
+    "link": "/setup/",
+    "linkText": "Open Set up once"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Level route: sharper close-up map",
     "text": "Zoomed-in maps now look crisp like the game's minimap. Picking a step shows the whole zone.",
     "image": "/assets/updates/2026-11-25-sharper-route-map.webp",

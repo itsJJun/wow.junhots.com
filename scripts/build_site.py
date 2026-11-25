@@ -522,11 +522,11 @@ def build_setup():
 
 
 def build_admin():
-    body = ('<div class="ws-hero"><h1>Admin</h1><p>Upload fresh auction prices and read reports. Only for the site owner.</p></div>'
+    body = ('<div class="ws-hero"><h1>Admin</h1><p>Read reports. Only for the site owner.</p></div>'
             '<form class="own-lock" id="ownLock"><label>Password <input id="ownPw" type="password" autocomplete="current-password" required></label>'
             '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
             '<div id="ownBody" class="ws-prose" hidden>'
-            '<h2>Auction prices</h2><p id="ownScan"></p>'
+            '<h2>Auction prices</h2><p><b>No upload needed:</b> prices update hourly from Blizzard for every auction house. An upload is only a backup if that stops.</p><p id="ownScan"></p>'
             '<p>In game: click Gear Snapshot scan (or Auctionator\'s Full Scan), wait for 100%%, then /reload. Then press Upload latest scan. The newest of the two is sent, with every suffix price.</p>'
             '<p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> '
             '<label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
