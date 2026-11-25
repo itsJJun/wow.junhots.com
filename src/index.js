@@ -18,7 +18,7 @@
 
 import { CENSUS_PAGES, censusPage, refreshCensus } from './census.js';
 import { refreshFah, fahPrices } from './fah.js';
-import { storeBundle, section, houses, parseHouse } from './bliz.js';
+import { storeBundle, section, houses, parseHouse, kickPriceJob } from './bliz.js';
 
 const MAX_AH = 8 * 1024 * 1024;
 const FAH_CRON = '*/5 * * * *';   // must match wrangler.jsonc
@@ -228,9 +228,11 @@ export default {
       return json({ error: 'Something went wrong on the server.' }, 500);
     }
   },
-  // cron (wrangler.jsonc triggers): every 3 hours the level census, every 5 minutes one slot of Forever AH prices
+  // cron (wrangler.jsonc triggers): every 3 hours the level census, every 5 minutes one slot of Forever AH prices,
+  // and a check that the hourly Blizzard price job still runs (kickPriceJob)
   async scheduled(event, env, ctx) {
     if (event.cron === FAH_CRON) ctx.waitUntil(refreshFah(env, event.scheduledTime).then(r => console.log('fah', r)));
+    if (event.cron === FAH_CRON) ctx.waitUntil(kickPriceJob(env, event.scheduledTime).then(r => console.log('price job', r), e => console.error('price job', e)));
     else ctx.waitUntil(refreshCensus(env));
   },
 };
