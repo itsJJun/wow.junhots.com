@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Level 1-60 route: Skyborne druid cat form",
+    "text": "Skyborne druids now get their own cat form quests (The Great Windborne Cat Spirit) instead of the Night Elf ones. Quest search shows the chain for your race. Checked against Blizzard's quest data.",
+    "image": "/assets/updates/2026-11-25-route-race-chains.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Patch and server status",
     "text": "Load game files now shows the game's patch, and whether each auction house is getting new prices. If yours stops updating for 2 hours (servers down), the site tells you once that prices are older.",
     "image": "/assets/updates/2026-11-25-server-status.webp",
