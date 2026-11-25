@@ -51,18 +51,18 @@ export async function refreshFah(env, now = Date.now()) {
     if ((page + 1) * PAGE >= total) break;   // past the end of the table
   }
   if (!n) return 'slot ' + slot + ': past the end of the table';   // no write: the house has fewer items
-  await env.WOW.put('fah:' + FAH_HOUSE + ':' + slot, out, { metadata: { asOf, n, at: now }, expirationTtl: 3 * 86400 });
+  await env.WOW.put('fah:' + FAH_HOUSE + ':' + slot, out, { metadata: { asOf, n, total, at: now }, expirationTtl: 3 * 86400 });
   return 'slot ' + slot + ': ' + n + ' items of ' + total + ', snapshot ' + new Date(asOf * 1000).toISOString();
 }
 
-// All slots joined: first line "#newest snapshot,oldest snapshot" (seconds), then the item lines (a later slot can repeat an item that moved
+// All slots joined: first line "#newest snapshot,oldest snapshot,items in the house" (seconds), then the item lines (a later slot can repeat an item that moved
 // pages; the browser keeps the newest).
 export async function fahPrices(env) {
   const parts = await Promise.all(Array.from({ length: SLOTS }, (_, s) =>
     env.WOW.getWithMetadata('fah:' + FAH_HOUSE + ':' + s, { type: 'text', cacheTtl: 300 })));
-  let asOf = 0, body = '';
+  let asOf = 0, total = 0, body = '';
   const ok = parts.filter(x => x.value && x.metadata).sort((a, b) => a.metadata.asOf - b.metadata.asOf);   // newest last wins
-  for (const x of ok) { body += x.value; if (x.metadata.asOf > asOf) asOf = x.metadata.asOf; }
+  for (const x of ok) { body += x.value; if (x.metadata.asOf > asOf) asOf = x.metadata.asOf; total = Math.max(total, x.metadata.total || 0); }
   if (!ok.length) return null;
-  return { asOf, oldest: ok[0].metadata.asOf, text: '#' + asOf + ',' + ok[0].metadata.asOf + '\n' + body };
+  return { asOf, oldest: ok[0].metadata.asOf, text: '#' + asOf + ',' + ok[0].metadata.asOf + ',' + total + '\n' + body };
 }

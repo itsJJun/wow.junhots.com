@@ -332,9 +332,9 @@
   //  - hourly Horde prices from Forever AH (Blizzard's auction data; the Worker's /api/fah, src/fah.js).
   // Both are named "... site scan", which pages read as "the Horde auction house".
   var SITE_SCAN = 'Auctionator (Horde site scan).lua', FAH_SCAN = 'Forever AH (Horde site scan).lua';
-  // /api/fah text ("#asOf,oldest" then "id,price,units,auctions" lines) -> Auctionator-style file, or null
+  // /api/fah text ("#asOf,oldest,items in the house" then "id,price,units,auctions" lines) -> Auctionator-style file, or null
   function fahFile(text) {
-    var lines = text.split('\n'), head = /^#(\d+)/.exec(lines[0] || ''); if (!head) return null;
+    var lines = text.split('\n'), head = /^#(\d+),\d+,(\d+)/.exec(lines[0] || ''); if (!head) return null;
     var asOf = +head[1], D = String(Math.floor((asOf - 1577836800) / 86400)), db = {}, n = 0;
     for (var i = 1; i < lines.length; i++) {
       var f = lines[i].split(','); if (f.length < 3 || !/^\d+$/.test(f[0]) || !(+f[1] > 0)) continue;
@@ -342,7 +342,8 @@
       if (!db[f[0]]) n++;
       db[f[0]] = { m: +f[1], a: a, h: h, l: {} };   // a later slot is newer: it wins
     }
-    return n >= 1000 ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
+    // only once (almost) the whole house is in: right after a deploy the Worker has just a few slots
+    return n >= 1000 && n >= 0.9 * +head[2] ? { asOf: asOf, text: luaAuctionator(db, 'PvP Horde', asOf) } : null;
   }
   function siteScan() {
     if (!window.fetch) return Promise.resolve(null);
