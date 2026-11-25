@@ -129,6 +129,13 @@ a { color: var(--accent); }
 .stop.done .n { color: var(--muted); }
 .stop .hd b { font-weight: 650; flex: 1; min-width: 0; }
 .herebadge { white-space: nowrap; font-size: 10.5px; font-weight: 700; color: var(--on-accent); background: var(--accent); border-radius: 99px; padding: 0 7px; }
+.cu { margin: 6px 0 8px; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: 13px; line-height: 1.5; }
+.cu-bk { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-weight: 600; }
+.cu-bk:hover { text-decoration: underline; }
+.cu-m { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--on-accent); background: var(--accent); border-radius: 4px; padding: 0 5px; margin-right: 2px; }
+.stop.cu-skip { opacity: .4; }
+.cu-last { font-size: 12.5px; margin: 4px 0 8px 12px; color: var(--ink); }
+.cu-sk { margin-left: auto; font-size: 11px; color: var(--muted); }
 .stop ul { list-style: none; margin: 3px 0 0; padding: 0; display: grid; gap: 1px; }
 .stop ul { margin-left: 22px !important; }
 .stop li { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 6px; font-size: 13px; align-items: start; }
@@ -2411,13 +2418,32 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
         '</div>');
   }
+  // going back (catch-up) in this part: the stops worth doing, in order; the last one sends you back
+  function catchSet(c) {
+    if (!pick || !skipStop || pick.c !== c) return null;
+    var l = [hereStop].concat(catchNext()).filter(function (x) { return x && x !== skipStop && x.ch === c; });
+    return l.length ? l : null;
+  }
+  var backTo = function () { return esc(skipStop.title) + ' · ' + esc(stZone(skipStop) || skipStop.ch.name); };
   function drawChapter() {
     var c = chaps[cur]; if (!c) return;
+    var cs = catchSet(c), last = cs && cs[cs.length - 1];
     if (curZone == null || c.zones.indexOf(curZone) < 0) curZone = sel && sel.ch === c && sel.loc && sel.loc.um != null ? sel.loc.um : c.zones[0];
     var rdy = {};
     duns.forEach(function (d) { if (d.ready && d.ready.ch === c && !d.done) (rdy[d.ready.gi] = rdy[d.ready.gi] || []).push(d); });
     var h = ['<div class="chap"><h3>' + esc(c.name) + '</h3><div class="meta">Level ' + fl(c.lv1) + ' to ' + fl(c.lv2) + '</div>' +
       c.intro.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') + '</div>'];
+    if (cs) h.push('<div class="cu"><b>Going back:</b> ' + cs.length + (cs.length === 1 ? ' stop' : ' stops') + ' here (marked <span class="cu-m">go</span>). Skip the rest. Then back to <button type="button" class="cu-bk" data-go="' + skipStop.gi + '">' + skipStop.num + ' ' + backTo() + ' →</button></div>');
+    // not worth it while going back: the undone stops of this part before where you left off
+    var isSkip = function (st) { return cs && !stopDone(st) && cs.indexOf(st) < 0 && (skipStop.ch !== c || st.gi < skipStop.gi); };
+    var sh = function (st) {
+      var x = stopHtml(st, c, rdy);
+      if (pick && st === skipStop) return x.replace('<span class="n">', '<span class="cu-m">back here</span><span class="n">');
+      if (!cs || stopDone(st) || cs.indexOf(st) < 0 && !isSkip(st)) return x;
+      if (isSkip(st)) return x.replace('class="stop', 'class="stop cu-skip');
+      x = x.replace('class="stop', 'class="stop cu-go').replace('<span class="n">', '<span class="cu-m">go</span><span class="n">');
+      return st === last ? x + '<div class="cu-last">Last stop here. Then back to <button type="button" class="cu-bk" data-go="' + skipStop.gi + '">' + skipStop.num + ' ' + backTo() + ' →</button></div>' : x;
+    };
     var legHtml = function (r) {
       var tx = r.tr.text, k = c.items.findIndex(function (x) { return x.r === r; }), nx = c.items[k + 1];
       return '<div class="leg' + (nx && nx.st && optStop(nx.st) ? ' opt' : '') + '"' + tripAttr(r.tr, r.tr.from, r.tr.to, nx && nx.st) + '>' + wi(legIcon(r.tr)) + '<span>' + esc(tx) + '</span><span class="mn">' + mins(r.tr.secs) + '</span></div>';
@@ -2434,15 +2460,18 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       run = []; legs.forEach(function (r) { h.push(legHtml(r)); }); legs = [];
     };
     c.items.forEach(function (it) {
-      if (full) { h.push(it.k === 'leg' ? legHtml(it.r) : stopHtml(it.st, c, rdy)); return; }
+      if (full) { h.push(it.k === 'leg' ? legHtml(it.r) : sh(it.st)); return; }
       if (it.k === 'leg') { if (run.length) legs.push(it.r); else h.push(legHtml(it.r)); return; }
       if (stopDone(it.st) && !rdy[it.st.gi] && it.st !== sel) { if (legs.length) legs = []; run.push(it.st); return; }
-      flush(); h.push(stopHtml(it.st, c, rdy));
+      flush();
+      if (isSkip(it.st) && it.st !== sel) { h.push('<div class="stop mini cu-skip" id="st' + it.st.gi + '" data-st="' + it.st.gi + '"><div class="hd"><span class="n">' + it.st.num + '</span><b>' + esc(it.st.title) + '</b><span class="cu-sk">skip</span></div></div>'); return; }
+      h.push(sh(it.st));
     });
     flush();
     var pv = chaps[cur - 1], nx = chaps[cur + 1];
     h.push('<div class="navb">' + (pv ? '<button class="btn" data-ch="' + (cur - 1) + '" type="button">← ' + esc(pv.name) + '</button>' : '<span></span>') +
-      (nx ? '<button class="btn" data-ch="' + (cur + 1) + '" type="button">' + esc(nx.name) + ' →</button>' : '') + '</div>');
+      (cs && skipStop.ch !== c ? '<button class="btn main" data-go="' + skipStop.gi + '" type="button">Back to ' + esc(stZone(skipStop) || skipStop.ch.name) + ' →</button>'
+        : nx ? '<button class="btn" data-ch="' + (cur + 1) + '" type="button">' + esc(nx.name) + ' →</button>' : '') + '</div>');
     $('side').innerHTML = h.join('');
     $('side').classList.toggle('short', !full);
     drawMap();
@@ -2799,6 +2828,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (fb) { full = fb.dataset.full === '1'; ls.set('lr.full', full ? '1' : '0'); drawChapter(); return; }
     var rb = e.target.closest('[data-run]');
     if (rb) { openRuns.add(+rb.dataset.run); drawChapter(); return; }
+    var g = e.target.closest('[data-go]');
+    if (g) { goStop(+g.dataset.go); return; }
     var b = e.target.closest('[data-ch]');
     if (b) { cur = +b.dataset.ch; curZone = null; sel = firstOpen(chaps[cur]); drawTabs(); drawChapter(); drawNext(); $('side').scrollTop = 0; $('split').scrollIntoView({ block: 'start' }); return; }
     var cb = e.target.closest('input[type=checkbox]');
