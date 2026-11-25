@@ -7,16 +7,18 @@
   var KINDS = [
     // always: hand it over on every visit (the tools keep prices and bags only until the page closes);
     // GearSnapshot only once per new file, since Gear upgrades saves your gear and you may have edited it since
-    { key: 'ah', label: 'AH prices', file: 'Auctionator.lua', match: /auctionator/i, pre: 'Auctionator full scan at the auction house, then /reload', always: true,
+    { key: 'ah', label: 'AH prices', file: 'Auctionator.lua', match: /auctionator|gear snapshot scan/i, pre: 'full scan at the auction house (Gear Snapshot or Auctionator), then /reload', always: true,
       targets: [['#file', '#msg']] },
     { key: 'snap', label: 'Gear, recipes, quests & bags', file: 'GearSnapshot.lua', match: /gearsnapshot/i, pre: 'open your profession windows and bank, then /reload',
-      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg'], ['#bagFile', '#haveInfo']] },
+      targets: [['#gearfile', '#gearmsg'], ['#knownFile', '.kn-msg'], ['#snapFile', '#msg'], ['#bagFile', '#haveInfo']],
+      // pages that don't keep it themselves (Level 1-60 route, Craft finder) get it on every visit, like the other files
+      alwaysOn: ['#snapFile', '#bagFile'] },
     { key: 'tsm', label: 'Bags (TSM, optional)', file: 'TradeSkillMaster.lua', match: /tradeskillmaster/i, pre: 'open your bank, then /reload', always: true,
       targets: [['#bagFile', '#haveInfo']] },
     // Level 1-60 route: quests done (Questie, account-wide) and known flights (Shortest Path Forever, per character)
     { key: 'quests', label: 'Quests done', file: 'Questie.lua', match: /^questie\.lua/i, pre: '/reload', always: true, noCopy: true,
       targets: [['#questieFile', '#msg']] },
-    { key: 'flights', label: 'Known flights', file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
+    { key: 'flights', label: 'Known flights (optional)', file: 'ShortestPathForever.lua', match: /^shortestpathforever\.lua/i, pre: 'open a flight map, then /reload', always: true, noCopy: true,
       targets: [['#spfFile', '#msg']] }
   ];
   var BY_INPUT = { file: 'ah', gearfile: 'snap', knownFile: 'snap', bagFile: 'tsm', questieFile: 'quests', spfFile: 'flights' };
@@ -132,7 +134,11 @@
         var jobs = [];
         if (inSV) files.forEach(function (f) {
           var k = NAMES[f.name.toLowerCase()];
-          if (k) jobs.push(f.getFile().then(function (file) { found.push({ k: k, file: file, isChar: charPath(path) }); }));
+          if (k) jobs.push(f.getFile().then(function (file) {
+            var isChar = charPath(path);
+            found.push({ k: k, file: file, isChar: isChar });
+            if (k === 'snap' && !isChar) found.push({ k: 'gsah', file: file, isChar: false });   // Gear Snapshot 1.8 prices
+          }));
         });
         if (depth < 6) {
           var only = subs.filter(function (x) { return /^(wtf|account)$/i.test(x.name); });
@@ -145,7 +151,105 @@
     }
     return walk(dir, 0, [dir.name]).then(function () { return pickBest(found); });
   }
+  // ---- Gear Snapshot 1.8 auction prices (account-wide GearSnapshot.lua, GearSnapshotBags.ah) handed to the pages as
+  // an Auctionator-style file, so every price page reads them with no Auctionator file. Used when its scan is at least
+  // as new as Auctionator's. ----
+  function luaTable(text, at) {
+    var i = at, n = text.length;
+    function ws() { for (;;) { var c = text.charCodeAt(i); if (c === 32 || c === 9 || c === 10 || c === 13 || c === 44 || c === 59) i++; else if (c === 45 && text.charCodeAt(i + 1) === 45) { while (i < n && text.charCodeAt(i) !== 10) i++; } else return; } }
+    function str() {
+      var q = text[i++], out = '';
+      while (i < n && text[i] !== q) {
+        if (text[i] === '\\') { var c = text[i + 1]; if (/\d/.test(c)) { var d = /^\d{1,3}/.exec(text.slice(i + 1, i + 4))[0]; out += String.fromCharCode(+d); i += 1 + d.length; continue; }
+          out += ({ n: '\n', t: '\t', r: '\r' })[c] || c; i += 2; continue; }
+        out += text[i++];
+      }
+      i++; return out;
+    }
+    function val() {
+      ws(); var c = text[i];
+      if (c === '{') return tbl();
+      if (c === '"' || c === "'") return str();
+      var m = /^(-?[\d.eE+-]+|true|false|nil)/.exec(text.slice(i, i + 40)); if (!m) throw new Error('bad Lua at ' + i);
+      i += m[0].length; return m[0] === 'true' ? true : m[0] === 'false' ? false : m[0] === 'nil' ? null : +m[0];
+    }
+    function tbl() {
+      i++; var o = {}, k = 1;
+      for (;;) {
+        ws(); if (text[i] === '}') { i++; return o; }
+        if (text[i] === '[') { i++; var key = val(); ws(); i++; ws(); i++; o[key] = val(); }
+        else o[k++] = val();
+      }
+    }
+    i = text.indexOf('{', at); return tbl();
+  }
+  function gsPrices(text) {
+    var m = /GearSnapshotBags\s*=\s*\{/.exec(text); if (!m || text.indexOf('["ah"]', m.index) < 0) return null;
+    var bags = luaTable(text, m.index), ah = bags.ah || {}, pick = null;
+    Object.keys(ah).forEach(function (k) { var h = ah[k]; if (k !== 'Neutral' && h && h.p && h.t && (!pick || h.t > pick.h.t)) pick = { k: k, h: h }; });
+    return pick;
+  }
+  function cborOf(v) {
+    var out = [];
+    function head(mt, n) {
+      if (n < 24) out.push(mt << 5 | n);
+      else if (n < 256) out.push(mt << 5 | 24, n);
+      else if (n < 65536) out.push(mt << 5 | 25, n >> 8, n & 255);
+      else if (n < 4294967296) out.push(mt << 5 | 26, n >>> 24 & 255, n >>> 16 & 255, n >>> 8 & 255, n & 255);
+      else { var hi = Math.floor(n / 4294967296); out.push(mt << 5 | 27, hi >>> 24 & 255, hi >>> 16 & 255, hi >>> 8 & 255, hi & 255); head2(n >>> 0); }
+    }
+    function head2(lo) { out.push(lo >>> 24 & 255, lo >>> 16 & 255, lo >>> 8 & 255, lo & 255); }
+    function item(x) {
+      if (typeof x === 'number') { head(0, Math.max(0, Math.round(x))); return; }
+      if (typeof x === 'string') { var b = new TextEncoder().encode(x); head(3, b.length); for (var j = 0; j < b.length; j++) out.push(b[j]); return; }
+      var ks = Object.keys(x); head(5, ks.length); ks.forEach(function (k) { item(k); item(x[k]); });
+    }
+    item(v); return out;
+  }
+  function gsToAuctionator(pick) {
+    var h = pick.h, D = function (t) { return Math.floor((t - 1577836800) / 86400); };   // Auctionator's day number (days since 2020)
+    var today = String(D(h.t)), db = {};
+    Object.keys(h.p).forEach(function (id) {
+      var e = h.p[id], hist = (h.hist || {})[id] || {}, hh = {};
+      Object.keys(hist).forEach(function (d) { hh[String(D(+d * 86400))] = hist[d]; });
+      hh[today] = e[1]; var a = {}; a[today] = e[2];
+      db[id] = { m: e[1], a: a, h: hh, l: {} };
+    });
+    Object.keys(h.s || {}).forEach(function (id) {
+      var bySuf = h.s[id];
+      Object.keys(bySuf).forEach(function (suf) { var x = bySuf[suf], a = {}, hh = {}; a[today] = x[2]; hh[today] = x[1]; db['gr:' + id + ':of ' + suf] = { m: x[1], a: a, h: hh, l: {} }; });
+    });
+    var bytes = cborOf(db), esc = '';
+    for (var j = 0; j < bytes.length; j++) { var c = bytes[j]; esc += c >= 32 && c < 127 && c !== 34 && c !== 92 ? String.fromCharCode(c) : '\\' + ('00' + c).slice(-3); }
+    return 'AUCTIONATOR_PRICE_DATABASE = {\n["__dbversion"] = 8,\n["Gear Snapshot ' + pick.k + '"] = "' + esc + '",\n}\n' +
+      'AUCTIONATOR_SAVEDVARS = {\n["TimeOfLastBrowseScan"] = ' + h.t + ',\n}\n';
+  }
+  function gsAh(best) {
+    var gs = best.gsah; delete best.gsah;
+    if (!gs) return Promise.resolve();
+    return gs.text().then(function (text) {
+      var pick = gsPrices(text); if (!pick) return;
+      return (best.ah ? best.ah.text() : Promise.resolve('')).then(function (at) {
+        var mm = /\["TimeOfLastBrowseScan"\] = (\d+)/.exec(at || ''), aucT = mm ? +mm[1] : 0;
+        if (best.ah && aucT > pick.h.t + 60) return;   // Auctionator scanned later: keep its file
+        best.ah = new File([gsToAuctionator(pick)], 'Gear Snapshot scan.lua', { type: 'text/plain', lastModified: gs.lastModified });
+      });
+    }).catch(function (e) { if (window.console) console.warn('Gear Snapshot prices', e); });
+  }
+  // prices from it say so ("your Gear Snapshot scan"), not "your Auctionator scan"
+  addEventListener('DOMContentLoaded', function () {
+    var W = window.WFAH; if (!W || !W.label) return;
+    var old = W.label;
+    W.label = function (rec) {
+      if (!/^gear snapshot scan/i.test(rec.name || '')) return old(rec);
+      return 'your Gear Snapshot scan, ' + new Date(rec.scan * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    };
+  });
+  window.wsGsToAuctionator = function (text) { var p = gsPrices(text); return p && gsToAuctionator(p); };   // (tests)
   function takeFiles(best, quiet) {
+    return gsAh(best).then(function () { return takeFiles2(best, quiet); });
+  }
+  function takeFiles2(best, quiet) {
     var m = meta(), got = [], jobs = [];
     KINDS.forEach(function (k) {
       var f = best[k.key]; if (!f) return;
@@ -206,7 +310,11 @@
     var found = [];
     Array.prototype.forEach.call(list, function (f) {
       var k = NAMES[f.name.toLowerCase()], parts = (f.webkitRelativePath || '').split('/');
-      if (k && /savedvariables/i.test(f.webkitRelativePath || '')) found.push({ k: k, file: f, isChar: charPath(parts.slice(0, -1)) });
+      if (k && /savedvariables/i.test(f.webkitRelativePath || '')) {
+        var isChar = charPath(parts.slice(0, -1));
+        found.push({ k: k, file: f, isChar: isChar });
+        if (k === 'snap' && !isChar) found.push({ k: 'gsah', file: f, isChar: false });
+      }
     });
     var best = pickBest(found);
     if (!Object.keys(best).length) { toast('No WoW save files there. Pick the <b>WTF</b> folder inside _forever_.', true); return; }
@@ -232,7 +340,8 @@
       var info = m[k.key];
       if (!info && k.key === 'ah' && targetsHere(k).length) { siteScan().then(function (rec) { if (rec && !meta().ah) feed(k, rec); }); return; }
       if (!info || !targetsHere(k).length) return;
-      if (!k.always && +ls.get(fedKey(k.key)) >= info.at) return;   // this page already has this file
+      var always = k.always || (k.alwaysOn || []).some(function (sel) { return $(sel); });
+      if (!always && +ls.get(fedKey(k.key)) >= info.at) return;   // this page already has this file
       getRec(k.key).then(function (rec) { if (rec) feed(k, rec); });
     });
   }

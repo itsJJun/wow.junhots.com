@@ -1200,7 +1200,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     money: store.money || { g: "", s: "", c: "" },
     affordOnly: store.affordOnly !== undefined ? store.affordOnly : true,
     skillOnly: !!store.skillOnly,
-    inv: store.inv || {}, invAt: store.invAt || null,
+    inv: store.inv || {}, invAt: store.invAt || null, invWho: store.invWho || "",
     ovr: store.ovr || {},
     qty: {},
     open: new Set(),
@@ -1270,7 +1270,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   function skillTag(r) { const sk = mySkill(), l = learnOf(r); if (!l) return ""; if (sk === null) return ' \u00b7 skill ' + l; return l <= sk ? ' \u00b7 <span style="color:var(--good)">skill ' + l + '</span>' : ' \u00b7 <span style="color:var(--warn)">needs ' + l + ' (' + (l - sk) + ' to go)</span>'; }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, refund: S.refund, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, invAt: S.invAt, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, refund: S.refund, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, invAt: S.invAt, invWho: S.invWho, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
   }
 
   function coin(c, plus) {
@@ -1917,6 +1917,12 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     while ((mm = re.exec(text))) { const ire = /\["i:(\d+)[^"]*"\]\s*=\s*(\d+)/g; let im, n = 0; while ((im = ire.exec(mm[4]))) { inv[im[1]] = (inv[im[1]] || 0) + +im[2]; n += +im[2]; } if (n) who[mm[1] === "g" ? "Warband bank" : mm[2].split(" - ")[0]] = 1; }
     return { inv, who: Object.keys(who) };
   }
+  // "Materials you have" line: also after a refresh (the bags are kept, the file isn't handed over again)
+  function haveLine(force) {
+    const el = $("haveInfo"); if (!el || !S.invAt || (!force && el.textContent)) return;
+    el.textContent = "Materials you have: from " + (S.invWho || "your bags") + ", " + new Date(S.invAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
+  }
+  setTimeout(haveLine, 0);
   function loadBags(f) {
     // Gear Snapshot and TSM can both be loaded: an older file handed over by the site never replaces newer bags
     const auto = !!window.wsFeeding;
@@ -1924,9 +1930,9 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const rd = new FileReader();
     rd.onload = () => {
       try {
-        const r = parseBags(new Uint8Array(rd.result)); S.inv = r.inv; S.invAt = f.lastModified || null; save(); render();
+        const r = parseBags(new Uint8Array(rd.result)); S.inv = r.inv; S.invAt = f.lastModified || null; S.invWho = r.who.join(" + ") || (r.gs ? "Gear Snapshot" : "TSM"); save(); render();
         const txt = "Loaded the materials in your bags and bank" + (r.who.length ? " (" + r.who.join(" + ") + ")" : "") + " from " + f.name + ". The batch planner uses them first." + (r.noBank ? " Open your bank once in game, then /reload, so its items count too." : "");
-        showMsg(txt, true); if ($("haveInfo")) $("haveInfo").textContent = "Materials you have: from " + (r.who.join(" + ") || (r.gs ? "Gear Snapshot" : "TSM")) + ", " + new Date(f.lastModified || Date.now()).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
+        showMsg(txt, true); haveLine(true);
       } catch (err) { if (auto && err.noBags) return; showMsg("Couldn't read your bags: " + err.message, false); if ($("haveInfo")) $("haveInfo").textContent = "Couldn't read your bags: " + err.message; }
     };
     rd.readAsArrayBuffer(f);

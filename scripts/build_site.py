@@ -388,7 +388,7 @@ def build_about():
     body = ('<div class="ws-hero"><h1>Data sources</h1><p>Where the numbers on this site come from. Thank you to everyone who makes this data.</p></div>'
             '<div class="ws-prose"><ul class="ws-credits">%s</ul>'
             '<h2>How fresh is it?</h2><p>Each tool shows the date of its own data at the top. Built-in auction prices are from the Horde auction house on the PvP realm. '
-            'Load your own Auctionator file (button in the side panel) and Gear upgrades, Enchants, Mat timing, Profession leveling, the Craft finder and Sell spare mats all use it.</p>'
+            'Load your own scan (Gear Snapshot or Auctionator, button in the side panel) and Gear upgrades, Enchants, Mat timing, Profession leveling, the Craft finder and Sell spare mats all use it.</p>'
             '<h2>Your files</h2><p>Game files you load stay in your browser (saved on this device so you do not have to load them again). They are never uploaded.</p></div>' % rows)
     os.makedirs(os.path.join(PUB, 'about'), exist_ok=True)
     open(os.path.join(PUB, 'about/index.html'), 'w', encoding='utf-8').write(
@@ -480,10 +480,11 @@ ADMIN_JS = r"""
 
 SETUP_ADDONS = [
     # (name, link, what for, needed by)
-    ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Scans the auction house and saves every price.',
-     'Your own prices on every tool (otherwise you get the site\'s Horde scan).'),
-    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, and your bags, bank and mail (all your characters). Made for this site.',
-     'Gear upgrades, Enchants, Enchant macros, Profession leveling, Craft finder, Sell spare mats, Level 1-60 route.'),
+    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, flight points, your bags, bank and mail (all your characters), '
+     'and auction prices for every item and every random suffix: click Gear Snapshot scan at the auction house. Made for this site.',
+     'Every tool: your own prices, gear, bags and quests (otherwise prices come from the site\'s Horde scan).'),
+    ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Optional. Gear Snapshot 1.8 scans the auction house itself, and it also saves the prices when Auctionator scans.',
+     'Prices, if you don\'t use Gear Snapshot\'s scan.'),
     ('TradeSkillMaster', 'https://www.curseforge.com/wow/addons/tradeskill-master', 'Optional. Gear Snapshot 1.7 saves your bags now.',
      'Bags and bank, if you don\'t use Gear Snapshot.'),
     ('Forever Leveling BiS', None, 'Optional. Gear upgrades uses the spec you pick in it and warns when its version differs.',
@@ -505,7 +506,7 @@ def build_setup():
             '<ul class="ws-credits">%s</ul>'
             '<h2>2. Make the game save your files</h2>'
             '<p>WoW only writes addon files when you type <code>/reload</code> or log out, so after each step below type <code>/reload</code>.</p>'
-            '<ul class="ws-steps"><li><b>Prices:</b> open the auction house, run an Auctionator full scan, wait for it to finish, then <code>/reload</code>.</li>'
+            '<ul class="ws-steps"><li><b>Prices:</b> open the auction house, click <b>Gear Snapshot scan</b> (above the window) or Auctionator\'s Full Scan, wait for 100%%, then <code>/reload</code>.</li>'
             '<li><b>Gear and recipes:</b> open each profession window once, then <code>/reload</code>.</li>'
             '<li><b>Bags and bank:</b> open your bank and mailbox, then <code>/reload</code>.</li></ul>'
             '<h2>3. Load them on this site</h2>'
