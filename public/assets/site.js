@@ -357,6 +357,26 @@
       return d || (c && c.d) || {};
     }).catch(function () { return (c && c.d) || {}; });
   }
+  // Patch and which auction houses are getting new hourly data (/api/bliz/houses, kept 10 minutes):
+  // -> Promise {patch: "1.60.1", down: [house], late: bool}. A house is down when its snapshot is 2+ hours behind the
+  // newest one of its region (the servers are offline); late = no new data for anyone in 3+ hours (Blizzard or our job).
+  function siteStatus() {
+    var c = null; try { c = JSON.parse(ls.get('ws.status') || 'null'); } catch (e) {}
+    var get = c && Date.now() - c.at < 600e3 ? Promise.resolve(c.d) : fetch('/api/bliz/houses').then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d) ls.set('ws.status', JSON.stringify({ at: Date.now(), d: d })); return d; }).catch(function () { return null; });
+    return get.then(function (d) {
+      if (!d) return null;
+      var out = { patch: null, down: [], late: false }, now = Date.now() / 1000;
+      ['us', 'eu'].forEach(function (r) {
+        var x = d[r]; if (!x) return;
+        if (x.patch && !out.patch) out.patch = x.patch[0];
+        var ts = Object.keys(x.h).map(function (k) { return x.h[k][2] || 0; }), top = Math.max.apply(null, ts.concat([x.asOf || 0]));
+        if (now - top > 3 * 3600) out.late = true;
+        Object.keys(x.h).forEach(function (k) { var t = x.h[k][2]; if (t && top - t >= 7200) out.down.push(r + '-' + k); });
+      });
+      return out;
+    });
+  }
   var FAC = { 110: 'A', 111: 'A', 112: 'A', 119: 'A', 123: 'A', 113: 'H', 114: 'H', 115: 'H', 120: 'H', 124: 'H', 116: 'N', 117: 'N', 118: 'N', 121: 'N', 125: 'N' };
   function houseFac(list, h) { var x = h.split('-'), r = list[x[0]], v = r && r.h[x[1]]; return v ? v[1] : FAC[x[1]] || ''; }
   // the realm key an Auctionator-style file gets ("PvP Horde"), which the Craft finder shows as the ruleset
@@ -587,7 +607,16 @@
         '<label class="ws-fbtn main ws-big">Pick WTF folder<input type="file" webkitdirectory data-ws-dir></label>' + (Object.keys(m).length ? '<div class="ws-fstats">' + stat + '</div>' : '') + '</div>';
     var by = ls.get('ws.houseBy');
     top += '<div class="ws-house"><label><b>Your auction house</b> <select data-ws-house><option>' + esc(house()) + '</option></select></label>' +
-      '<span class="ws-hint">' + (by === 'scan' ? 'Found from your scan.' : by ? 'Picked by you.' : 'Load a scan once and the site finds it.') + ' Prices update hourly from Blizzard.</span></div>';
+      '<span class="ws-hint">' + (by === 'scan' ? 'Found from your scan.' : by ? 'Picked by you.' : 'Load a scan once and the site finds it.') + ' Prices update hourly from Blizzard.</span>' +
+      '<span class="ws-hint" data-ws-status></span></div>';
+    siteStatus().then(function (st) {
+      var el = $('[data-ws-status]', pop); if (!el || !st) return;
+      var mine = st.down.indexOf(house()) >= 0;
+      houseList().then(function (l) {
+        el.textContent = (st.patch ? 'Patch ' + st.patch + '. ' : '') + (st.late ? 'No new prices for 3+ hours.' : mine ? 'Your auction house has had no new prices for 2+ hours: its servers may be down.'
+          : st.down.length ? 'No new prices (servers may be down): ' + st.down.map(function (h) { return houseLabel(l, h, true) + (h.indexOf('eu') === 0 ? ' (EU)' : ''); }).join(', ') + '.' : 'All servers are up.');
+      });
+    });
     houseList().then(function (l) {
       var sel = $('[data-ws-house]', pop); if (!sel) return;
       var order = { H: 0, A: 1, N: 2 }, cur = house(), rk = function (k) { return { PvP: 0, Normal: 1 }[RULES[k]] === undefined ? 2 + (+k > 121) : { PvP: 0, Normal: 1 }[RULES[k]]; };
@@ -634,8 +663,17 @@
     });
   }
 
+  function downNote() {
+    if (sessionStorage && sessionStorage.getItem('ws.downNote')) return;
+    siteStatus().then(function (st) {
+      if (!st || st.down.indexOf(house()) < 0) return;
+      try { sessionStorage.setItem('ws.downNote', '1'); } catch (e) {}
+      toast('No new prices from your auction house for 2+ hours: its servers may be down. Prices shown are older.');
+    });
+  }
   function init() {
     drawDots();
+    try { downNote(); } catch (e) {}
     ownerNudge();
     addEventListener('storage', function (e) { if (e.key === 'wf-char' || e.key === 'ws.files') { factionNote(); startHere(); } });
     // phones: the tabs scroll sideways, so bring the current one into view

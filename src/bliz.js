@@ -39,7 +39,7 @@ export async function section(env, k, r, sec) {
   });
 }
 
-// the houses with listings per region: {us: {asOf, h: {"113": [items, "H"]}}, ...}
+// the houses with listings per region: {us: {asOf, at (when the job sent it), patch: ["1.60.1", 70399], h: {"113": [items, "H", snapshot time]}}, ...}
 export async function houses(env) {
   const out = {};
   for (const r of REGIONS) {
@@ -47,8 +47,8 @@ export async function houses(env) {
     if (got.value) await got.value.cancel();
     if (!got.metadata) continue;
     const h = {};
-    for (const [k, v] of Object.entries(got.metadata.h || {})) if (k !== 'fp') h[k] = v.slice(2);
-    out[r] = { asOf: got.metadata.asOf, h };
+    for (const [k, v] of Object.entries(got.metadata.h || {})) if (k !== 'fp') h[k] = v.slice(2);   // [items, faction, snapshot time]
+    out[r] = { asOf: got.metadata.asOf, at: got.metadata.at, patch: got.metadata.patch || null, h };
   }
   return out;
 }

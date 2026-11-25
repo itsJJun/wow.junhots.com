@@ -21,7 +21,10 @@ Blizzard's data (checked 25 Nov 2026):
   /data/wow/ruleset/1/auctions/<house>     {auctions: [{id, item: {id, bonus_lists, modifiers, context}, buyout (whole
      auction), quantity, time_left, bid?}]}       ~125k auctions in a big house
   /data/wow/ruleset/1/auctions/<house>/commodities   {auctions: [{id, item: {id}, unit_price, quantity, time_left}]}
-  Last-Modified = when Blizzard took the snapshot (hourly, about :22 EU and :26 US).
+  Last-Modified = when Blizzard took the snapshot (hourly, about :22 EU and :26 US). A house whose snapshot stops
+  changing is down (servers offline or in maintenance): the site shows that from the per-house snapshot times.
+  /data/wow/item/2589?namespace=static-forever-us   its self link names the static namespace: patch and build. When
+  they change, the job opens a GitHub issue to rebuild the item data.
   A random suffix ("of the Channeler") is a bonus list: ItemBonus Type 5 -> ItemNameDescription (scripts/data/
   bonus_suffix.json, from wago.tools db2 build 1.60.1.71091). Bid-only auctions have no buyout and are skipped.
 
@@ -45,10 +48,11 @@ Fingerprint section ("fp"):
   #<snapshot unix time>,fp,<items>
   ids,<item id>,<item id>...
   f,<house>,<price>,<price>...      0 = not listed there
-Bundle (what is posted): one JSON line {"v":1,"region":"us","k":"p","asOf":...,"h":{"113":[start,end,items,"H"],...}}
+Bundle (what is posted): one JSON line {"v":1,"region":"us","k":"p","asOf":...,"patch":["1.60.1",70399],
+  "h":{"113":[start,end,items,"H",house snapshot time],...}}
   then the gzip sections back to back; start/end are byte offsets in the whole body.
 """
-import base64, email.utils, gzip, json, os, pickle, statistics, sys, time, urllib.parse, urllib.request
+import base64, email.utils, gzip, json, os, pickle, re, statistics, sys, time, urllib.parse, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 RULESET = 1
@@ -72,8 +76,8 @@ def token():
     return json.load(urllib.request.urlopen(req, timeout=30))['access_token']
 
 
-def get(tok, region, path, tries=3):
-    url = 'https://%s.api.blizzard.com%s?%s' % (region, path, urllib.parse.urlencode({'namespace': 'dynamic-forever-' + region, 'locale': 'en_US'}))
+def get(tok, region, path, tries=3, ns='dynamic'):
+    url = 'https://%s.api.blizzard.com%s?%s' % (region, path, urllib.parse.urlencode({'namespace': ns + '-forever-' + region, 'locale': 'en_US'}))
     for n in range(tries):
         try:
             r = urllib.request.urlopen(urllib.request.Request(url, headers={'Authorization': 'Bearer ' + tok}), timeout=180)
@@ -83,6 +87,32 @@ def get(tok, region, path, tries=3):
             if n == tries - 1:
                 raise
             time.sleep(5 * (n + 1))
+
+
+def patch_of(tok, region):
+    """the game's patch and build from the static data's namespace ("static-1.60.1_70399-forever-us"), or None"""
+    try:
+        d, _ = get(tok, region, '/data/wow/item/2589', ns='static')
+        m = re.search(r'static-([\d.]+)_(\d+)-forever', d['_links']['self']['href'])
+        return [m.group(1), int(m.group(2))] if m else None
+    except Exception as e:
+        print(region, 'patch check failed:', str(e)[:120]); return None
+
+
+def patch_issue(region, old, new):
+    """open a GitHub issue when Forever patches, so the item data gets rebuilt (needs GITHUB_TOKEN, issues: write)"""
+    tok, repo = os.environ.get('GITHUB_TOKEN', ''), os.environ.get('GITHUB_REPOSITORY', '')
+    if not tok or not repo:
+        return
+    body = {'title': 'Forever patched: %s (build %d)' % tuple(new),
+            'body': 'Blizzard\'s API for %s moved from patch %s (build %d) to %s (build %d). Rebuild the item, vendor price and '
+                    'recipe data (wago.tools / Blizzard API) and check the pages, then add an Updates entry.' % (region.upper(), old[0], old[1], new[0], new[1])}
+    req = urllib.request.Request('https://api.github.com/repos/%s/issues' % repo, data=json.dumps(body).encode(), method='POST',
+                                 headers={'Authorization': 'Bearer ' + tok, 'Accept': 'application/vnd.github+json', 'User-Agent': 'wow.junhots.com price job'})
+    try:
+        print(region, 'patch issue', json.load(urllib.request.urlopen(req, timeout=30)).get('html_url'))
+    except Exception as e:
+        print(region, 'patch issue failed:', str(e)[:120])
 
 
 def listings(auctions, commodities):
@@ -193,10 +223,10 @@ def fingerprint(snap, per_house):
     return '\n'.join(lines) + '\n'
 
 
-def bundle(region, kind, snap, sections, meta):
+def bundle(region, kind, snap, sections, meta, extra=None):
     """sections: [(key, text)] -> bytes: a JSON line with byte offsets, then gzip sections"""
     blobs = [(k, gzip.compress(t.encode(), 9, mtime=0)) for k, t in sections]
-    head = {'v': 1, 'region': region, 'k': kind, 'asOf': snap, 'h': {}}
+    head = dict({'v': 1, 'region': region, 'k': kind, 'asOf': snap, 'h': {}}, **(extra or {}))
     # offsets depend on the header's length: pad it to a fixed size so they can be filled in after
     pad = 900
     pos = pad
@@ -256,12 +286,18 @@ def run_region(tok, region, state_dir, out_dir, send, suffix_of):
         sold = sold_units(prev, cur) if compare and prev else None
         update_history(state['hist'].setdefault(h, {}), today, items, sold)
         p_secs.append((h, text)); h_secs.append((h, history_text(snap, h, state['hist'][h])))
-        meta[h] = [len(items), fac.get(h, '?')]; per_house[h] = items
+        meta[h] = [len(items), fac.get(h, '?'), t]; per_house[h] = items
         state['prev'][h] = {aid: x[:4] for aid, x in cur.items()}
         print(region, h, fac.get(h), '| listings', len(cur), '| items', len(items), '| sold, ran out',
               'not compared' if sold is None else (sum(sold[0].values()), sum(sold[1].values())))
     p_secs.append(('fp', fingerprint(snap, per_house)))
-    pb, hb = bundle(region, 'p', snap, p_secs, meta), bundle(region, 'h', snap, h_secs, meta)
+    patch = patch_of(tok, region)
+    if patch and state.get('patch') and state['patch'] != patch and send:
+        patch_issue(region, state['patch'], patch)
+    if patch:
+        state['patch'] = patch
+    extra = {'patch': patch} if patch else {}
+    pb, hb = bundle(region, 'p', snap, p_secs, meta, extra), bundle(region, 'h', snap, h_secs, meta, extra)
     print(region, 'snapshot', snap, '| gap', gap, '| prices', len(pb), 'bytes | history', len(hb), 'bytes')
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)

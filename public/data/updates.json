@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Patch and server status",
+    "text": "Load game files now shows the game's patch, and whether each auction house is getting new prices. If yours stops updating for 2 hours (servers down), the site tells you once that prices are older.",
+    "image": "/assets/updates/2026-11-25-server-status.webp",
+    "link": "/setup/",
+    "linkText": "How to load your game files"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Flips and deals: auction house deals and Booty Bay flips",
     "text": "Vendor flips is now Flips and deals. Deals lists auction house items well under their usual price that do sell. Booty Bay flips are items to buy at Booty Bay and sell on your faction's auction house, or the other way round, with the auction house cut counted. Both start Saturday, after 3 days of sales are counted.",
     "image": "/assets/updates/2026-11-25-flips-deals.webp",

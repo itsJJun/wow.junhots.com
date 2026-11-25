@@ -13,6 +13,7 @@ on:
     paths: [scripts/blizzard_prices.py, scripts/data/bonus_suffix.json, .github/workflows/blizzard-prices.yml]
 permissions:
   contents: read
+  issues: write   # an issue when Forever patches (rebuild the item data)
 concurrency:
   group: blizzard-prices-${{ github.ref }}
   cancel-in-progress: false
@@ -33,6 +34,7 @@ jobs:
           BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
           BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/cache/save@v4
         if: always() && hashFiles('.bliz-state/*') != ''
         with:
