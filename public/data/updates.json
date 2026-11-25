@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Craft finder: real AH deposits, cleaner numbers",
+    "text": "Deposits now match the game: vendor price × 5% (2h), 20% (8h) or 60% (24h), back when it sells. Profit shows green or red, with price and deposits underneath.",
+    "image": "/assets/updates/2026-11-25-ah-deposits.webp",
+    "link": "/tailoring-finder/",
+    "linkText": "Open Craft finder"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Side menu shows how fresh prices are",
     "text": "AH prices now show when your auction house's prices last updated. Nothing to load for prices: they update hourly. Backup files (TSM, Questie, Shortest Path) only show when Gear Snapshot is not loaded.",
     "image": "/assets/updates/2026-11-25-price-age.webp",

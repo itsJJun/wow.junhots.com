@@ -106,8 +106,10 @@ select { background: var(--bg); color: var(--ink); border: 1px solid var(--line)
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 5px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th.num, td.num { text-align: right; }
+th.ctr, td.ctr { text-align: center; }   /* money + Selling? columns (Jun 25 Nov: same alignment) */
 td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 tr.rec { cursor: pointer; }
+tr.rec > td { vertical-align: baseline; }   /* Jun 25 Nov: every column's main number on one line */
 tr.rec:hover td { background: var(--panel2); }
 tr.rec td:first-child { border-left: 3px solid transparent; }
 tr.rec.good td:first-child { border-left-color: var(--good); }
@@ -116,6 +118,20 @@ tr.rec.bad td:first-child { border-left-color: var(--bad); }
 tr.rec.none td:first-child { border-left-color: var(--line); }
 .rname { font-weight: 600; }
 .rmeta { font-size: 11px; color: var(--muted); }
+.rmeta.nw { white-space: nowrap; }
+.mg { display: inline-grid; min-width: 8.5em; grid-template-columns: auto 1fr; column-gap: 8px; row-gap: 0; line-height: 1.35; align-items: baseline; }
+.mg .ml { font-size: 11px; color: var(--muted); text-align: left; }
+.mg .ma { text-align: right; font-size: 12px; }
+.mg .ma .coin { font-weight: 500; }
+.mg .ml { font-size: 11px; }   /* amounts stay 12px like the total so silver/copper line up (Jun 25 Nov) */
+.mg .ma:not(.tot) .coin, .mg .ma:not(.tot) .coin * { color: var(--muted); }
+.mg .ma.tot { grid-column: 1 / -1; font-size: 12px; }   /* same size as Materials (Jun) */
+.mg .ma.tot .coin { font-weight: 700; }
+.mg .ma.tot.pos .coin, .mg .ma.tot.pos .coin * { color: var(--good); }
+.mg .ma.tot.neg .coin, .mg .ma.tot.neg .coin * { color: var(--bad); }
+.mg .coin .s:not(.u), .mg .coin .c:not(.u) { display: inline-block; min-width: 2ch; text-align: right; }
+.mg .ph { visibility: hidden; }
+.rmeta .lb { color: var(--bad); } .rmeta .lw { color: var(--warn, #d9a441); }
 .ricon { width: 22px; height: 22px; border-radius: 5px; vertical-align: -6px; margin-right: 6px; border: 1px solid var(--line); }
 .pick .ricon { width: 26px; height: 26px; vertical-align: -7px; }
 .chip.prof { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 9px 3px 4px; }
@@ -996,18 +1012,14 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
         </select></div>
         <label class="fl" for="dep">Listing time</label>
         <div class="fc"><select id="dep">
-          <option value="100">4 or 8 hours (1s deposit)</option>
-          <option value="150">24 hours (1s 50c deposit)</option>
+          <option value="2">2 hours</option>
+          <option value="8">8 hours</option>
+          <option value="24">24 hours</option>
         </select></div>
         <label class="fl" for="relist">Unsold listings</label>
         <div class="fc"><select id="relist">
           <option value="1">Count relists (TSM sale rate)</option>
           <option value="0">Assume it sells first time</option>
-        </select></div>
-        <label class="fl" for="refund">Deposit back?</label>
-        <div class="fc"><select id="refund">
-          <option value="0">No, count it as a cost</option>
-          <option value="1">Yes, only lost if unsold</option>
         </select></div>
         <span class="fl">Game file</span>
         <div class="fc"><span class="kn" id="knownRec" title="Ticks &ldquo;I have it&rdquo; on every recipe you know, from the Gear Snapshot addon file"></span></div>
@@ -1027,7 +1039,7 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th class="haveh" title="Tick the recipes you already know">I have it</th><th><button class="sorth" type="button" data-sort="name">Recipe</button></th><th class="num"><button class="sorth" type="button" data-sort="cost">Materials</button></th><th class="num"><button class="sorth" type="button" data-sort="vendor">Sell to vendor</button></th><th class="num"><button class="sorth" type="button" data-sort="ah">Sell on AH</button></th><th><button class="sorth" type="button" data-sort="move" title="Based on how listings and prices changed across your recent full scans">Selling?</button></th><th><button class="sorth" type="button" data-sort="best">Best way</button></th>
+        <th class="haveh" title="Tick the recipes you already know">I have it</th><th><button class="sorth" type="button" data-sort="name">Recipe</button></th><th class="ctr"><button class="sorth" type="button" data-sort="cost">Materials</button></th><th class="ctr"><button class="sorth" type="button" data-sort="vendor">Sell to vendor</button></th><th class="ctr"><button class="sorth" type="button" data-sort="ah">Sell on AH</button></th><th class="ctr"><button class="sorth" type="button" data-sort="move" title="Based on how listings and prices changed across your recent full scans">Selling?</button></th><th><button class="sorth" type="button" data-sort="best">Best way</button></th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -1046,9 +1058,9 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
     <li>AH prices are the cheapest listing in your last scan. One cheap listing can make an item look cheaper than it really is, so check before buying a lot.</li>
     <li>"Listed" is how many are on the AH. A big number means lots of competition. A very small number (1 or 2) means one seller picked the price, and it may not actually sell for that much.</li>
     <li><b>Selling? labels</b> mainly use TradeSkillMaster's free daily sales data for North America Forever: what share of listings actually sell, and how many sell per day on a typical auction house. An item drops a step if your AH already has more than 10 days of sales listed, or if your own scans show it piling up. Items TSM has no sales for yet fall back to your own scans, which compare your last few full scans. <span class="mv sell">Selling</span> fewer are listed than expected and the price is holding, so buyers are taking them. <span class="mv slow">Slow</span> some sales, but stock or price is drifting. <span class="mv stuck">Stuck</span> listings are piling up faster than the rest of the AH, or sellers are cutting the price hard. <span class="mv new">New</span> only seen in your latest scan. The whole AH has been growing fast since launch, so each item is compared with the AH as a whole, not just with itself. Open a recipe to see the numbers behind its label.</li>
-    <li><b>Unsold listings:</b> an item that sells on 1 in 4 listings costs you about 4 deposits per sale. With "Count relists" on, the AH profit includes that, so slow sellers show their real cost.</li>
+    <li><b>Unsold listings:</b> the deposit comes back when an item sells and is lost when it doesn't. An item that sells on 1 in 4 listings loses about 3 deposits per sale. With "Count relists" on, the AH profit includes that.</li>
     <li>Your own scans get better with more data: do one Full Scan a day, at roughly the same time. More scans in the same day don't add anything, because Auctionator keeps one record per item per day. The labels are a best guess from listing counts: the AH never tells anyone what actually sold.</li>
-    <li>AH profit is after the auction house cut and, by default, the deposit for each listing (1s for 4 or 8 hours, 1s 50c for 24 hours, as seen in game on 5 Nov 2026). If your sale mail shows the deposit coming back, switch "Deposit back when it sells?" to Yes. Auctionator is set to post for 24 hours; switch it to 8 hours to pay 50c less.</li>
+    <li><b>Deposit</b> for one listing: vendor price &times; 5% for 2 hours, 20% for 8 hours, 60% for 24 hours, times how many items, at least 1c (as seen in game, 25 Nov 2026). AH profit is after the cut and the deposits of unsold listings.</li>
     <li>Recipes that make several at once (ammo, potions, bombs) show the price of one. They count one auction listing per craft.</li>
     <li>Enchants on gear can't be sold, so Enchanting shows only what it makes as items: rods, oils and wands.</li>
     <li>Some recipes come from patterns you have to buy or find. Each one says where.</li>
@@ -1194,8 +1206,8 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     sort: store.sort || "best",
     dir: store.dir || "desc",
     cut: store.cut || "0.05",
-    dep: store.dep || "100",
-    refund: store.refund || "0",
+    // listing time in hours; old saves held a flat deposit ("100"/"150"), Jun posts for 24 hours
+    dep: ["2", "8", "24"].includes(store.dep) ? store.dep : "24",
     relist: store.relist || "1",
     money: store.money || { g: "", s: "", c: "" },
     affordOnly: store.affordOnly !== undefined ? store.affordOnly : true,
@@ -1270,9 +1282,16 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   function skillTag(r) { const sk = mySkill(), l = learnOf(r); if (!l) return ""; if (sk === null) return ' \u00b7 skill ' + l; return l <= sk ? ' \u00b7 <span style="color:var(--good)">skill ' + l + '</span>' : ' \u00b7 <span style="color:var(--warn)">needs ' + l + ' (' + (l - sk) + ' to go)</span>'; }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, refund: S.refund, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, invAt: S.invAt, invWho: S.invWho, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ prof: S.prof, tiersBy: S.tiersBy, known: [...S.known], knownOnly: S.knownOnly, hideStuck: S.hideStuck, hideLoss: S.hideLoss, sort: S.sort, dir: S.dir, cut: S.cut, dep: S.dep, relist: S.relist, money: S.money, affordOnly: S.affordOnly, skillOnly: S.skillOnly, inv: S.inv, invAt: S.invAt, invWho: S.invWho, ovr: S.ovr, market: market.fromFile ? market : undefined })); } catch (e) {}
   }
 
+  // Money that lines up in a column: a hidden "00c" keeps silver under silver when there's no copper.
+  const acoin = (c, plus) => { const h = coin(c, plus).replace(/^<span class="coin">([+\u2212])<span class="([gsc])">/, '<span class="coin"><span class="$2">$1'), v = Math.round(Math.abs(c)); return c !== null && !isNaN(c) && v >= 100 && v % 100 === 0 ? h.replace(/<\/span>$/, ' <span class="ph"><span class="c">00</span><span class="u c">c</span></span></span>') : h; };
+  const sgn = v => v === null || v === undefined || isNaN(v) ? '' : v < 0 ? 'neg' : 'pos';
+  // rows of [label, amount html, class, hover]: a tiny two-column table (label left, amount right)
+  const mgrid = rows => '<div class="mg">' + rows.filter(Boolean).map(r => { const t = r[3] ? ' title="' + esc(r[3]) + '"' : ''; return (r[0] ? '<span class="ml"' + t + '>' + r[0] + '</span>' : '') + '<span class="ma ' + (r[2] || '') + '"' + t + '>' + r[1] + '</span>'; }).join('') + '</div>';
+  // plain text money for tooltips: 1s 54c
+  const cTxt = c => { c = Math.round(c); const g = Math.floor(c / 10000), s = Math.floor(c % 10000 / 100), k = c % 100; return [g ? g + 'g' : '', s ? s + 's' : '', k || (!g && !s) ? k + 'c' : ''].filter(Boolean).join(' '); };
   function coin(c, plus) {
     if (c === null || c === undefined || isNaN(c)) return '<span class="dim">\u2014</span>';
     const neg = c < 0; const v = Math.round(Math.abs(c));
@@ -1310,7 +1329,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   }
 
   function evalRecipe(r) {
-    const cut = parseFloat(S.cut), c = r.c || 1, depC = depFor(r.id), dep = depC / c;   // one listing per craft
+    const cut = parseFloat(S.cut), c = r.c || 1, depC = depFor(r), dep = depC / c;   // one listing per craft
     let cost = 0; const missing = []; const parts = [];
     r.r.forEach(([id, q]) => {
       const m = matCost(id);
@@ -1329,7 +1348,6 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     return { r, c, cost: known ? each : null, missing, parts, ah, net, pAH, pV, best, bestWay, listed: listed(r.id), mv: moving(r.id), depEach: dep, depCraft: depC, tries: tries(r.id) };
   }
 
-  function depCost() { return S.refund === "1" ? 0 : parseFloat(S.dep); }
   const TSM = BUILTIN.tsm || {};
   function tsmOf(id) { const t = TSM[id]; return t && (t[0] > 0 || t[1] > 0) ? { sr: t[0], spd: t[1], avg: t[2] } : null; }
   // Sales on your own auction house, from Blizzard's hourly data (site.js wsHist / wsSales: listings gone while they
@@ -1339,9 +1357,14 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   if (document.readyState === "loading") addEventListener("DOMContentLoaded", hookHist); else setTimeout(hookHist, 0);   // site.js runs after this page's script
   function oursOf(id) { const x = OURS && window.wsSales(OURS, id); return x && x.days >= 3 ? { sr: x.sr, spd: x.spd, avg: null, src: "bliz", days: x.days } : null; }
   function saleOf(id) { return oursOf(id) || tsmOf(id); }
-  // Expected deposits paid per sale: an item that sells on 1 in 4 listings costs 4 deposits (3 if the deposit comes back on sale).
+  // Listings per sale: an item that sells on 1 in 4 listings is listed 4 times per sale.
   function tries(id) { const t = saleOf(id); return S.relist === "1" && t && t.sr > 0 ? 1 / Math.max(t.sr, 0.05) : 1; }
-  function depFor(id) { const n = tries(id), d = parseFloat(S.dep); return Math.round(S.refund === "1" ? d * (n - 1) : d * n); }
+  // Deposit for one listing (Jun's screenshots, 25 Nov): vendor price x 2.5% per hour listed (2h 5%, 8h 20%, 24h 60%)
+  // x items in it, at least 1c. It comes back when the item sells, so only unsold listings cost it.
+  // (window.cfDeposit: the site build checks it against those screenshots, scripts/check-vendor-prices.cjs)
+  const depositOf = window.cfDeposit = (vendor, hours, n) => { const v = vendor * 0.025 * hours * n; return v > 0 ? Math.max(1, Math.round(v)) : 0; };
+  function depList(r) { return depositOf(r.s || 0, parseFloat(S.dep), r.c || 1); }
+  function depFor(r) { return Math.round(depList(r) * (tries(r.id) - 1)); }
   const cls = v => v === null ? "none" : v > 20 ? "good" : v >= 0 ? "warn" : "bad";
   const crowd = n => n > 300 ? '<span class="pill bad">' + fmtN(n) + ' listed</span>' : n > 50 ? '<span class="pill warn">' + fmtN(n) + ' listed</span>' : n > 0 ? '<span class="pill good">' + fmtN(n) + ' listed</span>' : '';
 
@@ -1470,7 +1493,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     $("patNote").innerHTML = got ? "\u2713 from your game" : '<button type="button" class="linkish" id="autoTick">Auto-tick from game file</button>';
     if ($("autoTick")) $("autoTick").onclick = () => { const f = $("knownFile"); if (f) f.click(); };
     $("sort").value = (S.sort === "cost" && S.dir === "asc") ? "cost" : (["best", "ah", "vendor"].includes(S.sort) && S.dir === "desc") ? S.sort : "";
-    document.querySelectorAll(".sorth").forEach(b => b.dataset.dir = b.dataset.sort === S.sort ? S.dir : ""); $("cut").value = S.cut; $("dep").value = S.dep; $("refund").value = S.refund; $("relist").value = S.relist;
+    document.querySelectorAll(".sorth").forEach(b => b.dataset.dir = b.dataset.sort === S.sort ? S.dir : ""); $("cut").value = S.cut; $("dep").value = S.dep; $("relist").value = S.relist;
     ["g", "s", "c"].forEach(k => { const el = $("m" + k.toUpperCase()); if (document.activeElement !== el) el.value = S.money[k]; });
     $("affordOnly").setAttribute("aria-pressed", S.affordOnly);
     const sk = mySkill(); $("skillOnly").hidden = sk === null; $("skillOnly").setAttribute("aria-pressed", !!S.skillOnly);
@@ -1702,10 +1725,13 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
       return '<tr class="rec ' + cls(x.best) + '" data-id="' + id + '" aria-expanded="' + open + '">' +
         '<td style="width:44px"><button class="star" type="button" data-star="' + id + '" aria-pressed="' + S.known.has(id) + '" aria-label="I have the ' + esc(x.r.n) + ' recipe" title="Tick if you already know this recipe"><span class="bx">\u2713</span>' + (S.known.has(id) ? "have" : "") + '</button></td>' +
         '<td><div class="rname">' + ricon(id) + '<span data-item="' + id + '" data-card-pass>' + esc(x.r.n) + '</span>' + (MKT.data.crafts[x.r.id] ? ' ' + MKT.crowdPill(MKT.data.crafts[x.r.id]) : '') + '</div><div class="rmeta">' + x.r.r.map(([a, q]) => q + " " + esc(names[a])).join(", ") + (x.c > 1 ? " \u00b7 makes " + x.c : "") + skillTag(x.r) + '</div>' + (S.known.has(id) ? '' : getHtml(x.r)) + '</td>' +
-        '<td class="num">' + (x.cost !== null ? coin(x.cost) : '<span class="pill bad">no price: ' + esc(x.missing.join(", ")) + '</span>') + '</td>' +
-        '<td class="num">' + coin(x.pV, true) + '<div class="rmeta">pays ' + coin(x.r.s) + '</div></td>' +
-        '<td class="num">' + coin(x.pAH, true) + '<div class="rmeta">' + (x.ah !== null ? coin(x.ah) + " " + crowd(x.listed) : "not listed") + '</div></td>' +
-        '<td>' + mvPill(x.mv) + (x.mv.tsm ? '<div class="rmeta">' + spdTxt(x.mv.tsm.spd) + ' sold/day</div>' : '') + '</td>' +
+        '<td class="ctr">' + (x.cost !== null ? mgrid([['', acoin(x.cost), 'tot']]) : '<span class="pill bad">no price: ' + esc(x.missing.join(", ")) + '</span>') + '</td>' +
+        // Jun, 25 Nov: money cells are small label | amount tables so the numbers line up (silver under silver)
+        '<td class="ctr">' + mgrid([['', acoin(x.pV, true), 'tot ' + sgn(x.pV)], ['pays', acoin(x.r.s)]]) + '</td>' +
+        '<td class="ctr">' + (x.ah === null ? '<span class="dim">\u2014</span><div class="rmeta">not listed</div>' : mgrid([['', acoin(x.pAH, true), 'tot ' + sgn(x.pAH)], ['sells', acoin(x.ah)],
+          // deposits are already in the profit; hover tells why
+          x.depEach > 0 ? ['deposits', acoin(x.depEach), '', cTxt(depList(x.r)) + ' deposit per listing, back when it sells. About ' + x.tries.toFixed(1) + ' listings per sale, so the unsold ones cost this. Already taken out of the profit.'] : null])) + '</td>' +
+        '<td class="ctr">' + mvPill(x.mv) + (x.mv.tsm || x.listed ? '<div class="rmeta nw">' + (x.mv.tsm ? spdTxt(x.mv.tsm.spd) + ' sold/day' : '') + (x.mv.tsm && x.listed ? ' \u00b7 ' : '') + (x.listed ? '<span class="' + (x.listed > 300 ? 'lb' : x.listed > 50 ? 'lw' : '') + '">' + fmtN(x.listed) + ' listed</span>' : '') + '</div>' : '') + '</td>' +
         '<td>' + way + '</td></tr>' +
         (open ? '<tr class="detail"><td></td><td colspan="6">' + moveHtml(x) + matDetail(x) + extraHtml(x) + '<div data-plan="' + id + '"></div></td></tr>' : "");
     }).join("");
@@ -1977,7 +2003,6 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   });
   $("cut").onchange = e => { S.cut = e.target.value; save(); render(); };
   $("dep").onchange = e => { S.dep = e.target.value; save(); render(); };
-  $("refund").onchange = e => { S.refund = e.target.value; save(); render(); };
   $("relist").onchange = e => { S.relist = e.target.value; save(); render(); };
   $("q").oninput = e => { S.q = e.target.value; renderSearchState(); const rows = list(); renderPicks(rows); renderRows(rows); renderMats(); };
   function renderSearchState() {
