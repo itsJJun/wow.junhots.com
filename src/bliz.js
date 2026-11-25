@@ -59,22 +59,29 @@ export function parseHouse(s) {
   return m ? [m[1], m[2]] : null;
 }
 
-// Backstop for the hourly price job (25 Nov): GitHub's own schedule (cron '40 * * * *') never fired, so the job only
-// ran when started by hand. Every 5 minutes the Worker checks when the job last sent prices; when that is over
-// 75 minutes ago it starts the job itself (workflow_dispatch), at most once per 50 minutes. When GitHub's schedule
-// does run, the data is fresh and this does nothing. Needs the Worker secret GH_TOKEN: a fine-grained GitHub token
-// for this repository with "Actions: Read and write".
+// Starts the hourly price job (25 Nov). GitHub's own schedule (cron '40 * * * *') never fired, so the Worker's
+// 5-minute cron starts it instead (workflow_dispatch). Blizzard takes a new snapshot once an hour (about :22 EU,
+// :26 US), so running more often gains nothing: the job is started as soon as the newest snapshot we hold
+// (oldest of the two regions) is over 66 minutes old, i.e. a new one should be out (about :30). If Blizzard is late
+// (maintenance, servers down) it tries again every 15 minutes; such a run finds nothing new and stops early.
+// Free: public repo Actions minutes, at most ~4 runs an hour. Needs the Worker secret GH_TOKEN: a fine-grained
+// GitHub token for this repository with "Actions: Read and write".
 const KICK_URL = 'https://api.github.com/repos/itsJJun/wow.junhots.com/actions/workflows/blizzard-prices.yml/dispatches';
 export async function kickPriceJob(env, now) {
   if (!env.GH_TOKEN) return 'no GH_TOKEN';
-  const meta = (await env.WOW.getWithMetadata('bliz:p:us', 'stream'));
-  if (meta.value) await meta.value.cancel();
-  const sent = meta.metadata && meta.metadata.at || 0;
-  if (now - sent < 75 * 60e3) return 'fresh';
+  let snap = Infinity, sent = 0;
+  for (const r of REGIONS) {
+    const got = await env.WOW.getWithMetadata('bliz:p:' + r, 'stream');
+    if (got.value) await got.value.cancel();
+    const m = got.metadata || {};
+    snap = Math.min(snap, (m.asOf || 0) * 1000); sent = Math.max(sent, m.at || 0);
+  }
+  if (now - snap < 66 * 60e3) return 'fresh (snapshot ' + Math.round((now - snap) / 60e3) + ' min old)';
+  if (now - sent < 5 * 60e3) return 'job just sent';
   const last = +(await env.WOW.get('bliz:kick')) || 0;
-  if (now - last < 50 * 60e3) return 'kicked ' + Math.round((now - last) / 60e3) + ' min ago';
+  if (now - last < 15 * 60e3) return 'started ' + Math.round((now - last) / 60e3) + ' min ago';
   await env.WOW.put('bliz:kick', String(now));
   const r = await fetch(KICK_URL, { method: 'POST', body: JSON.stringify({ ref: 'main' }), headers: {
     authorization: 'Bearer ' + env.GH_TOKEN, accept: 'application/vnd.github+json', 'user-agent': 'junhots-wow-worker', 'x-github-api-version': '2022-11-28' } });
-  return 'kick ' + r.status;
+  return 'start ' + r.status;
 }
