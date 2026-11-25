@@ -9,6 +9,8 @@
 //   fb:<time>-<id>       one feedback report (JSON), kept 180 days; /api/fb/new counts the ones after a time
 //   rl:<kind>:<hour>:<ip hash>  rate-limit counters (expire by themselves)
 //   census, census:try   the daily level census from classicplus.io (src/census.js)
+//   bliz:latest          hourly prices + suffix prices from Blizzard's Battle.net API, summed up by the GitHub job
+//                        scripts/blizzard_prices.py (text, see there), metadata {asOf, house, items, at}
 //   fah:<house>:<slot>   hourly prices from Forever AH (Blizzard's auction data), one slot of the market table each (src/fah.js)
 // Secrets (set in the Cloudflare dashboard, never in the repo): ADMIN_PASSWORD, TURNSTILE_SECRET.
 // Variable: TURNSTILE_SITEKEY (public, shown to the browser).
@@ -19,6 +21,7 @@ import { refreshFah, fahPrices } from './fah.js';
 const MAX_AH = 8 * 1024 * 1024;
 const FAH_CRON = '*/5 * * * *';   // must match wrangler.jsonc
 const MAX_SFX = 2 * 1024 * 1024;
+const MAX_BLIZ = 4 * 1024 * 1024;
 const SFX_KEEP_DAYS = 30;
 
 // Merge newly uploaded suffix prices into the stored ones. A full scan replaces everything older than it;
@@ -94,6 +97,19 @@ async function admin(request, env, url) {
     await env.WOW.put('sfx:latest', JSON.stringify(merged));
     return json({ ok: true, at: merged.at, count: Object.keys(merged.items).length, full: merged.full });
   }
+  // hourly Blizzard summary from the GitHub job (scripts/blizzard_prices.py): stored as is, only the head line is checked
+  if (p === '/api/admin/bliz' && request.method === 'POST') {
+    const text = await request.text();
+    if (!text || text.length > MAX_BLIZ) return json({ error: 'The summary must be under 4 MB.' }, 400);
+    const m = /^#(\d+),(\d+),(\d+)\n/.exec(text.slice(0, 80));
+    if (!m || +m[3] < 1000) return json({ error: 'Not a price summary.' }, 400);
+    const old = await env.WOW.getWithMetadata('bliz:latest', 'stream');
+    if (old.value) await old.value.cancel();
+    if (old.metadata && old.metadata.asOf >= +m[1]) return json({ ok: true, unchanged: true, asOf: old.metadata.asOf });
+    const meta = { asOf: +m[1], house: +m[2], items: +m[3], at: Date.now() };
+    await env.WOW.put('bliz:latest', text, { metadata: meta, expirationTtl: 3 * 86400 });
+    return json({ ok: true, ...meta });
+  }
   if (p === '/api/admin/feedback' && request.method === 'GET') {
     const list = await env.WOW.list({ prefix: 'fb:', limit: 200 });
     const items = await Promise.all(list.keys.map(async k => ({ key: k.name, ...(await env.WOW.get(k.name, 'json')) })));
@@ -164,6 +180,12 @@ export default {
       if (p === '/api/sfx' && request.method === 'GET') {
         const v = await env.WOW.get('sfx:latest', 'text');
         return new Response(v || '{"items":{}}', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
+      }
+      // hourly Blizzard prices with suffix prices (scripts/blizzard_prices.py), "#asOf,house,items" then i,/s, lines
+      if (p === '/api/bliz' && request.method === 'GET') {
+        const v = await env.WOW.get('bliz:latest', { type: 'text', cacheTtl: 300 });
+        if (!v) return json({ error: 'No prices yet.' }, 404);
+        return new Response(v, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=300' } });
       }
       // hourly Forever AH prices for the Horde house (src/fah.js): "#asOf,oldest" then "id,price,units,auctions" lines
       if (p === '/api/fah' && request.method === 'GET') {
