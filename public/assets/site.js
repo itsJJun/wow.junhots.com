@@ -404,6 +404,35 @@
     for (var i = 0; i < l.length && got < n; i++) { var q = Math.min(l[i][1], n - got); cost += q * l[i][0]; got += q; }
     return { cost: cost, got: got, first: l[0][0], last: l[Math.max(0, i - 1)][0] };
   };
+  // 14 days of history for your auction house (/api/blizh, the GitHub job): wsHist() -> Promise
+  // {asOf, today, items: {id: [[day, lowest, usual, most listed, sold, ran out], ...]}} (null = not known), and
+  // wsSales(hist, id) -> {days, since, spd (sold per day), sr (share of listings that sell), usual} from full days
+  var HISTP = null, HISTH = null;
+  window.wsHist = function () {
+    if (HISTP && HISTH === house()) return HISTP;
+    HISTH = house();
+    HISTP = fetch('/api/blizh?h=' + HISTH).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      var L = t.split('\n'), head = /^#(\d+),\d+/.exec(L[0] || ''); if (!head) return null;
+      var items = {}, today = Math.floor((+head[1] - 1577836800) / 86400), num = function (v) { return v === '' || v === undefined ? null : +v; };
+      for (var i = 1; i < L.length; i++) {
+        var f = L[i].split(','); if (f[0] !== 'h') continue;
+        items[f[1]] = f[2].split(';').map(function (d) { var x = d.split(':'); return [+x[0], num(x[1]), num(x[2]), +x[3] || 0, num(x[4]), num(x[5])]; });
+      }
+      return { asOf: +head[1], today: today, items: items };
+    }).catch(function () { return null; });
+    return HISTP;
+  };
+  window.wsSales = function (hist, id) {
+    var h = hist && hist.items[String(id)]; if (!hist) return null;
+    // full days with sales counted; the first such day of the whole house started part way, so it is left out
+    var first = hist.first; if (first === undefined) { first = Infinity; for (var k in hist.items) hist.items[k].forEach(function (d) { if (d[4] !== null && d[0] < first) first = d[0]; }); hist.first = first; }
+    if (first === Infinity) return { days: 0 };
+    var full = (h || []).filter(function (d) { return d[0] > first && d[0] < hist.today && d[4] !== null; });
+    var nDays = Math.max(0, hist.today - first - 1), sold = 0, out = 0, us = [];
+    full.forEach(function (d) { sold += d[4]; out += d[5] || 0; if (d[2]) us.push(d[2]); });
+    us.sort(function (a, b) { return a - b; });
+    return { days: nDays, since: first, spd: nDays ? sold / nDays : 0, sr: sold + out > 0 ? sold / (sold + out) : 0, usual: us.length ? us[us.length >> 1] : null };
+  };
   function siteScan() {
     if (!window.fetch) return Promise.resolve(null);
     var built = +(($('meta[name="ws-prices"]') || {}).content || 0), hs = house(), main = hs === 'us-113';
@@ -434,7 +463,7 @@
     var k = KINDS[0], info = meta().ah;
     if (!info) return siteScan().then(function (rec) { if (rec && !meta().ah) feed(k, rec); });
     var own = getRec('ah');
-    if (!ls.get('ws.houseBy')) return own.then(function (rec) { if (rec) feed(k, rec); });
+    if (!ls.get('ws.houseBy')) { siteScan(); return own.then(function (rec) { if (rec) feed(k, rec); }); }   // siteScan: the cheapest listings (wsBuy)
     return Promise.all([own, siteScan()]).then(function (r) {
       var mine = r[0], site = r[1], t = mine ? (mine.mod || mine.at) : 0;
       if (site && /^blizzard/i.test(site.name) && site.at > t + 3600e3) feed(k, site); else if (mine) feed(k, mine);

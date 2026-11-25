@@ -1332,8 +1332,15 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   function depCost() { return S.refund === "1" ? 0 : parseFloat(S.dep); }
   const TSM = BUILTIN.tsm || {};
   function tsmOf(id) { const t = TSM[id]; return t && (t[0] > 0 || t[1] > 0) ? { sr: t[0], spd: t[1], avg: t[2] } : null; }
+  // Sales on your own auction house, from Blizzard's hourly data (site.js wsHist / wsSales: listings gone while they
+  // still had 2+ hours left count as sold), once 3 full days are counted. TSM until then.
+  let OURS = null;
+  const hookHist = () => { if (window.wsHist) wsHist().then(h => { if (h) { OURS = h; if (typeof market !== "undefined" && market) render(); } }); };
+  if (document.readyState === "loading") addEventListener("DOMContentLoaded", hookHist); else setTimeout(hookHist, 0);   // site.js runs after this page's script
+  function oursOf(id) { const x = OURS && window.wsSales(OURS, id); return x && x.days >= 3 ? { sr: x.sr, spd: x.spd, avg: null, src: "bliz", days: x.days } : null; }
+  function saleOf(id) { return oursOf(id) || tsmOf(id); }
   // Expected deposits paid per sale: an item that sells on 1 in 4 listings costs 4 deposits (3 if the deposit comes back on sale).
-  function tries(id) { const t = tsmOf(id); return S.relist === "1" && t && t.sr > 0 ? 1 / Math.max(t.sr, 0.05) : 1; }
+  function tries(id) { const t = saleOf(id); return S.relist === "1" && t && t.sr > 0 ? 1 / Math.max(t.sr, 0.05) : 1; }
   function depFor(id) { const n = tries(id), d = parseFloat(S.dep); return Math.round(S.refund === "1" ? d * (n - 1) : d * n); }
   const cls = v => v === null ? "none" : v > 20 ? "good" : v >= 0 ? "warn" : "bad";
   const crowd = n => n > 300 ? '<span class="pill bad">' + fmtN(n) + ' listed</span>' : n > 50 ? '<span class="pill warn">' + fmtN(n) + ' listed</span>' : n > 0 ? '<span class="pill good">' + fmtN(n) + ' listed</span>' : '';
@@ -1348,8 +1355,8 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
   function dayName(d) { const dt = new Date(2020, 0, 1 + d); return dt.toLocaleDateString(undefined, { day: "numeric", month: "short" }); }
   const pct = r => Math.round(Math.abs(r - 1) * 100) + "%";
   function moving(id) {
-    const loc = movingLocal(id), t = tsmOf(id);
-    if (!t) return Object.assign({}, loc, { why: loc.why + (TSM_AT ? " TSM has no sales recorded for this yet." : "") });
+    const loc = movingLocal(id), t = saleOf(id);
+    if (!t) return Object.assign({}, loc, { why: loc.why + (oursOf(4306) ? " No sales seen on your auction house lately." : TSM_AT ? " TSM has no sales recorded for this yet." : "") });
     const order = ["stuck", "slow", "sell"];
     let i = t.sr >= 0.4 && t.spd >= 2 ? 2 : (t.sr < 0.15 || t.spd < 0.5) ? 0 : 1;
     const ql = listed(id), days = t.spd > 0 ? ql / t.spd : Infinity;
@@ -1357,7 +1364,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     if (i > 0 && days > 10) { i--; notes.push("Your AH already has " + fmtN(ql) + " listed, about " + (days === Infinity ? "many" : Math.round(days)) + " days of sales, so that's a long line."); }
     if (i > 0 && loc.k === "stuck") { i--; notes.push("Your own scans show it piling up lately."); }
     const per = t.sr > 0 ? Math.round(1 / t.sr * 10) / 10 : null;
-    const why = "TSM: " + Math.round(t.sr * 100) + "% of listings sell" + (per && per > 1.05 ? " (about 1 in " + per + ")" : "") + ", and about " + (t.spd >= 10 ? Math.round(t.spd) : t.spd.toFixed(1)) + " sell per day on a typical Forever AH." + (notes.length ? " " + notes.join(" ") : "");
+    const why = (t.src === "bliz" ? "Your auction house, last " + t.days + " days: " : "TSM: ") + Math.round(t.sr * 100) + "% of listings sell" + (per && per > 1.05 ? " (about 1 in " + per + ")" : "") + ", and about " + (t.spd >= 10 ? Math.round(t.spd) : t.spd.toFixed(1)) + " sell per day" + (t.src === "bliz" ? "." : " on a typical Forever AH.") + (notes.length ? " " + notes.join(" ") : "");
     return { k: order[i], tsm: t, days, why, local: loc };
   }
   function movingLocal(id) {
@@ -1403,7 +1410,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const t = x.mv.tsm, r = TSMR[x.r.id], ql = x.listed || 0, out = [];
     const st = (l, v, s, c) => out.push('<div><div class="l">' + l + '</div><div class="v' + (c ? " " + c : "") + '">' + v + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div>');
     if (t) {
-      st("Sold per day", spdTxt(t.spd), "on a typical Forever AH");
+      st("Sold per day", spdTxt(t.spd), t.src === "bliz" ? "on your auction house, last " + t.days + " days" : "on a typical Forever AH");
       st("Listings that sell", Math.round(t.sr * 100) + "%", t.sr > 0 && t.sr < 0.95 ? "about 1 in " + (Math.round(10 / t.sr) / 10) : "");
       st("Time to sell, if yours is cheapest", waitTxt(t.spd > 0 ? 24 / t.spd : Infinity), "when it sells");
       if (ql > 0) st("Line ahead of you", waitTxt(t.spd > 0 ? 24 * ql / t.spd : Infinity), fmtN(ql) + " already listed on your AH");
@@ -1415,6 +1422,12 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     if (t && t.avg) st("Average sale price", coin(t.avg), "TSM, all Forever AHs");
     return out.length ? '<div class="stats">' + out.join("") + '</div>' : "";
   }
+  // your auction house day by day (Blizzard's hourly data): usual price, most listed, sold
+  function ourRows(id) {
+    const h = OURS && OURS.items[String(id)]; if (!h || !h.length) return "";
+    return '<table><thead><tr><th>Day (your AH)</th><th class="num">Usual price</th><th class="num">Listed</th><th class="num">Sold</th></tr></thead><tbody>' +
+      h.slice().reverse().map(d => '<tr><td>' + dayName(d[0]) + (d[0] === OURS.today ? ' (so far)' : '') + '</td><td class="num">' + (d[2] ? coin(d[2]) : '<span class="dim">—</span>') + '</td><td class="num">' + fmtN(d[3]) + '</td><td class="num">' + (d[4] === null ? '<span class="dim">—</span>' : fmtN(d[4])) + '</td></tr>').join("") + '</tbody></table>';
+  }
   function moveHtml(x) {
     const h = (market.hist && market.hist[x.r.id]) || [];
     const rows = h.map(([d, q, p]) => '<tr><td>' + dayName(d) + '</td><td class="num">' + fmtN(q) + '</td><td class="num">' + (p ? coin(p) : '<span class="dim">—</span>') + '</td><td class="num dim">' + (market.trend && market.trend.mk[d] ? "×" + market.trend.mk[d].toFixed(1) + " since then" : "latest") + '</td></tr>').join("");
@@ -1424,7 +1437,7 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
       (t && t.sr > 0 ? '<div class="small muted" style="margin-top:4px">Deposits you pay per sale at this rate: ' + coin(x.depEach) + '. "Time to sell" assumes buyers take the cheapest listing first.</div>' : '') +
       '<div class="small muted" style="margin-top:4px">Hourly prices: <a href="' + bbbUrl(x.r) + '" target="_blank" rel="noopener">' + esc(x.r.n) + ' on BootyBayBroker</a>. Its sold-per-day is an estimate from hourly scans, while TSM counts recorded sales, so the two can differ a lot.</div>' +
       (x.mv.local ? '<div class="small muted" style="margin-top:4px">Your own scans say ' + MV[x.mv.local.k][0] + ': ' + esc(x.mv.local.why) + '</div>' : '') +
-      (rows ? '<table><thead><tr><th>Scan day</th><th class="num">Listed</th><th class="num">Cheapest</th><th class="num">Whole AH growth</th></tr></thead><tbody>' + rows + '</tbody></table>' : '') + '</div>';
+      (rows ? '<table><thead><tr><th>Scan day</th><th class="num">Listed</th><th class="num">Cheapest</th><th class="num">Whole AH growth</th></tr></thead><tbody>' + rows + '</tbody></table>' : '') + ourRows(x.r.id) + '</div>';
   }
 
   // ---------- render ----------
@@ -1434,7 +1447,9 @@ const BUILTIN = {"recipes":[{"id":"2568","n":"Brown Linen Vest","s":31,"t":"Line
     const ago = hrs < 1 ? "under an hour ago" : hrs < 48 ? Math.round(hrs) + " hours ago" : Math.round(hrs / 24) + " days ago";
     $("srcInfo").innerHTML = "Prices from " + (market.items ? (/site scan/i.test(market.name || "") ? "the latest scan of the " + (window.wsSiteName ? wsSiteName() : "Horde auction house") : "your Auctionator scan") : "the built-in Auctionator scan of the Horde auction house, PvP realm") + ": <b>" + d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + "</b> (" + ago + ")" + (market.realm ? ", ruleset " + esc(market.realm) : "") +
       (market.items ? (hrs > 12 ? ' <span class="pill warn">old prices</span>' : "") : (window.wfStale ? wfStale(market.scan, 7, "These prices are") : "")) +
+      (oursOf(4306) ? '<br>Sale rates: <b>your auction house</b>, from Blizzard\'s hourly data, last ' + oursOf(4306).days + ' days' :
       '<br>Sale rates: TradeSkillMaster, <b>' + (TSM_AT ? new Date(TSM_AT.replace(" ", "T") + (/Z|[+-]\d\d:?\d\d$/.test(TSM_AT) ? "" : "Z")).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "not loaded") + '</b>' +
+      (OURS && window.wsSales(OURS, 0).since ? ' (your auction house\'s own sales take over after 3 full days of counting)' : '')) +
       '';
   }
 

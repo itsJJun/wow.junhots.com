@@ -37,10 +37,10 @@ Prices section (text, one line each):
                                                   only for items with more than one price
 History section:
   #<snapshot unix time>,<house>,<items>
-  h,<item id>,<day>:<lowest>:<usual>:<most listed>:<sold>;...   day = days since 1 Jan 2020 (UTC), like Auctionator;
-                                                               the last day is today so far. usual = median of the
-                                                               day's hourly lowest prices; sold = units sold that day
-                                                               (empty when not known)
+  h,<item id>,<day>:<lowest>:<usual>:<most listed>:<sold>:<ran out>;...   day = days since 1 Jan 2020 (UTC), like
+          Auctionator; the last day is today so far. usual = median of the day's hourly lowest prices; sold = units
+          sold that day; ran out = units whose listing ended with under 2 hours left (most expired; a few were bought
+          in their last hour). Sold and ran out are empty when not known.
 Fingerprint section ("fp"):
   #<snapshot unix time>,fp,<items>
   ids,<item id>,<item id>...
@@ -131,33 +131,37 @@ def prices_text(snap, house, cur, suffix_of):
 
 
 def sold_units(prev, cur):
-    """units sold per item between two hourly snapshots of one house"""
-    sold = {}
+    """units sold and units that ran out (expired) per item between two hourly snapshots of one house"""
+    sold, gone = {}, {}
     for aid, p in prev.items():
         c = cur.get(aid)
         if c is None:
             if p[3] >= 2:   # still had 2+ hours left: bought (or taken down)
                 sold[p[0]] = sold.get(p[0], 0) + p[1]
+            else:           # under 2 hours left: most of these ran out
+                gone[p[0]] = gone.get(p[0], 0) + p[1]
         elif c[1] < p[1]:   # a commodity listing that shrank
             sold[p[0]] = sold.get(p[0], 0) + p[1] - c[1]
-    return sold
+    return sold, gone
 
 
 def update_history(hist, today, items, sold):
-    """hist: {item: {day: [lowest, usual, most listed, sold or None, [hourly lowest...] (today only)]}}"""
+    """hist: {item: {day: [lowest, usual, most listed, sold or None, [hourly lowest...] (today only), ran out or None]}}"""
     for iid, e in items.items():
         d = hist.setdefault(iid, {}).get(today)
         if d is None:
-            d = hist[iid][today] = [None, None, 0, None, []]
+            d = hist[iid][today] = [None, None, 0, None, [], None]
         d[4].append(e[0])
         d[0] = e[0] if d[0] is None else min(d[0], e[0]); d[2] = max(d[2], e[1])
         d[1] = int(statistics.median(d[4]))
     if sold is not None:
-        for iid in set(items) | set(sold):
+        sold, gone = sold
+        for iid in set(items) | set(sold) | set(gone):
             d = hist.setdefault(iid, {}).get(today)
             if d is None:   # sold out this hour
-                d = hist[iid][today] = [None, None, 0, None, []]
-            d[3] = (d[3] or 0) + sold.get(iid, 0)
+                d = hist[iid][today] = [None, None, 0, None, [], None]
+            while len(d) < 6: d.append(None)
+            d[3] = (d[3] or 0) + sold.get(iid, 0); d[5] = (d[5] or 0) + gone.get(iid, 0)
     for iid in list(hist):
         h = hist[iid]
         for day in list(h):
@@ -171,7 +175,8 @@ def history_text(snap, house, hist):
     for iid in sorted(hist):
         days = hist[iid]
         e = lambda v: '' if v is None else str(v)
-        lines.append('h,%d,%s' % (iid, ';'.join('%d:%s:%s:%d:%s' % (d, e(x[0]), e(x[1]), x[2], e(x[3])) for d, x in sorted(days.items()))))
+        lines.append('h,%d,%s' % (iid, ';'.join('%d:%s:%s:%d:%s:%s' % (d, e(x[0]), e(x[1]), x[2], e(x[3]), e(x[5] if len(x) > 5 else None))
+                                                   for d, x in sorted(days.items()))))
     return '\n'.join(lines) + '\n'
 
 
@@ -253,8 +258,8 @@ def run_region(tok, region, state_dir, out_dir, send, suffix_of):
         p_secs.append((h, text)); h_secs.append((h, history_text(snap, h, state['hist'][h])))
         meta[h] = [len(items), fac.get(h, '?')]; per_house[h] = items
         state['prev'][h] = {aid: x[:4] for aid, x in cur.items()}
-        print(region, h, fac.get(h), '| listings', len(cur), '| items', len(items), '| sold',
-              'not compared' if sold is None else sum(sold.values()))
+        print(region, h, fac.get(h), '| listings', len(cur), '| items', len(items), '| sold, ran out',
+              'not compared' if sold is None else (sum(sold[0].values()), sum(sold[1].values())))
     p_secs.append(('fp', fingerprint(snap, per_house)))
     pb, hb = bundle(region, 'p', snap, p_secs, meta), bundle(region, 'h', snap, h_secs, meta)
     print(region, 'snapshot', snap, '| gap', gap, '| prices', len(pb), 'bytes | history', len(hb), 'bytes')
