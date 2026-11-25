@@ -1,0 +1,40 @@
+# Hourly auction prices from Blizzard's Battle.net API (scripts/blizzard_prices.py) -> the site's /api/bliz.
+# Blizzard's snapshot changes about :26 past each hour, so this runs at :40.
+# Secrets (repo Settings > Secrets and variables > Actions): BLIZZARD_CLIENT_ID, BLIZZARD_CLIENT_SECRET, ADMIN_PASSWORD.
+# A push to a claude/* branch that changes the job only builds the summary (artifact), it does not send it.
+name: Blizzard prices
+on:
+  schedule:
+    - cron: '40 * * * *'
+  workflow_dispatch:
+  push:
+    branches: ['claude/**']
+    paths: [scripts/blizzard_prices.py, scripts/data/bonus_suffix.json, .github/workflows/blizzard-prices.yml]
+permissions:
+  contents: read
+concurrency:
+  group: blizzard-prices
+  cancel-in-progress: false
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch, sum up and send
+        run: python3 scripts/blizzard_prices.py --out bliz.txt ${{ github.event_name == 'push' && '--no-post' || '' }}
+        env:
+          BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
+          BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      - name: Admin password secret present?
+        if: github.event_name == 'push'
+        run: '[ -n "$P" ] && echo "ADMIN_PASSWORD: set" || echo "ADMIN_PASSWORD: MISSING"'
+        env:
+          P: ${{ secrets.ADMIN_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: bliz
+          path: bliz.txt
+          retention-days: 2
