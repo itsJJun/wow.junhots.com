@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-25",
+    "title": "Fresh prices with no addon",
+    "text": "Every price page now gets the Horde auction house's prices every hour, with how many are listed, even if you load nothing. They come from Forever AH, which reads Blizzard's own auction data. Your own scan still wins, and prices for random suffixes (like \"of the Owl\") still need one.",
+    "image": "/assets/updates/2026-11-25-hourly-prices.webp",
+    "link": "/setup/",
+    "linkText": "Load your own scan"
+  },
+  {
+    "date": "2026-11-25",
     "title": "Prices from Gear Snapshot, no Auctionator needed",
     "text": "Gear Snapshot 1.8 has its own Scan button at the auction house, with a % so you know when it's done. It saves the price of every item and every random suffix (like \"of the Owl\"), plus 14 days of history. Every price page uses it, so Auctionator is now optional. It also saves the prices when Auctionator scans, the flight points you know for the Level 1-60 route, and your spec from your talents for Gear upgrades.",
     "image": "/assets/updates/2026-11-25-gear-snapshot-scan.webp",

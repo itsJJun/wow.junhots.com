@@ -21,7 +21,8 @@
   // Secrets (e.g. ADMIN_PASSWORD) and dashboard variables are kept on deploy, never stored in this repo.
   "keep_vars": true,
   // Level census from classicplus.io, checked every 3 hours (it updates once a day, around 17:00 UTC).
-  "triggers": { "crons": ["15 */3 * * *"] },
+  // Forever AH prices (src/fah.js): one slot of the market table every 5 minutes ("*/5 * * * *" = FAH_CRON in src/index.js).
+  "triggers": { "crons": ["15 */3 * * *", "*/5 * * * *"] },
   "observability": { "enabled": true },
   // Needed by Cloudflare's PR builds (`wrangler preview`). Empty = previews use the settings above.
   "previews": {}
