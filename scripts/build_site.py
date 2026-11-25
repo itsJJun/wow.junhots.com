@@ -427,7 +427,7 @@ ADMIN_JS = r"""
   $('ownLock').addEventListener('submit', function (e) {
     e.preventDefault(); try { sessionStorage.setItem(KEY, $('ownPw').value); } catch (x) {} $('ownPw').value = ''; unlock();
   });
-  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { return uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
+  $('ownFile').addEventListener('change', function () { var f = this.files[0]; this.value = ''; if (f) (/gearsnapshot/i.test(f.name) ? f.text().then(function (t) { var lua = window.wsGsToAuctionator && window.wsGsToAuctionator(t); return lua ? upload(new File([lua], 'Gear Snapshot scan.lua', { lastModified: f.lastModified })) : uploadSfx(t, $('ownMsg'), ''); }) : upload(f)); });
   // Gear Snapshot saves a price per random suffix (Auctionator keeps one per item): every item you click in the AH,
   // or all of them after a full scan. Pull those entries out of the Lua file: ["Name of Suffix"] = { ["p"] = …, ["t"] = …, ["n"] = … }
   function sfxFromSnap(text) {
@@ -525,7 +525,7 @@ def build_admin():
             '<button type="submit">Unlock</button><span id="ownPwMsg" role="status"></span></form>'
             '<div id="ownBody" class="ws-prose" hidden>'
             '<h2>Auction prices</h2><p id="ownScan"></p>'
-            '<p>In game: Auctionator full scan, then /reload. Then press Upload latest scan. It also sends the suffix prices Gear Snapshot saved (items you clicked in the auction house).</p>'
+            '<p>In game: click Gear Snapshot scan (or Auctionator's Full Scan), wait for 100%, then /reload. Then press Upload latest scan. The newest of the two is sent, with every suffix price.</p>'
             '<p><button type="button" class="own-btn" id="ownLatest">Upload latest scan</button> '
             '<label class="own-btn own-alt">Pick a file<input id="ownFile" type="file" accept=".lua,.bak,text/plain" hidden></label> <span id="ownMsg" role="status"></span></p>'
             '<h2>Reports <span id="ownFbN"></span></h2><ul class="own-fb" id="ownFb"></ul>'
