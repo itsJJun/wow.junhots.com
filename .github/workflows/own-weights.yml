@@ -1,6 +1,8 @@
 # Daily re-check of our own leveling stat weights (scripts/own-weights). Pulls the newest MythicSim Forever engine; if
 # it changed since the last run (new commit = new game data or fixes), re-runs every sim and opens a PR with the new
 # Gear upgrades data. Same engine = nothing to do (a minute). Jun merges the PR.
+# Also warns (a GitHub issue, closed again by itself) when the game got a new build and the engine has had no update for
+# 4 days, since then our weights may miss a patch (scripts/own-weights/staleness.py).
 # Started daily by GitHub's schedule and, as a backstop, by the Worker's cron (src/ownweights.js, like the price job).
 # Needs repo Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
 name: Own stat weights
@@ -16,6 +18,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 concurrency:
   group: own-weights
   cancel-in-progress: false
@@ -34,6 +37,25 @@ jobs:
           echo "engine $sha, last run ${last}"
           echo "MSE_ENGINE=$RUNNER_TEMP/mse" >> "$GITHUB_ENV"
           if [[ "$sha" == "$last"* && "${{ inputs.force }}" != "true" ]]; then echo "same=1" >> "$GITHUB_OUTPUT"; else echo "same=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Is the engine behind the game?
+        id: stale
+        run: python3 scripts/own-weights/staleness.py
+      - name: Warn when it is, all clear when not
+        if: steps.stale.outputs.checked == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MSG: ${{ steps.stale.outputs.msg }}
+        run: |
+          t="Stat weights: sim engine is behind the game"
+          n=$(gh issue list --state open --json number,title -q ".[] | select(.title == \"$t\") | .number" | head -n 1)
+          if [ "${{ steps.stale.outputs.stale }}" = 1 ]; then
+            [ -n "$n" ] && { echo "already open: #$n"; exit 0; }
+            gh issue create --title "$t" --body "$MSG
+
+          Nothing to do yet: the daily job keeps checking and closes this issue when the engine updates. If it stays open for weeks, the engine may have stopped, and our weights would need another source."
+          elif [ -n "$n" ]; then
+            gh issue close "$n" --comment "Engine caught up: $MSG"
+          fi
       - name: Build engine
         if: steps.eng.outputs.same == '0'
         run: |
