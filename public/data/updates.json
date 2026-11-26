@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-26",
+    "title": "Gear upgrades: our own item list",
+    "text": "Items now come from the game's own files, not an addon: about 8,000 quest rewards, dungeon drops, crafts and BoEs, with Forever's changed stats. Raid quest gear is left out, and class-only quest rewards only show for that class.",
+    "image": "/assets/updates/2026-11-26-own-items.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-26",
     "title": "Gear upgrades: our own stat weights",
     "text": "Gear scores now use our own leveling sims for every class and spec, not an addon's weights. Damage specs: kills per hour, counting rest and deaths. Tanks and healers: dungeon pulls per hour.",
     "image": "/assets/updates/2026-11-26-own-weights.webp",
