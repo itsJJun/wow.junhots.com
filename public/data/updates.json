@@ -1,5 +1,21 @@
 [
   {
+    "date": "2026-11-26",
+    "title": "Level route: going back picks up quests first",
+    "text": "Going back now sends you to pick up a quest before its kills or hand-in, and to finish the quest before it first. Quests you can't get any more stay hidden. Checked on every route.",
+    "image": "/assets/updates/2026-11-25-going-back-pickups.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-26",
+    "title": "Level route: upgrade arrow like the game's",
+    "text": "Quest rewards that beat your gear show the game's green arrow and the item in green.",
+    "image": "/assets/updates/2026-11-25-upgrade-arrow.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
     "date": "2026-11-25",
     "title": "Craft finder: real AH deposits, cleaner numbers",
     "text": "Deposits now match the game: vendor price × 5% (2h), 20% (8h) or 60% (24h), back when it sells. Profit shows green or red, with price and deposits underneath.",
