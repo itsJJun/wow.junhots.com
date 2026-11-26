@@ -140,7 +140,7 @@ def kph1(L, gear, talents, summon, rot, bonus=None, travel=10.0, verbose=False, 
     dS = f['dps'] + f['pet']; mS = -f['mana'] / dur; hS = -f['hp'] / dur
     dW = W + f['pet'] + f['dot']
     d, fo, c = rate(DRINK, L) + regen, rate(FOOD, L), tap
-    hpr = max(0.0, 0.12 * prep['stats']['Spirit'] + 1.5) / 2.0   # warlock health from Spirit out of combat (see gen.HP_PER_SPIRIT)
+    hpr = max(0.0, 0.1034 * prep['stats']['Spirit'] + 1.293) / 2.0   # warlock health from Spirit out of combat (see gen.HP_PER_SPIRIT)
     fo += 1.5 * hpr                                            # x1.5 sitting, on top of food
     armor = prep['stats']['Armor']
     red = armor / (armor + 400.0 + 85.0 * (L + GAP))          # classic armor formula vs the mob's level

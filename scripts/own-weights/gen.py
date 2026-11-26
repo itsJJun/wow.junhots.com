@@ -49,8 +49,10 @@ APPROACH = 3.0   # seconds a ranged class casts before the mob reaches it (assum
 
 # Out-of-combat health regen from Spirit, per 2 s tick, by class (Classic 1.12 rule as in vmangos Unit::GetRegenHPPerSpirit;
 # Forever's own formula is not published). x1.5 while sitting (eating sits you down), and food adds on top.
+# Warlock checked in game 26 Nov (level 48, Spirit 118, standing): +13 and +14 per tick vs 15.7 by the rule above, so the
+# Warlock line is scaled to the measured 13.5 (x0.862). Other classes are unmeasured and keep the vmangos values.
 HP_PER_SPIRIT = {'DRUID': (0.11, 1.0), 'HUNTER': (0.43, -5.5), 'MAGE': (0.11, 1.0), 'PALADIN': (0.25, 0.0), 'PRIEST': (0.15, 1.4),
-                 'ROGUE': (0.84, -13.0), 'SHAMAN': (0.28, -3.6), 'WARLOCK': (0.12, 1.5), 'WARRIOR': (1.26, -22.6)}
+                 'ROGUE': (0.84, -13.0), 'SHAMAN': (0.28, -3.6), 'WARLOCK': (0.1034, 1.293), 'WARRIOR': (1.26, -22.6)}
 def hp_regen(cls, spirit):
     """Health per second from Spirit, standing, out of combat."""
     a, b = HP_PER_SPIRIT[cls]
