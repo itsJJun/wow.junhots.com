@@ -34,7 +34,11 @@ jobs:
           git clone --depth 1 https://github.com/sage3648/mythicsim-forever-engine.git "$RUNNER_TEMP/mse"
           sha=$(git -C "$RUNNER_TEMP/mse" rev-parse HEAD)
           last=$(python3 -c "import json; print(json.load(open('scripts/own-weights/own_weights.json'))['meta']['commit'])")
-          echo "engine $sha, last run ${last}"
+          # the job's own open update PR counts too, so a second run that day doesn't redo the same sims
+          pr=$(git fetch -q origin own-weights/update 2>/dev/null && git show FETCH_HEAD:scripts/own-weights/own_weights.json \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['meta']['commit'])" || true)
+          echo "engine $sha, last run ${last}, open update PR ${pr:-none}"
+          [[ -n "$pr" && "$sha" == "$pr"* ]] && last="$pr"
           echo "MSE_ENGINE=$RUNNER_TEMP/mse" >> "$GITHUB_ENV"
           if [[ "$sha" == "$last"* && "${{ inputs.force }}" != "true" ]]; then echo "same=1" >> "$GITHUB_OUTPUT"; else echo "same=0" >> "$GITHUB_OUTPUT"; fi
       - name: Is the engine behind the game?
