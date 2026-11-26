@@ -170,8 +170,17 @@ function foreign(request, url) {
   try { return new URL(from).host !== url.host; } catch (e) { return true; }
 }
 
-export default {
+// Every answer carries Cross-Origin-Resource-Policy: same-origin, so other websites can't use our files and data in
+// a visitor's browser (public/_headers does the same for plain files). Link previews fetch from servers: unaffected.
+const worker = {
   async fetch(request, env, ctx) {
+    const r = await worker.route(request, env, ctx);
+    if (r.headers.has('cross-origin-resource-policy')) return r;
+    const out = new Response(r.body, r);
+    out.headers.set('cross-origin-resource-policy', 'same-origin');
+    return out;
+  },
+  async route(request, env, ctx) {
     const url = new URL(request.url), p = url.pathname;
     try {
       if (p.startsWith('/assets/char/') && foreign(request, url)) return new Response('Not allowed.', { status: 403 });   // 3D character files
@@ -247,3 +256,4 @@ export default {
     else ctx.waitUntil(refreshCensus(env));
   },
 };
+export default worker;
