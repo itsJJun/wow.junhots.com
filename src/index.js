@@ -160,10 +160,21 @@ async function feedback(request, env) {
   return json({ ok: true });
 }
 
+// Other websites may not use our files (hotlinking). Browsers say where a request comes from: Sec-Fetch-Site,
+// or Origin/Referer in older ones. Typed-in URLs, our own pages and link previews (no such headers) still work.
+function foreign(request, url) {
+  const sfs = request.headers.get('sec-fetch-site');
+  if (sfs) return sfs === 'cross-site';
+  const from = request.headers.get('origin') || request.headers.get('referer');
+  if (!from) return false;
+  try { return new URL(from).host !== url.host; } catch (e) { return true; }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url), p = url.pathname;
     try {
+      if (p.startsWith('/assets/char/') && foreign(request, url)) return new Response('Not allowed.', { status: 403 });   // 3D character files
       if (CENSUS_PAGES.includes(p)) return await censusPage(request, env, ctx);
       // which census day the pages use now
       if (p === '/api/census' && request.method === 'GET') {
