@@ -2,7 +2,7 @@
  "meta": {
   "date": "2026-11-26",
   "engine": "MythicSim Forever engine (MIT)",
-  "commit": "abb463487da8",
+  "commit": "b80ade29a382",
   "build": "1.60.1.70425",
   "model": "leveling: kills per hour (damage), dungeon pulls per hour (tanks, healers)"
  },
@@ -16,145 +16,164 @@
        "splpwr": 1.0,
        "spldmg": 1.0,
        "int": 0.05,
-       "hitPct": 1.08,
-       "critPct": 0.52,
-       "armor": 0.02,
+       "hitPct": 1.14,
+       "critPct": 0.53,
        "natsplpwr": 1.0
       }
      ],
      [
       14,
       {
-       "natsplpwr": 0.86,
-       "hitPct": 0.6,
-       "armor": 0.02,
+       "hitPct": 0.63,
+       "spi": 0.12,
        "int": 0.02,
+       "critPct": 0.31,
+       "natsplpwr": 0.87,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.25,
        "spldmg": 1.0,
-       "critPct": 0.3,
-       "sta": 0.05
+       "sta": 0.09,
+       "armor": 0.01
       }
      ],
      [
       19,
       {
-       "natsplpwr": 0.87,
-       "hitPct": 0.82,
-       "armor": 0.02,
+       "hitPct": 0.86,
+       "spi": 0.13,
        "int": 0.03,
+       "critPct": 0.43,
+       "natsplpwr": 0.87,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.28,
        "spldmg": 1.0,
-       "critPct": 0.42,
-       "sta": 0.07
+       "sta": 0.1,
+       "armor": 0.01
       }
      ],
      [
       24,
       {
-       "natsplpwr": 0.87,
-       "hitPct": 0.93,
-       "armor": 0.02,
+       "hitPct": 1.0,
+       "spi": 0.14,
        "int": 0.03,
+       "critPct": 0.6,
+       "natsplpwr": 0.87,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.3,
        "spldmg": 1.0,
-       "critPct": 0.59,
-       "sta": 0.09
+       "sta": 0.11,
+       "armor": 0.01
       }
      ],
      [
       29,
       {
-       "natsplpwr": 0.86,
-       "hitPct": 0.63,
-       "armor": 0.02,
+       "hitPct": 0.69,
+       "spi": 0.15,
        "int": 0.03,
+       "critPct": 0.88,
+       "natsplpwr": 0.86,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.32,
        "spldmg": 1.0,
-       "critPct": 0.88,
-       "sta": 0.1
+       "sta": 0.13,
+       "armor": 0.01
       }
      ],
      [
       34,
       {
-       "natsplpwr": 0.85,
-       "hitPct": 0.17,
-       "armor": 0.02,
+       "hitPct": 0.19,
+       "spi": 0.16,
        "int": 0.04,
+       "critPct": 1.37,
+       "natsplpwr": 0.85,
        "splpwr": 1.0,
        "arcsplpwr": 0.15,
+       "manargn": 0.38,
        "spldmg": 1.0,
-       "critPct": 1.39,
-       "sta": 0.11
+       "sta": 0.13,
+       "armor": 0.01
       }
      ],
      [
       39,
       {
-       "natsplpwr": 0.85,
-       "armor": 0.02,
+       "spi": 0.16,
        "int": 0.06,
+       "critPct": 2.12,
+       "natsplpwr": 0.85,
        "splpwr": 1.0,
        "arcsplpwr": 0.15,
+       "manargn": 0.43,
        "spldmg": 1.0,
-       "critPct": 2.13,
-       "sta": 0.1
+       "sta": 0.13,
+       "armor": 0.01
       }
      ],
      [
       44,
       {
-       "natsplpwr": 0.86,
-       "armor": 0.02,
+       "spi": 0.17,
        "int": 0.07,
+       "critPct": 2.74,
+       "natsplpwr": 0.86,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.44,
        "spldmg": 1.0,
-       "critPct": 2.71,
-       "sta": 0.1
+       "sta": 0.12,
+       "armor": 0.01
       }
      ],
      [
       49,
       {
-       "natsplpwr": 0.86,
-       "armor": 0.03,
-       "int": 0.06,
+       "spi": 0.16,
+       "int": 0.07,
+       "critPct": 3.04,
+       "natsplpwr": 0.87,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.45,
        "spldmg": 1.0,
-       "critPct": 2.97,
-       "sta": 0.11
+       "sta": 0.13,
+       "armor": 0.01
       }
      ],
      [
       54,
       {
-       "natsplpwr": 0.87,
-       "armor": 0.03,
+       "spi": 0.18,
        "int": 0.07,
+       "critPct": 3.63,
+       "natsplpwr": 0.87,
        "splpwr": 1.0,
-       "arcsplpwr": 0.13,
+       "arcsplpwr": 0.14,
+       "manargn": 0.53,
        "spldmg": 1.0,
-       "critPct": 3.59,
-       "sta": 0.14
+       "sta": 0.16,
+       "armor": 0.01
       }
      ],
      [
       59,
       {
-       "natsplpwr": 0.86,
-       "armor": 0.03,
+       "spi": 0.22,
        "int": 0.08,
+       "critPct": 4.36,
+       "natsplpwr": 0.86,
        "splpwr": 1.0,
        "arcsplpwr": 0.14,
+       "manargn": 0.64,
        "spldmg": 1.0,
-       "critPct": 4.37,
-       "sta": 0.19
+       "sta": 0.21,
+       "armor": 0.02
       }
      ],
      [
@@ -163,9 +182,11 @@
        "splpwr": 1.0,
        "spldmg": 1.0,
        "int": 0.08,
-       "sta": 0.18,
-       "critPct": 4.62,
-       "armor": 0.03,
+       "spi": 0.24,
+       "sta": 0.2,
+       "manargn": 0.71,
+       "critPct": 4.59,
+       "armor": 0.02,
        "arcsplpwr": 0.13,
        "natsplpwr": 0.87
       }
@@ -179,153 +200,174 @@
       9,
       {
        "str": 2.0,
-       "agi": 3.53,
+       "agi": 2.71,
        "atkpwr": 1.0,
-       "sta": 0.07,
-       "hitPct": 6.81,
-       "critPct": 7.71,
-       "armor": 0.25,
-       "dps": 13.66,
+       "sta": 0.02,
+       "hitPct": 8.27,
+       "critPct": 8.9,
+       "armor": 0.06,
+       "spi": 0.76,
+       "dps": 13.51,
        "feratkpwr": 1.0
       }
      ],
      [
       14,
       {
-       "armor": 0.1,
-       "dps": 13.74,
-       "agi": 1.92,
-       "str": 2.0,
-       "hitPct": 2.82,
+       "hitPct": 2.87,
+       "spi": 0.23,
+       "dps": 13.66,
        "atkpwr": 1.0,
-       "critPct": 2.91,
-       "sta": 0.19,
+       "critPct": 3.23,
+       "str": 2.0,
+       "agi": 1.67,
+       "manargn": 0.03,
+       "sta": 0.35,
+       "armor": 0.04,
        "feratkpwr": 1.0
       }
      ],
      [
       19,
       {
-       "armor": 0.11,
-       "dps": 13.68,
-       "agi": 2.11,
-       "str": 2.0,
-       "hitPct": 3.94,
+       "hitPct": 4.01,
+       "spi": 0.34,
+       "dps": 13.61,
        "atkpwr": 1.0,
-       "critPct": 4.25,
-       "sta": 0.35,
+       "critPct": 4.58,
+       "str": 2.0,
+       "agi": 1.88,
+       "manargn": 0.15,
+       "sta": 0.65,
+       "armor": 0.05,
        "feratkpwr": 1.0
       }
      ],
      [
       24,
       {
-       "armor": 0.12,
-       "dps": 12.86,
-       "agi": 2.27,
-       "str": 2.0,
-       "hitPct": 4.63,
+       "hitPct": 5.05,
+       "spi": 0.54,
+       "dps": 12.81,
        "atkpwr": 1.0,
-       "critPct": 5.63,
-       "sta": 0.61,
+       "critPct": 5.99,
+       "str": 2.0,
+       "agi": 2.08,
+       "manargn": 0.23,
+       "sta": 1.13,
+       "armor": 0.07,
        "feratkpwr": 1.0
       }
      ],
      [
       29,
       {
-       "armor": 0.13,
-       "dps": 11.37,
-       "agi": 2.34,
-       "str": 2.0,
-       "hitPct": 4.84,
+       "hitPct": 5.69,
+       "spi": 0.67,
+       "dps": 11.11,
        "atkpwr": 1.0,
-       "critPct": 6.88,
-       "sta": 0.85,
+       "critPct": 7.18,
+       "str": 2.0,
+       "agi": 2.14,
+       "manargn": 0.11,
+       "sta": 1.4,
+       "armor": 0.09,
        "feratkpwr": 1.0
       }
      ],
      [
       34,
       {
-       "armor": 0.14,
-       "dps": 10.46,
-       "agi": 2.48,
-       "str": 2.0,
-       "hitPct": 5.67,
+       "hitPct": 6.95,
+       "spi": 0.68,
+       "dps": 9.84,
        "atkpwr": 1.0,
-       "critPct": 8.94,
-       "sta": 1.02,
+       "critPct": 9.24,
+       "str": 2.0,
+       "agi": 2.25,
+       "manargn": 0.05,
+       "sta": 1.45,
+       "armor": 0.1,
        "feratkpwr": 1.0
       }
      ],
      [
       39,
       {
-       "armor": 0.15,
-       "dps": 10.12,
-       "agi": 2.62,
-       "str": 2.0,
-       "hitPct": 6.76,
+       "hitPct": 8.45,
+       "spi": 0.63,
+       "dps": 9.4,
        "atkpwr": 1.0,
-       "critPct": 11.28,
-       "sta": 1.05,
+       "critPct": 11.68,
+       "str": 2.0,
+       "agi": 2.42,
+       "manargn": 0.13,
+       "sta": 1.42,
+       "armor": 0.1,
        "feratkpwr": 1.0
       }
      ],
      [
       44,
       {
-       "armor": 0.15,
-       "dps": 9.8,
-       "agi": 2.7,
-       "str": 2.0,
-       "hitPct": 8.0,
+       "hitPct": 9.47,
+       "spi": 0.62,
+       "dps": 9.15,
        "atkpwr": 1.0,
-       "critPct": 13.16,
-       "sta": 0.99,
+       "critPct": 13.99,
+       "str": 2.0,
+       "agi": 2.54,
+       "manargn": 0.14,
+       "sta": 1.39,
+       "armor": 0.1,
        "feratkpwr": 1.0
       }
      ],
      [
       49,
       {
-       "armor": 0.16,
-       "dps": 9.6,
-       "agi": 2.77,
-       "str": 2.0,
-       "hitPct": 7.13,
+       "hitPct": 7.71,
+       "spi": 0.65,
+       "dps": 8.92,
        "atkpwr": 1.0,
-       "critPct": 14.79,
-       "sta": 1.01,
+       "critPct": 16.8,
+       "str": 2.0,
+       "agi": 2.69,
+       "manargn": 0.05,
+       "sta": 1.46,
+       "armor": 0.1,
        "feratkpwr": 1.0
       }
      ],
      [
       54,
       {
-       "armor": 0.17,
-       "dps": 9.57,
-       "agi": 2.84,
-       "str": 2.05,
-       "hitPct": 2.86,
+       "hitPct": 2.84,
+       "spi": 0.7,
+       "dps": 8.83,
        "atkpwr": 1.0,
-       "critPct": 16.88,
-       "sta": 1.17,
+       "critPct": 19.4,
+       "str": 2.05,
+       "agi": 2.8,
+       "manargn": 0.01,
+       "sta": 1.62,
+       "armor": 0.12,
        "feratkpwr": 1.0
       }
      ],
      [
       59,
       {
-       "armor": 0.18,
-       "dps": 9.67,
-       "agi": 2.88,
-       "str": 2.15,
-       "hitPct": 0.14,
+       "hitPct": 0.08,
+       "spi": 0.73,
+       "dps": 8.81,
        "atkpwr": 1.0,
-       "critPct": 19.6,
-       "sta": 1.43,
+       "critPct": 21.73,
+       "str": 2.15,
+       "agi": 2.82,
+       "manargn": 0.14,
+       "sta": 1.83,
+       "armor": 0.13,
        "feratkpwr": 1.0
       }
      ],
@@ -333,12 +375,14 @@
       60,
       {
        "str": 2.2,
-       "agi": 2.89,
+       "agi": 2.86,
        "atkpwr": 1.0,
-       "sta": 1.67,
-       "critPct": 22.63,
-       "armor": 0.2,
-       "dps": 9.87,
+       "sta": 2.22,
+       "critPct": 25.02,
+       "armor": 0.15,
+       "spi": 0.7,
+       "manargn": 0.44,
+       "dps": 8.72,
        "feratkpwr": 1.0
       }
      ]
@@ -352,131 +396,131 @@
       {
        "splheal": 1.0,
        "splpwr": 1.0,
-       "int": 0.97,
-       "spi": 0.89,
-       "manargn": 4.19,
-       "critPct": 1.37,
-       "sta": 0.23
+       "int": 1.11,
+       "spi": 0.66,
+       "manargn": 3.75,
+       "critPct": 1.36,
+       "sta": 0.25
       }
      ],
      [
       14,
       {
-       "int": 1.1,
+       "int": 1.3,
+       "critPct": 1.28,
+       "manargn": 2.98,
+       "sta": 0.35,
        "splheal": 1.0,
-       "critPct": 1.25,
-       "spi": 0.8,
-       "manargn": 3.39,
-       "sta": 0.32,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.59
       }
      ],
      [
       19,
       {
-       "int": 1.39,
+       "int": 1.6,
+       "critPct": 1.76,
+       "manargn": 2.98,
+       "sta": 0.38,
        "splheal": 1.0,
-       "critPct": 1.74,
-       "spi": 0.85,
-       "manargn": 3.37,
-       "sta": 0.35,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.65
       }
      ],
      [
       24,
       {
-       "int": 1.75,
+       "int": 1.97,
+       "critPct": 2.46,
+       "manargn": 3.13,
+       "sta": 0.43,
        "splheal": 1.0,
-       "critPct": 2.44,
-       "spi": 0.96,
-       "manargn": 3.53,
-       "sta": 0.4,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.76
       }
      ],
      [
       29,
       {
-       "int": 2.0,
+       "int": 2.21,
+       "critPct": 3.17,
+       "manargn": 3.39,
+       "sta": 0.49,
        "splheal": 1.0,
-       "critPct": 3.13,
-       "spi": 1.14,
-       "manargn": 3.79,
-       "sta": 0.47,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.95
       }
      ],
      [
       34,
       {
-       "int": 1.99,
+       "int": 2.17,
+       "critPct": 3.61,
+       "manargn": 3.47,
+       "sta": 0.52,
        "splheal": 1.0,
-       "critPct": 3.59,
-       "spi": 1.28,
-       "manargn": 3.83,
-       "sta": 0.5,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.1
       }
      ],
      [
       39,
       {
-       "int": 1.93,
+       "int": 2.07,
+       "critPct": 3.89,
+       "manargn": 3.31,
+       "sta": 0.49,
        "splheal": 1.0,
-       "critPct": 3.91,
-       "spi": 1.27,
-       "manargn": 3.63,
-       "sta": 0.47,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.11
       }
      ],
      [
       44,
       {
-       "int": 2.02,
+       "int": 2.16,
+       "critPct": 4.42,
+       "manargn": 3.13,
+       "sta": 0.47,
        "splheal": 1.0,
-       "critPct": 4.43,
-       "spi": 1.29,
-       "manargn": 3.46,
-       "sta": 0.46,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.11
       }
      ],
      [
       49,
       {
-       "int": 2.08,
+       "int": 2.22,
+       "critPct": 5.15,
+       "manargn": 2.88,
+       "sta": 0.46,
        "splheal": 1.0,
-       "critPct": 5.14,
-       "spi": 1.32,
-       "manargn": 3.28,
-       "sta": 0.45,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.09
       }
      ],
      [
       54,
       {
-       "int": 2.11,
-       "splheal": 1.0,
+       "int": 2.22,
        "critPct": 6.16,
-       "spi": 1.28,
-       "manargn": 3.23,
+       "manargn": 2.89,
        "sta": 0.45,
-       "splpwr": 1.0
+       "splheal": 1.0,
+       "splpwr": 1.0,
+       "spi": 1.08
       }
      ],
      [
       59,
       {
-       "int": 2.27,
-       "splheal": 1.0,
+       "int": 2.31,
        "critPct": 7.44,
-       "spi": 1.22,
-       "manargn": 3.36,
+       "manargn": 3.25,
        "sta": 0.48,
-       "splpwr": 1.0
+       "splheal": 1.0,
+       "splpwr": 1.0,
+       "spi": 1.15
       }
      ],
      [
@@ -500,187 +544,187 @@
       9,
       {
        "str": 2.0,
-       "agi": 5.24,
+       "agi": 4.59,
        "atkpwr": 1.0,
        "feratkpwr": 1.0,
-       "sta": 2.44,
-       "hitPct": 8.59,
-       "critPct": 6.26,
-       "armor": 1.57,
-       "armorbonus": 1.57,
-       "defrtng": 2.26,
-       "dodgePct": 19.09,
-       "dps": 13.99
+       "sta": 2.68,
+       "hitPct": 9.42,
+       "critPct": 6.14,
+       "armor": 1.31,
+       "armorbonus": 1.31,
+       "defrtng": 1.91,
+       "dodgePct": 16.2,
+       "dps": 13.98
       }
      ],
      [
       14,
       {
-       "dodgePct": 3.21,
-       "hitPct": 5.36,
-       "agi": 1.41,
+       "hitPct": 4.76,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 4.4,
-       "sta": 0.62,
-       "armorbonus": 0.34,
-       "defrtng": 0.39,
-       "armor": 0.34,
+       "armor": 0.31,
        "atkpwr": 1.0,
-       "dps": 12.49
+       "sta": 0.73,
+       "critPct": 4.64,
+       "agi": 1.28,
+       "defrtng": 0.26,
+       "armorbonus": 0.31,
+       "str": 2.0,
+       "dodgePct": 1.95,
+       "dps": 12.91
       }
      ],
      [
       19,
       {
-       "dodgePct": 4.02,
-       "hitPct": 8.05,
-       "agi": 1.67,
+       "hitPct": 7.37,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 6.48,
-       "sta": 0.8,
-       "armorbonus": 0.36,
-       "defrtng": 0.45,
-       "armor": 0.36,
+       "armor": 0.37,
        "atkpwr": 1.0,
-       "dps": 9.31
+       "sta": 0.98,
+       "critPct": 7.13,
+       "agi": 1.72,
+       "defrtng": 0.36,
+       "armorbonus": 0.37,
+       "str": 2.0,
+       "dodgePct": 3.14,
+       "dps": 10.1
       }
      ],
      [
       24,
       {
-       "dodgePct": 4.35,
-       "hitPct": 10.18,
-       "agi": 1.83,
+       "hitPct": 9.84,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 8.68,
-       "sta": 0.91,
-       "armorbonus": 0.39,
-       "defrtng": 0.54,
-       "armor": 0.39,
+       "armor": 0.38,
        "atkpwr": 1.0,
-       "dps": 7.28
+       "sta": 1.02,
+       "critPct": 8.8,
+       "agi": 1.86,
+       "defrtng": 0.44,
+       "armorbonus": 0.38,
+       "str": 2.0,
+       "dodgePct": 4.47,
+       "dps": 7.5
       }
      ],
      [
       29,
       {
-       "dodgePct": 5.37,
-       "hitPct": 11.73,
-       "agi": 1.95,
+       "hitPct": 11.58,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 10.33,
-       "sta": 0.96,
-       "armorbonus": 0.4,
-       "defrtng": 0.68,
-       "armor": 0.4,
+       "armor": 0.38,
        "atkpwr": 1.0,
-       "dps": 6.89
+       "sta": 1.0,
+       "critPct": 10.04,
+       "agi": 1.79,
+       "defrtng": 0.48,
+       "armorbonus": 0.38,
+       "str": 2.0,
+       "dodgePct": 4.83,
+       "dps": 6.63
       }
      ],
      [
       34,
       {
-       "dodgePct": 7.16,
-       "hitPct": 13.99,
-       "agi": 2.27,
+       "hitPct": 12.69,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 13.64,
-       "sta": 1.03,
-       "armorbonus": 0.43,
-       "defrtng": 0.87,
-       "armor": 0.43,
+       "armor": 0.41,
        "atkpwr": 1.0,
-       "dps": 7.05
+       "sta": 1.07,
+       "critPct": 11.77,
+       "agi": 1.92,
+       "defrtng": 0.59,
+       "armorbonus": 0.41,
+       "str": 2.0,
+       "dodgePct": 5.14,
+       "dps": 6.82
       }
      ],
      [
       39,
       {
-       "dodgePct": 7.44,
-       "hitPct": 17.01,
-       "agi": 2.56,
+       "hitPct": 15.03,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 19.02,
-       "sta": 1.17,
-       "armorbonus": 0.53,
-       "defrtng": 0.96,
-       "armor": 0.53,
+       "armor": 0.51,
        "atkpwr": 1.0,
-       "dps": 7.58
+       "sta": 1.21,
+       "critPct": 15.71,
+       "agi": 2.25,
+       "defrtng": 0.77,
+       "armorbonus": 0.51,
+       "str": 2.0,
+       "dodgePct": 6.6,
+       "dps": 7.31
       }
      ],
      [
       44,
       {
-       "dodgePct": 11.12,
-       "hitPct": 17.62,
-       "agi": 2.84,
+       "hitPct": 17.8,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 19.93,
-       "sta": 1.33,
-       "armorbonus": 0.68,
-       "defrtng": 1.18,
-       "armor": 0.68,
+       "armor": 1.31,
        "atkpwr": 1.0,
-       "dps": 7.68
+       "sta": 2.69,
+       "critPct": 20.46,
+       "agi": 3.82,
+       "defrtng": 3.05,
+       "armorbonus": 1.31,
+       "str": 2.0,
+       "dodgePct": 26.8,
+       "dps": 7.63
       }
      ],
      [
       49,
       {
-       "dodgePct": 19.66,
-       "hitPct": 18.57,
-       "agi": 3.3,
+       "hitPct": 19.4,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 19.96,
-       "sta": 1.44,
-       "armorbonus": 0.77,
-       "defrtng": 1.66,
-       "armor": 0.77,
+       "armor": 2.05,
        "atkpwr": 1.0,
-       "dps": 7.85
+       "sta": 4.12,
+       "critPct": 22.99,
+       "agi": 5.33,
+       "defrtng": 5.49,
+       "armorbonus": 2.05,
+       "str": 2.0,
+       "dodgePct": 48.79,
+       "dps": 8.07
       }
      ],
      [
       54,
       {
-       "dodgePct": 43.85,
-       "hitPct": 21.43,
-       "agi": 4.66,
+       "hitPct": 21.38,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 24.85,
-       "sta": 2.81,
-       "armorbonus": 1.37,
-       "defrtng": 4.3,
-       "armor": 1.37,
+       "armor": 2.0,
        "atkpwr": 1.0,
-       "dps": 8.76
+       "sta": 4.14,
+       "critPct": 25.25,
+       "agi": 5.32,
+       "defrtng": 6.21,
+       "armorbonus": 2.0,
+       "str": 2.0,
+       "dodgePct": 56.12,
+       "dps": 8.81
       }
      ],
      [
       59,
       {
-       "dodgePct": 85.64,
-       "hitPct": 24.05,
-       "agi": 6.89,
+       "hitPct": 24.68,
        "feratkpwr": 1.0,
-       "str": 2.0,
-       "critPct": 26.59,
-       "sta": 5.25,
-       "armorbonus": 2.64,
-       "defrtng": 9.56,
-       "armor": 2.64,
+       "armor": 2.63,
        "atkpwr": 1.0,
-       "dps": 9.41
+       "sta": 5.26,
+       "critPct": 26.21,
+       "agi": 6.4,
+       "defrtng": 9.63,
+       "armorbonus": 2.63,
+       "str": 2.0,
+       "dodgePct": 83.42,
+       "dps": 9.34
       }
      ],
      [
@@ -710,200 +754,200 @@
      [
       9,
       {
-       "str": 0.34,
-       "agi": 3.86,
-       "atkpwr": 0.49,
-       "hitPct": 9.8,
-       "critPct": 9.49,
+       "str": 0.55,
+       "agi": 3.63,
+       "atkpwr": 0.55,
+       "hitPct": 10.3,
+       "critPct": 8.25,
        "rgdatkpwr": 1.0,
-       "dps": 5.02,
-       "ohDps": 2.06,
-       "rangedDps": 14.75
+       "dps": 4.42,
+       "ohDps": 1.7,
+       "rangedDps": 13.28
       }
      ],
      [
       14,
       {
-       "str": 0.35,
-       "rangedDps": 15.01,
+       "int": 0.04,
+       "hitPct": 8.64,
        "atkpwr": 0.27,
+       "agi": 3.12,
+       "rangedDps": 14.99,
+       "manargn": 1.76,
+       "ohDps": 1.5,
+       "critPct": 7.6,
+       "dps": 3.04,
        "rgdatkpwr": 1.0,
-       "spi": 0.53,
-       "ohDps": 1.62,
-       "critPct": 7.66,
-       "hitPct": 8.34,
-       "manargn": 1.31,
-       "int": 0.01,
-       "agi": 3.17,
-       "dps": 3.28
+       "str": 0.33,
+       "spi": 0.59
       }
      ],
      [
       19,
       {
-       "str": 0.36,
-       "rangedDps": 14.91,
-       "atkpwr": 0.34,
+       "int": 0.21,
+       "hitPct": 11.18,
+       "atkpwr": 0.31,
+       "agi": 3.11,
+       "rangedDps": 14.96,
+       "manargn": 5.77,
+       "ohDps": 1.43,
+       "critPct": 9.58,
+       "dps": 3.22,
        "rgdatkpwr": 1.0,
-       "spi": 2.02,
-       "ohDps": 1.58,
-       "critPct": 9.66,
-       "hitPct": 10.98,
-       "manargn": 5.62,
-       "int": 0.12,
-       "agi": 3.15,
-       "dps": 3.5
+       "str": 0.33,
+       "spi": 1.86
       }
      ],
      [
       24,
       {
-       "str": 0.41,
-       "rangedDps": 14.33,
-       "atkpwr": 0.41,
+       "int": 0.49,
+       "hitPct": 14.48,
+       "atkpwr": 0.36,
+       "agi": 3.09,
+       "rangedDps": 14.65,
+       "manargn": 8.52,
+       "ohDps": 1.41,
+       "critPct": 12.08,
+       "dps": 3.69,
        "rgdatkpwr": 1.0,
-       "spi": 3.41,
-       "ohDps": 1.62,
-       "critPct": 12.41,
-       "hitPct": 14.6,
-       "manargn": 10.31,
-       "int": 0.36,
-       "agi": 3.16,
-       "dps": 4.05
+       "str": 0.36,
+       "spi": 2.66
       }
      ],
      [
       29,
       {
-       "str": 0.39,
-       "rangedDps": 15.06,
-       "atkpwr": 0.33,
+       "int": 0.67,
+       "hitPct": 17.14,
+       "atkpwr": 0.3,
+       "agi": 3.03,
+       "rangedDps": 15.4,
+       "manargn": 8.97,
+       "ohDps": 1.31,
+       "critPct": 14.36,
+       "dps": 3.63,
        "rgdatkpwr": 1.0,
-       "spi": 3.81,
-       "ohDps": 1.52,
-       "critPct": 15.04,
-       "hitPct": 17.4,
-       "manargn": 11.78,
-       "int": 0.55,
-       "agi": 3.12,
-       "dps": 3.95
+       "str": 0.35,
+       "spi": 2.79
       }
      ],
      [
       34,
       {
-       "str": 0.32,
-       "rangedDps": 17.12,
+       "int": 0.68,
+       "hitPct": 19.57,
        "atkpwr": 0.2,
+       "agi": 2.99,
+       "rangedDps": 17.11,
+       "manargn": 8.84,
+       "ohDps": 1.17,
+       "critPct": 17.31,
+       "dps": 3.17,
        "rgdatkpwr": 1.0,
-       "spi": 3.89,
-       "ohDps": 1.25,
-       "critPct": 17.79,
-       "hitPct": 19.2,
-       "manargn": 11.24,
-       "int": 0.58,
-       "agi": 3.02,
-       "dps": 3.28
+       "str": 0.31,
+       "spi": 2.98
       }
      ],
      [
       39,
       {
-       "str": 0.32,
-       "rangedDps": 17.23,
-       "atkpwr": 0.25,
-       "rgdatkpwr": 1.0,
-       "spi": 4.34,
+       "int": 0.74,
+       "hitPct": 24.0,
+       "atkpwr": 0.27,
+       "agi": 3.08,
+       "rangedDps": 16.96,
+       "manargn": 9.04,
        "ohDps": 0.87,
-       "critPct": 21.59,
-       "hitPct": 22.76,
-       "manargn": 11.11,
-       "int": 0.66,
-       "agi": 3.04,
-       "dps": 3.55
+       "critPct": 21.97,
+       "dps": 3.72,
+       "rgdatkpwr": 1.0,
+       "str": 0.33,
+       "spi": 3.48
       }
      ],
      [
       44,
       {
-       "str": 0.32,
-       "rangedDps": 15.67,
-       "atkpwr": 0.32,
+       "int": 0.94,
+       "hitPct": 27.48,
+       "atkpwr": 0.34,
+       "agi": 3.12,
+       "rangedDps": 15.48,
+       "manargn": 9.16,
+       "ohDps": 0.61,
+       "critPct": 26.74,
+       "dps": 4.09,
        "rgdatkpwr": 1.0,
-       "spi": 4.71,
-       "ohDps": 0.66,
-       "critPct": 25.77,
-       "hitPct": 27.8,
-       "manargn": 11.43,
-       "int": 0.82,
-       "agi": 3.07,
-       "dps": 3.83
+       "str": 0.34,
+       "spi": 3.74
       }
      ],
      [
       49,
       {
-       "str": 0.32,
-       "rangedDps": 14.98,
-       "atkpwr": 0.32,
+       "int": 1.39,
+       "hitPct": 30.48,
+       "atkpwr": 0.31,
+       "agi": 3.12,
+       "rangedDps": 14.96,
+       "manargn": 8.99,
+       "ohDps": 0.61,
+       "critPct": 30.87,
+       "dps": 3.71,
        "rgdatkpwr": 1.0,
-       "spi": 4.89,
-       "ohDps": 0.72,
-       "critPct": 29.8,
-       "hitPct": 32.77,
-       "manargn": 11.78,
-       "int": 1.22,
-       "agi": 3.08,
-       "dps": 3.77
+       "str": 0.31,
+       "spi": 3.69
       }
      ],
      [
       54,
       {
-       "str": 0.3,
-       "rangedDps": 15.73,
-       "atkpwr": 0.3,
+       "int": 1.88,
+       "hitPct": 28.99,
+       "atkpwr": 0.28,
+       "agi": 3.11,
+       "rangedDps": 15.72,
+       "manargn": 9.51,
+       "ohDps": 0.3,
+       "critPct": 34.4,
+       "dps": 3.55,
        "rgdatkpwr": 1.0,
-       "spi": 4.97,
-       "ohDps": 0.36,
-       "critPct": 33.38,
-       "hitPct": 30.06,
-       "manargn": 11.95,
-       "int": 1.76,
-       "agi": 3.07,
-       "dps": 3.79
+       "str": 0.28,
+       "spi": 3.92
       }
      ],
      [
       59,
       {
-       "str": 0.24,
-       "rangedDps": 16.63,
+       "int": 2.11,
+       "hitPct": 25.74,
        "atkpwr": 0.24,
+       "agi": 3.09,
+       "rangedDps": 16.58,
+       "manargn": 10.57,
+       "critPct": 38.14,
+       "dps": 3.33,
        "rgdatkpwr": 1.0,
-       "spi": 4.9,
-       "critPct": 37.4,
-       "hitPct": 25.19,
-       "manargn": 11.81,
-       "int": 2.06,
-       "agi": 3.05,
-       "dps": 3.33
+       "str": 0.24,
+       "spi": 4.38
       }
      ],
      [
       60,
       {
-       "str": 0.28,
-       "agi": 3.26,
-       "atkpwr": 0.28,
-       "hitPct": 41.19,
-       "critPct": 44.54,
+       "str": 0.3,
+       "agi": 3.3,
+       "atkpwr": 0.3,
+       "hitPct": 42.71,
+       "critPct": 45.78,
+       "spi": 5.09,
        "rgdatkpwr": 1.0,
        "int": 2.23,
-       "spi": 5.23,
-       "manargn": 12.63,
-       "dps": 3.88,
-       "rangedDps": 16.08
+       "manargn": 12.28,
+       "dps": 4.23,
+       "rangedDps": 15.94
       }
      ]
     ],
@@ -914,198 +958,198 @@
      [
       9,
       {
-       "str": 0.35,
-       "agi": 3.85,
-       "atkpwr": 0.5,
-       "hitPct": 10.22,
-       "critPct": 9.46,
+       "str": 0.56,
+       "agi": 3.57,
+       "atkpwr": 0.56,
+       "hitPct": 9.63,
+       "critPct": 8.06,
        "rgdatkpwr": 1.0,
-       "dps": 5.09,
-       "ohDps": 2.08,
-       "rangedDps": 14.67
+       "dps": 4.53,
+       "ohDps": 1.71,
+       "rangedDps": 13.24
       }
      ],
      [
       14,
       {
-       "str": 0.34,
-       "rangedDps": 14.87,
-       "atkpwr": 0.27,
+       "int": 0.03,
+       "hitPct": 8.91,
+       "atkpwr": 0.26,
+       "agi": 3.07,
+       "rangedDps": 14.89,
+       "manargn": 1.39,
+       "ohDps": 1.23,
+       "critPct": 7.18,
+       "dps": 3.29,
        "rgdatkpwr": 1.0,
-       "spi": 0.39,
-       "ohDps": 1.32,
-       "critPct": 7.3,
-       "hitPct": 8.52,
-       "manargn": 0.88,
-       "int": 0.01,
-       "agi": 3.1,
-       "dps": 3.5
+       "str": 0.32,
+       "spi": 0.51
       }
      ],
      [
       19,
       {
-       "str": 0.28,
-       "rangedDps": 15.36,
+       "int": 0.32,
+       "hitPct": 9.84,
        "atkpwr": 0.25,
+       "agi": 2.94,
+       "rangedDps": 15.33,
+       "manargn": 4.91,
+       "ohDps": 0.41,
+       "critPct": 8.56,
+       "dps": 3.33,
        "rgdatkpwr": 1.0,
-       "spi": 1.63,
-       "ohDps": 0.44,
-       "critPct": 8.83,
-       "hitPct": 10.14,
-       "manargn": 4.48,
-       "int": 0.25,
-       "agi": 2.99,
-       "dps": 3.46
+       "str": 0.27,
+       "spi": 1.66
       }
      ],
      [
       24,
       {
-       "str": 0.26,
-       "rangedDps": 16.17,
-       "atkpwr": 0.26,
+       "int": 0.99,
+       "hitPct": 11.91,
+       "atkpwr": 0.25,
+       "agi": 2.88,
+       "rangedDps": 16.16,
+       "manargn": 7.76,
+       "critPct": 10.55,
+       "dps": 3.53,
        "rgdatkpwr": 1.0,
-       "spi": 2.99,
-       "critPct": 11.0,
-       "hitPct": 12.6,
-       "manargn": 9.11,
-       "int": 0.9,
-       "agi": 2.89,
-       "dps": 3.67
+       "str": 0.25,
+       "spi": 2.44
       }
      ],
      [
       29,
       {
-       "str": 0.29,
-       "rangedDps": 17.24,
-       "atkpwr": 0.29,
+       "int": 1.57,
+       "hitPct": 14.79,
+       "atkpwr": 0.28,
+       "agi": 2.93,
+       "rangedDps": 17.21,
+       "manargn": 8.65,
+       "ohDps": 0.27,
+       "critPct": 13.66,
+       "dps": 3.66,
        "rgdatkpwr": 1.0,
-       "spi": 3.57,
-       "ohDps": 0.28,
-       "critPct": 14.13,
-       "hitPct": 15.6,
-       "manargn": 11.16,
-       "int": 1.5,
-       "agi": 2.91,
-       "dps": 3.81
+       "str": 0.28,
+       "spi": 2.66
       }
      ],
      [
       34,
       {
-       "str": 0.3,
-       "rangedDps": 18.41,
+       "int": 1.77,
+       "hitPct": 18.28,
        "atkpwr": 0.3,
+       "agi": 3.0,
+       "rangedDps": 18.37,
+       "manargn": 8.91,
+       "ohDps": 0.8,
+       "critPct": 17.82,
+       "dps": 3.34,
        "rgdatkpwr": 1.0,
-       "spi": 3.8,
-       "ohDps": 0.84,
-       "critPct": 17.94,
-       "hitPct": 18.73,
-       "manargn": 11.26,
-       "int": 1.7,
-       "agi": 2.97,
-       "dps": 3.35
+       "str": 0.3,
+       "spi": 2.92
       }
      ],
      [
       39,
       {
-       "str": 0.31,
-       "rangedDps": 18.18,
-       "atkpwr": 0.31,
+       "int": 1.85,
+       "hitPct": 22.23,
+       "atkpwr": 0.32,
+       "agi": 3.05,
+       "rangedDps": 18.08,
+       "manargn": 9.17,
+       "ohDps": 0.79,
+       "critPct": 21.91,
+       "dps": 3.7,
        "rgdatkpwr": 1.0,
-       "spi": 4.15,
-       "ohDps": 0.86,
-       "critPct": 21.65,
-       "hitPct": 22.34,
-       "manargn": 11.21,
-       "int": 1.77,
-       "agi": 3.01,
-       "dps": 3.49
+       "str": 0.32,
+       "spi": 3.33
       }
      ],
      [
       44,
       {
-       "str": 0.31,
-       "rangedDps": 16.91,
-       "atkpwr": 0.31,
+       "int": 1.98,
+       "hitPct": 25.41,
+       "atkpwr": 0.33,
+       "agi": 3.05,
+       "rangedDps": 16.61,
+       "manargn": 8.95,
+       "ohDps": 0.58,
+       "critPct": 25.54,
+       "dps": 4.06,
        "rgdatkpwr": 1.0,
-       "spi": 4.23,
-       "ohDps": 0.6,
-       "critPct": 25.07,
-       "hitPct": 25.78,
-       "manargn": 10.84,
-       "int": 1.87,
-       "agi": 3.03,
-       "dps": 3.69
+       "str": 0.33,
+       "spi": 3.43
       }
      ],
      [
       49,
       {
-       "str": 0.28,
-       "rangedDps": 16.91,
-       "atkpwr": 0.28,
+       "int": 2.11,
+       "hitPct": 28.38,
+       "atkpwr": 0.3,
+       "agi": 3.06,
+       "rangedDps": 16.65,
+       "manargn": 8.3,
+       "ohDps": 0.64,
+       "critPct": 28.63,
+       "dps": 3.6,
        "rgdatkpwr": 1.0,
-       "spi": 4.14,
-       "ohDps": 0.61,
-       "critPct": 28.14,
-       "hitPct": 28.51,
-       "manargn": 10.34,
-       "int": 1.97,
-       "agi": 3.01,
-       "dps": 3.29
+       "str": 0.3,
+       "spi": 3.26
       }
      ],
      [
       54,
       {
-       "str": 0.26,
-       "rangedDps": 18.23,
-       "atkpwr": 0.26,
-       "rgdatkpwr": 1.0,
-       "spi": 4.18,
-       "ohDps": 0.31,
+       "int": 2.12,
+       "hitPct": 23.5,
+       "atkpwr": 0.27,
+       "agi": 3.02,
+       "rangedDps": 18.2,
+       "manargn": 8.52,
+       "ohDps": 0.32,
        "critPct": 31.19,
-       "hitPct": 23.1,
-       "manargn": 10.29,
-       "int": 2.01,
-       "agi": 2.98,
-       "dps": 3.38
+       "dps": 3.5,
+       "rgdatkpwr": 1.0,
+       "str": 0.27,
+       "spi": 3.41
       }
      ],
      [
       59,
       {
-       "str": 0.26,
-       "rangedDps": 18.29,
+       "int": 2.02,
+       "hitPct": 20.08,
        "atkpwr": 0.26,
+       "agi": 2.99,
+       "rangedDps": 18.37,
+       "manargn": 9.83,
+       "critPct": 34.78,
+       "dps": 3.69,
        "rgdatkpwr": 1.0,
-       "spi": 4.34,
-       "critPct": 35.17,
-       "hitPct": 18.6,
-       "manargn": 10.72,
-       "int": 2.01,
-       "agi": 2.96,
-       "dps": 3.7
+       "str": 0.26,
+       "spi": 3.97
       }
      ],
      [
       60,
       {
        "str": 0.28,
-       "agi": 3.15,
+       "agi": 3.14,
        "atkpwr": 0.28,
-       "hitPct": 41.35,
-       "critPct": 40.9,
+       "hitPct": 46.05,
+       "critPct": 40.86,
+       "spi": 5.02,
        "rgdatkpwr": 1.0,
-       "int": 2.07,
-       "spi": 5.17,
-       "manargn": 12.58,
-       "dps": 3.87,
+       "int": 2.05,
+       "manargn": 12.21,
+       "dps": 3.94,
        "rangedDps": 15.54
       }
      ]
@@ -1117,202 +1161,202 @@
      [
       9,
       {
-       "str": 0.35,
-       "agi": 3.81,
-       "atkpwr": 0.5,
-       "hitPct": 10.41,
-       "critPct": 9.23,
+       "str": 0.56,
+       "agi": 3.58,
+       "atkpwr": 0.56,
+       "hitPct": 9.89,
+       "critPct": 7.93,
        "rgdatkpwr": 1.0,
-       "dps": 5.1,
-       "ohDps": 2.07,
-       "rangedDps": 14.7
+       "dps": 4.54,
+       "ohDps": 1.7,
+       "rangedDps": 13.29
       }
      ],
      [
       14,
       {
-       "str": 0.37,
-       "rangedDps": 14.94,
-       "atkpwr": 0.29,
+       "int": 0.04,
+       "hitPct": 9.26,
+       "atkpwr": 0.28,
+       "agi": 3.12,
+       "rangedDps": 14.88,
+       "manargn": 1.82,
+       "ohDps": 1.56,
+       "critPct": 7.41,
+       "dps": 3.21,
        "rgdatkpwr": 1.0,
-       "spi": 0.57,
-       "ohDps": 1.68,
-       "critPct": 7.36,
-       "hitPct": 8.74,
-       "manargn": 1.41,
-       "int": 0.01,
-       "agi": 3.14,
-       "dps": 3.47
+       "str": 0.34,
+       "spi": 0.61
       }
      ],
      [
       19,
       {
-       "str": 0.39,
-       "rangedDps": 14.8,
-       "atkpwr": 0.36,
+       "int": 0.21,
+       "hitPct": 11.19,
+       "atkpwr": 0.34,
+       "agi": 3.1,
+       "rangedDps": 14.74,
+       "manargn": 5.9,
+       "ohDps": 1.49,
+       "critPct": 9.26,
+       "dps": 3.5,
        "rgdatkpwr": 1.0,
-       "spi": 2.08,
-       "ohDps": 1.63,
-       "critPct": 9.38,
-       "hitPct": 11.09,
-       "manargn": 5.78,
-       "int": 0.11,
-       "agi": 3.15,
-       "dps": 3.78
+       "str": 0.36,
+       "spi": 1.9
       }
      ],
      [
       24,
       {
-       "str": 0.4,
-       "rangedDps": 14.87,
-       "atkpwr": 0.39,
+       "int": 0.45,
+       "hitPct": 12.67,
+       "atkpwr": 0.38,
+       "agi": 3.08,
+       "rangedDps": 14.85,
+       "manargn": 8.23,
+       "ohDps": 1.15,
+       "critPct": 11.43,
+       "dps": 4.1,
        "rgdatkpwr": 1.0,
-       "spi": 3.23,
-       "ohDps": 1.28,
-       "critPct": 11.58,
-       "hitPct": 13.26,
-       "manargn": 9.76,
-       "int": 0.32,
-       "agi": 3.1,
-       "dps": 4.24
+       "str": 0.38,
+       "spi": 2.56
       }
      ],
      [
       29,
       {
-       "str": 0.34,
-       "rangedDps": 16.49,
+       "int": 0.56,
+       "hitPct": 13.92,
        "atkpwr": 0.34,
+       "agi": 3.01,
+       "rangedDps": 16.43,
+       "manargn": 8.13,
+       "ohDps": 0.86,
+       "critPct": 13.65,
+       "dps": 3.94,
        "rgdatkpwr": 1.0,
-       "spi": 3.35,
-       "ohDps": 0.93,
-       "critPct": 14.06,
-       "hitPct": 14.69,
-       "manargn": 10.45,
-       "int": 0.46,
-       "agi": 3.02,
-       "dps": 3.89
+       "str": 0.34,
+       "spi": 2.51
       }
      ],
      [
       34,
       {
-       "str": 0.34,
-       "rangedDps": 18.26,
-       "atkpwr": 0.34,
+       "int": 0.56,
+       "hitPct": 17.11,
+       "atkpwr": 0.29,
+       "agi": 3.0,
+       "rangedDps": 17.98,
+       "manargn": 8.13,
+       "ohDps": 1.42,
+       "critPct": 17.19,
+       "dps": 3.3,
        "rgdatkpwr": 1.0,
-       "spi": 3.33,
-       "ohDps": 1.41,
-       "critPct": 17.9,
-       "hitPct": 17.14,
-       "manargn": 10.27,
-       "int": 0.48,
-       "agi": 3.06,
-       "dps": 3.37
+       "str": 0.34,
+       "spi": 2.54
       }
      ],
      [
       39,
       {
-       "str": 0.47,
-       "rangedDps": 17.87,
-       "atkpwr": 0.47,
+       "int": 0.64,
+       "hitPct": 21.34,
+       "atkpwr": 0.36,
+       "agi": 3.27,
+       "rangedDps": 17.5,
+       "manargn": 8.71,
+       "ohDps": 2.06,
+       "critPct": 22.67,
+       "dps": 4.28,
        "rgdatkpwr": 1.0,
-       "spi": 3.58,
-       "ohDps": 2.02,
-       "critPct": 23.42,
-       "hitPct": 20.16,
-       "manargn": 10.88,
-       "int": 0.57,
-       "agi": 3.42,
-       "dps": 4.59
+       "str": 0.45,
+       "spi": 2.79
       }
      ],
      [
       44,
       {
-       "str": 0.61,
-       "rangedDps": 16.35,
-       "atkpwr": 0.61,
+       "int": 0.87,
+       "hitPct": 23.82,
+       "atkpwr": 0.52,
+       "agi": 3.62,
+       "rangedDps": 16.53,
+       "manargn": 9.08,
+       "ohDps": 2.19,
+       "critPct": 28.29,
+       "dps": 5.71,
        "rgdatkpwr": 1.0,
-       "spi": 3.92,
-       "ohDps": 2.33,
-       "critPct": 29.23,
-       "hitPct": 22.59,
-       "manargn": 11.7,
-       "int": 0.75,
-       "agi": 3.86,
-       "dps": 6.19
+       "str": 0.56,
+       "spi": 2.95
       }
      ],
      [
       49,
       {
-       "str": 0.63,
-       "rangedDps": 15.87,
-       "atkpwr": 0.63,
+       "int": 1.05,
+       "hitPct": 20.37,
+       "atkpwr": 0.55,
+       "agi": 3.79,
+       "rangedDps": 16.54,
+       "manargn": 8.88,
+       "ohDps": 1.6,
+       "critPct": 31.86,
+       "dps": 6.2,
        "rgdatkpwr": 1.0,
-       "spi": 4.13,
-       "ohDps": 1.88,
-       "critPct": 33.55,
-       "hitPct": 19.96,
-       "manargn": 11.97,
-       "int": 0.91,
-       "agi": 3.92,
-       "dps": 7.01
+       "str": 0.55,
+       "spi": 2.94
       }
      ],
      [
       54,
       {
-       "str": 0.57,
-       "rangedDps": 15.97,
-       "atkpwr": 0.57,
+       "int": 1.23,
+       "hitPct": 10.87,
+       "atkpwr": 0.49,
+       "agi": 3.87,
+       "rangedDps": 16.55,
+       "manargn": 9.13,
+       "ohDps": 0.94,
+       "critPct": 34.08,
+       "dps": 6.0,
        "rgdatkpwr": 1.0,
-       "spi": 4.17,
-       "ohDps": 1.12,
-       "critPct": 36.35,
-       "hitPct": 10.74,
-       "manargn": 11.61,
-       "int": 1.16,
-       "agi": 3.75,
-       "dps": 6.91
+       "str": 0.49,
+       "spi": 3.16
       }
      ],
      [
       59,
       {
-       "str": 0.49,
-       "rangedDps": 15.59,
-       "atkpwr": 0.49,
+       "int": 1.64,
+       "hitPct": 4.51,
+       "atkpwr": 0.43,
+       "agi": 3.76,
+       "rangedDps": 16.14,
+       "manargn": 11.01,
+       "ohDps": 1.4,
+       "critPct": 36.63,
+       "dps": 4.6,
        "rgdatkpwr": 1.0,
-       "spi": 4.38,
-       "ohDps": 1.58,
-       "critPct": 38.96,
-       "hitPct": 5.14,
-       "manargn": 12.5,
-       "int": 1.69,
-       "agi": 3.62,
-       "dps": 5.27
+       "str": 0.43,
+       "spi": 3.77
       }
      ],
      [
       60,
       {
-       "str": 0.49,
-       "agi": 3.7,
-       "atkpwr": 0.49,
-       "hitPct": 7.34,
-       "critPct": 43.65,
+       "str": 0.42,
+       "agi": 3.5,
+       "atkpwr": 0.42,
+       "hitPct": 4.94,
+       "critPct": 40.0,
+       "spi": 4.85,
        "rgdatkpwr": 1.0,
-       "int": 2.34,
-       "spi": 5.48,
-       "manargn": 16.95,
-       "dps": 4.41,
-       "ohDps": 2.45,
-       "rangedDps": 15.2
+       "int": 2.2,
+       "manargn": 15.12,
+       "dps": 3.75,
+       "ohDps": 2.1,
+       "rangedDps": 16.27
       }
      ]
     ],
@@ -1323,190 +1367,190 @@
      [
       9,
       {
-       "str": 0.91,
-       "agi": 2.82,
+       "str": 0.95,
+       "agi": 2.96,
        "atkpwr": 1.0,
-       "hitPct": 12.32,
-       "critPct": 10.35,
-       "rgdatkpwr": 0.2,
-       "dps": 9.31,
-       "ohDps": 3.38
+       "hitPct": 13.13,
+       "critPct": 11.57,
+       "rgdatkpwr": 0.19,
+       "dps": 9.06,
+       "ohDps": 3.15
       }
      ],
      [
       14,
       {
-       "str": 0.96,
+       "int": 0.49,
+       "hitPct": 10.0,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.22,
-       "spi": 3.62,
-       "ohDps": 3.32,
-       "critPct": 8.66,
-       "hitPct": 9.26,
-       "manargn": 10.52,
-       "int": 0.27,
-       "agi": 2.31,
-       "dps": 10.12
+       "agi": 2.39,
+       "manargn": 8.12,
+       "ohDps": 3.5,
+       "critPct": 9.38,
+       "dps": 9.65,
+       "rgdatkpwr": 0.23,
+       "str": 0.94,
+       "spi": 2.67
       }
      ],
      [
       19,
       {
-       "str": 0.99,
+       "int": 0.64,
+       "hitPct": 13.73,
        "atkpwr": 1.0,
+       "agi": 2.66,
+       "manargn": 9.61,
+       "ohDps": 3.88,
+       "critPct": 13.08,
+       "dps": 9.86,
        "rgdatkpwr": 0.31,
-       "spi": 4.18,
-       "ohDps": 3.71,
-       "critPct": 11.93,
-       "hitPct": 12.92,
-       "manargn": 12.28,
-       "int": 0.4,
-       "agi": 2.53,
-       "dps": 10.12
+       "str": 0.98,
+       "spi": 3.15
       }
      ],
      [
       24,
       {
-       "str": 1.0,
+       "int": 0.79,
+       "hitPct": 17.62,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.36,
-       "spi": 4.4,
-       "ohDps": 4.03,
-       "critPct": 15.34,
-       "hitPct": 16.13,
-       "manargn": 13.01,
-       "int": 0.56,
-       "agi": 2.64,
-       "dps": 9.99
+       "agi": 2.69,
+       "manargn": 10.12,
+       "ohDps": 4.13,
+       "critPct": 16.46,
+       "dps": 9.89,
+       "rgdatkpwr": 0.35,
+       "str": 1.0,
+       "spi": 3.29
       }
      ],
      [
       29,
       {
-       "str": 1.0,
+       "int": 0.72,
+       "hitPct": 19.45,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.33,
-       "spi": 4.1,
-       "ohDps": 4.29,
-       "critPct": 18.11,
-       "hitPct": 17.54,
-       "manargn": 12.21,
-       "int": 0.53,
-       "agi": 2.53,
-       "dps": 9.4
+       "agi": 2.47,
+       "manargn": 9.73,
+       "ohDps": 4.19,
+       "critPct": 18.91,
+       "dps": 9.47,
+       "rgdatkpwr": 0.31,
+       "str": 1.0,
+       "spi": 3.09
       }
      ],
      [
       34,
       {
-       "str": 1.0,
+       "int": 0.38,
+       "hitPct": 19.27,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.26,
-       "spi": 3.0,
-       "ohDps": 4.56,
-       "critPct": 20.9,
-       "hitPct": 17.79,
-       "manargn": 9.02,
-       "int": 0.26,
-       "agi": 2.32,
-       "dps": 8.47
+       "agi": 2.24,
+       "manargn": 7.9,
+       "ohDps": 4.31,
+       "critPct": 21.42,
+       "dps": 8.58,
+       "rgdatkpwr": 0.23,
+       "str": 1.0,
+       "spi": 2.6
       }
      ],
      [
       39,
       {
-       "str": 1.0,
+       "int": 0.15,
+       "hitPct": 19.34,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.2,
-       "spi": 2.12,
-       "ohDps": 4.42,
-       "critPct": 23.51,
-       "hitPct": 18.43,
-       "manargn": 6.29,
-       "int": 0.1,
-       "agi": 2.19,
-       "dps": 8.37
+       "agi": 2.16,
+       "manargn": 6.28,
+       "ohDps": 4.33,
+       "critPct": 24.15,
+       "dps": 8.33,
+       "rgdatkpwr": 0.17,
+       "str": 1.0,
+       "spi": 2.23
       }
      ],
      [
       44,
       {
-       "str": 1.0,
+       "int": 0.2,
+       "hitPct": 19.97,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.17,
-       "spi": 2.9,
-       "ohDps": 4.02,
-       "critPct": 26.89,
-       "hitPct": 19.34,
-       "manargn": 8.82,
-       "int": 0.17,
-       "agi": 2.25,
-       "dps": 8.81
+       "agi": 2.23,
+       "manargn": 7.57,
+       "ohDps": 4.0,
+       "critPct": 27.39,
+       "dps": 8.79,
+       "rgdatkpwr": 0.16,
+       "str": 1.0,
+       "spi": 2.47
       }
      ],
      [
       49,
       {
-       "str": 1.0,
+       "int": 0.26,
+       "hitPct": 18.24,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.17,
-       "spi": 3.77,
-       "ohDps": 3.88,
-       "critPct": 30.96,
-       "hitPct": 17.59,
-       "manargn": 11.7,
-       "int": 0.23,
-       "agi": 2.35,
-       "dps": 9.0
+       "agi": 2.36,
+       "manargn": 8.97,
+       "ohDps": 3.83,
+       "critPct": 30.91,
+       "dps": 9.02,
+       "rgdatkpwr": 0.16,
+       "str": 1.0,
+       "spi": 2.75
       }
      ],
      [
       54,
       {
-       "str": 1.0,
+       "int": 0.38,
+       "hitPct": 17.9,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.19,
-       "spi": 3.8,
+       "agi": 2.53,
+       "manargn": 9.41,
        "ohDps": 4.03,
        "critPct": 34.39,
-       "hitPct": 17.64,
-       "manargn": 11.63,
-       "int": 0.37,
-       "agi": 2.45,
-       "dps": 9.21
+       "dps": 9.19,
+       "rgdatkpwr": 0.19,
+       "str": 1.0,
+       "spi": 2.93
       }
      ],
      [
       59,
       {
-       "str": 1.0,
+       "int": 0.77,
+       "hitPct": 19.33,
        "atkpwr": 1.0,
-       "rgdatkpwr": 0.2,
-       "spi": 3.54,
-       "ohDps": 4.12,
-       "critPct": 37.05,
-       "hitPct": 19.3,
-       "manargn": 10.6,
-       "int": 0.78,
-       "agi": 2.49,
-       "dps": 9.46
+       "agi": 2.57,
+       "manargn": 9.84,
+       "ohDps": 4.15,
+       "critPct": 37.59,
+       "dps": 9.44,
+       "rgdatkpwr": 0.21,
+       "str": 1.0,
+       "spi": 3.13
       }
      ],
      [
       60,
       {
        "str": 1.0,
-       "agi": 2.35,
+       "agi": 2.44,
        "atkpwr": 1.0,
-       "hitPct": 15.06,
-       "critPct": 39.77,
-       "rgdatkpwr": 0.19,
-       "int": 1.31,
-       "spi": 3.51,
-       "manargn": 10.3,
-       "dps": 9.91,
-       "ohDps": 4.11
+       "hitPct": 15.83,
+       "critPct": 40.27,
+       "spi": 3.32,
+       "rgdatkpwr": 0.21,
+       "int": 1.28,
+       "manargn": 10.33,
+       "dps": 9.97,
+       "ohDps": 4.04
       }
      ]
     ],
@@ -1521,186 +1565,187 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.09,
-       "spi": 0.03,
+       "int": 0.1,
+       "spi": 0.43,
        "sta": 0.22,
-       "manargn": 0.07,
-       "hitPct": 1.28,
-       "critPct": 0.49,
-       "armor": 0.02,
+       "manargn": 1.04,
+       "hitPct": 1.29,
+       "critPct": 0.52,
        "arcsplpwr": 0.51,
        "firsplpwr": 0.24,
-       "frosplpwr": 0.27
+       "frosplpwr": 0.28
       }
      ],
      [
       14,
       {
-       "frosplpwr": 0.19,
-       "int": 0.07,
-       "sta": 0.24,
-       "spi": 0.08,
-       "splpwr": 1.0,
-       "firsplpwr": 0.18,
+       "int": 0.11,
+       "hitPct": 1.13,
+       "rangedDps": 0.39,
        "spldmg": 1.0,
-       "manargn": 0.17,
-       "hitPct": 1.11,
-       "critPct": 0.51,
-       "armor": 0.02,
-       "arcsplpwr": 0.65
+       "splpwr": 1.0,
+       "critPct": 0.5,
+       "firsplpwr": 0.18,
+       "spi": 0.28,
+       "sta": 0.26,
+       "armor": 0.01,
+       "arcsplpwr": 0.66,
+       "frosplpwr": 0.18,
+       "manargn": 0.74
       }
      ],
      [
       19,
       {
-       "frosplpwr": 0.21,
-       "int": 0.06,
-       "sta": 0.28,
-       "spi": 0.14,
-       "splpwr": 1.0,
-       "firsplpwr": 0.18,
+       "int": 0.11,
+       "hitPct": 1.54,
+       "rangedDps": 0.13,
        "spldmg": 1.0,
-       "manargn": 0.3,
-       "hitPct": 1.51,
-       "critPct": 0.71,
-       "armor": 0.02,
-       "arcsplpwr": 0.62
+       "splpwr": 1.0,
+       "critPct": 0.68,
+       "firsplpwr": 0.18,
+       "spi": 0.31,
+       "sta": 0.3,
+       "armor": 0.01,
+       "arcsplpwr": 0.63,
+       "frosplpwr": 0.21,
+       "manargn": 0.82
       }
      ],
      [
       24,
       {
-       "frosplpwr": 0.23,
-       "int": 0.05,
-       "sta": 0.33,
-       "spi": 0.18,
-       "splpwr": 1.0,
-       "firsplpwr": 0.17,
+       "int": 0.11,
+       "hitPct": 2.12,
        "spldmg": 1.0,
-       "manargn": 0.42,
-       "hitPct": 2.08,
-       "critPct": 0.98,
-       "armor": 0.02,
-       "arcsplpwr": 0.61
+       "splpwr": 1.0,
+       "critPct": 0.91,
+       "firsplpwr": 0.17,
+       "spi": 0.35,
+       "sta": 0.31,
+       "armor": 0.01,
+       "arcsplpwr": 0.62,
+       "frosplpwr": 0.23,
+       "manargn": 0.94
       }
      ],
      [
       29,
       {
-       "frosplpwr": 0.23,
-       "int": 0.06,
-       "sta": 0.37,
-       "spi": 0.4,
-       "splpwr": 1.0,
-       "firsplpwr": 0.15,
+       "int": 0.11,
+       "hitPct": 2.93,
        "spldmg": 1.0,
-       "manargn": 0.89,
-       "hitPct": 2.91,
-       "critPct": 1.32,
+       "splpwr": 1.0,
+       "critPct": 1.25,
+       "firsplpwr": 0.14,
+       "spi": 0.45,
+       "sta": 0.31,
        "armor": 0.01,
-       "arcsplpwr": 0.63
+       "arcsplpwr": 0.63,
+       "frosplpwr": 0.23,
+       "manargn": 1.08
       }
      ],
      [
       34,
       {
-       "frosplpwr": 0.22,
-       "int": 0.07,
-       "sta": 0.4,
-       "spi": 0.46,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.11,
+       "hitPct": 3.66,
        "spldmg": 1.0,
-       "manargn": 0.95,
-       "hitPct": 3.6,
-       "critPct": 1.88,
+       "splpwr": 1.0,
+       "critPct": 1.85,
+       "firsplpwr": 0.14,
+       "spi": 0.59,
+       "sta": 0.33,
        "armor": 0.01,
-       "arcsplpwr": 0.65
+       "arcsplpwr": 0.65,
+       "frosplpwr": 0.22,
+       "manargn": 1.15
       }
      ],
      [
       39,
       {
-       "frosplpwr": 0.21,
-       "int": 0.09,
-       "sta": 0.41,
-       "spi": 0.29,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.11,
+       "hitPct": 4.2,
        "spldmg": 1.0,
-       "manargn": 0.53,
-       "hitPct": 4.06,
-       "critPct": 2.66,
-       "armor": 0.02,
-       "arcsplpwr": 0.66
+       "splpwr": 1.0,
+       "critPct": 2.67,
+       "firsplpwr": 0.14,
+       "spi": 0.71,
+       "sta": 0.35,
+       "armor": 0.01,
+       "arcsplpwr": 0.66,
+       "frosplpwr": 0.21,
+       "manargn": 1.15
       }
      ],
      [
       44,
       {
-       "frosplpwr": 0.2,
-       "int": 0.1,
-       "sta": 0.41,
-       "spi": 0.38,
-       "splpwr": 1.0,
-       "firsplpwr": 0.15,
+       "int": 0.11,
+       "hitPct": 5.02,
        "spldmg": 1.0,
-       "manargn": 0.62,
-       "hitPct": 4.86,
-       "critPct": 3.31,
-       "armor": 0.02,
-       "arcsplpwr": 0.65
+       "splpwr": 1.0,
+       "critPct": 3.34,
+       "firsplpwr": 0.15,
+       "spi": 0.78,
+       "sta": 0.35,
+       "armor": 0.01,
+       "arcsplpwr": 0.66,
+       "frosplpwr": 0.2,
+       "manargn": 1.18
       }
      ],
      [
       49,
       {
-       "frosplpwr": 0.2,
        "int": 0.1,
-       "sta": 0.41,
-       "spi": 0.63,
-       "splpwr": 1.0,
-       "firsplpwr": 0.16,
+       "hitPct": 5.36,
        "spldmg": 1.0,
-       "manargn": 1.07,
-       "hitPct": 5.26,
-       "critPct": 3.96,
+       "splpwr": 1.0,
+       "critPct": 4.0,
+       "firsplpwr": 0.16,
+       "spi": 0.79,
+       "sta": 0.35,
        "armor": 0.01,
-       "arcsplpwr": 0.65
+       "arcsplpwr": 0.65,
+       "frosplpwr": 0.2,
+       "manargn": 1.18
       }
      ],
      [
       54,
       {
-       "frosplpwr": 0.21,
-       "int": 0.12,
-       "sta": 0.45,
-       "spi": 0.85,
-       "splpwr": 1.0,
-       "firsplpwr": 0.18,
+       "int": 0.13,
+       "hitPct": 6.21,
        "spldmg": 1.0,
-       "manargn": 1.45,
-       "hitPct": 6.19,
-       "critPct": 5.22,
+       "splpwr": 1.0,
+       "critPct": 5.25,
+       "firsplpwr": 0.18,
+       "spi": 0.88,
+       "sta": 0.41,
        "armor": 0.01,
-       "arcsplpwr": 0.61
+       "arcsplpwr": 0.61,
+       "frosplpwr": 0.21,
+       "manargn": 1.35
       }
      ],
      [
       59,
       {
-       "frosplpwr": 0.21,
-       "int": 0.14,
-       "sta": 0.52,
-       "spi": 1.02,
-       "splpwr": 1.0,
-       "firsplpwr": 0.23,
+       "int": 0.18,
+       "hitPct": 6.2,
        "spldmg": 1.0,
-       "manargn": 1.67,
-       "hitPct": 6.19,
-       "critPct": 6.65,
+       "splpwr": 1.0,
+       "critPct": 6.66,
+       "firsplpwr": 0.23,
+       "spi": 1.06,
+       "sta": 0.46,
        "armor": 0.02,
-       "arcsplpwr": 0.56
+       "arcsplpwr": 0.56,
+       "frosplpwr": 0.21,
+       "manargn": 1.68
       }
      ],
      [
@@ -1708,13 +1753,13 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.13,
-       "spi": 1.07,
-       "sta": 0.52,
-       "manargn": 1.72,
+       "int": 0.2,
+       "spi": 1.16,
+       "sta": 0.39,
+       "manargn": 1.86,
        "hitPct": 0.25,
        "critPct": 7.53,
-       "armor": 0.02,
+       "armor": 0.01,
        "arcsplpwr": 0.56,
        "firsplpwr": 0.24,
        "frosplpwr": 0.2
@@ -1730,162 +1775,162 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.06,
-       "sta": 0.19,
-       "hitPct": 1.2,
-       "critPct": 0.47,
-       "armor": 0.02,
+       "int": 0.07,
+       "spi": 0.35,
+       "sta": 0.18,
+       "manargn": 0.77,
+       "hitPct": 1.32,
+       "critPct": 0.48,
        "firsplpwr": 1.0
       }
      ],
      [
       14,
       {
-       "int": 0.05,
-       "spi": 0.01,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.09,
+       "hitPct": 1.05,
+       "rangedDps": 0.37,
        "spldmg": 1.0,
-       "manargn": 0.03,
-       "hitPct": 1.04,
-       "critPct": 0.42,
-       "armor": 0.03,
-       "sta": 0.2
+       "splpwr": 1.0,
+       "critPct": 0.45,
+       "firsplpwr": 1.0,
+       "spi": 0.25,
+       "sta": 0.22,
+       "armor": 0.01,
+       "manargn": 0.73
       }
      ],
      [
       19,
       {
-       "int": 0.05,
-       "spi": 0.05,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
-       "spldmg": 1.0,
-       "manargn": 0.11,
+       "int": 0.09,
        "hitPct": 1.34,
-       "critPct": 0.67,
-       "armor": 0.02,
-       "sta": 0.22
+       "rangedDps": 0.12,
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 0.64,
+       "firsplpwr": 1.0,
+       "spi": 0.26,
+       "sta": 0.22,
+       "armor": 0.01,
+       "manargn": 0.74
       }
      ],
      [
       24,
       {
-       "int": 0.07,
-       "spi": 0.16,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.12,
+       "hitPct": 1.83,
        "spldmg": 1.0,
-       "manargn": 0.4,
-       "hitPct": 1.85,
-       "critPct": 1.17,
+       "splpwr": 1.0,
+       "critPct": 1.12,
+       "firsplpwr": 1.0,
+       "spi": 0.29,
+       "sta": 0.22,
        "armor": 0.01,
-       "sta": 0.23
+       "manargn": 0.82
       }
      ],
      [
       29,
       {
-       "int": 0.09,
-       "spi": 0.34,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.15,
+       "hitPct": 2.47,
        "spldmg": 1.0,
-       "manargn": 0.88,
-       "hitPct": 2.48,
-       "critPct": 1.88,
-       "armor": 0.01,
-       "sta": 0.23
+       "splpwr": 1.0,
+       "critPct": 1.87,
+       "firsplpwr": 1.0,
+       "spi": 0.34,
+       "sta": 0.22,
+       "manargn": 0.95
       }
      ],
      [
       34,
       {
-       "int": 0.1,
-       "spi": 0.48,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.16,
+       "hitPct": 3.19,
        "spldmg": 1.0,
-       "manargn": 1.17,
-       "hitPct": 3.21,
-       "critPct": 2.66,
-       "armor": 0.01,
-       "sta": 0.24
+       "splpwr": 1.0,
+       "critPct": 2.7,
+       "firsplpwr": 1.0,
+       "spi": 0.42,
+       "sta": 0.21,
+       "manargn": 1.06
       }
      ],
      [
       39,
       {
-       "int": 0.11,
-       "spi": 0.59,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.16,
+       "hitPct": 3.91,
        "spldmg": 1.0,
-       "manargn": 1.25,
-       "hitPct": 3.93,
-       "critPct": 3.62,
-       "armor": 0.01,
-       "sta": 0.25
+       "splpwr": 1.0,
+       "critPct": 3.68,
+       "firsplpwr": 1.0,
+       "spi": 0.53,
+       "sta": 0.21,
+       "manargn": 1.14
       }
      ],
      [
       44,
       {
-       "int": 0.12,
-       "spi": 0.65,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.16,
+       "hitPct": 4.63,
        "spldmg": 1.0,
-       "manargn": 1.3,
-       "hitPct": 4.66,
+       "splpwr": 1.0,
        "critPct": 4.66,
+       "firsplpwr": 1.0,
+       "spi": 0.58,
+       "sta": 0.21,
        "armor": 0.01,
-       "sta": 0.28
+       "manargn": 1.17
       }
      ],
      [
       49,
       {
-       "int": 0.12,
-       "spi": 0.65,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.15,
+       "hitPct": 5.21,
        "spldmg": 1.0,
-       "manargn": 1.31,
-       "hitPct": 5.24,
-       "critPct": 5.4,
+       "splpwr": 1.0,
+       "critPct": 5.22,
+       "firsplpwr": 1.0,
+       "spi": 0.57,
+       "sta": 0.21,
        "armor": 0.01,
-       "sta": 0.29
+       "manargn": 1.12
       }
      ],
      [
       54,
       {
-       "int": 0.14,
-       "spi": 0.7,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.17,
+       "hitPct": 6.25,
        "spldmg": 1.0,
-       "manargn": 1.41,
-       "hitPct": 6.27,
-       "critPct": 6.35,
+       "splpwr": 1.0,
+       "critPct": 6.2,
+       "firsplpwr": 1.0,
+       "spi": 0.64,
+       "sta": 0.25,
        "armor": 0.01,
-       "sta": 0.32
+       "manargn": 1.25
       }
      ],
      [
       59,
       {
-       "int": 0.17,
-       "spi": 0.77,
-       "splpwr": 1.0,
-       "firsplpwr": 1.0,
+       "int": 0.22,
+       "hitPct": 8.06,
        "spldmg": 1.0,
-       "manargn": 1.53,
-       "hitPct": 8.04,
-       "critPct": 7.76,
+       "splpwr": 1.0,
+       "critPct": 7.78,
+       "firsplpwr": 1.0,
+       "spi": 0.77,
+       "sta": 0.3,
        "armor": 0.01,
-       "sta": 0.36
+       "manargn": 1.53
       }
      ],
      [
@@ -1893,12 +1938,12 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.19,
-       "spi": 0.82,
-       "sta": 0.34,
-       "manargn": 1.63,
-       "hitPct": 9.4,
-       "critPct": 8.75,
+       "int": 0.24,
+       "spi": 0.86,
+       "sta": 0.28,
+       "manargn": 1.7,
+       "hitPct": 9.44,
+       "critPct": 8.84,
        "armor": 0.01,
        "firsplpwr": 1.0
       }
@@ -1913,173 +1958,174 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.06,
-       "sta": 0.17,
-       "hitPct": 1.09,
-       "critPct": 0.45,
-       "armor": 0.02,
-       "frosplpwr": 0.83,
-       "firsplpwr": 0.19
+       "int": 0.08,
+       "spi": 0.26,
+       "sta": 0.23,
+       "manargn": 0.59,
+       "hitPct": 1.46,
+       "critPct": 0.63,
+       "frosplpwr": 0.86,
+       "firsplpwr": 0.25
       }
      ],
      [
       14,
       {
-       "frosplpwr": 0.89,
-       "int": 0.04,
-       "spi": 0.02,
-       "splpwr": 1.0,
-       "firsplpwr": 0.12,
+       "int": 0.08,
+       "hitPct": 0.64,
        "spldmg": 1.0,
-       "manargn": 0.04,
-       "hitPct": 0.62,
-       "critPct": 0.43,
-       "armor": 0.02,
-       "sta": 0.19
+       "splpwr": 1.0,
+       "critPct": 0.42,
+       "firsplpwr": 0.12,
+       "spi": 0.23,
+       "sta": 0.21,
+       "armor": 0.01,
+       "frosplpwr": 0.9,
+       "manargn": 0.62
       }
      ],
      [
       19,
       {
-       "frosplpwr": 0.9,
-       "int": 0.05,
-       "spi": 0.04,
-       "splpwr": 1.0,
-       "firsplpwr": 0.11,
-       "spldmg": 1.0,
-       "manargn": 0.08,
+       "int": 0.09,
        "hitPct": 0.26,
-       "critPct": 0.72,
-       "armor": 0.02,
-       "sta": 0.22
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 0.69,
+       "firsplpwr": 0.11,
+       "spi": 0.24,
+       "sta": 0.22,
+       "armor": 0.01,
+       "frosplpwr": 0.9,
+       "manargn": 0.68
       }
      ],
      [
       24,
       {
-       "frosplpwr": 0.9,
-       "int": 0.07,
-       "spi": 0.02,
-       "splpwr": 1.0,
-       "firsplpwr": 0.1,
+       "int": 0.1,
+       "hitPct": 0.07,
        "spldmg": 1.0,
-       "manargn": 0.04,
-       "hitPct": 0.08,
-       "critPct": 1.32,
-       "armor": 0.02,
-       "sta": 0.26
+       "splpwr": 1.0,
+       "critPct": 1.28,
+       "firsplpwr": 0.1,
+       "spi": 0.28,
+       "sta": 0.23,
+       "armor": 0.01,
+       "frosplpwr": 0.91,
+       "manargn": 0.78
       }
      ],
      [
       29,
       {
-       "frosplpwr": 0.91,
-       "int": 0.09,
-       "spi": 0.08,
-       "splpwr": 1.0,
-       "firsplpwr": 0.09,
-       "spldmg": 1.0,
-       "manargn": 0.19,
+       "int": 0.11,
        "hitPct": 0.08,
-       "critPct": 1.94,
-       "armor": 0.02,
-       "sta": 0.3
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 1.92,
+       "firsplpwr": 0.08,
+       "spi": 0.31,
+       "sta": 0.23,
+       "armor": 0.01,
+       "frosplpwr": 0.92,
+       "manargn": 0.87
       }
      ],
      [
       34,
       {
-       "frosplpwr": 0.92,
-       "int": 0.09,
-       "spi": 0.17,
-       "splpwr": 1.0,
-       "firsplpwr": 0.09,
+       "int": 0.1,
+       "hitPct": 0.1,
        "spldmg": 1.0,
-       "manargn": 0.39,
-       "hitPct": 0.09,
-       "critPct": 2.37,
-       "armor": 0.02,
-       "sta": 0.29
+       "splpwr": 1.0,
+       "critPct": 2.35,
+       "firsplpwr": 0.06,
+       "spi": 0.33,
+       "sta": 0.24,
+       "armor": 0.01,
+       "frosplpwr": 0.94,
+       "manargn": 0.8
       }
      ],
      [
       39,
       {
-       "frosplpwr": 0.92,
        "int": 0.09,
-       "spi": 0.11,
-       "splpwr": 1.0,
-       "firsplpwr": 0.08,
-       "spldmg": 1.0,
-       "manargn": 0.25,
        "hitPct": 0.14,
-       "critPct": 2.74,
-       "armor": 0.03,
-       "sta": 0.29
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 2.72,
+       "firsplpwr": 0.06,
+       "spi": 0.41,
+       "sta": 0.26,
+       "armor": 0.01,
+       "frosplpwr": 0.94,
+       "manargn": 0.75
       }
      ],
      [
       44,
       {
-       "frosplpwr": 0.92,
-       "int": 0.09,
-       "spi": 0.13,
-       "splpwr": 1.0,
-       "firsplpwr": 0.09,
-       "spldmg": 1.0,
-       "manargn": 0.25,
+       "int": 0.08,
        "hitPct": 0.19,
+       "spldmg": 1.0,
+       "splpwr": 1.0,
        "critPct": 3.29,
-       "armor": 0.03,
-       "sta": 0.32
+       "firsplpwr": 0.08,
+       "spi": 0.52,
+       "sta": 0.29,
+       "armor": 0.01,
+       "frosplpwr": 0.92,
+       "manargn": 0.92
       }
      ],
      [
       49,
       {
-       "frosplpwr": 0.92,
-       "int": 0.09,
-       "spi": 0.16,
-       "splpwr": 1.0,
-       "firsplpwr": 0.08,
+       "int": 0.08,
+       "hitPct": 0.16,
        "spldmg": 1.0,
-       "manargn": 0.32,
-       "hitPct": 0.17,
+       "splpwr": 1.0,
        "critPct": 3.94,
-       "armor": 0.03,
-       "sta": 0.32
+       "firsplpwr": 0.08,
+       "spi": 0.51,
+       "sta": 0.3,
+       "armor": 0.01,
+       "frosplpwr": 0.92,
+       "manargn": 0.9
       }
      ],
      [
       54,
       {
-       "frosplpwr": 0.93,
-       "int": 0.09,
-       "spi": 0.15,
-       "splpwr": 1.0,
-       "firsplpwr": 0.07,
-       "spldmg": 1.0,
-       "manargn": 0.3,
+       "int": 0.1,
        "hitPct": 0.16,
-       "critPct": 4.84,
-       "armor": 0.04,
-       "sta": 0.35
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 4.81,
+       "firsplpwr": 0.07,
+       "spi": 0.51,
+       "sta": 0.33,
+       "armor": 0.02,
+       "frosplpwr": 0.94,
+       "manargn": 0.79
       }
      ],
      [
       59,
       {
-       "frosplpwr": 0.93,
-       "int": 0.1,
-       "spi": 0.22,
-       "splpwr": 1.0,
-       "firsplpwr": 0.07,
-       "spldmg": 1.0,
-       "manargn": 0.44,
+       "int": 0.11,
        "hitPct": 0.21,
-       "critPct": 5.89,
-       "armor": 0.03,
-       "sta": 0.4
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 5.86,
+       "firsplpwr": 0.07,
+       "spi": 0.6,
+       "sta": 0.36,
+       "armor": 0.02,
+       "frosplpwr": 0.93,
+       "manargn": 0.95
       }
      ],
      [
@@ -2088,12 +2134,12 @@
        "splpwr": 1.0,
        "spldmg": 1.0,
        "int": 0.09,
-       "spi": 0.19,
-       "sta": 0.38,
-       "manargn": 0.37,
+       "spi": 0.64,
+       "sta": 0.34,
+       "manargn": 1.02,
        "hitPct": 0.22,
        "critPct": 6.63,
-       "armor": 0.03,
+       "armor": 0.02,
        "frosplpwr": 0.93,
        "firsplpwr": 0.07
       }
@@ -2109,188 +2155,210 @@
       9,
       {
        "str": 2.0,
-       "agi": 3.39,
+       "agi": 1.74,
        "atkpwr": 1.0,
-       "sta": 0.04,
-       "hitPct": 10.04,
-       "critPct": 9.29,
-       "armor": 0.25,
-       "splpwr": 2.51,
-       "spldmg": 2.51,
+       "hitPct": 9.97,
+       "critPct": 9.81,
+       "splpwr": 2.54,
+       "spldmg": 2.54,
        "dps": 14.05
       }
      ],
      [
       14,
       {
-       "dps": 13.99,
-       "agi": 1.37,
-       "str": 2.0,
-       "hitPct": 4.15,
-       "armor": 0.13,
-       "splpwr": 1.89,
-       "spldmg": 1.89,
+       "hitPct": 4.56,
+       "spi": 0.83,
+       "dps": 13.98,
        "atkpwr": 1.0,
-       "critPct": 3.98,
-       "sta": 0.39
+       "int": 0.04,
+       "critPct": 4.21,
+       "str": 2.0,
+       "agi": 0.73,
+       "splpwr": 2.13,
+       "manargn": 1.7,
+       "spldmg": 2.13,
+       "sta": 0.44,
+       "armor": 0.03
       }
      ],
      [
       19,
       {
-       "dps": 14.07,
-       "agi": 1.53,
-       "str": 2.0,
-       "hitPct": 5.74,
-       "armor": 0.14,
-       "splpwr": 2.21,
-       "spldmg": 2.21,
+       "hitPct": 5.94,
+       "spi": 1.02,
+       "dps": 14.06,
        "atkpwr": 1.0,
-       "critPct": 5.5,
-       "sta": 0.59
+       "int": 0.03,
+       "critPct": 5.68,
+       "str": 2.0,
+       "agi": 0.9,
+       "splpwr": 2.29,
+       "manargn": 2.25,
+       "spldmg": 2.29,
+       "sta": 0.58,
+       "armor": 0.04
       }
      ],
      [
       24,
       {
+       "hitPct": 7.76,
+       "spi": 1.13,
        "dps": 14.04,
-       "agi": 1.78,
-       "str": 2.0,
-       "hitPct": 7.55,
-       "armor": 0.16,
-       "int": 0.02,
-       "splpwr": 2.55,
-       "spldmg": 2.55,
        "atkpwr": 1.0,
-       "critPct": 7.3,
-       "sta": 0.7
+       "int": 0.03,
+       "critPct": 7.34,
+       "str": 2.0,
+       "agi": 0.98,
+       "splpwr": 2.56,
+       "manargn": 3.31,
+       "spldmg": 2.56,
+       "sta": 0.57,
+       "armor": 0.03
       }
      ],
      [
       29,
       {
-       "dps": 13.73,
-       "agi": 1.95,
-       "str": 2.0,
-       "hitPct": 9.27,
-       "armor": 0.16,
-       "int": 0.1,
-       "splpwr": 2.72,
-       "spldmg": 2.72,
+       "hitPct": 9.62,
+       "spi": 1.14,
+       "dps": 13.75,
        "atkpwr": 1.0,
-       "critPct": 9.15,
-       "sta": 0.74
+       "int": 0.11,
+       "critPct": 9.23,
+       "str": 2.0,
+       "agi": 1.04,
+       "splpwr": 2.76,
+       "manargn": 3.92,
+       "spldmg": 2.76,
+       "sta": 0.45,
+       "armor": 0.02
       }
      ],
      [
       34,
       {
-       "dps": 13.39,
-       "agi": 2.03,
-       "str": 2.0,
-       "hitPct": 11.79,
-       "armor": 0.15,
-       "int": 0.14,
-       "splpwr": 2.81,
-       "spldmg": 2.81,
+       "hitPct": 11.91,
+       "spi": 1.24,
+       "dps": 13.44,
        "atkpwr": 1.0,
-       "critPct": 12.06,
-       "sta": 0.83
+       "int": 0.2,
+       "critPct": 12.38,
+       "str": 2.0,
+       "agi": 1.22,
+       "splpwr": 2.82,
+       "manargn": 4.23,
+       "spldmg": 2.82,
+       "sta": 0.46,
+       "armor": 0.02
       }
      ],
      [
       39,
       {
-       "dps": 13.67,
-       "agi": 2.24,
-       "str": 2.0,
-       "hitPct": 15.72,
-       "armor": 0.17,
-       "int": 0.6,
-       "splpwr": 3.0,
-       "spldmg": 3.0,
+       "hitPct": 15.23,
+       "spi": 1.49,
+       "dps": 13.7,
        "atkpwr": 1.0,
-       "critPct": 16.38,
-       "sta": 1.11
+       "int": 0.75,
+       "critPct": 16.83,
+       "str": 2.0,
+       "agi": 1.45,
+       "splpwr": 2.96,
+       "manargn": 4.84,
+       "spldmg": 2.96,
+       "sta": 0.73,
+       "armor": 0.04
       }
      ],
      [
       44,
       {
+       "hitPct": 22.45,
+       "spi": 1.91,
        "dps": 14.17,
-       "agi": 2.54,
-       "str": 2.05,
-       "hitPct": 22.49,
-       "armor": 0.2,
-       "int": 1.76,
-       "splpwr": 3.58,
-       "spldmg": 3.58,
        "atkpwr": 1.0,
-       "critPct": 22.45,
-       "sta": 1.67
+       "int": 2.14,
+       "critPct": 22.97,
+       "str": 2.05,
+       "agi": 1.66,
+       "splpwr": 3.57,
+       "manargn": 6.05,
+       "spldmg": 3.57,
+       "sta": 1.21,
+       "armor": 0.06
       }
      ],
      [
       49,
       {
-       "dps": 14.24,
-       "agi": 2.94,
-       "str": 2.15,
-       "hitPct": 31.52,
-       "armor": 0.21,
-       "int": 2.62,
-       "splpwr": 4.29,
-       "spldmg": 4.29,
+       "hitPct": 33.41,
+       "spi": 2.41,
+       "dps": 14.25,
        "atkpwr": 1.0,
-       "critPct": 30.7,
-       "sta": 2.09
+       "int": 3.18,
+       "critPct": 31.42,
+       "str": 2.15,
+       "agi": 2.05,
+       "splpwr": 4.28,
+       "manargn": 7.45,
+       "spldmg": 4.28,
+       "sta": 1.73,
+       "armor": 0.09
       }
      ],
      [
       54,
       {
-       "dps": 14.1,
-       "agi": 3.83,
-       "str": 2.2,
-       "hitPct": 41.2,
-       "armor": 0.29,
-       "int": 2.93,
-       "splpwr": 4.65,
-       "spldmg": 4.65,
+       "hitPct": 43.65,
+       "spi": 2.86,
+       "dps": 14.11,
        "atkpwr": 1.0,
-       "critPct": 39.31,
-       "sta": 2.47
+       "int": 3.31,
+       "critPct": 39.94,
+       "str": 2.2,
+       "agi": 2.61,
+       "splpwr": 4.59,
+       "manargn": 8.28,
+       "spldmg": 4.59,
+       "sta": 2.39,
+       "armor": 0.14
       }
      ],
      [
       59,
       {
+       "hitPct": 37.67,
+       "spi": 3.11,
        "dps": 14.11,
-       "agi": 4.62,
-       "str": 2.2,
-       "hitPct": 36.62,
-       "armor": 0.39,
-       "int": 3.11,
-       "splpwr": 4.71,
-       "spldmg": 4.71,
        "atkpwr": 1.0,
-       "critPct": 45.26,
-       "sta": 3.16
+       "int": 3.16,
+       "critPct": 44.81,
+       "str": 2.2,
+       "agi": 2.94,
+       "splpwr": 4.56,
+       "manargn": 8.46,
+       "spldmg": 4.56,
+       "sta": 2.94,
+       "armor": 0.18
       }
      ],
      [
       60,
       {
        "str": 2.2,
-       "agi": 4.53,
+       "agi": 2.87,
        "atkpwr": 1.0,
-       "sta": 3.39,
-       "critPct": 47.3,
-       "armor": 0.41,
-       "int": 3.07,
-       "splpwr": 4.55,
-       "spldmg": 4.55,
-       "dps": 14.27
+       "sta": 2.85,
+       "critPct": 45.02,
+       "armor": 0.17,
+       "spi": 3.0,
+       "int": 2.96,
+       "splpwr": 4.31,
+       "spldmg": 4.31,
+       "manargn": 8.31,
+       "dps": 14.28
       }
      ]
     ],
@@ -2303,131 +2371,131 @@
       {
        "splheal": 1.0,
        "splpwr": 1.0,
-       "int": 0.77,
-       "spi": 0.88,
-       "manargn": 3.63,
-       "critPct": 1.16,
-       "sta": 0.16
+       "int": 0.91,
+       "spi": 0.63,
+       "manargn": 3.19,
+       "critPct": 1.19,
+       "sta": 0.18
       }
      ],
      [
       14,
       {
-       "spi": 0.74,
-       "splheal": 1.0,
-       "int": 0.83,
        "splpwr": 1.0,
-       "critPct": 0.97,
-       "sta": 0.22,
-       "manargn": 2.72
+       "manargn": 2.35,
+       "critPct": 1.0,
+       "sta": 0.25,
+       "spi": 0.54,
+       "int": 0.99,
+       "splheal": 1.0
       }
      ],
      [
       19,
       {
-       "spi": 0.94,
-       "splheal": 1.0,
-       "int": 1.17,
        "splpwr": 1.0,
-       "critPct": 1.62,
-       "sta": 0.28,
-       "manargn": 2.91
+       "manargn": 2.53,
+       "critPct": 1.65,
+       "sta": 0.32,
+       "spi": 0.74,
+       "int": 1.34,
+       "splheal": 1.0
       }
      ],
      [
       24,
       {
-       "spi": 1.19,
-       "splheal": 1.0,
-       "int": 1.55,
        "splpwr": 1.0,
-       "critPct": 3.1,
-       "sta": 0.35,
-       "manargn": 3.21
+       "manargn": 2.81,
+       "critPct": 3.13,
+       "sta": 0.38,
+       "spi": 0.97,
+       "int": 1.73,
+       "splheal": 1.0
       }
      ],
      [
       29,
       {
-       "spi": 1.41,
-       "splheal": 1.0,
-       "int": 1.93,
        "splpwr": 1.0,
-       "critPct": 5.85,
-       "sta": 0.43,
-       "manargn": 3.66
+       "manargn": 3.24,
+       "critPct": 5.86,
+       "sta": 0.46,
+       "spi": 1.18,
+       "int": 2.11,
+       "splheal": 1.0
       }
      ],
      [
       34,
       {
-       "spi": 1.65,
-       "splheal": 1.0,
-       "int": 2.38,
        "splpwr": 1.0,
-       "critPct": 9.96,
-       "sta": 0.53,
-       "manargn": 4.26
+       "manargn": 3.81,
+       "critPct": 9.97,
+       "sta": 0.56,
+       "spi": 1.41,
+       "int": 2.55,
+       "splheal": 1.0
       }
      ],
      [
       39,
       {
-       "spi": 1.8,
-       "splheal": 1.0,
-       "int": 2.75,
        "splpwr": 1.0,
-       "critPct": 15.38,
-       "sta": 0.58,
-       "manargn": 4.64
+       "manargn": 4.18,
+       "critPct": 15.45,
+       "sta": 0.61,
+       "spi": 1.55,
+       "int": 2.96,
+       "splheal": 1.0
       }
      ],
      [
       44,
       {
-       "spi": 1.92,
-       "splheal": 1.0,
-       "int": 3.16,
        "splpwr": 1.0,
-       "critPct": 21.71,
-       "sta": 0.63,
-       "manargn": 4.91
+       "manargn": 4.39,
+       "critPct": 21.83,
+       "sta": 0.65,
+       "spi": 1.63,
+       "int": 3.42,
+       "splheal": 1.0
       }
      ],
      [
       49,
       {
-       "spi": 2.04,
-       "splheal": 1.0,
-       "int": 3.4,
        "splpwr": 1.0,
-       "critPct": 26.72,
-       "sta": 0.64,
-       "manargn": 5.18
+       "manargn": 4.53,
+       "critPct": 26.83,
+       "sta": 0.67,
+       "spi": 1.68,
+       "int": 3.63,
+       "splheal": 1.0
       }
      ],
      [
       54,
       {
-       "spi": 2.05,
-       "splheal": 1.0,
-       "int": 3.38,
        "splpwr": 1.0,
-       "critPct": 30.39,
-       "sta": 0.61,
-       "manargn": 5.29
+       "manargn": 4.75,
+       "critPct": 30.48,
+       "sta": 0.62,
+       "spi": 1.75,
+       "int": 3.53,
+       "splheal": 1.0
       }
      ],
      [
       59,
       {
-       "spi": 2.01,
-       "splheal": 1.0,
-       "int": 3.56,
        "splpwr": 1.0,
-       "critPct": 33.9,
-       "sta": 0.59,
-       "manargn": 5.31
+       "manargn": 5.13,
+       "critPct": 33.92,
+       "sta": 0.6,
+       "spi": 1.91,
+       "int": 3.61,
+       "splheal": 1.0
       }
      ],
      [
@@ -2451,260 +2519,257 @@
       9,
       {
        "str": 0.46,
-       "agi": 1.4,
-       "atkpwr": 0.18,
-       "sta": 0.58,
-       "hitPct": 2.58,
-       "critPct": 2.07,
-       "armor": 0.15,
-       "armorbonus": 0.15,
-       "defrtng": 0.79,
-       "dodgePct": 3.66,
-       "parryPct": 5.44,
+       "agi": 1.29,
+       "atkpwr": 0.2,
+       "sta": 0.7,
+       "hitPct": 2.28,
+       "critPct": 2.09,
+       "armor": 0.14,
+       "armorbonus": 0.14,
+       "defrtng": 0.73,
+       "dodgePct": 3.49,
+       "parryPct": 5.2,
        "blockPct": 1.43,
-       "block": 0.91,
+       "block": 0.67,
        "int": 0.02,
        "splpwr": 1.0,
        "spldmg": 1.0,
        "holsplpwr": 1.0,
-       "dps": 2.57
+       "dps": 2.76
       }
      ],
      [
       14,
       {
-       "dodgePct": 1.38,
-       "hitPct": 1.35,
-       "agi": 0.47,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 0.46,
-       "critPct": 1.14,
-       "blockPct": 0.4,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.26,
+       "hitPct": 1.54,
+       "spi": 0.42,
+       "armor": 0.12,
        "atkpwr": 0.2,
-       "manargn": 2.6,
-       "str": 0.42,
-       "sta": 0.49,
-       "spi": 0.69,
-       "armor": 0.04,
-       "dps": 2.77,
-       "parryPct": 2.1
+       "critPct": 1.24,
+       "defrtng": 0.57,
+       "manargn": 1.42,
+       "parryPct": 4.03,
+       "holsplpwr": 1.0,
+       "sta": 0.64,
+       "int": 0.24,
+       "spldmg": 1.0,
+       "block": 1.56,
+       "agi": 1.0,
+       "armorbonus": 0.12,
+       "blockPct": 0.76,
+       "str": 0.59,
+       "dodgePct": 3.21,
+       "splpwr": 1.0,
+       "dps": 2.78
       }
      ],
      [
       19,
       {
-       "dodgePct": 1.08,
-       "hitPct": 1.34,
-       "agi": 0.41,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 0.46,
-       "critPct": 1.18,
-       "blockPct": 0.57,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.25,
+       "hitPct": 1.38,
+       "spi": 0.14,
+       "armor": 0.07,
        "atkpwr": 0.17,
-       "manargn": 1.5,
-       "str": 0.4,
-       "sta": 0.33,
-       "spi": 0.3,
-       "armor": 0.04,
-       "dps": 2.35,
-       "int": 0.1,
-       "parryPct": 2.01
+       "critPct": 1.22,
+       "defrtng": 0.38,
+       "manargn": 0.47,
+       "parryPct": 2.82,
+       "holsplpwr": 1.0,
+       "sta": 0.4,
+       "int": 0.31,
+       "spldmg": 1.0,
+       "block": 1.13,
+       "agi": 0.62,
+       "armorbonus": 0.07,
+       "blockPct": 0.47,
+       "str": 0.46,
+       "dodgePct": 2.04,
+       "splpwr": 1.0,
+       "dps": 2.36
       }
      ],
      [
       24,
       {
-       "dodgePct": 0.97,
-       "hitPct": 1.33,
-       "agi": 0.35,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 0.5,
-       "critPct": 1.26,
-       "blockPct": 0.76,
-       "spldmg": 1.0,
-       "armorbonus": 0.03,
-       "defrtng": 0.24,
+       "hitPct": 1.31,
+       "armor": 0.05,
        "atkpwr": 0.15,
-       "manargn": 0.73,
-       "str": 0.33,
-       "sta": 0.24,
-       "spi": 0.14,
-       "armor": 0.03,
-       "dps": 2.09,
-       "int": 0.21,
-       "parryPct": 1.89
+       "critPct": 1.27,
+       "defrtng": 0.31,
+       "parryPct": 2.43,
+       "holsplpwr": 1.0,
+       "sta": 0.26,
+       "int": 0.15,
+       "spldmg": 1.0,
+       "block": 0.89,
+       "agi": 0.44,
+       "armorbonus": 0.05,
+       "blockPct": 0.32,
+       "str": 0.38,
+       "dodgePct": 1.62,
+       "splpwr": 1.0,
+       "dps": 2.08
       }
      ],
      [
       29,
       {
-       "dodgePct": 1.74,
-       "hitPct": 1.56,
-       "agi": 0.4,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 0.79,
-       "critPct": 1.46,
-       "blockPct": 0.76,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.34,
-       "atkpwr": 0.15,
-       "manargn": 0.25,
-       "str": 0.31,
-       "sta": 0.24,
-       "spi": 0.07,
+       "hitPct": 1.55,
        "armor": 0.04,
-       "dps": 2.07,
-       "int": 0.11,
-       "parryPct": 2.53
+       "atkpwr": 0.15,
+       "critPct": 1.45,
+       "defrtng": 0.35,
+       "parryPct": 2.72,
+       "holsplpwr": 1.0,
+       "sta": 0.26,
+       "int": 0.01,
+       "spldmg": 1.0,
+       "block": 0.81,
+       "agi": 0.42,
+       "armorbonus": 0.04,
+       "blockPct": 0.42,
+       "str": 0.34,
+       "dodgePct": 1.84,
+       "splpwr": 1.0,
+       "dps": 2.07
       }
      ],
      [
       34,
       {
-       "dodgePct": 2.72,
-       "hitPct": 1.76,
-       "agi": 0.47,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 1.16,
-       "critPct": 1.68,
-       "blockPct": 1.01,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.48,
-       "atkpwr": 0.15,
-       "str": 0.37,
-       "sta": 0.26,
+       "hitPct": 1.79,
        "armor": 0.04,
-       "dps": 2.09,
+       "atkpwr": 0.15,
+       "critPct": 1.65,
+       "defrtng": 0.42,
+       "parryPct": 3.22,
+       "holsplpwr": 1.0,
+       "sta": 0.27,
        "int": 0.01,
-       "parryPct": 3.41
+       "spldmg": 1.0,
+       "block": 0.92,
+       "agi": 0.42,
+       "armorbonus": 0.04,
+       "blockPct": 0.88,
+       "str": 0.31,
+       "dodgePct": 2.29,
+       "splpwr": 1.0,
+       "dps": 2.07
       }
      ],
      [
       39,
       {
-       "dodgePct": 3.65,
-       "hitPct": 1.9,
-       "agi": 0.49,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 1.51,
-       "critPct": 1.84,
-       "blockPct": 1.5,
-       "spldmg": 1.0,
-       "armorbonus": 0.05,
-       "defrtng": 0.6,
+       "hitPct": 1.95,
+       "armor": 0.04,
        "atkpwr": 0.15,
-       "str": 0.41,
-       "sta": 0.3,
-       "armor": 0.05,
-       "dps": 2.08,
+       "critPct": 1.8,
+       "defrtng": 0.54,
+       "parryPct": 3.83,
+       "holsplpwr": 1.0,
+       "sta": 0.31,
        "int": 0.01,
-       "parryPct": 4.19
+       "spldmg": 1.0,
+       "block": 1.23,
+       "agi": 0.45,
+       "armorbonus": 0.04,
+       "blockPct": 1.35,
+       "str": 0.32,
+       "dodgePct": 3.07,
+       "splpwr": 1.0,
+       "dps": 2.03
       }
      ],
      [
       44,
       {
-       "dodgePct": 4.0,
-       "hitPct": 2.25,
-       "agi": 0.48,
-       "splpwr": 1.0,
+       "hitPct": 2.3,
+       "armor": 0.04,
+       "atkpwr": 0.14,
+       "critPct": 2.0,
+       "defrtng": 0.57,
+       "parryPct": 3.82,
        "holsplpwr": 1.0,
-       "block": 1.61,
-       "critPct": 2.02,
-       "blockPct": 1.53,
-       "spldmg": 1.0,
-       "armorbonus": 0.05,
-       "defrtng": 0.66,
-       "atkpwr": 0.15,
-       "str": 0.41,
-       "sta": 0.32,
-       "armor": 0.05,
-       "dps": 2.02,
+       "sta": 0.33,
        "int": 0.01,
-       "parryPct": 4.39
+       "spldmg": 1.0,
+       "block": 1.3,
+       "agi": 0.44,
+       "armorbonus": 0.04,
+       "blockPct": 1.35,
+       "str": 0.34,
+       "dodgePct": 3.34,
+       "splpwr": 1.0,
+       "dps": 2.01
       }
      ],
      [
       49,
       {
-       "dodgePct": 3.67,
-       "hitPct": 2.44,
-       "agi": 0.45,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 1.37,
-       "critPct": 2.17,
-       "blockPct": 1.31,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.64,
-       "atkpwr": 0.14,
-       "str": 0.39,
-       "sta": 0.3,
+       "hitPct": 2.48,
        "armor": 0.04,
-       "dps": 1.97,
+       "atkpwr": 0.14,
+       "critPct": 2.16,
+       "defrtng": 0.54,
+       "parryPct": 3.76,
+       "holsplpwr": 1.0,
+       "sta": 0.31,
        "int": 0.01,
-       "parryPct": 4.07
+       "spldmg": 1.0,
+       "block": 1.06,
+       "agi": 0.4,
+       "armorbonus": 0.04,
+       "blockPct": 1.25,
+       "str": 0.33,
+       "dodgePct": 3.31,
+       "splpwr": 1.0,
+       "dps": 1.99
       }
      ],
      [
       54,
       {
-       "dodgePct": 4.22,
-       "hitPct": 2.42,
-       "agi": 0.45,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 1.1,
-       "critPct": 2.36,
-       "blockPct": 1.55,
-       "spldmg": 1.0,
-       "armorbonus": 0.04,
-       "defrtng": 0.69,
-       "atkpwr": 0.14,
-       "str": 0.36,
-       "sta": 0.28,
+       "hitPct": 2.4,
        "armor": 0.04,
-       "dps": 1.93,
+       "atkpwr": 0.14,
+       "critPct": 2.36,
+       "defrtng": 0.63,
+       "parryPct": 4.55,
+       "holsplpwr": 1.0,
+       "sta": 0.29,
        "int": 0.01,
-       "parryPct": 4.59
+       "spldmg": 1.0,
+       "block": 0.87,
+       "agi": 0.42,
+       "armorbonus": 0.04,
+       "blockPct": 1.46,
+       "str": 0.33,
+       "dodgePct": 4.07,
+       "splpwr": 1.0,
+       "dps": 1.95
       }
      ],
      [
       59,
       {
-       "dodgePct": 7.43,
-       "hitPct": 2.87,
-       "agi": 0.65,
-       "splpwr": 1.0,
-       "holsplpwr": 1.0,
-       "block": 1.14,
-       "critPct": 3.18,
-       "blockPct": 1.82,
-       "spldmg": 1.0,
-       "armorbonus": 0.05,
-       "defrtng": 1.15,
-       "atkpwr": 0.15,
-       "str": 0.39,
-       "sta": 0.42,
+       "hitPct": 2.84,
        "armor": 0.05,
-       "dps": 2.06,
+       "atkpwr": 0.15,
+       "critPct": 3.19,
+       "defrtng": 1.14,
+       "parryPct": 7.58,
+       "holsplpwr": 1.0,
+       "sta": 0.42,
        "int": 0.01,
-       "parryPct": 7.63
+       "spldmg": 1.0,
+       "block": 1.07,
+       "agi": 0.65,
+       "armorbonus": 0.05,
+       "blockPct": 1.77,
+       "str": 0.39,
+       "dodgePct": 7.33,
+       "splpwr": 1.0,
+       "dps": 2.06
       }
      ],
      [
@@ -2742,173 +2807,173 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.08,
+       "int": 0.07,
        "spi": 0.34,
-       "sta": 0.19,
-       "manargn": 0.72,
-       "hitPct": 1.53,
-       "critPct": 0.58,
-       "shasplpwr": 0.25
+       "sta": 0.16,
+       "manargn": 0.75,
+       "hitPct": 1.28,
+       "critPct": 0.48,
+       "shasplpwr": 0.21
       }
      ],
      [
       14,
       {
-       "int": 0.09,
-       "shasplpwr": 0.52,
-       "spi": 0.34,
-       "rangedDps": 2.78,
-       "splpwr": 1.0,
-       "spldmg": 1.0,
-       "manargn": 0.83,
+       "int": 0.08,
        "hitPct": 0.56,
-       "critPct": 0.69,
+       "rangedDps": 1.97,
+       "shasplpwr": 0.4,
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 0.4,
+       "spi": 0.25,
+       "sta": 0.2,
        "armor": 0.01,
-       "sta": 0.2
+       "manargn": 0.64
       }
      ],
      [
       19,
       {
        "int": 0.07,
-       "shasplpwr": 0.47,
-       "spi": 0.37,
-       "rangedDps": 1.75,
-       "splpwr": 1.0,
+       "hitPct": 0.6,
+       "rangedDps": 2.14,
+       "shasplpwr": 0.43,
        "spldmg": 1.0,
-       "manargn": 0.88,
-       "hitPct": 0.66,
-       "critPct": 0.68,
+       "splpwr": 1.0,
+       "critPct": 0.61,
+       "spi": 0.31,
+       "sta": 0.2,
        "armor": 0.01,
-       "sta": 0.2
+       "manargn": 0.58
       }
      ],
      [
       24,
       {
-       "int": 0.07,
-       "shasplpwr": 0.59,
-       "spi": 0.32,
-       "rangedDps": 1.71,
-       "splpwr": 1.0,
+       "int": 0.06,
+       "hitPct": 0.46,
+       "rangedDps": 2.66,
+       "shasplpwr": 0.61,
        "spldmg": 1.0,
-       "manargn": 0.71,
-       "hitPct": 0.59,
-       "critPct": 0.97,
+       "splpwr": 1.0,
+       "critPct": 1.01,
+       "spi": 0.34,
+       "sta": 0.21,
        "armor": 0.01,
-       "sta": 0.22
+       "manargn": 0.55
       }
      ],
      [
       29,
       {
-       "int": 0.07,
-       "shasplpwr": 0.87,
-       "spi": 0.21,
-       "rangedDps": 1.84,
-       "splpwr": 1.0,
+       "int": 0.06,
+       "hitPct": 0.21,
+       "rangedDps": 2.17,
+       "shasplpwr": 0.88,
        "spldmg": 1.0,
-       "manargn": 0.43,
-       "hitPct": 0.28,
-       "critPct": 1.43,
+       "splpwr": 1.0,
+       "critPct": 1.41,
+       "spi": 0.38,
+       "sta": 0.25,
        "armor": 0.01,
-       "sta": 0.27
+       "manargn": 0.61
       }
      ],
      [
       34,
       {
        "int": 0.07,
+       "hitPct": 0.12,
+       "rangedDps": 1.53,
        "shasplpwr": 1.0,
-       "spi": 0.37,
-       "rangedDps": 1.54,
-       "splpwr": 1.0,
        "spldmg": 1.0,
-       "manargn": 0.74,
-       "hitPct": 0.13,
-       "critPct": 1.86,
+       "splpwr": 1.0,
+       "critPct": 1.85,
+       "spi": 0.56,
+       "sta": 0.34,
        "armor": 0.01,
-       "sta": 0.34
+       "manargn": 0.77
       }
      ],
      [
       39,
       {
        "int": 0.08,
+       "hitPct": 0.13,
+       "rangedDps": 1.48,
        "shasplpwr": 1.0,
-       "spi": 0.75,
-       "rangedDps": 1.4,
-       "splpwr": 1.0,
        "spldmg": 1.0,
-       "manargn": 1.49,
-       "hitPct": 0.14,
-       "critPct": 2.36,
+       "splpwr": 1.0,
+       "critPct": 2.39,
+       "spi": 0.74,
+       "sta": 0.42,
        "armor": 0.02,
-       "sta": 0.42
+       "manargn": 0.92
       }
      ],
      [
       44,
       {
        "int": 0.09,
+       "hitPct": 0.1,
+       "rangedDps": 1.55,
        "shasplpwr": 1.0,
-       "spi": 0.99,
-       "rangedDps": 1.45,
-       "splpwr": 1.0,
        "spldmg": 1.0,
-       "manargn": 1.96,
-       "hitPct": 0.11,
-       "critPct": 2.9,
+       "splpwr": 1.0,
+       "critPct": 2.92,
+       "spi": 0.85,
+       "sta": 0.46,
        "armor": 0.02,
-       "sta": 0.45
+       "manargn": 1.02
       }
      ],
      [
       49,
       {
        "int": 0.1,
+       "hitPct": 0.12,
+       "rangedDps": 1.61,
        "shasplpwr": 1.0,
-       "spi": 1.07,
-       "rangedDps": 1.5,
-       "splpwr": 1.0,
        "spldmg": 1.0,
-       "manargn": 2.1,
-       "hitPct": 0.13,
-       "critPct": 3.52,
+       "splpwr": 1.0,
+       "critPct": 3.55,
+       "spi": 0.89,
+       "sta": 0.48,
        "armor": 0.02,
-       "sta": 0.46
+       "manargn": 1.06
       }
      ],
      [
       54,
       {
        "int": 0.11,
+       "hitPct": 0.2,
+       "rangedDps": 1.52,
        "shasplpwr": 1.0,
-       "spi": 1.07,
-       "rangedDps": 1.43,
-       "splpwr": 1.0,
        "spldmg": 1.0,
-       "manargn": 2.09,
-       "hitPct": 0.21,
-       "critPct": 4.22,
+       "splpwr": 1.0,
+       "critPct": 4.25,
+       "spi": 0.92,
+       "sta": 0.53,
        "armor": 0.03,
-       "sta": 0.52
+       "manargn": 1.09
       }
      ],
      [
       59,
       {
        "int": 0.12,
-       "shasplpwr": 1.0,
-       "spi": 1.06,
-       "rangedDps": 1.38,
-       "splpwr": 1.0,
-       "spldmg": 1.0,
-       "manargn": 2.01,
        "hitPct": 0.25,
-       "critPct": 4.81,
+       "rangedDps": 1.42,
+       "shasplpwr": 1.0,
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 4.83,
+       "spi": 1.01,
+       "sta": 0.56,
        "armor": 0.03,
-       "sta": 0.55
+       "manargn": 1.18
       }
      ],
      [
@@ -2917,14 +2982,14 @@
        "splpwr": 1.0,
        "spldmg": 1.0,
        "int": 0.12,
-       "spi": 1.17,
-       "sta": 0.5,
-       "manargn": 2.06,
+       "spi": 1.19,
+       "sta": 0.51,
+       "manargn": 1.28,
        "hitPct": 0.26,
        "critPct": 5.38,
        "armor": 0.03,
        "shasplpwr": 1.0,
-       "rangedDps": 1.5
+       "rangedDps": 1.52
       }
      ]
     ],
@@ -2937,131 +3002,131 @@
       {
        "splheal": 1.0,
        "splpwr": 1.0,
-       "int": 0.79,
-       "spi": 1.05,
-       "manargn": 6.22,
-       "critPct": 0.39,
-       "sta": 0.21
+       "int": 0.92,
+       "spi": 0.77,
+       "manargn": 5.73,
+       "critPct": 0.4,
+       "sta": 0.23
       }
      ],
      [
       14,
       {
-       "spi": 1.44,
-       "splheal": 1.0,
-       "int": 1.33,
        "splpwr": 1.0,
+       "manargn": 5.01,
        "critPct": 0.25,
-       "sta": 0.37,
-       "manargn": 5.69
+       "sta": 0.4,
+       "spi": 1.02,
+       "int": 1.62,
+       "splheal": 1.0
       }
      ],
      [
       19,
       {
-       "spi": 1.28,
-       "splheal": 1.0,
-       "int": 1.43,
        "splpwr": 1.0,
-       "critPct": 0.77,
-       "sta": 0.38,
-       "manargn": 4.97
+       "manargn": 4.44,
+       "critPct": 0.75,
+       "sta": 0.42,
+       "spi": 0.96,
+       "int": 1.67,
+       "splheal": 1.0
       }
      ],
      [
       24,
       {
-       "spi": 1.35,
-       "splheal": 1.0,
-       "int": 1.71,
        "splpwr": 1.0,
-       "critPct": 1.82,
-       "sta": 0.44,
-       "manargn": 4.14
+       "manargn": 3.68,
+       "critPct": 1.79,
+       "sta": 0.46,
+       "spi": 1.06,
+       "int": 1.94,
+       "splheal": 1.0
       }
      ],
      [
       29,
       {
-       "spi": 1.47,
-       "splheal": 1.0,
-       "int": 2.0,
        "splpwr": 1.0,
-       "critPct": 2.74,
-       "sta": 0.49,
-       "manargn": 3.88
+       "manargn": 3.45,
+       "critPct": 2.72,
+       "sta": 0.51,
+       "spi": 1.2,
+       "int": 2.23,
+       "splheal": 1.0
       }
      ],
      [
       34,
       {
-       "spi": 1.5,
-       "splheal": 1.0,
-       "int": 2.08,
        "splpwr": 1.0,
+       "manargn": 3.52,
        "critPct": 3.3,
-       "sta": 0.51,
-       "manargn": 3.9
+       "sta": 0.52,
+       "spi": 1.26,
+       "int": 2.27,
+       "splheal": 1.0
       }
      ],
      [
       39,
       {
-       "spi": 1.65,
-       "splheal": 1.0,
-       "int": 2.15,
        "splpwr": 1.0,
-       "critPct": 3.79,
-       "sta": 0.51,
-       "manargn": 4.14
+       "manargn": 3.77,
+       "critPct": 3.78,
+       "sta": 0.52,
+       "spi": 1.42,
+       "int": 2.31,
+       "splheal": 1.0
       }
      ],
      [
       44,
       {
-       "spi": 1.84,
-       "splheal": 1.0,
-       "int": 2.3,
        "splpwr": 1.0,
-       "critPct": 4.6,
-       "sta": 0.53,
-       "manargn": 4.46
+       "manargn": 4.04,
+       "critPct": 4.58,
+       "sta": 0.54,
+       "spi": 1.58,
+       "int": 2.45,
+       "splheal": 1.0
       }
      ],
      [
       49,
       {
-       "spi": 1.8,
-       "splheal": 1.0,
-       "int": 2.35,
        "splpwr": 1.0,
+       "manargn": 3.84,
        "critPct": 5.9,
-       "sta": 0.53,
-       "manargn": 4.31
+       "sta": 0.54,
+       "spi": 1.51,
+       "int": 2.49,
+       "splheal": 1.0
       }
      ],
      [
       54,
       {
-       "spi": 1.73,
-       "splheal": 1.0,
-       "int": 2.44,
        "splpwr": 1.0,
-       "critPct": 7.44,
-       "sta": 0.52,
-       "manargn": 4.24
+       "manargn": 3.87,
+       "critPct": 7.47,
+       "sta": 0.53,
+       "spi": 1.5,
+       "int": 2.55,
+       "splheal": 1.0
       }
      ],
      [
       59,
       {
-       "spi": 1.97,
-       "splheal": 1.0,
-       "int": 2.78,
        "splpwr": 1.0,
-       "critPct": 9.01,
+       "manargn": 4.44,
+       "critPct": 9.02,
        "sta": 0.57,
-       "manargn": 4.56
+       "spi": 1.89,
+       "int": 2.82,
+       "splheal": 1.0
       }
      ],
      [
@@ -3086,131 +3151,131 @@
       {
        "splheal": 1.0,
        "splpwr": 1.0,
-       "int": 0.79,
-       "spi": 1.05,
-       "manargn": 6.22,
-       "critPct": 0.39,
-       "sta": 0.21
+       "int": 0.92,
+       "spi": 0.77,
+       "manargn": 5.73,
+       "critPct": 0.4,
+       "sta": 0.23
       }
      ],
      [
       14,
       {
-       "spi": 1.46,
-       "splheal": 1.0,
-       "int": 1.33,
        "splpwr": 1.0,
+       "manargn": 5.08,
        "critPct": 0.25,
-       "sta": 0.38,
-       "manargn": 5.77
+       "sta": 0.41,
+       "spi": 1.04,
+       "int": 1.63,
+       "splheal": 1.0
       }
      ],
      [
       19,
       {
-       "spi": 1.32,
-       "splheal": 1.0,
-       "int": 1.46,
        "splpwr": 1.0,
+       "manargn": 4.6,
        "critPct": 0.78,
-       "sta": 0.4,
-       "manargn": 5.14
+       "sta": 0.43,
+       "spi": 0.99,
+       "int": 1.71,
+       "splheal": 1.0
       }
      ],
      [
       24,
       {
-       "spi": 1.35,
-       "splheal": 1.0,
-       "int": 1.81,
        "splpwr": 1.0,
+       "manargn": 3.75,
        "critPct": 1.85,
-       "sta": 0.43,
-       "manargn": 4.21
+       "sta": 0.46,
+       "spi": 1.07,
+       "int": 2.06,
+       "splheal": 1.0
       }
      ],
      [
       29,
       {
-       "spi": 1.44,
-       "splheal": 1.0,
-       "int": 2.09,
        "splpwr": 1.0,
-       "critPct": 2.7,
-       "sta": 0.47,
-       "manargn": 3.89
+       "manargn": 3.46,
+       "critPct": 2.71,
+       "sta": 0.49,
+       "spi": 1.18,
+       "int": 2.35,
+       "splheal": 1.0
       }
      ],
      [
       34,
       {
-       "spi": 1.6,
-       "splheal": 1.0,
-       "int": 2.12,
        "splpwr": 1.0,
-       "critPct": 3.46,
-       "sta": 0.49,
-       "manargn": 4.03
+       "manargn": 3.65,
+       "critPct": 3.47,
+       "sta": 0.51,
+       "spi": 1.37,
+       "int": 2.33,
+       "splheal": 1.0
       }
      ],
      [
       39,
       {
-       "spi": 1.98,
-       "splheal": 1.0,
-       "int": 2.19,
        "splpwr": 1.0,
+       "manargn": 4.02,
        "critPct": 5.12,
-       "sta": 0.49,
-       "manargn": 4.38
+       "sta": 0.51,
+       "spi": 1.76,
+       "int": 2.36,
+       "splheal": 1.0
       }
      ],
      [
       44,
       {
-       "spi": 2.3,
-       "splheal": 1.0,
-       "int": 2.46,
        "splpwr": 1.0,
-       "critPct": 7.36,
-       "sta": 0.54,
-       "manargn": 4.85
+       "manargn": 4.44,
+       "critPct": 7.35,
+       "sta": 0.55,
+       "spi": 2.05,
+       "int": 2.62,
+       "splheal": 1.0
       }
      ],
      [
       49,
       {
-       "spi": 2.41,
-       "splheal": 1.0,
-       "int": 2.7,
        "splpwr": 1.0,
-       "critPct": 9.31,
-       "sta": 0.58,
-       "manargn": 5.05
+       "manargn": 4.54,
+       "critPct": 9.26,
+       "sta": 0.59,
+       "spi": 2.09,
+       "int": 2.87,
+       "splheal": 1.0
       }
      ],
      [
       54,
       {
-       "spi": 2.44,
-       "splheal": 1.0,
-       "int": 2.83,
        "splpwr": 1.0,
-       "critPct": 11.34,
-       "sta": 0.58,
-       "manargn": 5.08
+       "manargn": 4.65,
+       "critPct": 11.23,
+       "sta": 0.59,
+       "spi": 2.17,
+       "int": 2.96,
+       "splheal": 1.0
       }
      ],
      [
       59,
       {
-       "spi": 2.52,
-       "splheal": 1.0,
-       "int": 3.11,
        "splpwr": 1.0,
-       "critPct": 13.89,
-       "sta": 0.61,
-       "manargn": 5.25
+       "manargn": 5.1,
+       "critPct": 13.82,
+       "sta": 0.62,
+       "spi": 2.43,
+       "int": 3.15,
+       "splheal": 1.0
       }
      ],
      [
@@ -3236,167 +3301,177 @@
       9,
       {
        "str": 1.01,
-       "agi": 5.86,
+       "agi": 2.98,
        "atkpwr": 1.0,
-       "hitPct": 5.73,
-       "critPct": 6.32,
-       "armor": 0.15,
-       "dps": 11.0,
-       "ohDps": 2.16
+       "hitPct": 7.52,
+       "critPct": 7.04,
+       "dps": 11.28,
+       "ohDps": 2.04
       }
      ],
      [
       14,
       {
-       "critPct": 2.96,
-       "str": 1.02,
-       "hitPct": 2.21,
+       "armor": 0.04,
+       "hitPct": 2.65,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.27,
-       "agi": 2.57,
-       "ohDps": 2.97,
-       "dps": 10.91
+       "agi": 1.88,
+       "ohDps": 3.17,
+       "sta": 0.35,
+       "critPct": 2.94,
+       "dps": 11.03,
+       "str": 1.02,
+       "spi": 0.62
       }
      ],
      [
       19,
       {
-       "critPct": 3.86,
-       "str": 1.01,
-       "hitPct": 2.79,
+       "armor": 0.04,
+       "hitPct": 3.35,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.4,
-       "agi": 2.43,
-       "ohDps": 2.77,
-       "dps": 10.79
+       "agi": 1.82,
+       "ohDps": 2.87,
+       "sta": 0.45,
+       "critPct": 3.92,
+       "dps": 10.99,
+       "str": 1.01,
+       "spi": 0.58
       }
      ],
      [
       24,
       {
-       "critPct": 4.85,
-       "str": 1.01,
-       "hitPct": 3.73,
+       "armor": 0.04,
+       "hitPct": 4.47,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.45,
-       "agi": 2.27,
-       "ohDps": 2.81,
-       "dps": 10.25
+       "agi": 1.87,
+       "ohDps": 2.76,
+       "sta": 0.41,
+       "critPct": 5.0,
+       "dps": 10.32,
+       "str": 1.0,
+       "spi": 1.34
       }
      ],
      [
       29,
       {
-       "critPct": 6.15,
-       "str": 1.0,
-       "hitPct": 4.55,
+       "armor": 0.04,
+       "hitPct": 6.01,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.46,
-       "agi": 2.2,
-       "ohDps": 2.91,
-       "dps": 10.29
+       "agi": 1.93,
+       "ohDps": 2.77,
+       "sta": 0.34,
+       "critPct": 6.27,
+       "dps": 10.3,
+       "str": 1.0,
+       "spi": 1.84
       }
      ],
      [
       34,
       {
-       "critPct": 7.55,
-       "str": 1.0,
-       "hitPct": 5.47,
+       "armor": 0.04,
+       "hitPct": 7.12,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.45,
-       "agi": 2.2,
-       "ohDps": 2.94,
-       "dps": 10.61
+       "agi": 1.94,
+       "ohDps": 2.75,
+       "sta": 0.3,
+       "critPct": 7.79,
+       "dps": 10.69,
+       "str": 1.0,
+       "spi": 1.67
       }
      ],
      [
       39,
       {
-       "critPct": 8.9,
-       "str": 1.0,
-       "hitPct": 6.76,
+       "armor": 0.04,
+       "hitPct": 7.6,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.4,
-       "agi": 2.2,
-       "ohDps": 2.95,
-       "dps": 10.71
+       "agi": 1.93,
+       "ohDps": 2.76,
+       "sta": 0.27,
+       "critPct": 9.13,
+       "dps": 10.83,
+       "str": 1.0,
+       "spi": 1.83
       }
      ],
      [
       44,
       {
-       "critPct": 10.71,
-       "str": 1.0,
-       "hitPct": 7.95,
+       "armor": 0.04,
+       "hitPct": 8.67,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.33,
-       "agi": 2.22,
-       "ohDps": 2.94,
-       "dps": 10.52
+       "agi": 1.93,
+       "ohDps": 2.78,
+       "sta": 0.23,
+       "critPct": 10.7,
+       "dps": 10.65,
+       "str": 1.0,
+       "spi": 2.06
       }
      ],
      [
       49,
       {
-       "critPct": 12.98,
-       "str": 1.0,
-       "hitPct": 9.09,
+       "armor": 0.05,
+       "hitPct": 9.99,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.28,
-       "agi": 2.26,
-       "ohDps": 2.92,
-       "dps": 10.15
+       "agi": 1.99,
+       "ohDps": 2.76,
+       "sta": 0.21,
+       "critPct": 13.17,
+       "dps": 10.28,
+       "str": 1.0,
+       "spi": 2.28
       }
      ],
      [
       54,
       {
-       "critPct": 15.62,
-       "str": 1.0,
-       "hitPct": 9.51,
+       "armor": 0.06,
+       "hitPct": 9.98,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.31,
-       "agi": 2.32,
-       "ohDps": 2.86,
-       "dps": 9.96
+       "agi": 2.12,
+       "ohDps": 2.71,
+       "sta": 0.25,
+       "critPct": 16.27,
+       "dps": 10.08,
+       "str": 1.0,
+       "spi": 2.77
       }
      ],
      [
       59,
       {
-       "critPct": 17.89,
-       "str": 1.0,
-       "hitPct": 9.15,
+       "armor": 0.06,
+       "hitPct": 8.88,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.37,
-       "agi": 2.35,
-       "ohDps": 3.09,
-       "dps": 9.66
+       "agi": 2.21,
+       "ohDps": 2.97,
+       "sta": 0.28,
+       "critPct": 18.4,
+       "dps": 9.73,
+       "str": 1.0,
+       "spi": 3.02
       }
      ],
      [
       60,
       {
        "str": 1.0,
-       "agi": 2.38,
+       "agi": 2.17,
        "atkpwr": 1.0,
-       "sta": 0.38,
-       "hitPct": 9.91,
-       "critPct": 19.0,
-       "armor": 0.08,
-       "dps": 9.51,
-       "ohDps": 3.85
+       "sta": 0.27,
+       "hitPct": 8.27,
+       "critPct": 18.42,
+       "armor": 0.06,
+       "spi": 2.69,
+       "dps": 9.56,
+       "ohDps": 3.78
       }
      ]
     ],
@@ -3408,167 +3483,177 @@
       9,
       {
        "str": 1.01,
-       "agi": 5.85,
+       "agi": 2.84,
        "atkpwr": 1.0,
-       "hitPct": 4.96,
-       "critPct": 6.03,
-       "armor": 0.15,
-       "dps": 10.95,
-       "ohDps": 2.16
+       "hitPct": 6.07,
+       "critPct": 6.42,
+       "dps": 11.22,
+       "ohDps": 2.06
       }
      ],
      [
       14,
       {
-       "critPct": 2.87,
-       "str": 1.02,
-       "hitPct": 2.36,
+       "armor": 0.04,
+       "hitPct": 2.5,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.26,
-       "agi": 2.57,
-       "ohDps": 2.62,
-       "dps": 11.22
+       "agi": 1.89,
+       "ohDps": 2.71,
+       "sta": 0.37,
+       "critPct": 3.07,
+       "dps": 11.6,
+       "str": 1.02,
+       "spi": 0.37
       }
      ],
      [
       19,
       {
-       "critPct": 3.94,
-       "str": 1.02,
-       "hitPct": 3.29,
+       "armor": 0.04,
+       "hitPct": 3.48,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.41,
-       "agi": 2.44,
-       "ohDps": 2.54,
-       "dps": 11.37
+       "agi": 1.84,
+       "ohDps": 2.58,
+       "sta": 0.47,
+       "critPct": 4.13,
+       "dps": 11.71,
+       "str": 1.01,
+       "spi": 0.4
       }
      ],
      [
       24,
       {
-       "critPct": 5.02,
-       "str": 1.01,
-       "hitPct": 4.03,
+       "armor": 0.04,
+       "hitPct": 4.59,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.48,
-       "agi": 2.3,
-       "ohDps": 2.66,
-       "dps": 11.17
+       "agi": 1.91,
+       "ohDps": 2.57,
+       "sta": 0.44,
+       "critPct": 5.32,
+       "dps": 11.24,
+       "str": 1.01,
+       "spi": 0.97
       }
      ],
      [
       29,
       {
-       "critPct": 6.02,
-       "str": 1.0,
-       "hitPct": 4.79,
+       "armor": 0.04,
+       "hitPct": 6.04,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.5,
-       "agi": 2.21,
-       "ohDps": 2.9,
-       "dps": 10.74
+       "agi": 1.86,
+       "ohDps": 2.73,
+       "sta": 0.39,
+       "critPct": 6.4,
+       "dps": 10.69,
+       "str": 1.0,
+       "spi": 1.12
       }
      ],
      [
       34,
       {
-       "critPct": 7.11,
-       "str": 1.0,
-       "hitPct": 6.05,
+       "armor": 0.03,
+       "hitPct": 7.18,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.52,
-       "agi": 2.16,
-       "ohDps": 3.2,
-       "dps": 10.51
+       "agi": 1.72,
+       "ohDps": 3.08,
+       "sta": 0.42,
+       "critPct": 7.43,
+       "dps": 10.45,
+       "str": 1.01,
+       "spi": 0.59
       }
      ],
      [
       39,
       {
-       "critPct": 8.34,
-       "str": 1.0,
-       "hitPct": 6.99,
+       "armor": 0.04,
+       "hitPct": 7.44,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.49,
-       "agi": 2.13,
-       "ohDps": 3.5,
-       "dps": 10.12
+       "agi": 1.73,
+       "ohDps": 3.47,
+       "sta": 0.39,
+       "critPct": 8.56,
+       "dps": 10.05,
+       "str": 1.01,
+       "spi": 0.61
       }
      ],
      [
       44,
       {
-       "critPct": 9.73,
-       "str": 1.0,
-       "hitPct": 7.87,
+       "armor": 0.04,
+       "hitPct": 7.85,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.39,
-       "agi": 2.14,
-       "ohDps": 3.69,
-       "dps": 9.45
+       "agi": 1.83,
+       "ohDps": 3.67,
+       "sta": 0.27,
+       "critPct": 9.9,
+       "dps": 9.47,
+       "str": 1.0,
+       "spi": 1.25
       }
      ],
      [
       49,
       {
-       "critPct": 10.92,
-       "str": 1.0,
-       "hitPct": 9.28,
+       "armor": 0.04,
+       "hitPct": 8.2,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.32,
-       "agi": 2.15,
+       "agi": 1.89,
        "ohDps": 3.83,
-       "dps": 8.99
+       "sta": 0.22,
+       "critPct": 11.09,
+       "dps": 9.06,
+       "str": 1.0,
+       "spi": 1.97
       }
      ],
      [
       54,
       {
-       "critPct": 12.46,
-       "str": 1.0,
-       "hitPct": 9.6,
+       "armor": 0.05,
+       "hitPct": 8.43,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.34,
-       "agi": 2.16,
-       "ohDps": 3.91,
-       "dps": 8.82
+       "agi": 1.95,
+       "ohDps": 3.87,
+       "sta": 0.26,
+       "critPct": 12.58,
+       "dps": 8.91,
+       "str": 1.0,
+       "spi": 2.64
       }
      ],
      [
       59,
       {
-       "critPct": 14.47,
-       "str": 1.0,
-       "hitPct": 9.35,
+       "armor": 0.06,
+       "hitPct": 9.58,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.37,
-       "agi": 2.19,
-       "ohDps": 3.87,
-       "dps": 8.92
+       "agi": 2.0,
+       "ohDps": 3.78,
+       "sta": 0.27,
+       "critPct": 14.41,
+       "dps": 9.03,
+       "str": 1.0,
+       "spi": 2.84
       }
      ],
      [
       60,
       {
        "str": 1.0,
-       "agi": 2.19,
+       "agi": 1.96,
        "atkpwr": 1.0,
-       "sta": 0.35,
-       "hitPct": 10.15,
-       "critPct": 15.66,
-       "armor": 0.08,
-       "dps": 9.73,
-       "ohDps": 3.68
+       "sta": 0.21,
+       "hitPct": 11.73,
+       "critPct": 15.44,
+       "armor": 0.05,
+       "spi": 2.24,
+       "dps": 9.76,
+       "ohDps": 3.75
       }
      ]
     ],
@@ -3580,167 +3665,177 @@
       9,
       {
        "str": 1.01,
-       "agi": 5.93,
+       "agi": 2.9,
        "atkpwr": 1.0,
-       "hitPct": 5.75,
-       "critPct": 6.45,
-       "armor": 0.15,
-       "dps": 11.0,
-       "ohDps": 2.16
+       "hitPct": 7.26,
+       "critPct": 6.64,
+       "dps": 11.27,
+       "ohDps": 2.05
       }
      ],
      [
       14,
       {
-       "critPct": 2.89,
-       "str": 1.02,
-       "hitPct": 2.37,
+       "armor": 0.03,
+       "hitPct": 2.66,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.28,
-       "agi": 2.53,
-       "ohDps": 3.14,
-       "dps": 10.86
+       "agi": 1.91,
+       "ohDps": 3.17,
+       "sta": 0.34,
+       "critPct": 3.04,
+       "dps": 11.0,
+       "str": 1.01,
+       "spi": 0.65
       }
      ],
      [
       19,
       {
-       "critPct": 3.87,
-       "str": 1.02,
-       "hitPct": 3.15,
+       "armor": 0.03,
+       "hitPct": 3.5,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.39,
-       "agi": 2.39,
-       "ohDps": 2.9,
-       "dps": 10.9
+       "agi": 1.85,
+       "ohDps": 2.93,
+       "sta": 0.41,
+       "critPct": 4.13,
+       "dps": 10.93,
+       "str": 1.01,
+       "spi": 0.65
       }
      ],
      [
       24,
       {
-       "critPct": 4.94,
-       "str": 1.01,
-       "hitPct": 4.28,
+       "armor": 0.04,
+       "hitPct": 4.6,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.41,
-       "agi": 2.25,
+       "agi": 1.91,
        "ohDps": 2.85,
-       "dps": 10.4
+       "sta": 0.36,
+       "critPct": 5.32,
+       "dps": 10.3,
+       "str": 1.0,
+       "spi": 1.49
       }
      ],
      [
       29,
       {
-       "critPct": 6.17,
-       "str": 1.0,
-       "hitPct": 5.58,
+       "armor": 0.04,
+       "hitPct": 5.86,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.39,
-       "agi": 2.19,
-       "ohDps": 2.85,
-       "dps": 10.49
+       "agi": 1.96,
+       "ohDps": 2.81,
+       "sta": 0.28,
+       "critPct": 6.51,
+       "dps": 10.37,
+       "str": 1.0,
+       "spi": 2.07
       }
      ],
      [
       34,
       {
-       "critPct": 7.58,
-       "str": 1.0,
-       "hitPct": 6.54,
+       "armor": 0.04,
+       "hitPct": 7.31,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.37,
-       "agi": 2.19,
-       "ohDps": 2.85,
-       "dps": 10.87
+       "agi": 1.93,
+       "ohDps": 2.79,
+       "sta": 0.24,
+       "critPct": 7.75,
+       "dps": 10.83,
+       "str": 1.0,
+       "spi": 1.96
       }
      ],
      [
       39,
       {
-       "critPct": 8.77,
-       "str": 1.0,
-       "hitPct": 7.01,
+       "armor": 0.04,
+       "hitPct": 8.39,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.32,
-       "agi": 2.17,
-       "ohDps": 2.97,
-       "dps": 10.74
+       "agi": 1.9,
+       "ohDps": 2.89,
+       "sta": 0.21,
+       "critPct": 8.87,
+       "dps": 10.83,
+       "str": 1.0,
+       "spi": 1.98
       }
      ],
      [
       44,
       {
-       "critPct": 9.7,
-       "str": 1.0,
-       "hitPct": 7.56,
+       "armor": 0.04,
+       "hitPct": 9.16,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.24,
-       "agi": 2.12,
-       "ohDps": 3.14,
-       "dps": 10.39
+       "agi": 1.88,
+       "ohDps": 3.0,
+       "sta": 0.18,
+       "critPct": 9.84,
+       "dps": 10.52,
+       "str": 1.0,
+       "spi": 2.06
       }
      ],
      [
       49,
       {
-       "critPct": 10.9,
-       "str": 1.0,
-       "hitPct": 8.72,
+       "armor": 0.04,
+       "hitPct": 10.06,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.2,
-       "agi": 2.11,
-       "ohDps": 3.2,
-       "dps": 10.07
+       "agi": 1.89,
+       "ohDps": 3.06,
+       "sta": 0.17,
+       "critPct": 10.97,
+       "dps": 10.21,
+       "str": 1.0,
+       "spi": 2.15
       }
      ],
      [
       54,
       {
-       "critPct": 12.98,
-       "str": 1.0,
-       "hitPct": 10.3,
+       "armor": 0.05,
+       "hitPct": 11.17,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.23,
-       "agi": 2.16,
-       "ohDps": 3.12,
-       "dps": 9.85
+       "agi": 1.95,
+       "ohDps": 3.08,
+       "sta": 0.19,
+       "critPct": 12.83,
+       "dps": 10.01,
+       "str": 1.0,
+       "spi": 2.5
       }
      ],
      [
       59,
       {
-       "critPct": 15.13,
-       "str": 1.0,
-       "hitPct": 11.13,
+       "armor": 0.06,
+       "hitPct": 12.49,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.27,
-       "agi": 2.2,
-       "ohDps": 3.05,
-       "dps": 9.84
+       "agi": 2.02,
+       "ohDps": 3.03,
+       "sta": 0.2,
+       "critPct": 15.17,
+       "dps": 9.99,
+       "str": 1.0,
+       "spi": 2.85
       }
      ],
      [
       60,
       {
        "str": 1.0,
-       "agi": 2.24,
+       "agi": 2.07,
        "atkpwr": 1.0,
-       "sta": 0.26,
-       "hitPct": 10.19,
-       "critPct": 16.41,
-       "armor": 0.08,
-       "dps": 10.43,
-       "ohDps": 3.07
+       "sta": 0.2,
+       "hitPct": 13.64,
+       "critPct": 17.16,
+       "armor": 0.06,
+       "spi": 2.78,
+       "dps": 10.69,
+       "ohDps": 2.9
       }
      ]
     ],
@@ -3755,162 +3850,170 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.05,
-       "sta": 0.01,
-       "hitPct": 1.09,
-       "critPct": 0.54,
-       "armor": 0.02,
+       "int": 0.06,
+       "hitPct": 1.18,
+       "critPct": 0.6,
        "natsplpwr": 1.0
       }
      ],
      [
       14,
       {
-       "natsplpwr": 0.86,
-       "int": 0.03,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.04,
+       "hitPct": 0.85,
        "spldmg": 1.0,
-       "hitPct": 0.84,
-       "critPct": 0.39,
-       "armor": 0.02,
-       "sta": 0.06
+       "splpwr": 1.0,
+       "critPct": 0.4,
+       "firsplpwr": 0.15,
+       "spi": 0.21,
+       "sta": 0.09,
+       "natsplpwr": 0.86,
+       "armor": 0.01,
+       "manargn": 0.29
       }
      ],
      [
       19,
       {
-       "natsplpwr": 0.87,
-       "int": 0.03,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
-       "spldmg": 1.0,
+       "int": 0.05,
        "hitPct": 1.23,
-       "critPct": 0.56,
-       "armor": 0.03,
-       "sta": 0.1
+       "spldmg": 1.0,
+       "splpwr": 1.0,
+       "critPct": 0.57,
+       "firsplpwr": 0.14,
+       "spi": 0.25,
+       "sta": 0.12,
+       "natsplpwr": 0.87,
+       "armor": 0.01,
+       "manargn": 0.39
       }
      ],
      [
       24,
       {
-       "natsplpwr": 0.87,
-       "int": 0.04,
-       "splpwr": 1.0,
-       "firsplpwr": 0.13,
+       "int": 0.07,
+       "hitPct": 1.8,
        "spldmg": 1.0,
-       "hitPct": 1.81,
-       "critPct": 0.87,
-       "armor": 0.03,
-       "sta": 0.15
+       "splpwr": 1.0,
+       "critPct": 0.88,
+       "firsplpwr": 0.13,
+       "spi": 0.29,
+       "sta": 0.15,
+       "natsplpwr": 0.88,
+       "armor": 0.01,
+       "manargn": 0.71
       }
      ],
      [
       29,
       {
-       "natsplpwr": 0.86,
-       "int": 0.05,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.1,
+       "hitPct": 2.49,
        "spldmg": 1.0,
-       "hitPct": 2.55,
-       "critPct": 1.24,
-       "armor": 0.04,
-       "sta": 0.22
+       "splpwr": 1.0,
+       "critPct": 1.25,
+       "firsplpwr": 0.14,
+       "spi": 0.35,
+       "sta": 0.2,
+       "natsplpwr": 0.86,
+       "armor": 0.01,
+       "manargn": 0.97
       }
      ],
      [
       34,
       {
-       "natsplpwr": 0.86,
-       "int": 0.06,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.12,
+       "hitPct": 3.2,
        "spldmg": 1.0,
-       "hitPct": 3.29,
-       "critPct": 1.67,
-       "armor": 0.04,
-       "sta": 0.27
+       "splpwr": 1.0,
+       "critPct": 1.7,
+       "firsplpwr": 0.14,
+       "spi": 0.39,
+       "sta": 0.24,
+       "natsplpwr": 0.86,
+       "armor": 0.01,
+       "manargn": 1.06
       }
      ],
      [
       39,
       {
-       "natsplpwr": 0.87,
-       "int": 0.07,
-       "spi": 0.04,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.14,
+       "hitPct": 3.95,
        "spldmg": 1.0,
-       "manargn": 0.07,
-       "hitPct": 4.04,
-       "critPct": 2.61,
-       "armor": 0.04,
-       "sta": 0.31
+       "splpwr": 1.0,
+       "critPct": 2.65,
+       "firsplpwr": 0.14,
+       "spi": 0.41,
+       "sta": 0.28,
+       "natsplpwr": 0.87,
+       "armor": 0.02,
+       "manargn": 1.12
       }
      ],
      [
       44,
       {
-       "natsplpwr": 0.87,
-       "int": 0.1,
-       "spi": 0.07,
-       "splpwr": 1.0,
-       "firsplpwr": 0.13,
+       "int": 0.17,
+       "hitPct": 4.83,
        "spldmg": 1.0,
-       "manargn": 0.14,
-       "hitPct": 4.93,
-       "critPct": 3.98,
-       "armor": 0.04,
-       "sta": 0.35
+       "splpwr": 1.0,
+       "critPct": 3.97,
+       "firsplpwr": 0.13,
+       "spi": 0.44,
+       "sta": 0.32,
+       "natsplpwr": 0.87,
+       "armor": 0.02,
+       "manargn": 1.18
       }
      ],
      [
       49,
       {
-       "natsplpwr": 0.87,
-       "int": 0.13,
-       "spi": 0.21,
-       "splpwr": 1.0,
-       "firsplpwr": 0.14,
+       "int": 0.19,
+       "hitPct": 5.66,
        "spldmg": 1.0,
-       "manargn": 0.52,
-       "hitPct": 5.71,
-       "critPct": 4.97,
-       "armor": 0.04,
-       "sta": 0.32
+       "splpwr": 1.0,
+       "critPct": 4.94,
+       "firsplpwr": 0.14,
+       "spi": 0.47,
+       "sta": 0.3,
+       "natsplpwr": 0.87,
+       "armor": 0.02,
+       "manargn": 1.25
       }
      ],
      [
       54,
       {
-       "natsplpwr": 0.87,
-       "int": 0.17,
-       "spi": 0.53,
-       "splpwr": 1.0,
-       "firsplpwr": 0.13,
+       "int": 0.2,
+       "hitPct": 4.62,
        "spldmg": 1.0,
-       "manargn": 1.35,
-       "hitPct": 4.61,
-       "critPct": 5.91,
-       "armor": 0.02,
-       "sta": 0.18
+       "splpwr": 1.0,
+       "critPct": 5.88,
+       "firsplpwr": 0.13,
+       "spi": 0.56,
+       "sta": 0.19,
+       "natsplpwr": 0.88,
+       "armor": 0.01,
+       "manargn": 1.47
       }
      ],
      [
       59,
       {
-       "natsplpwr": 0.88,
-       "int": 0.18,
-       "spi": 0.74,
-       "splpwr": 1.0,
-       "firsplpwr": 0.12,
+       "int": 0.21,
+       "hitPct": 1.61,
        "spldmg": 1.0,
-       "manargn": 1.76,
-       "hitPct": 1.59,
-       "critPct": 7.0,
+       "splpwr": 1.0,
+       "critPct": 6.98,
+       "firsplpwr": 0.12,
+       "spi": 0.71,
+       "sta": 0.12,
+       "natsplpwr": 0.88,
        "armor": 0.01,
-       "sta": 0.12
+       "manargn": 1.72
       }
      ],
      [
@@ -3918,10 +4021,10 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "int": 0.16,
-       "spi": 0.82,
-       "sta": 0.26,
-       "manargn": 1.64,
+       "int": 0.2,
+       "spi": 0.85,
+       "sta": 0.24,
+       "manargn": 1.7,
        "critPct": 7.73,
        "armor": 0.01,
        "natsplpwr": 0.87,
@@ -3937,192 +4040,212 @@
       9,
       {
        "str": 2.0,
-       "agi": 2.33,
+       "agi": 1.07,
        "atkpwr": 1.0,
-       "sta": 0.08,
-       "hitPct": 6.78,
-       "critPct": 6.19,
-       "armor": 0.29,
+       "hitPct": 5.9,
+       "critPct": 7.26,
        "int": 0.11,
-       "splpwr": 1.7,
-       "spldmg": 1.7,
-       "dps": 14.0
+       "splpwr": 1.76,
+       "spldmg": 1.76,
+       "dps": 14.01
       }
      ],
      [
       14,
       {
-       "int": 0.31,
        "atkpwr": 1.0,
-       "agi": 2.29,
-       "splpwr": 1.9,
-       "spldmg": 1.9,
-       "dps": 13.99,
-       "hitPct": 3.55,
-       "critPct": 2.7,
-       "armor": 0.43,
-       "sta": 0.47,
-       "str": 2.0
+       "int": 0.35,
+       "hitPct": 2.97,
+       "spldmg": 1.97,
+       "splpwr": 1.97,
+       "agi": 1.01,
+       "critPct": 3.0,
+       "spi": 3.99,
+       "dps": 13.86,
+       "sta": 0.38,
+       "armor": 0.13,
+       "str": 2.0,
+       "manargn": 1.52
       }
      ],
      [
       19,
       {
-       "int": 0.56,
        "atkpwr": 1.0,
-       "agi": 1.97,
-       "splpwr": 1.84,
-       "spldmg": 1.84,
-       "dps": 14.0,
-       "hitPct": 5.14,
-       "critPct": 3.92,
-       "armor": 0.33,
-       "sta": 0.71,
-       "str": 2.0
+       "int": 0.65,
+       "hitPct": 4.29,
+       "spldmg": 2.1,
+       "splpwr": 2.1,
+       "agi": 1.03,
+       "critPct": 4.04,
+       "spi": 4.09,
+       "dps": 13.96,
+       "sta": 0.79,
+       "armor": 0.14,
+       "str": 2.0,
+       "manargn": 3.04
       }
      ],
      [
       24,
       {
-       "int": 1.06,
        "atkpwr": 1.0,
-       "agi": 1.97,
-       "splpwr": 2.25,
-       "spldmg": 2.25,
-       "dps": 13.98,
-       "hitPct": 7.0,
-       "critPct": 6.21,
-       "armor": 0.32,
-       "sta": 1.35,
-       "str": 2.0
+       "int": 1.31,
+       "hitPct": 5.97,
+       "spldmg": 2.52,
+       "splpwr": 2.52,
+       "agi": 1.03,
+       "critPct": 5.94,
+       "spi": 3.5,
+       "dps": 13.99,
+       "sta": 1.45,
+       "armor": 0.14,
+       "str": 2.0,
+       "manargn": 6.14
       }
      ],
      [
       29,
       {
-       "int": 1.56,
        "atkpwr": 1.0,
-       "agi": 2.33,
-       "splpwr": 2.85,
-       "spldmg": 2.85,
-       "dps": 13.94,
-       "hitPct": 9.34,
-       "critPct": 9.29,
-       "armor": 0.36,
-       "sta": 2.09,
-       "str": 2.0
+       "int": 2.0,
+       "hitPct": 8.21,
+       "spldmg": 2.95,
+       "splpwr": 2.95,
+       "agi": 1.09,
+       "critPct": 8.62,
+       "spi": 3.2,
+       "dps": 13.96,
+       "sta": 1.85,
+       "armor": 0.13,
+       "str": 2.0,
+       "manargn": 8.17
       }
      ],
      [
       34,
       {
-       "int": 2.02,
        "atkpwr": 1.0,
-       "agi": 2.3,
-       "splpwr": 3.01,
-       "spldmg": 3.01,
-       "dps": 13.94,
-       "hitPct": 11.49,
-       "critPct": 11.76,
-       "armor": 0.34,
-       "sta": 2.47,
-       "str": 2.0
+       "int": 2.63,
+       "hitPct": 10.73,
+       "spldmg": 3.07,
+       "splpwr": 3.07,
+       "agi": 1.18,
+       "critPct": 10.86,
+       "spi": 3.44,
+       "dps": 13.96,
+       "sta": 2.01,
+       "armor": 0.13,
+       "str": 2.0,
+       "manargn": 8.88
       }
      ],
      [
       39,
       {
-       "int": 2.21,
        "atkpwr": 1.0,
-       "agi": 1.74,
-       "splpwr": 2.66,
-       "spldmg": 2.66,
-       "dps": 13.97,
-       "hitPct": 12.85,
-       "critPct": 13.17,
-       "armor": 0.21,
-       "sta": 2.29,
-       "str": 2.0
+       "int": 2.78,
+       "hitPct": 12.47,
+       "spldmg": 2.74,
+       "splpwr": 2.74,
+       "agi": 1.23,
+       "critPct": 12.14,
+       "spi": 3.43,
+       "dps": 13.98,
+       "sta": 2.0,
+       "armor": 0.12,
+       "str": 2.0,
+       "manargn": 8.6
       }
      ],
      [
       44,
       {
-       "int": 2.22,
        "atkpwr": 1.0,
-       "agi": 1.35,
-       "splpwr": 2.19,
-       "spldmg": 2.19,
+       "int": 2.61,
+       "hitPct": 14.01,
+       "spldmg": 2.3,
+       "splpwr": 2.3,
+       "agi": 1.19,
+       "critPct": 13.74,
+       "spi": 3.24,
        "dps": 13.99,
-       "hitPct": 14.84,
-       "critPct": 14.4,
-       "armor": 0.12,
-       "sta": 1.81,
-       "str": 2.0
+       "sta": 1.77,
+       "armor": 0.1,
+       "str": 2.0,
+       "manargn": 7.57
       }
      ],
      [
       49,
       {
-       "int": 2.28,
        "atkpwr": 1.0,
-       "agi": 1.37,
-       "splpwr": 1.98,
-       "spldmg": 1.98,
+       "int": 2.58,
+       "hitPct": 16.62,
+       "spldmg": 2.13,
+       "splpwr": 2.13,
+       "agi": 1.13,
+       "critPct": 15.99,
+       "spi": 3.22,
        "dps": 14.0,
-       "hitPct": 17.08,
-       "critPct": 16.29,
+       "sta": 1.73,
        "armor": 0.09,
-       "sta": 1.59,
-       "str": 2.0
+       "str": 2.0,
+       "manargn": 7.18
       }
      ],
      [
       54,
       {
-       "int": 2.32,
        "atkpwr": 1.0,
-       "agi": 1.59,
-       "splpwr": 1.95,
-       "spldmg": 1.95,
+       "int": 2.52,
+       "hitPct": 19.95,
+       "spldmg": 2.08,
+       "splpwr": 2.08,
+       "agi": 1.29,
+       "critPct": 18.52,
+       "spi": 3.43,
        "dps": 14.0,
-       "hitPct": 19.59,
-       "critPct": 18.17,
+       "sta": 1.85,
        "armor": 0.1,
-       "sta": 1.72,
-       "str": 2.0
+       "str": 2.0,
+       "manargn": 7.52
       }
      ],
      [
       59,
       {
-       "int": 2.46,
        "atkpwr": 1.0,
-       "agi": 1.72,
-       "splpwr": 2.07,
-       "spldmg": 2.07,
+       "int": 2.53,
+       "hitPct": 19.93,
+       "spldmg": 2.15,
+       "splpwr": 2.15,
+       "agi": 1.55,
+       "critPct": 21.3,
+       "spi": 3.84,
        "dps": 14.0,
-       "hitPct": 20.62,
-       "critPct": 19.66,
-       "armor": 0.13,
-       "sta": 2.05,
-       "str": 2.0
+       "sta": 1.98,
+       "armor": 0.12,
+       "str": 2.0,
+       "manargn": 8.28
       }
      ],
      [
       60,
       {
        "str": 2.0,
-       "agi": 1.57,
+       "agi": 1.44,
        "atkpwr": 1.0,
-       "sta": 2.37,
-       "hitPct": 16.61,
-       "critPct": 21.91,
-       "armor": 0.14,
-       "int": 2.77,
-       "splpwr": 2.47,
-       "spldmg": 2.47,
-       "dps": 13.99
+       "sta": 2.25,
+       "hitPct": 15.08,
+       "critPct": 23.11,
+       "armor": 0.13,
+       "spi": 4.5,
+       "int": 2.83,
+       "splpwr": 2.54,
+       "spldmg": 2.54,
+       "manargn": 9.64,
+       "dps": 14.0
       }
      ]
     ],
@@ -4135,131 +4258,131 @@
       {
        "splheal": 1.0,
        "splpwr": 1.0,
-       "int": 0.98,
-       "spi": 1.01,
-       "manargn": 4.21,
-       "critPct": 1.33,
-       "sta": 0.2
+       "int": 1.13,
+       "spi": 0.77,
+       "manargn": 3.83,
+       "critPct": 1.36,
+       "sta": 0.22
       }
      ],
      [
       14,
       {
-       "int": 1.02,
+       "int": 1.21,
+       "critPct": 1.2,
+       "manargn": 2.52,
+       "sta": 0.33,
        "splheal": 1.0,
-       "critPct": 1.19,
-       "spi": 0.99,
-       "manargn": 2.94,
-       "sta": 0.29,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.72
       }
      ],
      [
       19,
       {
-       "int": 1.22,
+       "int": 1.4,
+       "critPct": 1.49,
+       "manargn": 2.65,
+       "sta": 0.33,
        "splheal": 1.0,
-       "critPct": 1.47,
-       "spi": 1.06,
-       "manargn": 2.99,
-       "sta": 0.3,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 0.85
       }
      ],
      [
       24,
       {
-       "int": 1.52,
+       "int": 1.7,
+       "critPct": 2.08,
+       "manargn": 3.06,
+       "sta": 0.36,
        "splheal": 1.0,
-       "critPct": 2.05,
-       "spi": 1.44,
-       "manargn": 3.38,
-       "sta": 0.34,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.24
       }
      ],
      [
       29,
       {
-       "int": 1.74,
+       "int": 1.9,
+       "critPct": 2.68,
+       "manargn": 3.25,
+       "sta": 0.42,
        "splheal": 1.0,
-       "critPct": 2.67,
-       "spi": 1.68,
-       "manargn": 3.58,
-       "sta": 0.4,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.48
       }
      ],
      [
       34,
       {
-       "int": 1.75,
+       "int": 1.89,
+       "critPct": 3.06,
+       "manargn": 3.08,
+       "sta": 0.45,
        "splheal": 1.0,
-       "critPct": 3.04,
-       "spi": 1.64,
-       "manargn": 3.39,
-       "sta": 0.42,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.44
       }
      ],
      [
       39,
       {
-       "int": 1.58,
+       "int": 1.69,
+       "critPct": 2.96,
+       "manargn": 2.73,
+       "sta": 0.4,
        "splheal": 1.0,
-       "critPct": 2.94,
-       "spi": 1.45,
-       "manargn": 2.99,
-       "sta": 0.38,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.29
       }
      ],
      [
       44,
       {
-       "int": 1.39,
+       "int": 1.48,
+       "critPct": 2.65,
+       "manargn": 2.31,
+       "sta": 0.33,
        "splheal": 1.0,
-       "critPct": 2.64,
-       "spi": 1.23,
-       "manargn": 2.54,
-       "sta": 0.31,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.08
       }
      ],
      [
       49,
       {
-       "int": 1.38,
+       "int": 1.46,
+       "critPct": 2.32,
+       "manargn": 2.23,
+       "sta": 0.31,
        "splheal": 1.0,
-       "critPct": 2.3,
-       "spi": 1.19,
-       "manargn": 2.49,
-       "sta": 0.3,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.03
       }
      ],
      [
       54,
       {
-       "int": 1.55,
+       "int": 1.61,
+       "critPct": 2.07,
+       "manargn": 2.64,
+       "sta": 0.34,
        "splheal": 1.0,
-       "critPct": 2.05,
-       "spi": 1.33,
-       "manargn": 2.86,
-       "sta": 0.33,
-       "splpwr": 1.0
+       "splpwr": 1.0,
+       "spi": 1.2
       }
      ],
      [
       59,
       {
-       "int": 1.83,
-       "splheal": 1.0,
-       "critPct": 2.34,
-       "spi": 1.47,
-       "manargn": 3.18,
+       "int": 1.85,
+       "critPct": 2.35,
+       "manargn": 3.11,
        "sta": 0.36,
-       "splpwr": 1.0
+       "splheal": 1.0,
+       "splpwr": 1.0,
+       "spi": 1.42
       }
      ],
      [
@@ -4286,165 +4409,169 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.92,
-       "int": 0.04,
-       "spi": 0.14,
-       "manargn": 0.68,
-       "hitPct": 0.54,
-       "critPct": 0.39,
-       "rangedDps": 1.2
+       "shasplpwr": 0.96,
+       "int": 0.08,
+       "spi": 0.2,
+       "manargn": 0.47,
+       "hitPct": 0.95,
+       "critPct": 0.7,
+       "rangedDps": 0.47
       }
      ],
      [
       14,
       {
-       "splpwr": 1.0,
-       "sta": 0.02,
-       "hitPct": 0.29,
-       "spi": 0.12,
-       "rangedDps": 3.3,
+       "critPct": 0.81,
        "spldmg": 1.0,
-       "manargn": 0.33,
-       "shasplpwr": 0.93,
-       "critPct": 0.92,
-       "int": 0.08
+       "spi": 0.12,
+       "sta": 0.04,
+       "int": 0.07,
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.41,
+       "shasplpwr": 0.94,
+       "hitPct": 0.25,
+       "rangedDps": 2.63
       }
      ],
      [
       19,
       {
-       "splpwr": 1.0,
-       "sta": 0.06,
-       "hitPct": 0.33,
-       "spi": 0.11,
-       "rangedDps": 2.27,
+       "critPct": 1.09,
        "spldmg": 1.0,
-       "manargn": 0.37,
-       "shasplpwr": 0.93,
-       "critPct": 1.15,
+       "spi": 0.17,
+       "sta": 0.09,
        "int": 0.09,
-       "armor": 0.01
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.42,
+       "shasplpwr": 0.94,
+       "hitPct": 0.33,
+       "rangedDps": 1.8
       }
      ],
      [
       24,
       {
-       "splpwr": 1.0,
-       "sta": 0.16,
-       "hitPct": 0.46,
-       "spi": 0.06,
-       "rangedDps": 0.7,
+       "critPct": 1.55,
        "spldmg": 1.0,
-       "manargn": 0.2,
-       "shasplpwr": 0.93,
-       "critPct": 1.62,
-       "int": 0.11,
-       "armor": 0.04
+       "spi": 0.26,
+       "sta": 0.2,
+       "int": 0.12,
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.36,
+       "shasplpwr": 0.94,
+       "hitPct": 0.47,
+       "rangedDps": 0.55
       }
      ],
      [
       29,
       {
-       "splpwr": 1.0,
-       "sta": 0.24,
-       "hitPct": 0.58,
-       "spi": 0.02,
+       "critPct": 2.07,
        "spldmg": 1.0,
-       "manargn": 0.07,
-       "shasplpwr": 0.92,
-       "critPct": 2.13,
+       "spi": 0.33,
+       "sta": 0.27,
        "int": 0.14,
-       "armor": 0.05
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.43,
+       "shasplpwr": 0.93,
+       "hitPct": 0.57
       }
      ],
      [
       34,
       {
-       "splpwr": 1.0,
-       "sta": 0.26,
-       "hitPct": 0.64,
-       "spi": 0.04,
+       "critPct": 2.54,
        "spldmg": 1.0,
-       "manargn": 0.14,
+       "spi": 0.35,
+       "sta": 0.27,
+       "int": 0.15,
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.69,
        "shasplpwr": 0.93,
-       "critPct": 2.55,
-       "int": 0.14,
-       "armor": 0.04
+       "hitPct": 0.61
       }
      ],
      [
       39,
       {
-       "splpwr": 1.0,
-       "sta": 0.24,
-       "hitPct": 0.75,
-       "spi": 0.06,
+       "critPct": 2.85,
        "spldmg": 1.0,
-       "manargn": 0.2,
-       "shasplpwr": 0.93,
-       "critPct": 2.94,
+       "spi": 0.35,
+       "sta": 0.24,
        "int": 0.15,
-       "armor": 0.04
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.82,
+       "shasplpwr": 0.93,
+       "hitPct": 0.64
       }
      ],
      [
       44,
       {
-       "splpwr": 1.0,
-       "sta": 0.21,
-       "hitPct": 0.89,
-       "spi": 0.1,
+       "critPct": 3.15,
        "spldmg": 1.0,
-       "manargn": 0.26,
+       "spi": 0.35,
+       "sta": 0.22,
+       "int": 0.14,
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.82,
        "shasplpwr": 0.93,
-       "critPct": 3.34,
-       "int": 0.15,
-       "armor": 0.04
+       "hitPct": 0.7
       }
      ],
      [
       49,
       {
-       "splpwr": 1.0,
-       "sta": 0.2,
-       "hitPct": 0.98,
-       "spi": 0.23,
+       "critPct": 3.9,
        "spldmg": 1.0,
-       "manargn": 0.61,
-       "shasplpwr": 0.93,
-       "critPct": 4.04,
+       "spi": 0.34,
+       "sta": 0.21,
        "int": 0.15,
-       "armor": 0.03
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.82,
+       "shasplpwr": 0.94,
+       "hitPct": 0.8,
+       "rangedDps": 0.17
       }
      ],
      [
       54,
       {
-       "splpwr": 1.0,
-       "sta": 0.24,
-       "hitPct": 1.03,
-       "spi": 0.35,
+       "critPct": 5.17,
        "spldmg": 1.0,
-       "manargn": 1.0,
-       "shasplpwr": 0.93,
-       "critPct": 5.21,
-       "int": 0.16,
-       "armor": 0.02
+       "spi": 0.38,
+       "sta": 0.23,
+       "int": 0.17,
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.88,
+       "shasplpwr": 0.94,
+       "hitPct": 0.92,
+       "rangedDps": 0.34
       }
      ],
      [
       59,
       {
-       "splpwr": 1.0,
-       "sta": 0.3,
-       "hitPct": 1.08,
-       "spi": 0.35,
+       "critPct": 6.45,
        "spldmg": 1.0,
-       "manargn": 1.08,
-       "shasplpwr": 0.94,
-       "critPct": 6.42,
+       "spi": 0.43,
+       "sta": 0.27,
        "int": 0.19,
-       "armor": 0.02
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.96,
+       "shasplpwr": 0.94,
+       "hitPct": 1.01,
+       "rangedDps": 0.17
       }
      ],
      [
@@ -4452,13 +4579,13 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.95,
-       "int": 0.22,
-       "spi": 0.36,
-       "sta": 0.29,
-       "manargn": 1.09,
-       "hitPct": 1.1,
-       "critPct": 7.57,
+       "shasplpwr": 0.94,
+       "int": 0.21,
+       "spi": 0.48,
+       "sta": 0.28,
+       "manargn": 1.01,
+       "hitPct": 1.05,
+       "critPct": 7.59,
        "armor": 0.02
       }
      ]
@@ -4472,169 +4599,168 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.92,
+       "shasplpwr": 0.95,
        "int": 0.08,
-       "spi": 0.12,
-       "manargn": 0.7,
-       "hitPct": 0.68,
-       "critPct": 0.8,
-       "rangedDps": 1.22
+       "spi": 0.13,
+       "manargn": 0.33,
+       "hitPct": 1.06,
+       "critPct": 0.71,
+       "rangedDps": 0.71
       }
      ],
      [
       14,
       {
-       "splpwr": 1.0,
-       "sta": 0.01,
-       "hitPct": 0.74,
-       "spi": 0.19,
-       "rangedDps": 2.92,
+       "critPct": 0.97,
        "spldmg": 1.0,
-       "manargn": 0.58,
+       "spi": 0.1,
+       "sta": 0.02,
+       "int": 0.09,
+       "splpwr": 1.0,
+       "manargn": 0.29,
        "shasplpwr": 0.93,
-       "critPct": 0.87,
-       "int": 0.07
+       "hitPct": 0.96,
+       "rangedDps": 2.88
       }
      ],
      [
       19,
       {
-       "splpwr": 1.0,
-       "sta": 0.07,
-       "hitPct": 1.2,
-       "spi": 0.12,
-       "rangedDps": 2.37,
+       "critPct": 1.21,
        "spldmg": 1.0,
-       "manargn": 0.41,
-       "shasplpwr": 0.92,
-       "critPct": 1.33,
-       "int": 0.09,
-       "armor": 0.02
+       "spi": 0.18,
+       "sta": 0.09,
+       "int": 0.1,
+       "splpwr": 1.0,
+       "armor": 0.01,
+       "manargn": 0.47,
+       "shasplpwr": 0.94,
+       "hitPct": 1.3,
+       "rangedDps": 1.9
       }
      ],
      [
       24,
       {
-       "splpwr": 1.0,
-       "sta": 0.18,
-       "hitPct": 1.99,
-       "spi": 0.04,
-       "rangedDps": 0.83,
+       "critPct": 1.75,
        "spldmg": 1.0,
-       "manargn": 0.17,
-       "shasplpwr": 0.9,
-       "critPct": 1.92,
-       "int": 0.13,
-       "armor": 0.04
+       "spi": 0.29,
+       "sta": 0.21,
+       "int": 0.14,
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.46,
+       "shasplpwr": 0.92,
+       "hitPct": 1.87,
+       "rangedDps": 0.56
       }
      ],
      [
       29,
       {
-       "splpwr": 1.0,
-       "sta": 0.28,
-       "hitPct": 2.72,
-       "spi": 0.09,
+       "critPct": 2.26,
        "spldmg": 1.0,
-       "manargn": 0.22,
-       "shasplpwr": 0.89,
-       "critPct": 2.4,
+       "spi": 0.36,
+       "sta": 0.28,
        "int": 0.15,
-       "armor": 0.05
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.47,
+       "shasplpwr": 0.91,
+       "hitPct": 2.48
       }
      ],
      [
       34,
       {
-       "splpwr": 1.0,
-       "sta": 0.33,
-       "hitPct": 3.47,
-       "spi": 0.25,
+       "critPct": 2.75,
        "spldmg": 1.0,
-       "manargn": 0.64,
-       "shasplpwr": 0.9,
-       "critPct": 2.88,
+       "spi": 0.4,
+       "sta": 0.32,
        "int": 0.16,
-       "armor": 0.03
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.77,
+       "shasplpwr": 0.91,
+       "hitPct": 3.11
       }
      ],
      [
       39,
       {
-       "splpwr": 1.0,
-       "sta": 0.35,
-       "hitPct": 3.62,
-       "spi": 0.37,
+       "critPct": 3.26,
        "spldmg": 1.0,
-       "manargn": 1.05,
-       "shasplpwr": 0.9,
-       "critPct": 3.3,
+       "spi": 0.42,
+       "sta": 0.35,
        "int": 0.16,
-       "armor": 0.03
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.97,
+       "shasplpwr": 0.91,
+       "hitPct": 3.21
       }
      ],
      [
       44,
       {
-       "splpwr": 1.0,
-       "sta": 0.35,
-       "hitPct": 2.79,
-       "spi": 0.4,
-       "rangedDps": 0.01,
+       "critPct": 3.77,
        "spldmg": 1.0,
-       "manargn": 1.22,
-       "shasplpwr": 0.9,
-       "critPct": 3.84,
+       "spi": 0.42,
+       "sta": 0.35,
        "int": 0.16,
-       "armor": 0.02
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.98,
+       "shasplpwr": 0.91,
+       "hitPct": 2.6
       }
      ],
      [
       49,
       {
-       "splpwr": 1.0,
-       "sta": 0.37,
-       "hitPct": 2.33,
-       "spi": 0.42,
-       "rangedDps": 0.07,
+       "critPct": 4.62,
        "spldmg": 1.0,
-       "manargn": 1.27,
-       "shasplpwr": 0.9,
-       "critPct": 4.69,
+       "spi": 0.41,
+       "sta": 0.35,
        "int": 0.17,
-       "armor": 0.03
+       "splpwr": 1.0,
+       "armor": 0.02,
+       "manargn": 0.96,
+       "shasplpwr": 0.92,
+       "hitPct": 2.32,
+       "rangedDps": 0.09
       }
      ],
      [
       54,
       {
-       "splpwr": 1.0,
-       "sta": 0.42,
-       "hitPct": 2.26,
-       "spi": 0.42,
-       "rangedDps": 0.13,
+       "critPct": 6.1,
        "spldmg": 1.0,
-       "manargn": 1.27,
-       "shasplpwr": 0.91,
-       "critPct": 5.94,
-       "int": 0.18,
-       "armor": 0.03
+       "spi": 0.45,
+       "sta": 0.41,
+       "int": 0.19,
+       "splpwr": 1.0,
+       "armor": 0.03,
+       "manargn": 0.98,
+       "shasplpwr": 0.92,
+       "hitPct": 2.16,
+       "rangedDps": 0.17
       }
      ],
      [
       59,
       {
-       "splpwr": 1.0,
-       "sta": 0.47,
-       "hitPct": 1.78,
-       "spi": 0.41,
-       "rangedDps": 0.06,
+       "critPct": 7.71,
        "spldmg": 1.0,
-       "manargn": 1.22,
-       "shasplpwr": 0.92,
-       "critPct": 7.44,
+       "spi": 0.5,
+       "sta": 0.46,
        "int": 0.2,
-       "armor": 0.04
+       "splpwr": 1.0,
+       "armor": 0.03,
+       "manargn": 1.06,
+       "shasplpwr": 0.92,
+       "hitPct": 1.61,
+       "rangedDps": 0.09
       }
      ],
      [
@@ -4642,13 +4768,13 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.92,
+       "shasplpwr": 0.93,
        "int": 0.2,
-       "spi": 0.43,
+       "spi": 0.55,
        "sta": 0.46,
-       "manargn": 1.26,
-       "hitPct": 1.32,
-       "critPct": 8.32,
+       "manargn": 1.14,
+       "hitPct": 1.26,
+       "critPct": 8.57,
        "armor": 0.03
       }
      ]
@@ -4662,176 +4788,176 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.64,
-       "firsplpwr": 0.17,
-       "int": 0.06,
-       "spi": 0.19,
-       "manargn": 0.77,
-       "hitPct": 0.76,
-       "critPct": 0.57,
-       "rangedDps": 1.26
+       "shasplpwr": 0.76,
+       "firsplpwr": 0.27,
+       "int": 0.09,
+       "spi": 0.15,
+       "manargn": 0.38,
+       "hitPct": 1.21,
+       "critPct": 0.85,
+       "rangedDps": 0.53
       }
      ],
      [
       14,
       {
-       "splpwr": 1.0,
-       "sta": 0.03,
-       "hitPct": 0.96,
-       "firsplpwr": 0.19,
-       "spi": 0.12,
-       "rangedDps": 3.31,
+       "critPct": 1.05,
        "spldmg": 1.0,
-       "manargn": 0.56,
-       "shasplpwr": 0.74,
-       "critPct": 1.16,
-       "int": 0.1
+       "spi": 0.14,
+       "sta": 0.04,
+       "int": 0.1,
+       "splpwr": 1.0,
+       "firsplpwr": 0.17,
+       "manargn": 0.48,
+       "shasplpwr": 0.73,
+       "hitPct": 0.92,
+       "rangedDps": 2.83
       }
      ],
      [
       19,
       {
-       "splpwr": 1.0,
-       "sta": 0.07,
-       "hitPct": 1.34,
-       "firsplpwr": 0.19,
-       "spi": 0.14,
-       "rangedDps": 1.7,
+       "critPct": 1.31,
        "spldmg": 1.0,
-       "manargn": 0.57,
-       "shasplpwr": 0.76,
-       "critPct": 1.36,
+       "spi": 0.2,
+       "sta": 0.1,
        "int": 0.11,
-       "armor": 0.02
+       "splpwr": 1.0,
+       "firsplpwr": 0.18,
+       "armor": 0.01,
+       "manargn": 0.52,
+       "shasplpwr": 0.76,
+       "hitPct": 1.38,
+       "rangedDps": 1.34
       }
      ],
      [
       24,
       {
-       "splpwr": 1.0,
-       "sta": 0.17,
-       "hitPct": 1.92,
-       "firsplpwr": 0.18,
-       "spi": 0.07,
-       "rangedDps": 0.36,
+       "critPct": 1.96,
        "spldmg": 1.0,
-       "manargn": 0.28,
-       "shasplpwr": 0.75,
-       "critPct": 2.02,
-       "int": 0.14,
-       "armor": 0.04
+       "spi": 0.29,
+       "sta": 0.21,
+       "int": 0.15,
+       "splpwr": 1.0,
+       "firsplpwr": 0.18,
+       "armor": 0.02,
+       "manargn": 0.38,
+       "shasplpwr": 0.77,
+       "hitPct": 2.06,
+       "rangedDps": 0.24
       }
      ],
      [
       29,
       {
-       "splpwr": 1.0,
-       "sta": 0.26,
-       "hitPct": 2.51,
-       "firsplpwr": 0.18,
-       "spi": 0.02,
+       "critPct": 2.76,
        "spldmg": 1.0,
-       "manargn": 0.08,
-       "shasplpwr": 0.75,
-       "critPct": 2.83,
+       "spi": 0.35,
+       "sta": 0.27,
        "int": 0.17,
-       "armor": 0.05
+       "splpwr": 1.0,
+       "firsplpwr": 0.17,
+       "armor": 0.02,
+       "manargn": 0.42,
+       "shasplpwr": 0.77,
+       "hitPct": 2.72
       }
      ],
      [
       34,
       {
-       "splpwr": 1.0,
-       "sta": 0.29,
-       "hitPct": 3.13,
-       "firsplpwr": 0.22,
-       "spi": 0.06,
+       "critPct": 3.47,
        "spldmg": 1.0,
-       "manargn": 0.21,
-       "shasplpwr": 0.72,
-       "critPct": 3.55,
+       "spi": 0.37,
+       "sta": 0.28,
        "int": 0.18,
-       "armor": 0.05
+       "splpwr": 1.0,
+       "firsplpwr": 0.22,
+       "armor": 0.02,
+       "manargn": 0.75,
+       "shasplpwr": 0.72,
+       "hitPct": 3.24
       }
      ],
      [
       39,
       {
-       "splpwr": 1.0,
-       "sta": 0.31,
-       "hitPct": 3.16,
-       "firsplpwr": 0.3,
-       "spi": 0.17,
+       "critPct": 4.09,
        "spldmg": 1.0,
-       "manargn": 0.51,
-       "shasplpwr": 0.64,
-       "critPct": 4.16,
+       "spi": 0.38,
+       "sta": 0.31,
        "int": 0.18,
-       "armor": 0.04
+       "splpwr": 1.0,
+       "firsplpwr": 0.3,
+       "armor": 0.02,
+       "manargn": 0.91,
+       "shasplpwr": 0.64,
+       "hitPct": 3.01
       }
      ],
      [
       44,
       {
-       "splpwr": 1.0,
-       "sta": 0.29,
-       "hitPct": 2.07,
-       "firsplpwr": 0.34,
-       "spi": 0.26,
+       "critPct": 4.63,
        "spldmg": 1.0,
-       "manargn": 0.76,
+       "spi": 0.39,
+       "sta": 0.29,
+       "int": 0.19,
+       "splpwr": 1.0,
+       "firsplpwr": 0.34,
+       "armor": 0.02,
+       "manargn": 0.9,
        "shasplpwr": 0.61,
-       "critPct": 4.62,
-       "int": 0.18,
-       "armor": 0.03
+       "hitPct": 1.9
       }
      ],
      [
       49,
       {
-       "splpwr": 1.0,
-       "sta": 0.29,
-       "hitPct": 1.15,
-       "firsplpwr": 0.32,
-       "spi": 0.26,
+       "critPct": 5.35,
        "spldmg": 1.0,
-       "manargn": 0.79,
-       "shasplpwr": 0.63,
-       "critPct": 5.24,
-       "int": 0.19,
-       "armor": 0.03
+       "spi": 0.39,
+       "sta": 0.29,
+       "int": 0.2,
+       "splpwr": 1.0,
+       "firsplpwr": 0.34,
+       "armor": 0.02,
+       "manargn": 0.89,
+       "shasplpwr": 0.61,
+       "hitPct": 1.05
       }
      ],
      [
       54,
       {
-       "splpwr": 1.0,
-       "sta": 0.36,
-       "hitPct": 1.05,
-       "firsplpwr": 0.31,
-       "spi": 0.27,
+       "critPct": 6.34,
        "spldmg": 1.0,
-       "manargn": 0.83,
-       "shasplpwr": 0.64,
-       "critPct": 6.31,
-       "int": 0.19,
-       "armor": 0.04
+       "spi": 0.42,
+       "sta": 0.37,
+       "int": 0.2,
+       "splpwr": 1.0,
+       "firsplpwr": 0.34,
+       "armor": 0.03,
+       "manargn": 0.92,
+       "shasplpwr": 0.61,
+       "hitPct": 0.88
       }
      ],
      [
       59,
       {
-       "splpwr": 1.0,
-       "sta": 0.45,
-       "hitPct": 1.12,
-       "firsplpwr": 0.31,
-       "spi": 0.32,
+       "critPct": 7.33,
        "spldmg": 1.0,
-       "manargn": 1.01,
-       "shasplpwr": 0.64,
-       "critPct": 7.4,
+       "spi": 0.45,
+       "sta": 0.45,
        "int": 0.19,
-       "armor": 0.04
+       "splpwr": 1.0,
+       "firsplpwr": 0.33,
+       "armor": 0.03,
+       "manargn": 0.98,
+       "shasplpwr": 0.62,
+       "hitPct": 0.94
       }
      ],
      [
@@ -4839,15 +4965,15 @@
       {
        "splpwr": 1.0,
        "spldmg": 1.0,
-       "shasplpwr": 0.6,
-       "firsplpwr": 0.35,
+       "shasplpwr": 0.64,
+       "firsplpwr": 0.31,
        "int": 0.2,
-       "spi": 0.39,
-       "sta": 0.47,
-       "manargn": 1.16,
-       "hitPct": 1.18,
-       "critPct": 8.04,
-       "armor": 0.04
+       "spi": 0.49,
+       "sta": 0.46,
+       "manargn": 1.07,
+       "hitPct": 1.05,
+       "critPct": 8.05,
+       "armor": 0.03
       }
      ]
     ],
@@ -4861,156 +4987,165 @@
       9,
       {
        "str": 2.0,
-       "agi": 2.57,
+       "agi": 1.87,
        "atkpwr": 1.0,
-       "sta": 0.06,
-       "hitPct": 9.83,
-       "critPct": 8.38,
-       "armor": 0.09,
-       "dps": 14.0
+       "hitPct": 9.63,
+       "critPct": 8.71,
+       "dps": 13.99
       }
      ],
      [
       14,
       {
-       "critPct": 3.85,
-       "str": 2.0,
-       "hitPct": 4.02,
+       "armor": 0.05,
+       "sta": 0.44,
+       "critPct": 3.97,
+       "hitPct": 3.53,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.25,
-       "agi": 1.09,
-       "dps": 12.75
+       "dps": 12.77,
+       "agi": 0.94,
+       "str": 2.0,
+       "spi": 4.15
       }
      ],
      [
       19,
       {
-       "critPct": 5.09,
-       "str": 2.0,
-       "hitPct": 5.23,
+       "armor": 0.06,
+       "sta": 0.51,
+       "critPct": 5.21,
+       "hitPct": 4.66,
        "atkpwr": 1.0,
-       "armor": 0.09,
-       "sta": 0.39,
-       "agi": 1.25,
-       "dps": 12.63
+       "dps": 12.66,
+       "agi": 1.02,
+       "str": 2.0,
+       "spi": 3.66
       }
      ],
      [
       24,
       {
-       "critPct": 7.56,
-       "str": 2.0,
-       "hitPct": 7.61,
+       "armor": 0.06,
+       "sta": 0.59,
+       "critPct": 7.59,
+       "hitPct": 6.68,
        "atkpwr": 1.0,
-       "armor": 0.1,
-       "sta": 0.5,
-       "agi": 1.5,
-       "dps": 12.68
+       "dps": 12.7,
+       "agi": 1.24,
+       "str": 2.0,
+       "spi": 4.27
       }
      ],
      [
       29,
       {
-       "critPct": 12.29,
-       "str": 2.0,
-       "hitPct": 11.35,
+       "armor": 0.08,
+       "sta": 0.76,
+       "critPct": 12.02,
+       "hitPct": 10.05,
        "atkpwr": 1.0,
-       "armor": 0.11,
-       "sta": 0.67,
-       "agi": 1.84,
-       "dps": 12.88
+       "dps": 12.87,
+       "agi": 1.65,
+       "str": 2.0,
+       "spi": 5.05
       }
      ],
      [
       34,
       {
-       "critPct": 16.45,
-       "str": 2.0,
-       "hitPct": 14.55,
+       "armor": 0.1,
+       "sta": 0.94,
+       "critPct": 15.93,
+       "hitPct": 13.84,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.79,
-       "agi": 2.04,
-       "dps": 12.82
+       "dps": 12.79,
+       "agi": 1.93,
+       "str": 2.0,
+       "spi": 5.33
       }
      ],
      [
       39,
       {
-       "critPct": 17.71,
-       "str": 2.0,
-       "hitPct": 17.09,
+       "armor": 0.1,
+       "sta": 0.97,
+       "critPct": 17.68,
+       "hitPct": 17.44,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.77,
-       "agi": 2.0,
-       "dps": 12.98
+       "dps": 12.94,
+       "agi": 1.92,
+       "str": 2.0,
+       "spi": 5.07
       }
      ],
      [
       44,
       {
-       "critPct": 18.96,
-       "str": 2.0,
-       "hitPct": 20.61,
+       "armor": 0.09,
+       "sta": 0.94,
+       "critPct": 19.35,
+       "hitPct": 20.95,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.8,
-       "agi": 1.98,
-       "dps": 13.6
+       "dps": 13.6,
+       "agi": 1.86,
+       "str": 2.0,
+       "spi": 5.03
       }
      ],
      [
       49,
       {
-       "critPct": 21.16,
-       "str": 2.0,
-       "hitPct": 23.1,
+       "armor": 0.1,
+       "sta": 0.99,
+       "critPct": 21.2,
+       "hitPct": 22.56,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.88,
-       "agi": 2.04,
-       "dps": 13.98
+       "dps": 13.98,
+       "agi": 1.79,
+       "str": 2.0,
+       "spi": 5.99
       }
      ],
      [
       54,
       {
-       "critPct": 24.23,
-       "str": 2.0,
-       "hitPct": 23.55,
+       "armor": 0.1,
+       "sta": 1.1,
+       "critPct": 24.1,
+       "hitPct": 24.19,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.95,
-       "agi": 2.07,
-       "dps": 13.96
+       "dps": 13.92,
+       "agi": 1.78,
+       "str": 2.0,
+       "spi": 6.37
       }
      ],
      [
       59,
       {
-       "critPct": 27.52,
-       "str": 2.0,
-       "hitPct": 25.43,
+       "armor": 0.1,
+       "sta": 1.18,
+       "critPct": 27.7,
+       "hitPct": 28.27,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 1.08,
-       "agi": 2.06,
-       "dps": 13.86
+       "dps": 13.82,
+       "agi": 1.98,
+       "str": 2.0,
+       "spi": 5.42
       }
      ],
      [
       60,
       {
        "str": 2.0,
-       "agi": 1.96,
+       "agi": 2.27,
        "atkpwr": 1.0,
-       "sta": 1.21,
-       "hitPct": 31.53,
-       "critPct": 28.83,
-       "armor": 0.12,
-       "dps": 14.08
+       "sta": 1.18,
+       "hitPct": 33.24,
+       "critPct": 30.4,
+       "armor": 0.1,
+       "spi": 5.18,
+       "dps": 14.07
       }
      ]
     ],
@@ -5022,168 +5157,177 @@
       9,
       {
        "str": 2.0,
-       "agi": 2.14,
+       "agi": 1.77,
        "atkpwr": 1.0,
-       "sta": 0.05,
-       "hitPct": 8.12,
-       "critPct": 8.89,
-       "armor": 0.07,
-       "dps": 10.11,
-       "ohDps": 3.93
+       "hitPct": 9.31,
+       "critPct": 9.43,
+       "dps": 10.12,
+       "ohDps": 3.96
       }
      ],
      [
       14,
       {
-       "critPct": 4.39,
-       "str": 2.0,
-       "hitPct": 3.9,
+       "armor": 0.05,
+       "hitPct": 5.47,
        "atkpwr": 1.0,
-       "armor": 0.07,
-       "sta": 0.22,
-       "agi": 1.16,
-       "ohDps": 3.9,
-       "dps": 9.38
+       "agi": 1.01,
+       "ohDps": 3.78,
+       "sta": 0.42,
+       "critPct": 4.48,
+       "dps": 9.33,
+       "str": 2.0,
+       "spi": 4.05
       }
      ],
      [
       19,
       {
-       "critPct": 5.57,
-       "str": 2.0,
-       "hitPct": 5.23,
+       "armor": 0.05,
+       "hitPct": 6.45,
        "atkpwr": 1.0,
-       "armor": 0.08,
-       "sta": 0.34,
-       "agi": 1.19,
-       "ohDps": 3.8,
-       "dps": 9.48
+       "agi": 1.04,
+       "ohDps": 3.72,
+       "sta": 0.48,
+       "critPct": 5.58,
+       "dps": 9.38,
+       "str": 2.0,
+       "spi": 3.48
       }
      ],
      [
       24,
       {
-       "critPct": 7.44,
-       "str": 2.0,
-       "hitPct": 7.25,
+       "armor": 0.06,
+       "hitPct": 7.77,
        "atkpwr": 1.0,
-       "armor": 0.09,
-       "sta": 0.48,
-       "agi": 1.3,
-       "ohDps": 3.84,
-       "dps": 9.31
+       "agi": 1.18,
+       "ohDps": 3.75,
+       "sta": 0.58,
+       "critPct": 7.44,
+       "dps": 9.21,
+       "str": 2.0,
+       "spi": 3.93
       }
      ],
      [
       29,
       {
-       "critPct": 10.3,
-       "str": 2.0,
-       "hitPct": 9.97,
+       "armor": 0.07,
+       "hitPct": 10.23,
        "atkpwr": 1.0,
-       "armor": 0.1,
-       "sta": 0.68,
-       "agi": 1.52,
-       "ohDps": 3.98,
-       "dps": 9.01
+       "agi": 1.49,
+       "ohDps": 3.88,
+       "sta": 0.74,
+       "critPct": 10.57,
+       "dps": 9.02,
+       "str": 2.0,
+       "spi": 4.71
       }
      ],
      [
       34,
       {
-       "critPct": 13.3,
-       "str": 2.0,
-       "hitPct": 12.42,
+       "armor": 0.09,
+       "hitPct": 12.64,
        "atkpwr": 1.0,
-       "armor": 0.11,
-       "sta": 0.85,
-       "agi": 1.74,
-       "ohDps": 4.22,
-       "dps": 8.72
+       "agi": 1.67,
+       "ohDps": 4.06,
+       "sta": 0.91,
+       "critPct": 13.88,
+       "dps": 8.89,
+       "str": 2.0,
+       "spi": 5.66
       }
      ],
      [
       39,
       {
-       "critPct": 16.86,
-       "str": 2.0,
-       "hitPct": 14.86,
+       "armor": 0.1,
+       "hitPct": 15.54,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.94,
-       "agi": 1.88,
-       "ohDps": 4.49,
-       "dps": 8.55
+       "agi": 1.77,
+       "ohDps": 4.22,
+       "sta": 1.03,
+       "critPct": 17.8,
+       "dps": 8.79,
+       "str": 2.0,
+       "spi": 6.64
       }
      ],
      [
       44,
       {
-       "critPct": 21.16,
-       "str": 2.0,
-       "hitPct": 17.3,
+       "armor": 0.09,
+       "hitPct": 19.0,
        "atkpwr": 1.0,
-       "armor": 0.12,
-       "sta": 0.92,
-       "agi": 1.98,
-       "ohDps": 4.33,
-       "dps": 7.92
+       "agi": 1.94,
+       "ohDps": 4.15,
+       "sta": 0.99,
+       "critPct": 22.61,
+       "dps": 8.04,
+       "str": 2.0,
+       "spi": 6.6
       }
      ],
      [
       49,
       {
-       "critPct": 23.86,
-       "str": 2.0,
-       "hitPct": 18.13,
+       "armor": 0.08,
+       "hitPct": 19.96,
        "atkpwr": 1.0,
-       "armor": 0.1,
-       "sta": 0.82,
-       "agi": 2.01,
-       "ohDps": 3.72,
-       "dps": 6.66
+       "agi": 1.92,
+       "ohDps": 3.7,
+       "sta": 0.85,
+       "critPct": 25.24,
+       "dps": 6.67,
+       "str": 2.0,
+       "spi": 5.85
       }
      ],
      [
       54,
       {
-       "critPct": 26.12,
-       "str": 2.0,
-       "hitPct": 18.57,
+       "armor": 0.08,
+       "hitPct": 19.53,
        "atkpwr": 1.0,
-       "armor": 0.1,
+       "agi": 1.94,
+       "ohDps": 3.53,
        "sta": 0.87,
-       "agi": 2.02,
-       "ohDps": 3.42,
-       "dps": 6.01
+       "critPct": 26.93,
+       "dps": 5.91,
+       "str": 2.0,
+       "spi": 5.31
       }
      ],
      [
       59,
       {
-       "critPct": 30.09,
-       "str": 2.0,
-       "hitPct": 18.3,
+       "armor": 0.08,
+       "hitPct": 19.49,
        "atkpwr": 1.0,
-       "armor": 0.1,
-       "sta": 1.01,
-       "agi": 2.1,
-       "ohDps": 3.56,
-       "dps": 6.13
+       "agi": 2.04,
+       "ohDps": 3.89,
+       "sta": 0.98,
+       "critPct": 30.39,
+       "dps": 5.96,
+       "str": 2.0,
+       "spi": 5.21
       }
      ],
      [
       60,
       {
        "str": 2.0,
-       "agi": 2.2,
+       "agi": 1.85,
        "atkpwr": 1.0,
-       "sta": 1.06,
-       "hitPct": 16.08,
-       "critPct": 35.55,
-       "armor": 0.1,
-       "dps": 6.4,
-       "ohDps": 3.73
+       "sta": 1.0,
+       "hitPct": 19.93,
+       "critPct": 34.51,
+       "armor": 0.09,
+       "spi": 6.12,
+       "dps": 6.36,
+       "ohDps": 4.3
       }
      ]
     ],
@@ -5194,210 +5338,210 @@
      [
       9,
       {
-       "str": 2.0,
-       "agi": 5.67,
+       "str": 2.2,
+       "agi": 5.32,
        "atkpwr": 1.0,
-       "sta": 2.06,
-       "hitPct": 8.29,
-       "critPct": 8.39,
-       "armor": 0.53,
-       "armorbonus": 0.53,
-       "defrtng": 3.18,
-       "dodgePct": 17.75,
-       "parryPct": 23.28,
-       "blockPct": 6.44,
-       "block": 2.32,
-       "dps": 12.76
+       "sta": 2.26,
+       "hitPct": 8.81,
+       "critPct": 7.61,
+       "armor": 0.45,
+       "armorbonus": 0.45,
+       "defrtng": 3.03,
+       "dodgePct": 18.57,
+       "parryPct": 22.93,
+       "blockPct": 5.89,
+       "block": 1.99,
+       "dps": 12.78
       }
      ],
      [
       14,
       {
-       "dodgePct": 4.4,
-       "hitPct": 4.84,
-       "agi": 1.75,
-       "str": 2.0,
-       "block": 0.69,
-       "critPct": 4.04,
-       "sta": 0.62,
-       "blockPct": 2.88,
-       "armorbonus": 0.13,
-       "defrtng": 0.88,
-       "armor": 0.13,
+       "hitPct": 4.14,
+       "parryPct": 4.49,
+       "armor": 0.11,
        "atkpwr": 1.0,
-       "dps": 9.66,
-       "parryPct": 6.23
+       "sta": 0.65,
+       "critPct": 3.52,
+       "block": 0.64,
+       "agi": 1.37,
+       "defrtng": 0.64,
+       "armorbonus": 0.11,
+       "blockPct": 2.6,
+       "str": 2.02,
+       "dodgePct": 2.43,
+       "dps": 9.59
       }
      ],
      [
       19,
       {
-       "dodgePct": 8.31,
-       "hitPct": 4.77,
-       "agi": 2.2,
-       "str": 2.0,
-       "block": 1.51,
-       "critPct": 4.76,
-       "sta": 0.89,
-       "blockPct": 5.72,
-       "armorbonus": 0.16,
-       "defrtng": 1.51,
-       "armor": 0.16,
+       "hitPct": 5.57,
+       "parryPct": 6.25,
+       "armor": 0.11,
        "atkpwr": 1.0,
-       "dps": 7.96,
-       "parryPct": 10.18
+       "sta": 0.72,
+       "critPct": 4.37,
+       "block": 0.94,
+       "agi": 1.55,
+       "defrtng": 0.9,
+       "armorbonus": 0.11,
+       "blockPct": 4.13,
+       "str": 2.05,
+       "dodgePct": 4.32,
+       "dps": 7.18
       }
      ],
      [
       24,
       {
-       "dodgePct": 13.98,
-       "hitPct": 5.76,
-       "agi": 2.83,
-       "str": 2.0,
-       "block": 2.21,
-       "critPct": 5.86,
-       "sta": 1.2,
-       "blockPct": 8.96,
-       "armorbonus": 0.21,
-       "defrtng": 2.32,
-       "armor": 0.21,
+       "hitPct": 7.82,
+       "parryPct": 9.77,
+       "armor": 0.12,
        "atkpwr": 1.0,
-       "dps": 7.47,
-       "parryPct": 16.5
+       "sta": 0.85,
+       "critPct": 5.18,
+       "block": 1.12,
+       "agi": 1.82,
+       "defrtng": 1.35,
+       "armorbonus": 0.12,
+       "blockPct": 5.78,
+       "str": 2.02,
+       "dodgePct": 7.26,
+       "dps": 5.94
       }
      ],
      [
       29,
       {
-       "dodgePct": 14.8,
-       "hitPct": 7.79,
-       "agi": 2.62,
-       "str": 2.03,
-       "block": 1.64,
-       "critPct": 6.35,
-       "sta": 1.0,
-       "blockPct": 9.19,
-       "armorbonus": 0.16,
-       "defrtng": 2.29,
-       "armor": 0.16,
+       "hitPct": 8.43,
+       "parryPct": 12.47,
+       "armor": 0.12,
        "atkpwr": 1.0,
-       "dps": 6.04,
-       "parryPct": 16.56
+       "sta": 0.84,
+       "critPct": 5.44,
+       "block": 0.97,
+       "agi": 1.88,
+       "defrtng": 1.59,
+       "armorbonus": 0.12,
+       "blockPct": 6.73,
+       "str": 2.02,
+       "dodgePct": 9.31,
+       "dps": 5.28
       }
      ],
      [
       34,
       {
-       "dodgePct": 14.29,
-       "hitPct": 9.01,
-       "agi": 2.19,
-       "str": 2.05,
-       "block": 1.03,
-       "critPct": 6.44,
-       "sta": 0.77,
-       "blockPct": 8.79,
-       "armorbonus": 0.12,
-       "defrtng": 2.1,
-       "armor": 0.12,
+       "hitPct": 8.51,
+       "parryPct": 14.54,
+       "armor": 0.11,
        "atkpwr": 1.0,
-       "dps": 4.8,
-       "parryPct": 15.55
+       "sta": 0.8,
+       "critPct": 6.1,
+       "block": 0.83,
+       "agi": 1.9,
+       "defrtng": 1.8,
+       "armorbonus": 0.11,
+       "blockPct": 7.1,
+       "str": 2.04,
+       "dodgePct": 11.42,
+       "dps": 4.81
       }
      ],
      [
       39,
       {
-       "dodgePct": 30.07,
-       "hitPct": 11.21,
-       "agi": 3.46,
-       "str": 2.03,
-       "block": 2.8,
-       "critPct": 8.41,
-       "sta": 1.96,
-       "blockPct": 14.95,
-       "armorbonus": 0.27,
-       "defrtng": 4.46,
-       "armor": 0.27,
+       "hitPct": 12.36,
+       "parryPct": 32.76,
+       "armor": 0.26,
        "atkpwr": 1.0,
-       "dps": 5.45,
-       "parryPct": 33.28
+       "sta": 2.03,
+       "critPct": 9.12,
+       "block": 2.44,
+       "agi": 3.36,
+       "defrtng": 4.65,
+       "armorbonus": 0.26,
+       "blockPct": 12.02,
+       "str": 2.2,
+       "dodgePct": 28.68,
+       "dps": 5.47
       }
      ],
      [
       44,
       {
-       "dodgePct": 48.09,
-       "hitPct": 16.27,
-       "agi": 4.91,
-       "str": 2.0,
-       "block": 5.02,
-       "critPct": 12.43,
-       "sta": 3.24,
-       "blockPct": 22.35,
-       "armorbonus": 0.44,
-       "defrtng": 7.26,
-       "armor": 0.44,
+       "hitPct": 16.46,
+       "parryPct": 51.79,
+       "armor": 0.42,
        "atkpwr": 1.0,
-       "dps": 6.14,
-       "parryPct": 54.03
+       "sta": 3.36,
+       "critPct": 12.85,
+       "block": 4.42,
+       "agi": 4.86,
+       "defrtng": 7.65,
+       "armorbonus": 0.42,
+       "blockPct": 17.25,
+       "str": 2.42,
+       "dodgePct": 46.1,
+       "dps": 6.15
       }
      ],
      [
       49,
       {
-       "dodgePct": 41.72,
-       "hitPct": 21.02,
-       "agi": 3.86,
-       "str": 2.0,
-       "block": 4.04,
-       "critPct": 14.79,
-       "sta": 2.29,
-       "blockPct": 19.83,
-       "armorbonus": 0.3,
-       "defrtng": 6.19,
-       "armor": 0.3,
+       "hitPct": 16.0,
+       "parryPct": 42.15,
+       "armor": 0.29,
        "atkpwr": 1.0,
-       "dps": 5.62,
-       "parryPct": 47.18
+       "sta": 2.38,
+       "critPct": 14.25,
+       "block": 3.57,
+       "agi": 3.83,
+       "defrtng": 5.97,
+       "armorbonus": 0.29,
+       "blockPct": 14.32,
+       "str": 2.3,
+       "dodgePct": 36.52,
+       "dps": 5.62
       }
      ],
      [
       54,
       {
-       "dodgePct": 32.18,
-       "hitPct": 21.14,
-       "agi": 2.67,
-       "str": 2.04,
-       "block": 2.53,
-       "critPct": 14.46,
-       "sta": 1.28,
-       "blockPct": 14.66,
-       "armorbonus": 0.17,
-       "defrtng": 4.95,
-       "armor": 0.17,
+       "hitPct": 15.19,
+       "parryPct": 31.89,
+       "armor": 0.16,
        "atkpwr": 1.0,
-       "dps": 5.03,
-       "parryPct": 36.03
+       "sta": 1.33,
+       "critPct": 14.73,
+       "block": 2.36,
+       "agi": 2.81,
+       "defrtng": 4.42,
+       "armorbonus": 0.16,
+       "blockPct": 11.3,
+       "str": 2.12,
+       "dodgePct": 27.54,
+       "dps": 5.03
       }
      ],
      [
       59,
       {
-       "dodgePct": 56.21,
-       "hitPct": 22.53,
-       "agi": 4.36,
-       "str": 2.23,
-       "block": 3.31,
-       "critPct": 16.28,
-       "sta": 2.62,
-       "blockPct": 17.52,
-       "armorbonus": 0.33,
-       "defrtng": 9.14,
+       "hitPct": 20.85,
+       "parryPct": 57.41,
        "armor": 0.33,
        "atkpwr": 1.0,
-       "dps": 5.54,
-       "parryPct": 59.06
+       "sta": 2.63,
+       "critPct": 17.24,
+       "block": 3.32,
+       "agi": 4.51,
+       "defrtng": 8.92,
+       "armorbonus": 0.33,
+       "blockPct": 16.52,
+       "str": 2.28,
+       "dodgePct": 55.26,
+       "dps": 5.54
       }
      ],
      [

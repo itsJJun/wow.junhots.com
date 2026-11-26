@@ -19,15 +19,19 @@ TAP_BASE = True
 TANK_PETS = {'Voidwalker', 'Felguard'}
 PSEUDO = {'hitP': 13, 'critP': 15, 'mhitP': 12, 'mcritP': 14}
 # drinks / food (Forever client: ItemEffect -> SpellEffect, per 5 s; usable level)
-DRINK = [(5, 42), (15, 104), (25, 174), (35, 249), (45, 332), (55, 489)]
-FOOD = [(5, 17), (15, 58), (25, 115), (35, 162), (45, 232), (55, 358)]
+# best vendor drink/food usable at each level (Forever client ItemSparse.RequiredLevel; amount per 5 s from the item's spell)
+# Refreshing Spring Water, Ice Cold Milk, Melon Juice, Sweet Nectar, Moonberry Juice, Morning Glory Dew
+DRINK = [(1, 42), (5, 104), (15, 174), (25, 249), (35, 332), (45, 489)]
+# Tough Hunk of Bread, Freshly Baked Bread, Moist Cornbread, Mulgore Spice Bread, Soft Banana Bread, Homemade Cherry Pie
+FOOD = [(1, 17), (5, 58), (15, 115), (25, 162), (35, 232), (45, 358)]
 rate = lambda tab, L: max([v for lv, v in tab if lv <= L] or [tab[0][1]]) / 5.0
 # Orc warlock: level 1 = classic character creation (approx.), 60 = engine's go-tables base
 L1 = {'str': 23, 'agi': 17, 'sta': 23, 'int': 19, 'spi': 25}
 
 def base_attrs(L, cls='ClassWarlock', race='RaceOrc'):
     b60 = GO['base_stats'][cls][race]; key = {'str': 'Strength', 'agi': 'Agility', 'sta': 'Stamina', 'int': 'Intellect', 'spi': 'Spirit'}
-    return {k: round(L1[k] + (b60[key[k]] - L1[k]) * (L - 1) / 59) for k in key}, b60
+    f = ((L - 1) / 59.0) ** 1.24   # same in-game-fitted growth curve as gen.base_attrs
+    return {k: round(L1[k] + (b60[key[k]] - L1[k]) * f) for k in key}, b60
 
 ITERS = 1000
 GAP = 0   # mob level minus player level for the current run
@@ -47,6 +51,7 @@ def request(L, gear, talents, summon, rotation, dur, bonus=None, iters=None):
     p['level'] = L; p['race'] = 'RaceOrc'; p['talentsString'] = talents; p['equipment'] = {'items': [{} for _ in range(16)] + [{'id': WAND}] if WAND else []}
     p['warlock']['options']['classOptions'] = {'armor': 'DemonArmor', 'summon': summon}
     p['rotation'] = rotation; p['consumables'] = {}; p.pop('profession1', None)
+    p['inFrontOfTarget'] = True   # the mob faces its tank (the pet): pet attacks can be parried
     base, b60 = base_attrs(L)
     allg = dict(gear)
     for k, v in (bonus or {}).items(): allg[k] = allg.get(k, 0) + v
@@ -135,6 +140,8 @@ def kph1(L, gear, talents, summon, rot, bonus=None, travel=10.0, verbose=False, 
     dS = f['dps'] + f['pet']; mS = -f['mana'] / dur; hS = -f['hp'] / dur
     dW = W + f['pet'] + f['dot']
     d, fo, c = rate(DRINK, L) + regen, rate(FOOD, L), tap
+    hpr = max(0.0, 0.12 * prep['stats']['Spirit'] + 1.5) / 2.0   # warlock health from Spirit out of combat (see gen.HP_PER_SPIRIT)
+    fo += 1.5 * hpr                                            # x1.5 sitting, on top of food
     armor = prep['stats']['Armor']
     red = armor / (armor + 400.0 + 85.0 * (L + GAP))          # classic armor formula vs the mob's level
     mob = float(e['CreatureAutoAttackDps']) * 0.92 * (1 - red)   # one mob's damage per second on you
@@ -148,12 +155,13 @@ def kph1(L, gear, talents, summon, rot, bonus=None, travel=10.0, verbose=False, 
         cal = {'dur': dur, 'addc': addc}
     death = cal['addc'] * pdeath * DEATH_COST
     spirit = prep['stats']['Spirit']
-    tapb = max([b for lv, b in LIFE_TAP if lv <= L] or [0])
+    tr = [(lv, b) for lv, b in LIFE_TAP if lv <= L]
+    tapb = (tr[-1][1] + (L - tr[-1][0])) if tr else 0   # Life Tap base + 1 per level above the rank (client SpellEffect PPL 1)
     best = None
     for frac in ([0.0, 0.2, 0.4, 0.6] if wand else [0.0]):   # share of the mob's health done while wanding
         ts = (1 - frac) * mobhp / dS; tw = frac * mobhp / dW if frac else 0.0
         T = ts + tw
-        M = max(0.0, mS * ts - regen * travel); H = max(0.0, hS * T)
+        M = max(0.0, mS * ts - regen * travel); H = max(0.0, hS * T - hpr * travel)
         t = max(M / d, H / fo)                                # eat + drink, no tapping
         if TAP_BASE and c > 0 and M / d > (H / fo if H else 0):
             t1 = (M + c * H) / (d + c * fo)                    # tap health into mana while eating

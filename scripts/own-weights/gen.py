@@ -23,10 +23,14 @@ CLASS1 = {'ClassWarrior': (3, 0, 2, 0, 0), 'ClassPaladin': (2, 0, 2, 0, 1), 'Cla
 ATTR = ['str', 'agi', 'sta', 'int', 'spi']
 GOKEY = {'str': 'Strength', 'agi': 'Agility', 'sta': 'Stamina', 'int': 'Intellect', 'spi': 'Spirit'}
 
+BASE_CURVE = 1.24
 def base_attrs(ckey, race, L):
     b60 = GO['base_stats'][ckey][race]
     l1 = [a + b for a, b in zip(RACE1[race], CLASS1[ckey])]
-    return {k: round(l1[i] + (b60[GOKEY[k]] - l1[i]) * (L - 1) / 59) for i, k in enumerate(ATTR)}, b60
+    # growth from level 1 to 60 is not linear: ((L-1)/59)^1.24, fitted to the 14 in-game Forever character sheets in the engine's
+    # level fixtures (fixtures/levels/*, MythicSim addon exports; within about 3% for 12 of them, all stats share the curve)
+    f = ((L - 1) / 59.0) ** BASE_CURVE
+    return {k: round(l1[i] + (b60[GOKEY[k]] - l1[i]) * f) for i, k in enumerate(ATTR)}, b60
 
 STAT = {'str': 0, 'agi': 1, 'sta': 2, 'int': 3, 'heal': 4, 'sp': 5, 'arcane': 6, 'fire': 7, 'frost': 8, 'holy': 9, 'nature': 10,
         'shadow': 11, 'spi': 16, 'ap': 17, 'rap': 18, 'armor': 30, 'mp5': 34, 'def': 25}
@@ -42,6 +46,55 @@ _CONST = {}
 PWS = [(6, 45, 45), (12, 87, 80), (18, 155, 130), (24, 227, 175), (30, 292, 210), (36, 369, 250), (42, 471, 300), (48, 592, 355),
        (54, 750, 425), (60, 929, 500)]   # Power Word: Shield ranks (Forever client): level, absorb, mana; +10% of spell power
 APPROACH = 3.0   # seconds a ranged class casts before the mob reaches it (assumption: about 2 casts)
+
+# Out-of-combat health regen from Spirit, per 2 s tick, by class (Classic 1.12 rule as in vmangos Unit::GetRegenHPPerSpirit;
+# Forever's own formula is not published). x1.5 while sitting (eating sits you down), and food adds on top.
+HP_PER_SPIRIT = {'DRUID': (0.11, 1.0), 'HUNTER': (0.43, -5.5), 'MAGE': (0.11, 1.0), 'PALADIN': (0.25, 0.0), 'PRIEST': (0.15, 1.4),
+                 'ROGUE': (0.84, -13.0), 'SHAMAN': (0.28, -3.6), 'WARLOCK': (0.12, 1.5), 'WARRIOR': (1.26, -22.6)}
+def hp_regen(cls, spirit):
+    """Health per second from Spirit, standing, out of combat."""
+    a, b = HP_PER_SPIRIT[cls]
+    return max(0.0, a * spirit + b) / 2.0
+
+# Self-healing between pulls: hybrids heal with mana and drink it back, which beats eating (more health per second of rest).
+# The heal each class levels with, and the form it must leave to cast it (that form's mana cost is paid again after).
+SELF_HEAL = {'PALADIN': 'Holy Light', 'SHAMAN': 'Healing Wave', 'DRUID': 'Healing Touch', 'PRIEST': 'Flash Heal'}
+FORMS = {'feral': 'Cat Form', 'bear': 'Bear Form', 'shadow': 'Shadowform'}
+_HEALS = {}
+def _spells():
+    if not _HEALS:
+        tr = {}
+        for l in open(lvl.ENG + '/data/forever-trainer-spells.jsonl'):
+            x = json.loads(l); tr[x['id']] = x['level']
+        want = set(SELF_HEAL.values()) | set(FORMS.values())
+        for l in open(lvl.ENG + '/data/spells.jsonl'):
+            x = json.loads(l)
+            if x.get('Name') in want: _HEALS.setdefault(x['Name'], []).append((tr.get(x['ID'], x.get('SpellLevel', 0)), x))
+    return _HEALS
+
+def heal_spell(name, L, heal_power):
+    """(health per cast, mana per cast, cast seconds) of the highest rank trained by level L, from the engine's game data:
+    base points (average of the random spread) + growth per level + the spell's coefficient of +healing. None if not trained."""
+    best = None
+    for lv, s in _spells().get(name, []):
+        e = [e for e in s.get('Effects', []) if e.get('Type') == 10]
+        if lv > L or not e or not s.get('Powers') or 'Cost' not in s['Powers'][0]: continue
+        if best is None or lv > best[0]: best = (lv, s, e[0])
+    if best is None: return None
+    lv, s, e = best
+    grow = e.get('PPL', 0.0) * max(0, min(L, e.get('MaxLevel') or L) - e.get('SpellLevel', 0))
+    amt = e['BasePoints'] * (1 + e.get('Variance', 0.0) / 2) + grow + e.get('SPCoef', 0.0) * heal_power
+    return amt, float(s['Powers'][0]['Cost']), max(1.5, s.get('CastTimeMs', 0) / 1000.0)
+
+def form_cost(spec, L, base_mana):
+    """Mana to shift back into the spec's form after healing (percent of base mana), 0 when it has none yet."""
+    name = FORMS.get(spec)
+    for lv, s in _spells().get(name, []) if name else []:
+        if lv <= L and s.get('Powers'): return s['Powers'][0].get('CostPct', 0) / 100.0 * base_mana
+    return 0.0
+
+TAP_SECONDS = 15.0   # Forever Spirit Tap (spell 15271): +100% Spirit for 15 s after a kill
+
 
 def request(C, L, gear, wpn, talents, dur, bonus=None, iters=None, gap=0, const=None, strike=None):
     """C: class/spec config. gear: kit stats (no weapon stats). wpn: {slot: (item id, stats, kind)}.
@@ -68,6 +121,7 @@ def request(C, L, gear, wpn, talents, dur, bonus=None, iters=None, gap=0, const=
     if C['ckey'] == 'ClassHunter': opts['classOptions']['ammo'] = ammo(L)
     if 'opts_fn' in C: C['opts_fn'](opts['classOptions'], L)
     p['rotation'] = C['rot']; p['consumables'] = {}; p.pop('profession1', None)
+    p['inFrontOfTarget'] = True   # solo questing and tanking: the mob faces you, so it can parry (and block)
     p.update(C.get('player_fields', {}))
     base, b60 = base_attrs(C['ckey'], C['race'], L)
     allg = dict(gear)
@@ -118,6 +172,25 @@ def fight(r):
     dot = sum(t.get('tickDamage', 0) for a in p['actions'] for t in a.get('targets', [])) / it / dur
     return {'dps': p['dps']['avg'], 'pet': pet, 'mana': mana, 'hp': hp, 'dot': dot}
 
+def rest_time(M, H, d, fo, tap, tap_left, heal):
+    """Seconds to win back M mana and H health at one rest stop: eat and drink at once (d mana/s, fo health/s), plus Spirit
+    Tap's tap mana/s for its first tap_left seconds. heal = (health, mana, cast s, form mana) lets a hybrid turn mana into
+    health instead: the best split of H between food and heals (casts can't overlap drinking, so their time adds)."""
+    def drink(need):   # seconds to drink `need` mana
+        if need <= 0: return 0.0
+        if d <= 0: return float('inf')
+        fast = d + tap
+        return need / fast if need <= fast * tap_left else tap_left + (need - fast * tap_left) / d
+    best = max(drink(M), H / fo if fo > 0 else float('inf'))
+    if heal and H > 0:
+        amt, cost, cast, shift = heal
+        for i in range(1, 21):                     # share of H healed by spells, 5% steps
+            Hs = H * i / 20.0; casts = Hs / amt
+            t = max(drink(M + casts * cost + shift), (H - Hs) / fo if fo > 0 else 0.0) + casts * cast + (3.0 if shift else 0.0)
+            best = min(best, t)
+    return best
+
+
 def kph(C, L, gear, wpn, talents, bonus=None, cal=None, verbose=False, strike=None, travel=10.0, wand=0.0):
     cals = cal if cal else {}
     tot = 0.0
@@ -165,8 +238,20 @@ def kph1(C, L, gear, wpn, talents, bonus, cal, verbose, strike, travel, gap, wan
     if C.get('pws'):                                       # Power Word: Shield before each pull
         rk = [x for x in PWS if x[0] <= L]
         if rk: absorb = rk[-1][1] + 0.1 * ps.get('SpellDamage', 0); shield_mana = rk[-1][2]
-    if C.get('spirit_tap') and L >= 15:   # Forever Spirit Tap: double Spirit for 15 s after a kill (travel + first rest)
-        regen *= 2.0
+    # Spirit Tap doubles Spirit (so Spirit's own mana regen) for 15 s after each kill: the walk to the next mob and, after the
+    # last kill before a stop, the first seconds of that rest. Its "50% of regen while casting" part is left out.
+    tap = prep['mana'].get('spirit_regen_per_second', 0.0) if (C.get('spirit_tap') and L >= 15 and prep.get('mana')) else 0.0
+    hpr = hp_regen(C['cls'], ps.get('Spirit', 0.0))           # health from Spirit: standing while walking, x1.5 sitting
+    fo += 1.5 * hpr
+    heal = None
+    if C['cls'] in SELF_HEAL and maxm > 0:
+        h = heal_spell(SELF_HEAL[C['cls']], L, ps.get('HealingPower', 0.0))
+        if h:
+            shift = 0.0
+            if C['spec'] in ('feral', 'bear') or (C['spec'] == 'shadow' and C.get('shadowform') and L >= 40):
+                shift = form_cost('shadow' if C['spec'] == 'shadow' else C['spec'], L if C['spec'] != 'shadow' else 60,
+                                  prep['mana'].get('base', 0.0))
+            heal = h + (shift,)
     crit = prep['stats']['SpellCritPercent'] / 100.0
     Wd = wand * 0.95 * (1 + 0.5 * crit)                         # wand: no mana, not helped by spell power
     dW = Wd + f['pet'] + f['dot']                                # while wanding, pet and dots keep going
@@ -174,11 +259,12 @@ def kph1(C, L, gear, wpn, talents, bonus, cal, verbose, strike, travel, gap, wan
     for frac in ([0.0, 0.2, 0.4, 0.6] if wand else [0.0]):      # share of the mob's health done while wanding
         ts = (1 - frac) * mobhp / dS; tw = frac * mobhp / dW if frac else 0.0
         T = ts + tw
-        Mk = max(0.0, mS * ts + shield_mana - regen * travel); Hk = max(0.0, hS * T - absorb)    # per kill
-        t = max(Mk / d if d else 0.0, Hk / fo)                  # eat and drink at once
+        walk = min(travel, TAP_SECONDS)
+        Mk = max(0.0, mS * ts + shield_mana - regen * travel - tap * walk)
+        Hk = max(0.0, hS * T - absorb - hpr * travel)                                   # per kill
         n = min(maxm / Mk if Mk > 0 else 50.0, 0.6 * maxh / Hk if Hk > 0 else 50.0, 50.0)
         n = max(1.0, n)
-        rest = t + REST_STOP / n
+        rest = rest_time(n * Mk, n * Hk, d, fo, tap, max(0.0, TAP_SECONDS - travel), heal) / n + REST_STOP / n
         k = 3600.0 / (T + travel + rest + death)
         if best is None or k > best[0]: best = (k, frac, T, Mk, Hk, rest, n)
     k, frac, T, Mk, Hk, rest, n = best
