@@ -238,6 +238,10 @@ def externalize_data(s):
     if not m:
         return s
     raw = base64.b64decode(''.join(m.group(1).split()))
+    # our own leveling stat weights (scripts/own-weights/own_weights.json, re-run daily) replace the item data's weights
+    spec = importlib.util.spec_from_file_location('own_weights_apply', os.path.join(REPO, 'scripts/own-weights/apply.py'))
+    ow = importlib.util.module_from_spec(spec); spec.loader.exec_module(ow)   # stdlib only, no sys.path change
+    raw = ow.pack(ow.weights_into(json.loads(__import__('gzip').decompress(raw))))
     name = 'gear-%s.bin' % hashlib.sha1(raw).hexdigest()[:14]
     open(os.path.join(PUB, 'data', name), 'wb').write(raw)
     return s[:m.start()] + '<script id="gdb" type="application/octet-stream" data-src="/data/%s"></script>' % name + s[m.end():]

@@ -19,6 +19,7 @@
 import { CENSUS_PAGES, censusPage, refreshCensus } from './census.js';
 import { refreshFah, fahPrices } from './fah.js';
 import { storeBundle, section, houses, parseHouse, kickPriceJob } from './bliz.js';
+import { kickOwnWeights } from './ownweights.js';
 
 const MAX_AH = 8 * 1024 * 1024;
 const FAH_CRON = '*/5 * * * *';   // must match wrangler.jsonc
@@ -252,6 +253,7 @@ const worker = {
   // and a check that the hourly Blizzard price job still runs (kickPriceJob)
   async scheduled(event, env, ctx) {
     if (event.cron === FAH_CRON) ctx.waitUntil(refreshFah(env, event.scheduledTime).then(r => console.log('fah', r)));
+    if (event.cron === FAH_CRON) ctx.waitUntil(kickOwnWeights(env, event.scheduledTime).then(r => console.log('own weights job', r), e => console.error('own weights job', e)));
     if (event.cron === FAH_CRON) ctx.waitUntil(kickPriceJob(env, event.scheduledTime).then(r => console.log('price job', r), e => console.error('price job', e)));
     else ctx.waitUntil(refreshCensus(env));
   },
