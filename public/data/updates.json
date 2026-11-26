@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-26",
+    "title": "Gear upgrades: your character in 3D",
+    "text": "See your character in 3D, wearing your gear. Drag to turn. Hover a slot to try on its best upgrade.",
+    "image": "/assets/updates/2026-11-26-3d-character.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-26",
     "title": "New: Farm finder",
     "text": "Which monsters at your level drop the most gold per kill: each drop's chance, price, how fast it sells and its trend. With Gear Snapshot 1.9, your own loot sets the chances and your gold an hour. Mat timing and Sell spare mats now show price vs usual and a trend line too.",
     "image": "/assets/updates/2026-11-26-farm-finder.webp",

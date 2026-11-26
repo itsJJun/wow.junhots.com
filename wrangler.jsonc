@@ -5,13 +5,13 @@
   "main": "src/index.js",
   "compatibility_date": "2026-11-01",
   // Static site: everything in public/ is served as is. The Worker code runs for /api/* and the census pages,
-  // which get the newest level census put in (src/census.js).
+  // which get the newest level census put in (src/census.js), and /assets/char/* (3D character files: other websites get 403).
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*", "/mat-timing/*", "/sell-spare-mats/*", "/profession-leveling/*", "/tailoring-finder/*", "/enchants/*"]
+    "run_worker_first": ["/api/*", "/mat-timing/*", "/sell-spare-mats/*", "/profession-leveling/*", "/tailoring-finder/*", "/enchants/*", "/assets/char/*"]
   },
   // wow.junhots.com only. Never add junhots.com or www.junhots.com here.
   "routes": [{ "pattern": "wow.junhots.com", "custom_domain": true }],

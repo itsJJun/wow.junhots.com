@@ -204,6 +204,12 @@
   function position(el) {
     if (innerWidth <= 520) return;
     var r = el.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+    // a name inside a card that opens its own details on hover (Gear upgrades cards): beside that card, never over its details
+    var host = el.closest('[data-card-beside], [data-more], .wf-peek, .wf-open');
+    if (host) {
+      var hr = host.getBoundingClientRect(), hx = hr.right + 8 + w <= innerWidth - 8 ? hr.right + 8 : hr.left - 8 - w >= 8 ? hr.left - 8 - w : null;
+      if (hx !== null) { card.style.left = hx + 'px'; card.style.top = Math.max(8, Math.min(r.top - 8, innerHeight - h - 8)) + 'px'; return; }
+    }
     var x = Math.min(Math.max(8, r.left), innerWidth - w - 8);
     var y = r.bottom + 6;
     if (y + h > innerHeight - 8 && r.top - h - 6 > 8) y = r.top - h - 6;
