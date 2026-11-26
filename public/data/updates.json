@@ -2,7 +2,7 @@
   {
     "date": "2026-11-26",
     "title": "Gear upgrades: our own stat weights",
-    "text": "Gear scores now use our own leveling sims for all 28 specs, not an addon's weights. Damage specs: kills per hour, counting rest and deaths. Tanks and healers: dungeon pulls per hour.",
+    "text": "Gear scores now use our own leveling sims for every class and spec, not an addon's weights. Damage specs: kills per hour, counting rest and deaths. Tanks and healers: dungeon pulls per hour.",
     "image": "/assets/updates/2026-11-26-own-weights.webp",
     "link": "/gear-upgrades/",
     "linkText": "Open Gear upgrades"
