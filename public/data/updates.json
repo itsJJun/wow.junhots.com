@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-26",
+    "title": "New: Farm finder",
+    "text": "Which monsters at your level drop the most gold per kill: each drop's chance, price, how fast it sells and its trend. With Gear Snapshot 1.9, your own loot sets the chances and your gold an hour. Mat timing and Sell spare mats now show price vs usual and a trend line too.",
+    "image": "/assets/updates/2026-11-26-farm-finder.webp",
+    "link": "/farm-finder/",
+    "linkText": "Open Farm finder"
+  },
+  {
+    "date": "2026-11-26",
     "title": "Level route: going back picks up quests first",
     "text": "Going back now sends you to pick up a quest before its kills or hand-in, and to finish the quest before it first. Quests you can't get any more stay hidden. Checked on every route.",
     "image": "/assets/updates/2026-11-25-going-back-pickups.webp",
