@@ -28,9 +28,10 @@ CF_BEACON = os.environ.get('CF_BEACON', '')
 # tool id (hub/build_hub.py TOOLS) -> page address on the site
 SLUG = {'crafted': 'gear-upgrades', 'leveling': 'profession-leveling', 'enchants': 'enchants', 'macros': 'enchant-macros',
         'tailoring': 'tailoring-finder', 'timing': 'mat-timing', 'sell': 'sell-spare-mats', 'flips': 'vendor-flips',
-        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route', 'dungeons': 'dungeons', 'talents': 'talent-planner'}
+        'warlock': 'warlock-guide', 'demons': 'demon-trainer', 'route': 'level-route', 'dungeons': 'dungeons', 'talents': 'talent-planner',
+        'farm': 'farm-finder'}
 # tools that fetch their own data files (<tool folder>/data/ -> /<slug>/data/)
-DATA_DIRS = {'route': 'level-route/data', 'dungeons': 'dungeon-guide/data'}
+DATA_DIRS = {'route': 'level-route/data', 'dungeons': 'dungeon-guide/data', 'farm': 'farm-finder/data'}
 HUB_ARTIFACT = 'CHaDEsKnVJdVHSheWPz7XF'
 # shorter tab names in the site header (category id -> label); others use the Hub's category label
 NAV_LABEL = {'character': 'Gear', 'guides': 'Classes'}
@@ -378,7 +379,8 @@ CREDITS = [
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'In-game auction scans (with Gear Snapshot\'s own scan): the file you load yourself, and the prices for each random suffix.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Vendor prices, the Warlock guide links and item pages for items this site has no card for yet.'),
     ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
-    ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC stands, for the NPC cards (hover a name) and the Level 1-60 route (GPL-3.0).'),
+    ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC and monster stands and its level, for the NPC cards (hover a name), the Level 1-60 route and the Farm finder (GPL-3.0).'),
+    ('CMaNGOS Classic-DB', 'https://github.com/cmangos/classic-db', 'Classic drop chances for the Farm finder (GPL-3.0). Forever may have changed some; the page says so.'),
     ('AzerothCore', 'https://www.azerothcore.org/', 'Which game model each NPC uses, so the NPC cards can show Blizzard\'s picture of it (AGPL-3.0 data).'),
     ('OpenMap addon', 'https://github.com/openmap-world/openmap', 'The list of the game\'s dungeon map files and the boss spots in Lower Blackrock Spire, on Dungeons (MIT licence, /dungeons/data/OpenMap-LICENSE.txt). The maps are Blizzard\'s own.'),
 ]
@@ -482,7 +484,7 @@ ADMIN_JS = r"""
 
 SETUP_ADDONS = [
     # (name, link, what for, needed by)
-    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, flight points, your bags, bank and mail (all your characters), '
+    ('Gear Snapshot', '/downloads/GearSnapshot.zip', 'Saves your gear, level, talents, professions, known recipes, quests, flight points, your bags, bank and mail (all your characters), the monsters you loot, '
      'and auction prices for every item and every random suffix: click Gear Snapshot scan at the auction house. Made for this site.',
      'Every tool: your own prices, gear, bags and quests (otherwise: hourly Horde prices).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'Optional. Gear Snapshot 1.8 scans the auction house itself, and it also saves the prices when Auctionator scans.',
