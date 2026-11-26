@@ -370,7 +370,8 @@ def build_updates(updates):
 
 CREDITS = [
     # (name, url or None, what it gives the tools)
-    ('Forever Leveling BiS addon', None, 'Item list, stat weights and gear scoring behind Gear upgrades and the enchant ranking on Enchants.'),
+    ('MythicSim Forever engine', 'https://github.com/sage3648/mythicsim-forever-engine', 'Combat sims (MIT license) behind our own leveling stat weights on Gear upgrades.'),
+    ('Forever Leveling BiS addon', None, 'Item list and gear rules behind Gear upgrades, and the stat weights for the enchant ranking on Enchants.'),
     ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Craft finder.'),
     ('classicplus.io', 'https://classicplus.io/', 'The daily level census of Horde characters that Mat timing and the "level crowd" tags read.'),
     ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Craft finder and Sell spare mats.'),

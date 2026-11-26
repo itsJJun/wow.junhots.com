@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-26",
+    "title": "Gear upgrades: our own stat weights",
+    "text": "Gear scores now use our own leveling sims for every class and spec, not an addon's weights. Damage specs: kills per hour, counting rest and deaths. Tanks and healers: dungeon pulls per hour.",
+    "image": "/assets/updates/2026-11-26-own-weights.webp",
+    "link": "/gear-upgrades/",
+    "linkText": "Open Gear upgrades"
+  },
+  {
+    "date": "2026-11-26",
     "title": "Gear upgrades: your character in 3D",
     "text": "See your character in 3D, wearing your gear. Drag to turn. Hover a slot to try on its best upgrade.",
     "image": "/assets/updates/2026-11-26-3d-character.webp",
