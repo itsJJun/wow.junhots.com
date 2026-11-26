@@ -1,0 +1,13 @@
+diff --git a/src/prepare/character.rs b/src/prepare/character.rs
+index 7eaddd3..2476107 100644
+--- a/src/prepare/character.rs
++++ b/src/prepare/character.rs
+@@ -383,7 +383,7 @@ impl Sim {
+             }
+             // Go sets weapon damage and school hit from the pseudo stats; zeros, which the UI
+             // sends by default, change nothing.
+-            if bonus.f64s("pseudo_stats").iter().any(|value| *value != 0.0) {
++            if bonus.f64s("pseudo_stats").iter().enumerate().any(|(index, value)| *value != 0.0 && index <= 11 && index != 4 && index != 5) {
+                 return Err(Refusal::new(
+                     "bonus_stats",
+                     "bonus pseudo stats are unsupported".to_string(),

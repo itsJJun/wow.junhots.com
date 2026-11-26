@@ -1,0 +1,60 @@
+# Daily re-check of our own leveling stat weights (scripts/own-weights). Pulls the newest MythicSim Forever engine; if
+# it changed since the last run (new commit = new game data or fixes), re-runs every sim and opens a PR with the new
+# Gear upgrades data. Same engine = nothing to do (a minute). Jun merges the PR.
+# Started daily by GitHub's schedule and, as a backstop, by the Worker's cron (src/ownweights.js, like the price job).
+# Needs repo Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+name: Own stat weights
+on:
+  schedule:
+    - cron: '17 10 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Run even if the engine has not changed'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: own-weights
+  cancel-in-progress: false
+jobs:
+  weights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Newest engine
+        id: eng
+        run: |
+          git clone --depth 1 https://github.com/sage3648/mythicsim-forever-engine.git "$RUNNER_TEMP/mse"
+          sha=$(git -C "$RUNNER_TEMP/mse" rev-parse HEAD)
+          last=$(python3 -c "import json; print(json.load(open('scripts/own-weights/own_weights.json'))['meta']['commit'])")
+          echo "engine $sha, last run ${last}"
+          echo "MSE_ENGINE=$RUNNER_TEMP/mse" >> "$GITHUB_ENV"
+          if [[ "$sha" == "$last"* && "${{ inputs.force }}" != "true" ]]; then echo "same=1" >> "$GITHUB_OUTPUT"; else echo "same=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Build engine
+        if: steps.eng.outputs.same == '0'
+        run: |
+          cd "$MSE_ENGINE"
+          git apply "$GITHUB_WORKSPACE/scripts/own-weights/engine.patch"
+          cargo build --locked --release
+      - name: Run the sims
+        if: steps.eng.outputs.same == '0'
+        run: scripts/own-weights/run.sh
+      - name: Open a PR
+        if: steps.eng.outputs.same == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- public scripts/own-weights/own_weights.json; then echo "weights unchanged"; exit 0; fi
+          b=own-weights/update
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$b"
+          git add public/data public/gear-upgrades/index.html scripts/own-weights/own_weights.json
+          git commit -q -m "Gear upgrades: re-run own stat weights (engine $(git -C "$MSE_ENGINE" rev-parse --short HEAD))"
+          git push -f origin "$b"
+          gh pr view "$b" --json state -q .state 2>/dev/null | grep -q OPEN || gh pr create --base main --head "$b" \
+            --title "Gear upgrades: new stat weights (sim engine update)" \
+            --body "The MythicSim Forever engine changed, so the daily job re-ran our leveling stat weights for all specs. Merge to put them on Gear upgrades. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
