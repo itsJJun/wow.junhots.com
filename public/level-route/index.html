@@ -2017,9 +2017,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var x = QA && QA.q[q], bh = x && (behind(q) || LOGKEEP[q]); if (!x || doneQ.has(q) || inR[q] && !bh || (x[3] && x[3] !== R.fac[0])) return;
       if (bh) LOGKEEP[q] = 1;
       if (off.indexOf(q) >= 0) { LOGST[q] = { st: 'off' }; return; }
-      var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(findZ(oz, bh ? fromN : from)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
+      var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(findZ(oz, bh && pick && skipStop ? fromN : from)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
       if ((b < 0 || !x[18]) && x[18] && x[18][2] && (v.ready || x[16] && x[16][2])) {   // off the route: a side trip when it pays (chain included)
-        var sd = logSide(q, x, ord, bh ? fromN : from, v.ready);
+        var sd = logSide(q, x, ord, bh && pick && skipStop ? fromN : from, v.ready);
+        if (sd && sd.k != null && pmOn()) { var ps = (pmGet().s || {})[q]; if (ps == null) { PMN.s[q] = sd.ok ? 1 : 0; if (!PMREC) sd.ok = false; } else sd.ok = !!ps; }   // the answer given before stays
         if (sd && sd.ok) {
           var kk = endStop(sd.k), lq = function (y, s) { if (!M.quests[y]) { var z = QA.q[y]; M.quests[y] = [z[0], z[1], z[2], z[4], z[8], '', '', 0, [], [z[10], z[11]]]; } s.q = y; s.lv = sd.lv; s.lg = 1; s.side = 1; add.push({ k: kk, s: s }); };
           if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
@@ -2039,7 +2040,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
       if (x[16] && !v.ready) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
       else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
-        var k3 = findZ(s3.z, bh ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
+        var k3 = findZ(s3.z, bh && pick && skipStop ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh && pick && skipStop ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
         add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
       add.push({ k: b, s: { t: 'turnin', q: q, xp: Math.round(x[17] * xpf(lv - x[1])), lv: sb.lv, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2], lg: 1 } });
       LOGST[q] = { st: 'on' };
@@ -2344,9 +2345,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       if (u2 && u2.n < here) here = u2.n;
     }
-    // objectives right before it of quests in your log handed in at that place: they come first
+    // objectives right before it of quests handed in at that place: they come first
     if (here < rows.length) {
-      var tq = {}; for (var jt = here; jt < rows.length && rows[jt].k !== 'travel'; jt++) { var rt0 = rows[jt]; if (rt0.k === 'step' && !isDone(rt0)) stepsOf(rt0).forEach(function (s) { if (s.t === 'turnin' && s.q && logQ.has(s.q)) tq[s.q] = 1; }); }
+      var tq = {}; for (var jt = here; jt < rows.length && rows[jt].k !== 'travel'; jt++) { var rt0 = rows[jt]; if (rt0.k === 'step' && !isDone(rt0)) stepsOf(rt0).forEach(function (s) { if (s.t === 'turnin' && s.q && !doneQ.has(s.q)) tq[s.q] = 1; }); }
       for (var jb = here - 1, nt = 0; jb >= 0; jb--) { var rb0 = rows[jb];
         if (rb0.k !== 'step') { if (rb0.k === 'travel' && ++nt > 2) break; if (rb0.k === 'travel' || rb0.k === 'sec') continue; break; }   // (up to 2 trips back)
         if (rb0.s.t === 'note' || isDone(rb0) || rb0.i >= R.n0 && !stepsOf(rb0).some(function (s) { return tq[s.q]; })) continue;   // (lines done, and lines added from your log for other quests, stay where they are)
@@ -2389,7 +2390,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function haveQ(q) { return logQ.has(q) || rows.some(function (r) { return r.k === 'step' && isDone(r) && stepsOf(r).some(function (s) { return s.t === 'accept' && s.q === q; }); }); }
   // (answers given before come from lr.plan; new answers are only saved from the end of a redraw, so the passes
   // inside one redraw never freeze a half-made answer)
-  var PM = null, PMN = { c: {}, w: {} };
+  var PM = null, PMN = { c: {}, w: {}, s: {} };
   function pmOn() { return !!(snap && doneQ.size && R); }
   function pmGet() {
     var id = 'v2|' + R.id + '|' + (snap && snap.name || '');   // v2 (27 Nov): answers made by the old quarter-level rule are dropped
@@ -2401,11 +2402,12 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!pmOn() || !PMREC) return;
     var pm = pmGet(), k;
     for (k in PMN.c) if (pm.c[k] == null) { pm.c[k] = PMN.c[k]; PMNEW++; }
-    for (k in PMN.w) if (pm.w[k] == null) { pm.w[k] = WORTH[k] ? 1 : 0; PMNEW++; }   // what the page ended up doing (a chain that waits counts as no)
+    for (k in PMN.w) if (pm.w[k] == null) { pm.w[k] = WORTH[k] ? 1 : 0; PMNEW++; }
+    pm.s = pm.s || {}; for (k in PMN.s) if (pm.s[k] == null) { pm.s[k] = PMN.s[k]; PMNEW++; }   // side trips for log quests   // what the page ended up doing (a chain that waits counts as no)
     pm.l = pm.l || {}; for (k in LOCK) if (pm.l[k] == null) pm.l[k] = LOCK[k];   // chains left out
     ls.set('lr.plan', JSON.stringify(pm));
   }
-  function pmClear() { PM = null; PMN = { c: {}, w: {} }; ls.set('lr.plan', ''); }
+  function pmClear() { PM = null; PMN = { c: {}, w: {}, s: {} }; ls.set('lr.plan', ''); }
   // seconds a route line takes: travel there (the plan, else a walk from the line before), objectives ('ds'), talking
   function stepSecs(i) {
     if (stepSecs.p !== plan) { stepSecs.p = plan; stepSecs.c = {}; }
@@ -2447,7 +2449,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     stops.forEach(function (st) { st.rows.forEach(function (r) { if (r.k === 'step') [{ i: r.i, s: r.s }].concat(r.more || []).forEach(function (m) { var s = m.s; if (!s.q) return;
       if (s.t === 'accept') { if (aCh[s.q] == null) aCh[s.q] = st.ch; if (isDone(r)) hv.add(s.q); }
       else if (s.t === 'turnin' && m.i < R.n0) tIn[s.q] = { s: s, ch: st.ch }; }); }); });
-    var other = function (s, c) { return s.t !== 'accept' && aCh[s.q] && aCh[s.q] !== c && !hv.has(s.q); };
+    var pmC = pmOn() ? pmGet().c : {}, pkYes = function (c) { return !!c && pmC[c.idx + ':' + c.name] === 1; };   // (a part you said yes to)
+    var other = function (s, c) { return s.t !== 'accept' && aCh[s.q] && aCh[s.q] !== c && (!hv.has(s.q) || pkYes(aCh[s.q])); };
     // where your game files say you are: stops in that zone (or within 800 yards)
     var wh = snap && snap.where, whOk = !!(wh && wh.cont != null && wh.wx != null);
     var nearYou = function (st) { var s = whOk && stW(st); return !!s && s.w[0] === wh.cont && (zn(s.z) === wh.zone || Math.hypot(s.w[1] - wh.wx, s.w[2] - wh.wy) < 800); };
@@ -2581,6 +2584,12 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       });
       return out;
     };
+    logQ.forEach(function (v, q) {   // picked up in a part you said yes to: its lines behind where you left off come along
+      if (doneQ.has(q) || TT[q]) return; var a = accAt(q), hN = hereStop.rows[0].n; if (!a || a.r.n >= hN) return;
+      var sa = stops.find(function (x) { return x.rows.indexOf(a.r) >= 0; }); if (!sa || !pkYes(sa.ch) || best.sts.indexOf(sa) < 0 && !isDone(a.r)) return;
+      rows.forEach(function (r) { if (r.n < hN && r.k === 'step' && !isDone(r) && stepsOf(r).some(function (s) { return s.q === q && (s.t === 'turnin' || s.t === 'do' && !inLogDone(s)); })) {
+        var st = stops.find(function (x) { return x.rows.indexOf(r) >= 0; }); if (st && st !== hereStop && best.sts.indexOf(st) < 0) best.sts.push(st); } });
+    });
     for (var k = 0; k < best.sts.length && k < 400; k++) needs(best.sts[k]).forEach(function (r) {
       var st = stops.find(function (x) { return x.rows.indexOf(r) >= 0; });
       if (st && st !== hereStop && best.sts.indexOf(st) < 0) best.sts.push(st);
@@ -2628,7 +2637,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!R) return;
     upMine = myUps();
     if (R.n0) R.steps.length = R.n0;
-    tinTicks(); LKST = {}; LOGKEEP = {}; setLock({}); WORTH = {}; WTRIP = {}; WLATER = {}; ORDER = null; PMN.w = {}; applyHide();
+    tinTicks(); LKST = {}; LOGKEEP = {}; setLock({}); WORTH = {}; WTRIP = {}; WLATER = {}; ORDER = null; PMN.w = {}; PMN.s = {}; applyHide();
     var pass = function () { build(); group(); dungeons(); findHere(); };
     pass();
     var lk = lkAll = doneQ.size ? locked() : {};
