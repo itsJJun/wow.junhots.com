@@ -3,8 +3,9 @@
 // no worse than live; problems the live site already has are listed and fixed in a later PR).
 //   node scripts/route-checks-compare.cjs <order|buttons|follow|play> <this.json> <live.json>
 // The json files come from the check scripts with OUTJ=<file> (and PUB=<live copy>/public for the live one).
-// Problems are counted by route and kind. Exits 1 when this change has more of a kind on a route than live does,
-// or more page errors.
+// Problems are counted by start route (all classes together: the random button presses differ as soon as the page
+// differs, so one class's case can move to another) and kind. Exits 1 when this change has more of a kind than
+// live does, or more page errors.
 const fs = require('fs');
 const [check, fNew, fLive] = process.argv.slice(2);
 const read = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -12,7 +13,7 @@ const A = read(fNew), B = read(fLive);
 const kind = check === 'follow' || check === 'play'
   ? (x) => x[5] ? 'going back changed' : 'route ahead changed'
   : (x) => String(x[3]).replace(/^.* \/ /, '');
-const count = (bad) => { const m = {}; bad.forEach((x) => { const k = x[0] + ' | ' + kind(x); m[k] = (m[k] || 0) + 1; }); return m; };
+const count = (bad) => { const m = {}; bad.forEach((x) => { const k = String(x[0]).replace(/-[^-]+$/, '') + ' | ' + kind(x); m[k] = (m[k] || 0) + 1; }); return m; };
 const a = count(A.bad), b = count(B.bad), keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].sort();
 let worse = 0;
 console.log('route | kind: this change / live');
