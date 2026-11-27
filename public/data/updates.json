@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-27",
+    "title": "Profession leveling: real disenchant value",
+    "text": "Each craft now counts what it really disenchants into on Forever: the chance of each dust, essence and shard times today's auction price. The vendor and profit switches are gone: every craft counts the best of keep, vendor or disenchant.",
+    "image": "/assets/updates/2026-11-27-disenchant-value.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-27",
     "title": "Profession leveling: maxed means done",
     "text": "A profession at 300 now shows \"Done\" instead of \"299 → 300\". Skills from your game files are read up to 300.",
     "image": "/assets/updates/2026-11-27-prof-done.webp",
