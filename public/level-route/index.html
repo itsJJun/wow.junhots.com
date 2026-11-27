@@ -135,6 +135,10 @@ a { color: var(--accent); }
 /* quest objective areas (blue, like the game's) */
 .objblob circle { fill: #3d7bff; }
 .objblob { opacity: .42; }
+.npcspot { cursor: pointer; }
+.npcspot.done { opacity: .4; }
+.npcspot text { font: 600 .95px Inter, system-ui, sans-serif; fill: #ffd24a; paint-order: stroke; stroke: #15120e; stroke-width: .3px; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.spdot circle { fill: #ffd24a; stroke: #2a1d00; stroke-width: .12; }
 .objdot circle { fill: #8fb4ff; stroke: #0b1b44; stroke-width: .15; }
 .objdot text { font: 600 1.05px Inter, system-ui, sans-serif; fill: #fff; paint-order: stroke; stroke: #0b1b44; stroke-width: .28px; dominant-baseline: central; text-anchor: middle; pointer-events: none; }
 .pin { cursor: pointer; }
@@ -1223,7 +1227,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       if (dist[u] + c < dist[v]) { dist[v] = dist[u] + c; prev[v] = [u, leg]; }
     };
     // nearest fixed places for S and T so far-away points still connect
-    const nearest = (i, n) => nodes.map((p, j) => [j, p]).filter(([j, p]) => j > 1 && p.map === nodes[i].map && lands[j] === lands[i])
+    // (places across a ridge you can't walk over don't count: else a spot by a ridge had no way out, 27 Nov)
+    const nearest = (i, n) => nodes.map((p, j) => [j, p]).filter(([j, p]) => j > 1 && p.map === nodes[i].map && lands[j] === lands[i] && (o.loose || !this.walled(nodes[i], p)))
       .map(([j, p]) => [Math.hypot(p.x - nodes[i].x, p.y - nodes[i].y), j]).sort((x, y) => x[0] - y[0]).slice(0, n).map(x => x[1]);
     const nearS = new Set(nearest(0, 4)), nearT = new Set(nearest(1, 4));
     for (;;) {
@@ -1292,8 +1297,8 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     const out = [];
     for (const l of legs) {
       const last = out[out.length - 1];
-      if (last && last.k === 'walk' && l.k === 'walk') { last.secs += l.secs; last.to = l.to; last.swim = last.swim || l.swim; continue; }
-      if (last && last.k === 'fly' && l.k === 'fly') { last.via.push(last.b); last.b = l.b; last.secs += l.secs; continue; }
+      if (last && last.k === 'walk' && l.k === 'walk') { (last.wp = last.wp || []).push(last.to); last.secs += l.secs; last.to = l.to; last.swim = last.swim || l.swim; continue; }   // wp: places the walk goes through
+      if (last && last.k === 'fly' && l.k === 'fly') { last.via.push(last.b); last.b = l.b; last.to = l.to; last.secs += l.secs; continue; }
       if (l.k === 'fly') l.via = [];
       out.push(l);
     }
@@ -1379,14 +1384,14 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         }
         hearthAt = -1;
       }
-      const far = pos.map !== w.map || Math.hypot(pos.x - w.x, pos.y - w.y) > 300;
+      const far = pos.map !== w.map || Math.hypot(pos.x - w.x, pos.y - w.y) > 300 || this.walled(pos, w);   // a ridge between: a real trip round it
       if (far || (s.z && posZone && s.z !== posZone && Math.hypot(pos.x - w.x, pos.y - w.y) > 150)) {
         const dest = Object.assign({ zone: zoneName ? zoneName(s.z) : null }, w);
         const r = this.route(Object.assign({ zone: zoneName && posZone ? zoneName(posZone) : null }, pos), dest, { known, fac: o.fac, lvl: lvl(s), cls: o.cls });
         if (!r) res.warn.push({ i, k: 'no-route', m: 'no way found from the last step' });
         else {
           const ride = r.legs.some(l => l.k !== 'walk');
-          if (ride || s.z !== posZone) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs, from: pos, to: dest };
+          if (ride || s.z !== posZone || this.walled(pos, w)) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs, from: pos, to: dest };
           res.total += r.secs;
           // flight masters you pass on the way
           for (const l of r.all) if (l.k === 'fly') { known.add(l.a); known.add(l.b); }
@@ -1517,6 +1522,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // close-up map (Jun 23 Nov): the game's own minimap pictures (maps/t/<map>_<row>_<col>.webp, one per 533-yard
   // tile) fade in over the zone map as you zoom in, only the tiles in view. MINI = maps/mini.json
   var MINI = null, MINIS = {}, miniG = null, miniHave = {}, TS = 533.3333333;
+  var npcG = null;   // close-up NPC spots (drawMap)
+  var SPAWN = null;   // quest -> every spawn of each objective (data/spawns.json)
   var here = 0, hereStop = null, nextSet = new Set(), cur = 0, curZone = null, sel = null, jumped = false, pick = null, skipStop = null, skipped = [];
   // WoW icons (var WI from assemble.py): one CSS class each, so the data URIs are in the page once
   var WIC = typeof WI === 'object' ? WI : {};
@@ -1691,6 +1698,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var mine = snap && (!charData || !n || n.indexOf(snap.name) === 0 || snap.name.indexOf(n) === 0);
     doneQ = new Set((mine ? snap.done : []).concat(qs));
     if (!mine) logQ = new Map();
+    if (mine && R && snap.fresh) {   // the game knows better than a tick: still in your log = not handed in (objective not done = not done)
+      snap.fresh = false; var tc = 0;
+      Object.keys(ticks).forEach(function (k) { var m = /^(q?)(\d+):(turnin|do)$/.exec(k); if (!m) return;
+        var s = m[1] ? { t: m[3], q: +m[2] } : R.steps[+m[2]]; if (!s || !s.q || !logQ.has(s.q) || doneQ.has(s.q)) return;
+        if (s.t === 'turnin' || s.t === 'do' && s.o && !inLogDone(s)) { delete ticks[k]; tc++; } });
+      if (tc) saveTicks();
+    }
     var ready = 0; logQ.forEach(function (v) { if (v.ready) ready++; });
     $('qStat').innerHTML = 'Quests done: <b>' + doneQ.size + '</b>' + (n ? ' (' + esc(n) + ')' : '') +
       (mine ? ' · in your log: <b>' + logQ.size + '</b>' + (ready ? ', <b>' + ready + '</b> ready to turn in' : '') + ' <span class="muted">(' + esc(snap.at) + ')</span>' : '') +
@@ -1760,6 +1774,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var t = new Date((q.logTime || q.doneTime || db.time) * 1000);
     snap = { name: db.name || '', level: +db.level || 0, xp: +db.xp || 0, xpMax: +db.xpMax || 0, xpRest: +db.xpRest || 0, where: q.where || null, hearth: q.hearth || '', cls: db.class || '', done: list(q.done).map(Number), n: q.inLog || logQ.size, folded: q.folded,
              at: t.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) };
+    snap.fresh = true;   // (applyQuests clears ticks the game says are wrong, once per file load)
     if (!charData) $('char').innerHTML = '<option>' + esc(snap.name) + '</option>';
     // Gear Snapshot 1.8: flight points you know (saved when you open a flight master's map)
     if (db.flights && Object.keys(db.flights).length) {
@@ -1949,6 +1964,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   var logOff = function () { return (ls.get('lr.logoff') || '').split(',').filter(Boolean).map(Number); };
   function addLogSteps() {
     var n0 = R.n0, hi = rows[here] ? rows[here].i : 0, inR = {}, off = logOff(), add = [];
+    for (var hb = here - 1; hb >= 0 && rows[here]; hb--) { var rb = rows[hb]; if (rb.k === 'step' && rb.i < n0 && rb.s.t !== 'note') { if (isDone(rb)) hi = rb.i; break; } }   // the place you stand: the last line you did (a trip after it isn't made yet)
     // a quest in your log whose turn-in on the route is behind where you are (and not in the going-back list):
     // the route would never send you to hand it in, so it is added ahead like a quest the guide doesn't have
     var hn = pick && skipStop ? skipStop.rows[0] : rows[here], tinAt = {}, cuT = {}, cuI = {};
@@ -1961,7 +1977,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var ord = R.steps.map(function (s, k) { return k; }), from = ord.indexOf(hi) >= 0 ? ord.indexOf(hi) : 0;
     var fromN = hn && ord.indexOf(hn.i) >= 0 ? ord.indexOf(hn.i) : from;
     var behind = function (q) { return inR[q] && tinAt[q] != null && !cuT[q] && !hidden(R.steps[tinAt[q]]) && ord.indexOf(tinAt[q]) < fromN; };
-    var findZ = function (z, k0) { for (var k = k0; k < ord.length; k++) { var s = R.steps[ord[k]]; if (s.z === z && s.a && !hidden(s) && s.t !== 'section' && (k >= fromN || cuI[ord[k]])) return k; } return -1; };
+    var findZ = function (z, k0) { for (var k = k0; k < ord.length; k++) { var s = R.steps[ord[k]]; if (s.z === z && s.a && !hidden(s) && s.t !== 'section' && (k >= fromN || cuI[ord[k]] || k === from)) return k; } return -1; };   // (the place you stand counts too)
     // the last step of the stop that step k is in (same zone, same place)
     var endStop = function (k) {
       if (k < 0) return k;
@@ -1974,21 +1990,62 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       return k;
     };
+    // a route quest in your log whose objective lines are all behind you (not going back there) and whose hand-in is
+    // ahead: the lines still to do come again ahead, at the next visit to their zone before the hand-in, else just
+    // before the hand-in's stop (Jun 27 Nov: Screecher Spirits)
+    var startStop = function (k) {
+      var s0 = R.steps[ord[k]];
+      for (var j = k - 1; j > 0; j--) { var s = R.steps[ord[j]]; if (hidden(s) || s.t === 'note' || s.in) continue;
+        if (!s.a || s.t === 'section' || s.z !== s0.z || Math.hypot(s.a[1] - s0.a[1], (s.a[2] - s0.a[2]) * AR) >= 2.2) return j; }
+      return 0;
+    };
+    logQ.forEach(function (v, q) {
+      if (!inR[q] || v.ready || doneQ.has(q) || tinAt[q] == null || hidden(R.steps[tinAt[q]])) return;
+      var tk = ord.indexOf(tinAt[q]); if (tk < fromN) return;
+      var dl = []; for (var i2 = 0; i2 < n0; i2++) { var s2 = R.steps[i2]; if (s2.t === 'do' && s2.q === q && !hidden(s2)) dl.push(i2); }
+      if (!dl.length || dl.some(function (i2) { return ord.indexOf(i2) >= fromN || cuI[i2]; })) return;
+      dl.filter(function (i2) { return !inLogDone(R.steps[i2]) && !ticks[i2 + ':do']; }).forEach(function (i2) {
+        var s2 = R.steps[i2], z = findZ(s2.z, fromN), k2 = z >= 0 && z < tk ? endStop(z) : -1;
+        if (k2 < 0 || k2 >= tk) k2 = startStop(tk);
+        var k0 = pick && skipStop ? fromN : from; if (k2 < k0) k2 = k0;   // (ahead: after your last done line, or where you left off when going back)
+        if (k2 >= tk) k2 = tk - 1;   // (always before the hand-in)
+        add.push({ k: k2, s: { t: 'do', q: q, o: s2.o, lv: R.steps[ord[Math.min(tk, ord.length - 1)]].lv, a: s2.a, z: s2.z, w: s2.w, ds: s2.ds, dk: s2.dk, dm: s2.dm, lg: 1, side: 1 } });
+      });
+    });
     logQ.forEach(function (v, q) {
       var x = QA && QA.q[q], bh = x && (behind(q) || LOGKEEP[q]); if (!x || doneQ.has(q) || inR[q] && !bh || (x[3] && x[3] !== R.fac[0])) return;
       if (bh) LOGKEEP[q] = 1;
       if (off.indexOf(q) >= 0) { LOGST[q] = { st: 'off' }; return; }
       var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(findZ(oz, bh ? fromN : from)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
+      if ((b < 0 || !x[18]) && x[18] && x[18][2] && (v.ready || x[16] && x[16][2])) {   // off the route: a side trip when it pays (chain included)
+        var sd = logSide(q, x, ord, bh ? fromN : from, v.ready);
+        if (sd && sd.ok) {
+          var kk = endStop(sd.k), lq = function (y, s) { if (!M.quests[y]) { var z = QA.q[y]; M.quests[y] = [z[0], z[1], z[2], z[4], z[8], '', '', 0, [], [z[10], z[11]]]; } s.q = y; s.lv = sd.lv; s.lg = 1; s.side = 1; add.push({ k: kk, s: s }); };
+          if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
+          if (!v.ready) lq(q, { t: 'do', a: [x[15], x[16][0], x[16][1]], z: x[15], w: x[16][2] });
+          lq(q, { t: 'turnin', xp: sd.xp, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2] });
+          sd.ch.forEach(function (y) { var z = QA.q[y], lvy = Math.floor(sd.lv || 1);
+            lq(y, { t: 'accept', a: [z[5], z[19][0], z[19][1]], z: z[5], w: z[19][2] });
+            if (z[16]) lq(y, { t: 'do', a: [z[15], z[16][0], z[16][1]], z: z[15], w: z[16][2] });
+            lq(y, { t: 'turnin', xp: Math.round(z[17] * xpf(lvy - z[1])), a: [z[9], z[18][0], z[18][1]], z: z[9], w: z[18][2] }); });
+          LOGST[q] = { st: 'on' }; return;
+        }
+        LOGST[q] = { st: 'far', xp: sd ? sd.xp : null, cx: sd ? sd.cx : 0, secs: sd ? sd.secs : null, nd: sd && sd.nd }; return;
+      }
       if (b < 0 || !x[18]) { LOGST[q] = { st: 'far' }; return; }
       var sa = R.steps[ord[a]], sb = R.steps[ord[b]], lv = Math.floor(sb.lv || 1);
       if ((x[1] || 0) <= greyAt(lv)) { LOGST[q] = { st: 'grey', lv: lv }; return; }
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
       if (x[16] && !v.ready) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
+      else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
+        var k3 = findZ(s3.z, bh ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b);
+        add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
       add.push({ k: b, s: { t: 'turnin', q: q, xp: Math.round(x[17] * xpf(lv - x[1])), lv: sb.lv, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2], lg: 1 } });
       LOGST[q] = { st: 'on' };
     });
     if (!add.length) { ORDER = null; return false; }
-    add.sort(function (p, q) { return p.k - q.k || (p.s.t === 'do' ? -1 : 1); });
+    add.forEach(function (a, n) { a.n = n; });
+    add.sort(function (p, q) { return p.k - q.k || (!!p.s.side - !!q.s.side) || (p.s.side ? p.n - q.n : (p.s.t === 'do' ? -1 : 1) - (q.s.t === 'do' ? -1 : 1) || p.n - q.n); });   // side-trip lines keep their order
     ORDER = []; var j = 0;
     ord.forEach(function (x, k) {
       ORDER.push(x);
@@ -1997,6 +2054,66 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return true;
   }
 
+  // the route's own XP per second around each level (its plan: travel + objectives + talking), worked out once
+  function lvPace(L) {
+    if (!R._pace || R._pace.id !== R.id) {
+      var st = R.steps.slice(0, R.n0), pl = T.plan(st, { race: R.race, cls: R.cls, fac: R.fac[0], known: null }, zn), xp = [], sec = [];
+      st.forEach(function (s, i) { var l = Math.floor(s.lv || 1); xp[l] = (xp[l] || 0) + (s.t === 'turnin' ? s.xp || 0 : 0);
+        sec[l] = (sec[l] || 0) + (pl.travel[i] ? pl.travel[i].secs : 0) + (s.t === 'do' ? (s.ds != null ? s.ds : 60) : s.t === 'accept' || s.t === 'turnin' ? 10 : 0); });
+      R._pace = { id: R.id, xp: xp, sec: sec };
+    }
+    var P = R._pace, X = 0, S = 0; for (var l = L - 1; l <= L + 1; l++) { X += P.xp[l] || 0; S += P.sec[l] || 0; }
+    return S > 0 ? X / S : 0;
+  }
+  // a side trip to hand in a ready log quest: the stop ahead nearest to its NPC (same continent, next 2 levels)
+  // the quest after q in its chain for your race and class (chainOf's rule)
+  function nextQ(q) {
+    var x = QA.q[q]; if (!x) return 0;
+    var u = QUNL[q] || [], n = x[12] && QA.q[x[12]] ? x[12] : u.length === 1 ? u[0] : 0;
+    if (!(n && forMe(n))) { var m2 = u.filter(forMe); n = m2.length === 1 ? m2[0] : 0; }
+    return n;
+  }
+  // a side trip for a log quest the route doesn't finish: from the stop ahead nearest to it (same continent, next
+  // 2 levels), do it (unless ready), hand it in, then the follow-up quests off the route while they pay; back to the stop
+  function logSide(q, x, ord, k0, ready) {
+    var P = function (p) { return p && p[2] ? { map: p[2][0], x: p[2][1], y: p[2][2] } : null; };
+    var O = ready ? null : P(x[16]), E = P(x[18]); if (!E || (!ready && !O)) return null;
+    var hw = (O || E), best = null, lv0 = null;
+    for (var k = k0; k < ord.length; k++) {
+      var s = R.steps[ord[k]]; if (!s || hidden(s) || !s.w || s.in) continue;
+      if (lv0 == null) lv0 = s.lv || 1; if ((s.lv || 1) > lv0 + 2) break;
+      if (s.w[0] !== hw.map) continue;
+      var d = Math.hypot(s.w[1] - hw.x, s.w[2] - hw.y); if (!best || d < best.d) best = { k: k, d: d, s: s };
+    }
+    if (!best) return null;
+    var lv = Math.floor(best.s.lv || 1); if ((x[1] || 0) <= greyAt(lv)) return { ok: false, xp: 0, secs: null, lv: best.s.lv };
+    if (!ready && x[20] == null) return { ok: false, xp: Math.round(x[17] * xpf(lv - x[1])), secs: null, lv: best.s.lv, nd: x[0] };
+    var kn = new Set(known ? Array.from(known) : []); (RouteTravel.START_FP[R.race] || []).forEach(function (y) { kn.add(y); });
+    var o = { known: kn, fac: R.fac[0], lvl: lv, cls: R.cls }, A = { map: best.s.w[0], x: best.s.w[1], y: best.s.w[2] };
+    var rt = function (a, b) { return T.route(a, b, o).secs; }, t = 0, cur = A;
+    try {
+      if (!ready) { t += rt(A, O) + x[20]; cur = O; }
+      t += rt(cur, E) + 10; cur = E;
+      var xp = Math.round(x[17] * xpf(lv - x[1])), cx = 0, free = 0, ch = [], nd = null, seen = {}, n = 0;
+      var top = { secs: t + rt(cur, A), cx: 0, n: 0 }, rate = function (c) { return (xp + c.cx) / Math.max(60, c.secs); };
+      var tin = {}; R.steps.slice(0, R.n0).forEach(function (s) { if (s.t === 'turnin') tin[s.q] = s; });
+      var had = function (y) { return doneQ.has(y) || y === q || ch.indexOf(y) >= 0; };
+      for (var nq = nextQ(q); nq && !seen[nq] && n < 8; nq = nextQ(nq)) {
+        seen[nq] = 1; var y = QA.q[nq]; if (!y || doneQ.has(nq) || logQ.has(nq)) break;
+        if (tin[nq]) { free += tin[nq].xp || 0; top.cx += tin[nq].xp || 0; continue; }   // on your route: it waits for this hand-in
+        var G = P(y[19]), O2 = y[16] ? P(y[16]) : null, E2 = P(y[18]);
+        if (y[21] || (y[2] || 0) > lv || (y[1] || 0) > lv + 3 || (y[1] || 0) <= greyAt(lv) || !G || !E2 || [G, O2, E2].some(function (p) { return p && p.map !== A.map; }) ||
+            !y[10].every(had) || (y[11].length && !y[11].some(had))) break;
+        if (y[20] == null || !y[16] && y[20] > 0) { nd = y[0]; break; }   // objectives we can't time, or no spot for them
+        t += rt(cur, G) + 10; cur = G;
+        if (O2) { t += rt(cur, O2) + y[20]; cur = O2; }
+        t += rt(cur, E2) + 10; cur = E2;
+        cx += Math.round(y[17] * xpf(lv - y[1])); ch.push(nq); n++;
+        var c = { secs: t + rt(cur, A), cx: cx + free, n: n }; if (rate(c) > rate(top)) top = c;
+      }
+    } catch (e) { return null; }
+    return { ok: rate(top) >= lvPace(lv), k: best.k, xp: xp, cx: top.cx, secs: top.secs, lv: best.s.lv, ch: ch.slice(0, top.n), nd: top.n === n ? nd : null };
+  }
   // ---- rows: steps in order, plus travel legs and flight paths picked up on the way
   function build() {
     var vis = [], ord = ORDER || R.steps.map(function (s, i) { return i; });
@@ -2206,10 +2323,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var past = 0; for (i = win[1]; i < R.n0; i++) if (R.steps[i].t === 'turnin' && doneQ.has(R.steps[i].q)) past++;
     hereWhy = { L: L, skipped: L && win[0] > lastDone + 1, past: past };
     here = rows.length;
-    var from = Math.max(lastDone + 1, win[0]), base = -1;
+    var from = Math.max(lastDone + 1, win[0]), fromB = lastDone + 1 >= win[0] ? lastDone + 0.5 : from, base = -1;   // (a line from your log right after the last line you did is ahead)
     for (n = 0; n < rows.length; n++) {
       var r = rows[n], b = r.i < R.n0 ? (base = r.i) : base + 0.5;   // a line added from your log sits after the step before it
-      if (b >= from && (r.k === 'step' && r.s.t !== 'note' || r.k === 'fp') && !isDone(r)) { here = n; break; }
+      if (b >= fromB && (r.k === 'step' && r.s.t !== 'note' || r.k === 'fp') && !isDone(r)) { here = n; break; }
     }
     var ld = null; rows.forEach(function (r) { if (r.k === 'step' && r.i <= lastDone && r.n < here) ld = r; });
     var lst = ld && stops.find(function (st) { return st.rows.indexOf(ld) >= 0; });
@@ -2315,13 +2432,19 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (!L || !hereStop || L >= 60) return;
     var g = greyAt(L), skip = (ls.get('lr.skip') || '').split('|'), best = null, cands = [];
     var PACE = paceAhead(L);
+    // whose quest is it: a quest you don't have yet counts in the part of its pickup (its hand-in may be parts later)
+    var hv = new Set(Array.from(logQ.keys())), aCh = {}, tIn = {};
+    stops.forEach(function (st) { st.rows.forEach(function (r) { if (r.k === 'step') [{ i: r.i, s: r.s }].concat(r.more || []).forEach(function (m) { var s = m.s; if (!s.q) return;
+      if (s.t === 'accept') { if (aCh[s.q] == null) aCh[s.q] = st.ch; if (isDone(r)) hv.add(s.q); }
+      else if (s.t === 'turnin' && m.i < R.n0) tIn[s.q] = { s: s, ch: st.ch }; }); }); });
+    var other = function (s, c) { return s.t !== 'accept' && aCh[s.q] && aCh[s.q] !== c && !hv.has(s.q); };
     // where your game files say you are: stops in that zone (or within 800 yards)
     var wh = snap && snap.where, whOk = !!(wh && wh.cont != null && wh.wx != null);
     var nearYou = function (st) { var s = whOk && stW(st); return !!s && s.w[0] === wh.cont && (zn(s.z) === wh.zone || Math.hypot(s.w[1] - wh.wx, s.w[2] - wh.wy) < 800); };
     chaps.forEach(function (c) {
       var cur = c === hereStop.ch;   // the part you are in: only its stops behind you
       if (c.idx > hereStop.ch.idx || !c.rows.length || c.rows[c.rows.length - 1].i < win[0]) return;
-      var inCh = {}, v = { c: c, xp: 0, ups: [], dun: null, st: null, sts: [], chs: [] };
+      var inCh = {}, v = { c: c, xp: 0, ups: [], dun: null, st: null, sts: [], chs: [], oq: {} };
       c.rows.forEach(function (r) { stepsOf(r).forEach(function (s) { if (s.t === 'turnin') inCh[s.q] = 1; }); });
       // you can do it now: in your log, or your level, not grey, and the quests before it done (or in this part)
       var open = function (q) {
@@ -2334,7 +2457,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         if (cur && st.gi >= hereStop.gi) return;
         st.rows.forEach(function (r) {
           stepsOf(r).forEach(function (s) {
-            if (!s.q || !open(s.q)) return;
+            if (!s.q || !open(s.q) || other(s, c)) return;
+            if (s.t === 'accept' && !hv.has(s.q) && tIn[s.q] && tIn[s.q].ch !== c && !v.oq[s.q]) { v.oq[s.q] = 1; v.xp += xpAt(tIn[s.q].s, L); }   // its hand-in in a later part
             if (!isDone(r)) { if (!v.st) v.st = st; if (v.sts.indexOf(st) < 0) v.sts.push(st); }
             if (s.t !== 'turnin') return;
             if (WORTH[s.q]) { var p = s.q; v.xp += WORTH[s.q]; v.chain = s.q; v.chs.push(s.q); Object.keys(lkAll).filter(function (q) { return +lkAll[q] === +p && upMine && upMine.byId[q]; }).map(Number).forEach(function (q) { if (v.ups.indexOf(q) < 0) v.ups.push(q); }); }
@@ -2365,7 +2489,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         v.sts.forEach(function (st) { if (here0.indexOf(st) < 0 && st.rows.some(function (r) { return r.k === 'step' && !isDone(r) && stepsOf(r).some(function (s) { return s.t === 'turnin' && hq0[s.q]; }); })) here0.push(st); });   // their hand-ins too
         here0.sort(function (x, y) { return x.gi - y.gi; });
         var hx = 0, hs = 0, hq = {};
-        here0.forEach(function (st) { st.rows.forEach(function (r) { if (r.k !== 'step' || isDone(r)) return; hs += rowSecs(r); stepsOf(r).forEach(function (s) { if (s.t === 'turnin' && s.q && open(s.q) && !hq[s.q]) { hq[s.q] = 1; hx += xpAt(s, L); } }); }); });
+        here0.forEach(function (st) { st.rows.forEach(function (r) { if (r.k !== 'step' || isDone(r)) return; hs += rowSecs(r); stepsOf(r).forEach(function (s) { if (s.t === 'turnin' && s.q && open(s.q) && !other(s, c) && !hq[s.q]) { hq[s.q] = 1; hx += xpAt(s, L); } }); }); });
         if (hx > 0 && hx / Math.max(60, hs) >= PACE) { v.sts = here0; v.st = here0[0]; v.rank = 2; v.near = 1; }
       }
       if (!cur && pmOn() && !v.near) {   // the answer given before for this part stays (where you stand always counts)
@@ -2437,7 +2561,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
               if (r2.k === 'step' && !isDone(r2) && stepsOf(r2).some(function (s2) { return s2.q === q && (s2.t === 'do' || s2.t === 'turnin'); })) out.push(r2); }
             return;
           }
-          if (logQ.has(q)) return;
+          if (logQ.has(q)) {
+            if (s.t === 'turnin' && !logQ.get(q).ready) for (var n3 = 0; n3 < r.n; n3++) { var r3 = rows[n3];
+              if (r3.k === 'step' && !isDone(r3) && stepsOf(r3).some(function (s3) { return s3.q === q && s3.t === 'do' && !inLogDone(s3); })) out.push(r3); }
+            return;
+          }
           var a = accAt(q); if (a && a.r.n < r.n && !ticks[a.i + ':accept']) out.push(a.r);
         });
       });
@@ -2452,21 +2580,23 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       // the nearest part first from where you are (each part in its own order), each stop only once all it needs is done
       // or in your log
       var have = new Set(Array.from(logQ.keys())), tin = new Set(Array.from(doneQ)), first = [], cand = best.sts.filter(nearYou), pos = [wh.wx, wh.wy];
+      // objective lines still to do, per quest, in the going-back stops (a hand-in waits for them)
+      var oLeft = {}; best.sts.forEach(function (st) { st.rows.forEach(function (r) { if (r.k === 'step' && !isDone(r)) stepsOf(r).forEach(function (s) { if (s.t === 'do' && s.q && !doneQ.has(s.q) && !inLogDone(s)) oLeft[s.q] = (oLeft[s.q] || 0) + 1; }); }); });
       var can = function (st) {
-        var ok = true, h2 = new Set(have), t2 = new Set(tin);
+        var ok = true, h2 = new Set(have), t2 = new Set(tin), o2 = Object.assign({}, oLeft);
         st.rows.forEach(function (r) { if (r.k !== 'step' || isDone(r)) return; stepsOf(r).forEach(function (s) {
           if (!s.q || doneQ.has(s.q)) return;
           if (s.t === 'accept') { var p = (M.quests[s.q] || [])[9] || [[], []]; if (!p[0].every(function (y) { return t2.has(y); }) || p[1].length && !p[1].some(function (y) { return t2.has(y); })) ok = false; h2.add(s.q); }
-          else { if (!h2.has(s.q)) ok = false; if (s.t === 'turnin') t2.add(s.q); }
+          else { if (!h2.has(s.q)) ok = false; if (s.t === 'do' && !inLogDone(s) && o2[s.q]) o2[s.q]--; if (s.t === 'turnin') { if (o2[s.q]) ok = false; t2.add(s.q); } }
         }); });
-        return ok ? [h2, t2] : null;
+        return ok ? [h2, t2, o2] : null;
       };
       while (cand.length) {
         var bk = -1, bd = Infinity, bs = null;
         cand.forEach(function (st, k) { if (cand.some(function (x) { return x.ch === st.ch && x.gi < st.gi; })) return;   // a part keeps its own order
           var c2 = can(st); if (!c2) return; var w0 = stW(st).w, d = Math.hypot(w0[1] - pos[0], w0[2] - pos[1]); if (d < bd) { bd = d; bk = k; bs = c2; } });
         if (bk < 0) break;
-        var st1 = cand.splice(bk, 1)[0], w1 = stW(st1, true).w; first.push(st1); have = bs[0]; tin = bs[1]; pos = [w1[1], w1[2]];
+        var st1 = cand.splice(bk, 1)[0], w1 = stW(st1, true).w; first.push(st1); have = bs[0]; tin = bs[1]; oLeft = bs[2]; pos = [w1[1], w1[2]];
       }
       if (first.length) best.sts = first.concat(best.sts.filter(function (st) { return first.indexOf(st) < 0; }));
     }
@@ -2648,7 +2778,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       return row('<a class="dgl" href="' + DGURL + '#' + dgSlug(d.name) + '">' + esc(d.name) + '</a>', h === d.all.length ? '<span class="ok">all ' + h + ' quests</span>' : h + ' of ' + d.all.length + ' quests', d.ready || d.stop);
     }) });
     // in your log but not on this route
-    var nr = []; logQ.forEach(function (v, q) { if (!doneQ.has(q) && !v.ready && (LOGST[q] || !rowOf[q] && !accOf[q])) nr.push(q); });
+    var nr = []; logQ.forEach(function (v, q) { if (!doneQ.has(q) && (!v.ready || LOGST[q] && (LOGST[q].st === 'far' || LOGST[q].st === 'grey')) && (LOGST[q] || !rowOf[q] && !accOf[q])) nr.push(q); });   // (ready ones too when the route won't take them)
     var lgBtn = function (q, on) { return ' <button type="button" class="ys-lt" data-logq="' + q + '">' + (on ? 'Leave out' : 'Add back') + '</button>'; };
     var lgRow = function (q) { var r = rows.find(function (r) { return r.k === 'step' && stepsOf(r).some(function (s) { return s.q === q && s.lg; }); }); return r && stopAt(r.n); };
     // sorted into: abandon (no XP left where the route gets there, or the route never goes there), on your route,
@@ -2665,7 +2795,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (g.st === 'off') return gOff.push(row(nm(q), lgBtn(q, 0).replace(/^ /, '')));
       if (g.st === 'grey') { var gx = lxp(q, g.lv); return gAb.push(row(nm(q), 'Grey when the route gets there (level ' + Math.floor(g.lv) + ')' + (gx != null ? ' · ' + kxp(gx) + ' xp' : ''))); }
       var w = logWhere(q);
-      if (g.st === 'far' || w && !w.a) return gAb.push(row(nm(q), 'The route never goes there'));
+      if (g.st === 'far' || w && !w.a) return gAb.push(row(nm(q), g.xp != null && g.secs ? 'Off your route: +' + kxp(g.xp + (g.cx || 0)) + ' xp' + (g.cx ? ' with the quests it opens' : '') + ' for a ' + mins(g.secs) + ' trip' + (g.nd ? ' (no time data for ' + esc(g.nd) + ')' : '') : g.nd ? 'Off your route (no time data for ' + esc(g.nd) + ')' : 'The route never goes there'));
       if (w) return gOn.push(row(nm(q), esc(logText(w)), w.st));
       gYou.push(row(nm(q), 'Not in our quest data'));
     });
@@ -3183,6 +3313,28 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       svg.appendChild(g);
     });
+    // close-up: where each NPC stands (game ! / ? and name), drawn over the pins, shown once you zoom in
+    var spots = {}, sk = [];
+    cl.forEach(function (k) { k.st.forEach(function (st) { st.rows.forEach(function (r) { if (r.k !== 'step') return;
+      [{ i: r.i, s: r.s }].concat(r.more || []).forEach(function (mm) {
+        var s = mm.s; if ((s.t !== 'accept' && s.t !== 'turnin') || !s.q) return;
+        var L = stepLoc(s); if (!L || L.dun || L.um !== curZone || L.x == null) return;
+        var who = (M.quests[s.q] || [])[s.t === 'accept' ? 3 : 4] || '', key = who + '|' + Math.round(L.x * 5) + ',' + Math.round(L.y * 5);
+        var dn = isDone(r) || !!ticks[mm.i + ':' + s.t] || doneQ.has(s.q);
+        var e = spots[key]; if (!e) { e = spots[key] = { x: L.x, y: L.y * AR, who: who, acc: 0, tin: 0, open: 0, ln: [], gi: st.gi }; sk.push(key); }
+        if (!dn) { e.open++; if (s.t === 'turnin') e.tin++; else e.acc++; }
+        e.ln.push((s.t === 'turnin' ? 'Hand in: ' : 'Pick up: ') + qn(s.q) + (dn ? ' (done)' : ''));
+      }); }); }); });
+    npcG = el('g', { class: 'npcs' });
+    sk.forEach(function (key) {
+      var e = spots[key], ic = e.open ? (e.tin ? 'q_turnin' : 'q_accept') : 'q_turnin';
+      var g = el('g', { class: 'poi npcspot' + (e.open ? '' : ' done'), 'data-x': e.x, 'data-y': e.y, 'data-st': e.gi });
+      var tl = el('title', {}); tl.textContent = (e.who ? e.who + '\n' : '') + e.ln.join('\n'); g.appendChild(tl);
+      if (WIC[ic]) g.appendChild(el('image', { href: WIC[ic], x: -1, y: -1.1, width: 2, height: 2 }));
+      if (e.who) { var tx = el('text', { x: 0, y: 1.6 }); tx.textContent = e.who; g.appendChild(tx); }
+      npcG.appendChild(g);
+    });
+    svg.appendChild(npcG);
     m.appendChild(svg);
     m.insertAdjacentHTML('beforeend', '<div class="ztitle">' + esc(umName(curZone)) + '</div>');   // this map's zone (its art names the zones next door at the edges)
     var zb = document.createElement('div'); zb.className = 'zbar';
@@ -3226,6 +3378,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   };
   var f1w = function (v) { return (+v).toFixed(1); };
   var ZS = {};   // uiMap -> [svg path on the continent map, label x, label y]
+  fetch(BASE + 'spawns.json').then(function (r) { return r.json(); }).then(function (j) { SPAWN = j; try { if (curZone != null) drawMap(); } catch (e) {} }).catch(function () {});
   fetch(BASE + 'maps/zones.json').then(function (r) { return r.json(); }).then(function (j) { ZS = j; try { if (curZone != null) drawMap(); } catch (e) {} }).catch(function () {});
   function locHtml(um) {
     var cm = contOf(um), r = cm && zRect(cm, UMZ[um]); if (!r) return '';
@@ -3339,7 +3492,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       pg.setAttribute('points', [ex, ey, ex - ux * hl - uy * hw, ey - uy * hl + ux * hw, ex - ux * hl + uy * hw, ey - uy * hl - ux * hw].map(function (v) { return v.toFixed(3); }).join(' '));
     }
     updMini();
-    mapSvg.querySelectorAll('.pin, .poi').forEach(function (g) { g.setAttribute('transform', 'translate(' + g.dataset.x + ' ' + g.dataset.y + ') scale(' + K.toFixed(4) + ')'); });
+    var zc = Math.max(0, Math.min(1, (100 / view[2] - 2.2) / 1.2));   // 0 = zone view, 1 = close-up (minimap tiles in)
+    if (npcG) { npcG.style.opacity = zc.toFixed(2); npcG.style.display = zc > 0 ? '' : 'none'; }
+    mapSvg.querySelectorAll('.pin, .poi').forEach(function (g) { var dy = zc && g.classList.contains('pin') ? -3.2 * K * zc : 0;   // close-up: the numbered pin lifts off the spot like a tag
+      g.setAttribute('transform', 'translate(' + g.dataset.x + ' ' + (+g.dataset.y + dy) + ') scale(' + K.toFixed(4) + ')'); });
   }
   // the close-up tiles: invisible up to about 2x zoom, fully in from about 3.4x; the zone map's names still show through
   function updMini() {
@@ -3401,7 +3557,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!st) return;
       st.rows.forEach(function (r) {
         var s = r.s; if (!s || s.t !== 'do' || !s.q || seen[s.q] || !left[s.q]) return; seen[s.q] = 1;
-        ((M.quests[s.q] || [])[8] || []).forEach(function (ob) {
+        ((M.quests[s.q] || [])[8] || []).forEach(function (ob, oi) {
           if (gone[s.q + '|' + ob[0]]) return;
           var pts = [];
           ob[1].forEach(function (a) { if (AREA2UM[a[0]] !== curZone) return; for (var i = 1; i < a.length; i += 2) pts.push([a[i], a[i + 1] * AR]); });
@@ -3410,6 +3566,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
           var one = el('g', {}); one.appendChild(t);
           pts.forEach(function (p) { one.appendChild(el('circle', { cx: p[0], cy: p[1], r: 1.7 })); });
           blob.appendChild(one);
+          var sp = SPAWN && SPAWN[s.q] && SPAWN[s.q][oi], dp = [];   // every spawn: small dots (they keep their size as you zoom)
+          if (sp && (pts.length > 3 || !ob[0])) {
+            sp[1].forEach(function (a) { if (AREA2UM[a[0]] !== curZone) return; for (var i = 1; i < a.length; i += 2) dp.push([a[i], a[i + 1] * AR]); });
+            var dg = el('g', { class: 'spdots' }), t2 = el('title', {}); t2.textContent = t.textContent; dg.appendChild(t2);
+            dp.forEach(function (p) { var d = el('g', { class: 'poi spdot', 'data-x': p[0], 'data-y': p[1] }); d.appendChild(el('circle', { cx: 0, cy: 0, r: 0.32 })); dg.appendChild(d); });
+            g.appendChild(dg);
+          }
           if (pts.length <= 3 && ob[0]) pts.forEach(function (p) {
             var m = el('g', { class: 'poi objdot', 'data-x': p[0], 'data-y': p[1] });
             var tt = el('title', {}); tt.textContent = qn(s.q) + ': ' + ob[0]; m.appendChild(tt);

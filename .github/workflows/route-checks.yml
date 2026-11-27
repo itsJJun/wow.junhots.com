@@ -1,0 +1,49 @@
+# Level route checks (Jun 27 Nov: one machine took ~8 h for all four). Runs the four route check scripts on every
+# base route, split by start zone and race into parallel jobs (~30-40 min in total). Any problem fails that job.
+#   order   = scripts/check-level-route.cjs          nothing shown before its pickup, pre-quests or objectives
+#   buttons = scripts/check-level-route-buttons.cjs  every button in random order, nothing drifts
+#   follow  = scripts/check-level-route-follow.cjs   tick Done stop by stop and reload: the route keeps its order
+#   play    = the same with PLAY=1                   play without ticking (new game files each time)
+name: Level route checks
+on:
+  pull_request:
+    paths:
+      - 'public/level-route/**'
+      - 'scripts/check-level-route*.cjs'
+      - '.github/workflows/route-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: route-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [order, buttons, follow, play]
+        routes: [durotar-Orc, durotar-Troll, mulgore-Tauren, tirisfal-Undead, skyH-SkyborneH,
+                 dunmorogh-Dwarf, dunmorogh-Gnome, elwynn-Human, teldrassil-NightElf, skyA-SkyborneA]
+    name: ${{ matrix.check }} · ${{ matrix.routes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright + Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Run ${{ matrix.check }} on ${{ matrix.routes }}
+        env:
+          W: '4'
+        run: |
+          case "${{ matrix.check }}" in
+            order)   node scripts/check-level-route.cjs "${{ matrix.routes }}" ;;
+            buttons) LVS=14,30,46 MAXA=30 node scripts/check-level-route-buttons.cjs "${{ matrix.routes }}" ;;
+            follow)  node scripts/check-level-route-follow.cjs "${{ matrix.routes }}" ;;
+            play)    PLAY=1 node scripts/check-level-route-follow.cjs "${{ matrix.routes }}" ;;
+          esac

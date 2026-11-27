@@ -1,6 +1,22 @@
 [
   {
     "date": "2026-11-27",
+    "title": "Level route: exact NPC spots",
+    "text": "Zoom in on the map to see every quest giver with its ! or ? and name, plus where the quest monsters and items are.",
+    "image": "/assets/updates/2026-11-27-route-npcspots.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: same zone first, smarter side trips",
+    "text": "The route finishes a zone's quests before leaving instead of coming back later. Quests in your log that the route skips get a side trip when they pay, follow-up quests included, or an Abandon tag.",
+    "image": "/assets/updates/2026-11-27-route-logtrip.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
     "title": "Level route: going back only when it pays",
     "text": "The route sends you back to an earlier zone only when that gives more XP per minute than moving on, trip included. Quests that need a crafted or auction house item are left out. Vendor items get a \"buy\" tag.",
     "image": "/assets/updates/2026-11-27-route-goback.webp",

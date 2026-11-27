@@ -6,7 +6,8 @@
 // For every base route and several progress states per level (random gaps in finished quests, quests dropped from
 // the log, a whole part skipped), it loads the page, then checks in order the going-back list and the route ahead
 // of where you left off: every objective / hand-in comes after its pickup (or the quest is in your log or done),
-// every pickup comes after its pre-quests are handed in, and every quest picked up is handed in later. A test hook is injected into the served copy only.
+// every pickup comes after its pre-quests are handed in, every hand-in of a quest with objectives comes after an
+// objective line (Jun 27 Nov: Screecher Spirits hand-in shown before its objectives), and every quest picked up is handed in later. A test hook is injected into the served copy only.
 // Exits 1 on any problem or page error.
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -83,8 +84,9 @@ let PORT;
         [...log].forEach(q => { if (done.has(q)) log.delete(q); });
         await p.evaluate(([d, l, L]) => window.__lrT.set(d, l, L), [[...done], [...log], L]);
         const cu = await p.evaluate(() => window.__lrT.cu()), fwd = await p.evaluate(() => window.__lrT.fwd()); nScen++;
-        const have = new Set([...done, ...log]), turned = new Set(done);
+        const have = new Set([...done, ...log]), turned = new Set(done), objd = new Set(), hasDo = new Set(st.filter(s => s.t === 'do' && s.q).map(s => s.q));
         const chk = (x, where) => {
+          if (x.q && x.t === 'do') objd.add(x.q);
           if (!x.q || x.done) { if (x.q && x.t === 'turnin' && x.done) turned.add(x.q); return; }
           const m = META.quests[x.q], pre = (m && m[9]) || [[], []];
           if (x.t === 'accept') {
@@ -93,7 +95,7 @@ let PORT;
             have.add(x.q);
           } else {
             if (!have.has(x.q)) bad.push([id, L, mode, where + ': ' + x.t + ' before pickup', x.q, m && m[0]]);
-            if (x.t === 'turnin') turned.add(x.q);
+            if (x.t === 'turnin') { if (hasDo.has(x.q) && !objd.has(x.q)) bad.push([id, L, mode, where + ': hand-in before objectives', x.q, m && m[0]]); turned.add(x.q); }
           }
         };
         if (cu) { nDet++; nStops += cu.sts.length; }
@@ -121,6 +123,7 @@ let PORT;
   console.log('PROBLEMS', bad.length, JSON.stringify(kinds));
   const byQ = {}; bad.forEach(x => { const k = x[3] + ' | ' + x[5] + ' (' + x[4] + ')'; byQ[k] = (byQ[k] || 0) + 1; });
   Object.entries(byQ).sort((a, b) => b[1] - a[1]).slice(0, 40).forEach(([k, v]) => console.log(' ', v, k));
+  if (process.env.SHOWBAD) bad.slice(0, +process.env.SHOWBAD).forEach(x => console.log('  BAD', JSON.stringify(x)));
     console.log('PAGE ERRORS', errs.length, errs.slice(0, 5).join('\n'));
   await b.close(); srv.close();
   process.exitCode = bad.length || errs.length ? 1 : 0;
