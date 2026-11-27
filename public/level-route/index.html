@@ -2019,15 +2019,16 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var x = QA && QA.q[q], bh = x && (behind(q) || LOGKEEP[q]); if (!x || doneQ.has(q) || inR[q] && !bh || (x[3] && x[3] !== R.fac[0])) return;
       if (bh) LOGKEEP[q] = 1;
       if (off.indexOf(q) >= 0) { LOGST[q] = { st: 'off' }; return; }
+      var rd = v.ready || !!ticks['q' + q + ':do'];   // (its objective line ticked Done: as if ready)
       var k0L = bh && pick && skipStop ? fromN : from, fz = function (z) { var k = findZ(z, k0L); if (k >= 0 && k < fromN && endStop(k) >= fromN) k = findZ(z, fromN); return k; };   // (a stop that runs on into where you are: from there)
-      var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(fz(oz)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
-      if ((b < 0 || !x[18]) && x[18] && x[18][2] && (v.ready || x[16] && x[16][2])) {   // off the route: a side trip when it pays (chain included)
-        var sd = logSide(q, x, ord, bh && pick && skipStop ? fromN : from, v.ready);
+      var oz = x[16] && !rd ? x[15] : x[9], a = endStop(fz(oz)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
+      if ((b < 0 || !x[18]) && x[18] && x[18][2] && (rd || x[16] && x[16][2])) {   // off the route: a side trip when it pays (chain included)
+        var sd = logSide(q, x, ord, bh && pick && skipStop ? fromN : from, rd);
         if (sd && sd.k != null && pmOn()) { var ps = (pmGet().s || {})[q]; if (ps == null) { PMN.s[q] = sd.ok ? 1 : 0; if (!PMREC) sd.ok = false; } else sd.ok = !!ps; }   // the answer given before stays
         if (sd && sd.ok) {
           var kk = endStop(sd.k), lq = function (y, s) { if (!M.quests[y]) { var z = QA.q[y]; M.quests[y] = [z[0], z[1], z[2], z[4], z[8], '', '', 0, [], [z[10], z[11]]]; } s.q = y; s.lv = sd.lv; s.lg = 1; s.side = 1; add.push({ k: kk, s: s }); };
           if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
-          if (!v.ready) lq(q, { t: 'do', a: [x[15], x[16][0], x[16][1]], z: x[15], w: x[16][2] });
+          if (!rd) lq(q, { t: 'do', a: [x[15], x[16][0], x[16][1]], z: x[15], w: x[16][2] });
           lq(q, { t: 'turnin', xp: sd.xp, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2] });
           sd.ch.forEach(function (y) { var z = QA.q[y], lvy = Math.floor(sd.lv || 1);
             lq(y, { t: 'accept', a: [z[5], z[19][0], z[19][1]], z: z[5], w: z[19][2] });
@@ -2041,7 +2042,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var sa = R.steps[ord[a]], sb = R.steps[ord[b]], lv = Math.floor(sb.lv || 1);
       if ((x[1] || 0) <= greyAt(lv)) { LOGST[q] = { st: 'grey', lv: lv }; return; }
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
-      if (x[16] && !v.ready) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
+      if (x[16] && !rd) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
       else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
         var k3 = fz(s3.z); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh && pick && skipStop ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
         add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
@@ -2445,7 +2446,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     try { return T.route(pt(a), pt(b), o).secs + T.route(pt(b), pt(a), o).secs; } catch (e) { return 0; }
   }
   function catchUp(L, win) {
-    pick = null; skipStop = null; skipped = []; PMN.c = {}; PMN.hs = {};
+    var pick0 = pick; pick = null; skipStop = null; skipped = []; PMN.c = {}; PMN.hs = {};   // (pick0: the trip back shown before this draw)
     if (!L || !hereStop || L >= 60) return;
     var g = greyAt(L), skip = (ls.get('lr.skip') || '').split('|'), best = null, cands = [];
     var PACE = paceAhead(L);
@@ -2518,7 +2519,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       if (cur && pmOn() && !v.near && v.st) {   // (the part you are in: by the first stop it goes back to)
         var r0 = v.st.rows.find(function (r) { return r.k === 'step' && r.i < R.n0 && !isDone(r); }), hk = 'h' + c.idx + ':' + (r0 ? r0.i : v.st.gi), hd = pmGet().c[hk];
-        if (hd == null && !PMREC && Object.keys(pmGet().c).some(function (k) { return k.indexOf('h' + c.idx + ':') === 0 && pmGet().c[k] === 1; })) hd = 1;   // (you said go back in this part: the next stop behind too, until the next file load asks again)
+        var p0 = !PMREC || pick0 && pick0.sts.some(function (st) { return st.ch && st.ch.idx === c.idx && st.rows.some(function (r) { return r.k === 'step' && !isDone(r); }); });   // (at a file load: only while the trip back shown is unfinished)
+        if (hd == null && p0 && Object.keys(pmGet().c).some(function (k) { return k.indexOf('h' + c.idx + ':') === 0 && pmGet().c[k] === 1; })) hd = 1;   // (you said go back in this part: the next stop behind too, until the next file load asks again)
         if (hd == null) { PMN.c[hk] = v.rank <= 2 ? 1 : 0; PMN.hs[hk] = v.st; }   // (a new question: as it is now; saved at your next file load)
         else if (hd && v.rank > 2) v.rank = 2;
         else if (!hd && v.rank > 0) return;
