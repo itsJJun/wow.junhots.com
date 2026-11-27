@@ -1,5 +1,37 @@
 [
   {
+    "date": "2026-11-27",
+    "title": "Level route: right quest spots, quests done together",
+    "text": "Kill and loot spots now sit where the monsters crowd, not at a lone spawn. Quests in the same spot are done together, and hand-ins come as soon as you pass by.",
+    "image": "/assets/updates/2026-11-26-route-spots.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: clearer notes",
+    "text": "Guide notes now use short, plain words, and notes that didn't help are gone. Auction house reminders wait until you reach a town with an auction house.",
+    "image": "/assets/updates/2026-11-26-route-notes.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: same plan when you load your files again",
+    "text": "Load your files again while you play and the going-back plan stays the same. Going back starts in the zone you are in.",
+    "image": "/assets/updates/2026-11-26-route-steady.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: your XP bar",
+    "text": "With Gear Snapshot 1.10 the route shows your XP bar and the level you reach at the next hand-in. Quests to abandon are listed too.",
+    "image": "/assets/updates/2026-11-26-route-xp.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
     "date": "2026-11-26",
     "title": "Gear upgrades: our own item list",
     "text": "Items now come from the game's own files, not an addon: about 8,000 quest rewards, dungeon drops, crafts and BoEs, with Forever's changed stats. Raid quest gear is left out, and class-only quest rewards only show for that class.",
