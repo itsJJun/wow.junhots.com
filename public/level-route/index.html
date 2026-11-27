@@ -1710,7 +1710,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       (mine ? ' · in your log: <b>' + logQ.size + '</b>' + (ready ? ', <b>' + ready + '</b> ready to turn in' : '') + ' <span class="muted">(' + esc(snap.at) + ')</span>' : '') +
       ' · <label class="load" for="snapFile">' + (mine ? 'reload' : 'load GearSnapshot.lua') + '</label>';
     $('logWarn').innerHTML = mine && snap.folded ? 'Some zones in your quest log are folded, so ' + (snap.n - logQ.size) + ' quests are hidden. Unfold them in the quest log, then /reload.' : '';
-    PMREC = true; try { for (var pk = 0; pk < 3; pk++) { PMNEW = 0; jumped = false; render(); if (!PMNEW) break; } } finally { PMREC = false; }
+    var fp = [snap && snap.at || '', doneQ.size, Array.from(logQ.keys()).sort().join(','), ready, snap && snap.level || 0].join('|'), pm0 = pmOn() ? pmGet() : null, fresh = !pm0 || pm0.fp !== fp;
+    if (pm0 && fresh) { pm0.fp = fp; ls.set('lr.plan', JSON.stringify(pm0)); }   // (the same files again: nothing new is asked)
+    PMREC = fresh; try { for (var pk = 0; pk < 3; pk++) { PMNEW = 0; jumped = false; render(); if (!PMNEW) break; } } finally { PMREC = false; }
   }
   // WoW SavedVariables -> JS objects (Lua lists become {1: .., 2: ..})
   function parseLua(src) {
@@ -2017,7 +2019,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var x = QA && QA.q[q], bh = x && (behind(q) || LOGKEEP[q]); if (!x || doneQ.has(q) || inR[q] && !bh || (x[3] && x[3] !== R.fac[0])) return;
       if (bh) LOGKEEP[q] = 1;
       if (off.indexOf(q) >= 0) { LOGST[q] = { st: 'off' }; return; }
-      var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(findZ(oz, bh && pick && skipStop ? fromN : from)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
+      var k0L = bh && pick && skipStop ? fromN : from, fz = function (z) { var k = findZ(z, k0L); if (k >= 0 && k < fromN && endStop(k) >= fromN) k = findZ(z, fromN); return k; };   // (a stop that runs on into where you are: from there)
+      var oz = x[16] && !v.ready ? x[15] : x[9], a = endStop(fz(oz)), b = a < 0 ? -1 : endStop(findZ(x[9], a));
       if ((b < 0 || !x[18]) && x[18] && x[18][2] && (v.ready || x[16] && x[16][2])) {   // off the route: a side trip when it pays (chain included)
         var sd = logSide(q, x, ord, bh && pick && skipStop ? fromN : from, v.ready);
         if (sd && sd.k != null && pmOn()) { var ps = (pmGet().s || {})[q]; if (ps == null) { PMN.s[q] = sd.ok ? 1 : 0; if (!PMREC) sd.ok = false; } else sd.ok = !!ps; }   // the answer given before stays
@@ -2040,7 +2043,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
       if (x[16] && !v.ready) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
       else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
-        var k3 = findZ(s3.z, bh && pick && skipStop ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh && pick && skipStop ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
+        var k3 = fz(s3.z); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh && pick && skipStop ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
         add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
       add.push({ k: b, s: { t: 'turnin', q: q, xp: Math.round(x[17] * xpf(lv - x[1])), lv: sb.lv, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2], lg: 1 } });
       LOGST[q] = { st: 'on' };
@@ -2348,10 +2351,11 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     // objectives right before it of quests handed in at that place: they come first
     if (here < rows.length) {
       var tq = {}; for (var jt = here; jt < rows.length && rows[jt].k !== 'travel'; jt++) { var rt0 = rows[jt]; if (rt0.k === 'step' && !isDone(rt0)) stepsOf(rt0).forEach(function (s) { if (s.t === 'turnin' && s.q && !doneQ.has(s.q)) tq[s.q] = 1; }); }
-      for (var jb = here - 1, nt = 0; jb >= 0; jb--) { var rb0 = rows[jb];
+      for (var jb = here - 1, nt = 0, sd0 = 0; jb >= 0; jb--) { var rb0 = rows[jb];
         if (rb0.k !== 'step') { if (rb0.k === 'travel' && ++nt > 2) break; if (rb0.k === 'travel' || rb0.k === 'sec') continue; break; }   // (up to 2 trips back)
-        if (rb0.s.t === 'note' || isDone(rb0) || rb0.i >= R.n0 && !stepsOf(rb0).some(function (s) { return tq[s.q]; })) continue;   // (lines done, and lines added from your log for other quests, stay where they are)
-        if (!stepsOf(rb0).every(function (s) { return s.t === 'do' && tq[s.q] && !inLogDone(s); })) break; here = jb; }
+        if (isDone(rb0)) { sd0 = 1; continue; }
+        if (rb0.s.t === 'note' || rb0.i >= R.n0 && !stepsOf(rb0).some(function (s) { return tq[s.q]; })) continue;   // (lines done, and lines added from your log for other quests, stay where they are)
+        if (sd0 && rb0.i < R.n0 || !stepsOf(rb0).every(function (s) { return s.t === 'do' && tq[s.q] && !inLogDone(s); })) break; here = jb; }   // (a route line behind lines you did: it comes again ahead, before the hand-in)
     }
     hereStop = null;
     for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
