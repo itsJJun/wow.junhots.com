@@ -4,8 +4,9 @@
 #   buttons = scripts/check-level-route-buttons.cjs  every button in random order, nothing drifts
 #   follow  = scripts/check-level-route-follow.cjs   tick Done stop by stop and reload: the route keeps its order
 #   play    = the same with PLAY=1                   play without ticking (new game files each time)
-# A job with problems runs the same check on the live site (main) and fails only when this change is worse there
-# (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR).
+# A job with problems runs the same check on the live site (main) and fails only when this change has more problems
+# in all (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR). follow and play run
+# 3 random rounds on both.
 name: Level route checks
 on:
   pull_request:
@@ -54,11 +55,15 @@ jobs:
               play)    PLAY=1 node scripts/check-level-route-follow.cjs "$ROUTES" ;;
             esac
           }
-          if OUTJ=/tmp/this.json run_check; then exit 0; fi
-          [ -f /tmp/this.json ] || exit 1
+          # follow and play press at random: 3 rounds (SEED) each, so one unlucky round decides nothing
+          case "$CHECK" in follow|play) SEEDS="0 1 2" ;; *) SEEDS="0" ;; esac
+          ok=1; T=""; L=""
+          for s in $SEEDS; do SEED=$s OUTJ=/tmp/this-$s.json run_check || ok=0; T="$T,/tmp/this-$s.json"; L="$L,/tmp/live-$s.json"; done
+          [ $ok = 1 ] && exit 0
+          for s in $SEEDS; do [ -f /tmp/this-$s.json ] || exit 1; done
           echo "::group::The same check on the live site (main)"
           git fetch --depth=1 origin main && git worktree add /tmp/live FETCH_HEAD
-          PUB=/tmp/live/public OUTJ=/tmp/live.json run_check || true
+          for s in $SEEDS; do SEED=$s PUB=/tmp/live/public OUTJ=/tmp/live-$s.json run_check || true; done
           echo "::endgroup::"
-          [ -f /tmp/live.json ] || exit 1
-          node scripts/route-checks-compare.cjs "$CHECK" /tmp/this.json /tmp/live.json
+          for s in $SEEDS; do [ -f /tmp/live-$s.json ] || exit 1; done
+          node scripts/route-checks-compare.cjs "$CHECK" "${T#,}" "${L#,}"
