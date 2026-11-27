@@ -478,8 +478,12 @@
     return NEUTRAL[id] ? { mine: x[0] + '-' + id, neutral: x[0] + '-' + NEUTRAL[id] } : null;
   };
   window.wsHouseLabel = function (h, long) { return houseList().then(function (l) { return houseLabel(l, h, long); }); };
+  // Our own sold count is off until it matches TSM (27 Nov: even without cancelled listings it ran 4-6x TSM on house
+  // 113). Off = days 0, so every page keeps using TSM region data. Turn on once checked (scripts/blizzard_prices.py Sold).
+  var OWN_SALES = false;
   window.wsSales = function (hist, id) {
     var h = hist && hist.items[String(id)]; if (!hist) return null;
+    if (!OWN_SALES) return { days: 0 };
     // full days with sales counted; the first such day of the whole house started part way, so it is left out
     var first = hist.first; if (first === undefined) { first = Infinity; for (var k in hist.items) hist.items[k].forEach(function (d) { if (d[4] !== null && d[0] < first) first = d[0]; }); hist.first = first; }
     if (first === Infinity) return { days: 0 };

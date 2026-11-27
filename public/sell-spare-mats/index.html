@@ -867,7 +867,7 @@ const MKT = (function () {
   function slowToVendor(r) {
     if (r.where !== 'ah' || !(r.vs > 0)) return r;
     const s = speedOf(r); if (!s) return r;
-    const lost = s.none ? Infinity : depositOf(r.vs, 24, 1) * Math.max(0, Math.ceil(s.days) - 1);
+    const lost = s.none ? Infinity : depositOf(r.vs, 24, 1) * Math.max(0, Math.round(s.days) - 1);   // rounded like the shown days
     if (r.ah - lost >= Math.max(r.vs * 1.1, r.vs + 1)) return r;
     return Object.assign({}, r, { where: 'vendor', each: r.vs, tot: r.vs * r.spare, slow: s.none ? 'No sales seen on the auction house, so a vendor pays more.' :
       'Slow on the auction house: yours waits ~' + WSTREND.days(s.days) + ', and the listings that run out meanwhile cost about ' + coin(lost) + ' each in deposits, leaving less than a vendor pays.' });

@@ -33,7 +33,10 @@ down by its seller; a commodity listing that shrank sold the difference. Buyers 
 clears the cheapest price, then the next), so a gone listing counts as sold only when no listing of that item that
 was cheaper an hour ago is still up. One that went while cheaper ones stayed was taken down (sellers cancel to
 undercut and list again); it is not counted. Before 27 Nov 2026 every taken-down listing counted as sold, many times
-too high on busy items, so those counts were cleared (SOLD_RULE). An hour is only compared with the hour just before it.
+too high on busy items, so those counts were cleared (SOLD_RULE). Checked on 4 hours of US 113 the same day: this
+cut the count a lot on undercut items (Small Radiant Shard 8x, Soul Dust 5x) but it still ran a median 4-6x TSM's
+region sold per day, so pages keep using TSM (site.js OWN_SALES) until the average over all houses matches TSM.
+An hour is only compared with the hour just before it.
 
 Prices section (text, one line each):
   #<snapshot unix time>,<house>,<items>
@@ -268,7 +271,7 @@ def run_region(tok, region, state_dir, out_dir, send, suffix_of):
         state = pickle.loads(gzip.decompress(open(path, 'rb').read()))
     except Exception:
         state = {'asOf': 0, 'prev': {}, 'hist': {}}
-    if state.get('soldRule') != SOLD_RULE:   # counts made the old way are cleared: pages use TSM until 3 new full days
+    if state.get('soldRule') != SOLD_RULE:   # counts made the old way are cleared once
         for hist in state['hist'].values():
             for days in hist.values():
                 for d in days.values():
