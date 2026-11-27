@@ -1,6 +1,30 @@
 [
   {
     "date": "2026-11-27",
+    "title": "Level route: going back only when it pays",
+    "text": "The route sends you back to an earlier zone only when that gives more XP per minute than moving on, trip included. Quests that need a crafted or auction house item are left out. Vendor items get a \"buy\" tag.",
+    "image": "/assets/updates/2026-11-27-route-goback.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: drop quests",
+    "text": "Slow drop quests are left out. The rest say about how many kills, and earlier stops with the same monsters say \"Also here\".",
+    "image": "/assets/updates/2026-11-27-route-drops.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
+    "title": "Level route: maps and travel",
+    "text": "The world map shows your next stop. Zone maps show the zone's name on top. Walks no longer cross the mountains into Burning Steppes. Back shows the stop before when there's nothing to undo.",
+    "image": "/assets/updates/2026-11-27-route-worldnext.webp",
+    "link": "/level-route/",
+    "linkText": "Open the route"
+  },
+  {
+    "date": "2026-11-27",
     "title": "Level route: right quest spots, quests done together",
     "text": "Kill and loot spots now sit where the monsters crowd, not at a lone spawn. Quests in the same spot are done together, and hand-ins come as soon as you pass by.",
     "image": "/assets/updates/2026-11-26-route-spots.webp",
