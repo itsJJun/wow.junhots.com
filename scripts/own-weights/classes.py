@@ -45,7 +45,7 @@ MELEE_SITE = {'mhitP': ['hitPct'], 'mcritP': ['critPct'], 'ap': ['atkpwr'], 'rap
 CASTER_SITE = {'sp': ['splpwr', 'spldmg'], 'hitP': ['hitPct'], 'critP': ['critPct'], 'mp5': ['manargn'], 'shadow': ['shasplpwr'],
                'fire': ['firsplpwr'], 'frost': ['frosplpwr'], 'arcane': ['arcsplpwr'], 'nature': ['natsplpwr'], 'holy': ['holsplpwr'],
                'wandDps': ['rangedDps']}
-MD = {'str': 10, 'agi': 10, 'ap': 20, 'sta': 30, 'mhitP': 2, 'mcritP': 2, 'armor': 200}
+MD = {'str': 10, 'agi': 10, 'ap': 20, 'sta': 30, 'mhitP': 2, 'mcritP': 2, 'armor': 200, 'spi': 20}   # Spirit: health regen out of combat
 CD = {'sp': 20, 'int': 20, 'spi': 20, 'sta': 30, 'mp5': 10, 'hitP': 2, 'critP': 2, 'armor': 200}
 
 def cfg(cls, spec, ckey, cid, race, tmpl, key, talents, main, rot, phys, wsets, delta, ref, opts=None, **kw):
@@ -127,7 +127,7 @@ SHAMAN = {
                      rot=apls.SHAMAN_ELE, phys=False, wsets=['2h', 'held', 'shield'], delta=dict(CD, nature=20, fire=20), ref='sp', **SHR),
     'enhancement': cfg(spec='enhancement', tmpl='enhancement-shaman-L22-flametongue', key='enhancementShaman',
                        talents='053303102-053030310051002251-03', main=1, rot=tapl('enhancement-shaman-L22-flametongue'), phys=True,
-                       wsets=['2h', 'shield'], delta=dict(MD, int=20, sp=20), ref='ap', **SH),
+                       wsets=['2h', 'shield'], delta=dict(MD, int=20, sp=20, mp5=10), ref='ap', **SH),
     'restoration': cfg(spec='restoration', tmpl='elemental-shaman-L30', key='elementalShaman', talents='-055-5530500015513151', main=2,
                        rot=apls.SHAMAN_ELE, phys=False, wsets=['held', 'shield', '2h'], delta=dict(CD, nature=20), ref='sp', **SHR),
 }
@@ -137,8 +137,8 @@ PA = dict(cls='PALADIN', ckey='ClassPaladin', cid=2, race='RaceHuman', tmpl='ret
           rot=tapl('retribution-paladin-L30'), phys=True, ref='ap')
 PALADIN = {
     'holy': cfg(spec='holy', talents='22320215022101251-503200005003', main=0, wsets=['2h', 'shield'], delta=dict(MD, int=20, sp=20, spi=20), **PA),
-    'protection': cfg(spec='protection', talents='-05302102313501531-50233000201', main=1, wsets=['shield', '2h'], delta=dict(MD, int=20, sp=20), **PA),
-    'retribution': cfg(spec='retribution', talents='050050002-503-05233301001301351', main=2, wsets=['2h'], delta=dict(MD, int=20, sp=20), **PA),
+    'protection': cfg(spec='protection', talents='-05302102313501531-50233000201', main=1, wsets=['shield', '2h'], delta=dict(MD, int=20, sp=20, mp5=10), **PA),
+    'retribution': cfg(spec='retribution', talents='050050002-503-05233301001301351', main=2, wsets=['2h'], delta=dict(MD, int=20, sp=20, mp5=10), **PA),
 }
 
 # ---------------- Druid ----------------
@@ -147,7 +147,7 @@ DRUID = {
     'balance': cfg(spec='balance', tmpl='balance-druid-L30', key='balanceDruid', talents='5532220115501351--505', main=0, rot=apls.DRUID_CASTER,
                    phys=False, wsets=['2h', 'held'], delta=dict(CD, arcane=20, nature=20), ref='sp', tank_engine=False, ranged=True, **DR),
     'feral': cfg(spec='feral', tmpl='feral-druid-L30', key='feralCatDruid', talents='050022-55000032023012125001-055', main=1,
-                 rot=tapl('feral-druid-L30'), phys=True, wsets=['2h'], delta=MD, ref='ap', form_speed=1.0, **DR),
+                 rot=tapl('feral-druid-L30'), phys=True, wsets=['2h'], delta=dict(MD, int=20, mp5=10), ref='ap', form_speed=1.0, **DR),
     'bear': cfg(spec='bear', tmpl='feral-bear-druid-L22', key='feralBearDruid', talents='-5503003212310212551-055', main=1,
                 rot=tapl('feral-bear-druid-L22'), phys=True, wsets=['2h'], delta=MD, ref='ap', form_speed=2.5, **DR),
     'restoration': cfg(spec='restoration', tmpl='balance-druid-L30', key='balanceDruid', talents='05002001--5050035153113051', main=2,

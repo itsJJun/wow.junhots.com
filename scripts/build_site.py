@@ -375,17 +375,18 @@ def build_updates(updates):
 CREDITS = [
     # (name, url or None, what it gives the tools)
     ('MythicSim Forever engine', 'https://github.com/sage3648/mythicsim-forever-engine', 'Combat sims (MIT license) behind our own leveling stat weights on Gear upgrades.'),
-    ('Forever Leveling BiS addon', None, 'Item list and gear rules behind Gear upgrades, and the stat weights for the enchant ranking on Enchants.'),
+    ('Forever Leveling BiS addon', None, 'Gear rules (ported from its scoring) behind Gear upgrades, and the stat weights for the enchant ranking on Enchants.'),
+    ('wago.tools', 'https://wago.tools/', 'Forever\'s own game data tables: item stats, icons, random suffixes and gear rules for Gear upgrades.'),
     ('wowtbc.gg WoW Forever database', 'https://wowtbc.gg/warcraftforever/', 'Recipes, reagents, skill levels and trainer data for Profession leveling and the Craft finder.'),
     ('classicplus.io', 'https://classicplus.io/', 'The daily level census of Horde characters that Mat timing and the "level crowd" tags read.'),
     ('TradeSkillMaster public data', 'https://www.tradeskillmaster.com/', 'Horde PvP sale rates and price history in the Craft finder and Sell spare mats.'),
-    ('Blizzard Battle.net API', 'https://develop.battle.net/', 'Hourly Horde auction prices, listed counts and random suffix prices, for visitors who have not loaded their own scan.'),
+    ('Blizzard Battle.net API', 'https://develop.battle.net/', 'Hourly Horde auction prices, listed counts and random suffix prices, for visitors who have not loaded their own scan. Item stats and quest rewards for Gear upgrades.'),
     ('Forever AH', 'https://forever-ah.com/', 'Backup for the hourly Horde prices (also read from Blizzard\'s Battle.net API).'),
     ('Auctionator', 'https://www.curseforge.com/wow/addons/auctionator', 'In-game auction scans (with Gear Snapshot\'s own scan): the file you load yourself, and the prices for each random suffix.'),
     ('Wowhead (WoW Forever)', 'https://www.wowhead.com/forever/', 'Vendor prices, the Warlock guide links and item pages for items this site has no card for yet.'),
-    ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons and in the Level 1-60 route.'),
-    ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC and monster stands and its level, for the NPC cards (hover a name), the Level 1-60 route and the Farm finder (GPL-3.0).'),
-    ('CMaNGOS Classic-DB', 'https://github.com/cmangos/classic-db', 'Classic drop chances for the Farm finder (GPL-3.0). Forever may have changed some; the page says so.'),
+    ('Dungeon Journal addon (by Exehn)', None, 'Bosses, drops, dungeon quests and where each boss stands, on Dungeons, Gear upgrades and in the Level 1-60 route.'),
+    ('Questie / QuestieDB addon (Forever)', 'https://github.com/Questie/Questie', 'Where each NPC and monster stands and its level, for the NPC cards (hover a name), the Level 1-60 route and the Farm finder, and quest rewards for Gear upgrades (GPL-3.0).'),
+    ('CMaNGOS Classic-DB', 'https://github.com/cmangos/classic-db', 'Classic drop chances for the Farm finder (GPL-3.0). Forever may have changed some; the page says so. Which items drop in the world, for Gear upgrades.'),
     ('AzerothCore', 'https://www.azerothcore.org/', 'Which game model each NPC uses, so the NPC cards can show Blizzard\'s picture of it (AGPL-3.0 data).'),
     ('OpenMap addon', 'https://github.com/openmap-world/openmap', 'The list of the game\'s dungeon map files and the boss spots in Lower Blackrock Spire, on Dungeons (MIT licence, /dungeons/data/OpenMap-LICENSE.txt). The maps are Blizzard\'s own.'),
 ]

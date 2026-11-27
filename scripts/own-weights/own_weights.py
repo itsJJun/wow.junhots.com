@@ -6,6 +6,14 @@ WM = os.path.dirname(os.path.abspath(__file__))
 ENG = os.environ['MSE_ENGINE']
 WAND = {'MAGE', 'PRIEST', 'WARLOCK'}
 
+def aliases(st):
+    """Item stats the sims test as one stat: spell-only crit (splcritPct) is a caster's or healer's crit; ranged-only hit
+    (rgdhitPct) is a ranged hunter's hit (the sims put hit on melee and ranged at once)."""
+    if 'critPct' in st and 'splpwr' in st and 'atkpwr' not in st: st.setdefault('splcritPct', st['critPct'])
+    if 'hitPct' in st and 'rgdatkpwr' in st: st.setdefault('rgdhitPct', st['hitPct'])
+    return st
+
+
 def collect():
     W = {}
     for f in sorted(glob.glob(os.path.join(os.environ.get('OW_OUT', os.path.join(WM, 'out')), 'out_*.json'))):
@@ -17,6 +25,7 @@ def collect():
                     if cls in WAND and 'wandDps' in st and 'rangedDps' not in st: st['rangedDps'] = st.pop('wandDps')  # a wand is the ranged slot
                     st.pop('wandDps', None)
                     if cls == 'DRUID' and 'atkpwr' in st: st.setdefault('feratkpwr', st['atkpwr'])   # "+N Attack Power in Cat, Bear..." forms
+                    aliases(st)
                     b.append([up, {k: round(x, 2) for k, x in st.items() if round(x, 2) > 0}])
                 W.setdefault(cls, {})[spec] = {'b': b, 'role': v.get('role', 'damage')}
     commit = subprocess.run(['git', '-C', ENG, 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
