@@ -5,8 +5,8 @@
 #   follow  = scripts/check-level-route-follow.cjs   tick Done stop by stop and reload: the route keeps its order
 #   play    = the same with PLAY=1                   play without ticking (new game files each time)
 # A job with problems runs the same check on the live site (main) and fails only when this change has more problems
-# in all (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR). follow and play run
-# 3 random rounds on both.
+# in all (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR). play runs 3 random
+# rounds on both.
 name: Level route checks
 on:
   pull_request:
@@ -24,7 +24,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -55,8 +55,8 @@ jobs:
               play)    PLAY=1 node scripts/check-level-route-follow.cjs "$ROUTES" ;;
             esac
           }
-          # follow and play press at random: 3 rounds (SEED) each, so one unlucky round decides nothing
-          case "$CHECK" in follow|play) SEEDS="0 1 2" ;; *) SEEDS="0" ;; esac
+          # play presses at random: 3 rounds (SEED), so one unlucky round decides nothing (follow: 1, it takes ~30 min a round)
+          case "$CHECK" in play) SEEDS="0 1 2" ;; *) SEEDS="0" ;; esac
           ok=1; T=""; L=""
           for s in $SEEDS; do SEED=$s OUTJ=/tmp/this-$s.json run_check || ok=0; T="$T,/tmp/this-$s.json"; L="$L,/tmp/live-$s.json"; done
           [ $ok = 1 ] && exit 0
