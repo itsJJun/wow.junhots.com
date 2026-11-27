@@ -18,7 +18,7 @@ const fs = require('fs'), path = require('path'), http = require('http');
 const FILT = process.argv[2] || '';
 const SEED = +(process.env.SEED || 0), LVS = (process.env.LVS || '14,22,30,38,46,54').split(',').map(Number);
 const MODES = (process.env.MODES || 'gaps,droplog,skippart').split(','), W = +(process.env.W || 4), MAXA = +(process.env.MAXA || 60);
-const PUB = path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';
+const PUB = process.env.PUB || path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';   // PUB=<folder>: test another copy of the site (the live one, to compare)
 const META = JSON.parse(fs.readFileSync(D + 'route-meta.json'));
 const HOOK = `
   window.__lrT = {
@@ -227,6 +227,7 @@ const srv = http.createServer((q, r) => {
   console.log('PROBLEMS', bad.length, JSON.stringify(kinds, null, 1));
   bad.slice(0, 30).forEach(x => console.log('  ', JSON.stringify(x)));
   console.log('PAGE ERRORS', errs.length, errs.slice(0, 5).join('\n'));
+  if (process.env.OUTJ) fs.writeFileSync(process.env.OUTJ, JSON.stringify({ bad, errs }));   // for scripts/route-checks-compare.cjs
   if (process.env.OUT) fs.writeFileSync(process.env.OUT, JSON.stringify(bad, null, 1));
   await b.close(); srv.close();
   process.exitCode = bad.length || errs.length ? 1 : 0;

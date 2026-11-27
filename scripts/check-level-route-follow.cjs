@@ -12,7 +12,7 @@ const FILT = process.argv[2] || '';
 const SEED = +(process.env.SEED || 0), LVS = (process.env.LVS || '14,22,30,38,46,54').split(',').map(Number);
 const PLAY = !!process.env.PLAY;
 const MODES = (process.env.MODES || 'gaps,droplog,skippart').split(','), W = +(process.env.W || 4), ROUNDS = +(process.env.ROUNDS || 4);
-const PUB = path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';
+const PUB = process.env.PUB || path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';   // PUB=<folder>: test another copy of the site (the live one, to compare)
 const META = JSON.parse(fs.readFileSync(D + 'route-meta.json'));
 const XPL = [0,400,900,1400,2100,2800,3600,4500,5400,6500,7600,8800,10100,11400,12900,14400,16000,17700,19400,21300,23200,25200,27300,29400,31700,34000,36400,38900,41400,44300,47400,50800,54500,58600,62800,67100,71600,76100,80800,85700,90700,95800,101000,106300,111800,117500,123200,129100,135100,141200,147500,153900,160400,167100,173900,180800,187900,195000,202300,209800];
 const HOOK = `
@@ -162,6 +162,7 @@ const srv = http.createServer((q, r) => {
   console.log('CHANGED ' + bad.length + ' ' + JSON.stringify(kinds));
   bad.slice(0, +(process.env.SHOW || 40)).forEach(x => console.log('  ' + x.filter(Boolean).join(' | ')));
   console.log('PAGE ERRORS ' + errs.length + ' ' + errs.slice(0, 5).join(' / '));
+  if (process.env.OUTJ) fs.writeFileSync(process.env.OUTJ, JSON.stringify({ bad, errs }));   // for scripts/route-checks-compare.cjs
   if (process.env.OUT) fs.writeFileSync(process.env.OUT, JSON.stringify(bad));
   await b.close(); srv.close(); process.exit(bad.length || errs.length ? 1 : 0);
 })();

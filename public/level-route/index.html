@@ -1879,8 +1879,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     };
     var pickRoot = function (m, d) { var rs = m.map(function (y) { return rootOf(y, d + 1); }); return rs.filter(function (y) { return !WORTH[y]; })[0] || rs[0]; };
     var rootOf = function (x, d) { if (lk[x]) return lk[x]; var m = miss(x); return m.length && d < 10 ? pickRoot(m, d) : x; };
+    var pl = pmOn() ? pmGet().l || {} : {};
     rows.forEach(function (r) {
-      if (r.n < h) return;
+      if (r.n < h) { stepsOf(r).forEach(function (s) { var q = s.q; if (q && pl[q] && !doneQ.has(q) && !logQ.has(q) && !took[q] && !lk[q]) lk[q] = pl[q]; }); return; }   // left out before: stays left out
       stepsOf(r).forEach(function (s) {
         var q = s.q; if (!q || doneQ.has(q) || logQ.has(q) || took[q] || lk[q]) return;
         if (s.t === 'accept') { var m = miss(q, r.n); if (m.length) lk[q] = pickRoot(m, -1); }
@@ -1940,7 +1941,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!c) { var ai = R.steps.findIndex(function (s) { return s.t === 'accept' && s.q === +p; }); if (ai >= 0) c = chaps.filter(function (c) { var r0 = c.rows.find(function (r) { return r.i < R.n0; }); return r0 && r0.i <= ai; }).pop(); }   // its pickup is not drawn: the part it is in
       var t = tc[p]; if (t) { WTRIP[p] = t; t.sk = !!(c && sk.indexOf(c.name) >= 0); }
       var ok = !!(t && !t.sk && (t.up || t.secs && w[p] / t.secs >= t.rate));
-      if (t && !t.sk && pmOn()) { var pw = pmGet().w[p]; if (pw == null) PMN.w[p] = ok ? 1 : 0; else ok = !!pw || t.up; }   // the answer given before stays
+      if (t && !t.sk && pmOn()) { var pw = pmGet().w[p]; if (pw == null) { PMN.w[p] = ok ? 1 : 0; if (!PMREC) ok = false; } else ok = !!pw || t.up; }   // the answer given before stays (a new question waits for your next file load)
       if (ok) { WORTH[p] = w[p]; keep[p] = 1; } });
     return keep;
   }
@@ -2007,7 +2008,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       dl.filter(function (i2) { return !inLogDone(R.steps[i2]) && !ticks[i2 + ':do']; }).forEach(function (i2) {
         var s2 = R.steps[i2], z = findZ(s2.z, fromN), k2 = z >= 0 && z < tk ? endStop(z) : -1;
         if (k2 < 0 || k2 >= tk) k2 = startStop(tk);
-        var k0 = pick && skipStop ? fromN : from; if (k2 < k0) k2 = k0;   // (ahead: after your last done line, or where you left off when going back)
+        var k0 = pick && skipStop ? fromN : from; if (k2 < k0) k2 = tk - 1;   // (ahead: where you left off is the hand-in's place: right before the hand-in)
         if (k2 >= tk) k2 = tk - 1;   // (always before the hand-in)
         add.push({ k: k2, s: { t: 'do', q: q, o: s2.o, lv: R.steps[ord[Math.min(tk, ord.length - 1)]].lv, a: s2.a, z: s2.z, w: s2.w, ds: s2.ds, dk: s2.dk, dm: s2.dm, lg: 1, side: 1 } });
       });
@@ -2038,7 +2039,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
       if (x[16] && !v.ready) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
       else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
-        var k3 = findZ(s3.z, bh ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b);
+        var k3 = findZ(s3.z, bh ? fromN : from); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
         add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
       add.push({ k: b, s: { t: 'turnin', q: q, xp: Math.round(x[17] * xpf(lv - x[1])), lv: sb.lv, a: [x[9], x[18][0], x[18][1]], z: x[9], w: x[18][2], lg: 1 } });
       LOGST[q] = { st: 'on' };
@@ -2343,6 +2344,14 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       if (u2 && u2.n < here) here = u2.n;
     }
+    // objectives right before it of quests in your log handed in at that place: they come first
+    if (here < rows.length) {
+      var tq = {}; for (var jt = here; jt < rows.length && rows[jt].k !== 'travel'; jt++) { var rt0 = rows[jt]; if (rt0.k === 'step' && !isDone(rt0)) stepsOf(rt0).forEach(function (s) { if (s.t === 'turnin' && s.q && logQ.has(s.q)) tq[s.q] = 1; }); }
+      for (var jb = here - 1, nt = 0; jb >= 0; jb--) { var rb0 = rows[jb];
+        if (rb0.k !== 'step') { if (rb0.k === 'travel' && ++nt > 2) break; if (rb0.k === 'travel' || rb0.k === 'sec') continue; break; }   // (up to 2 trips back)
+        if (rb0.s.t === 'note' || isDone(rb0) || rb0.i >= R.n0 && !stepsOf(rb0).some(function (s) { return tq[s.q]; })) continue;   // (lines done, and lines added from your log for other quests, stay where they are)
+        if (!stepsOf(rb0).every(function (s) { return s.t === 'do' && tq[s.q] && !inLogDone(s); })) break; here = jb; }
+    }
     hereStop = null;
     for (var i = 0; i < stops.length && !hereStop; i++) if (stops[i].rows.some(function (r) { return r.n >= here; })) hereStop = stops[i];
     catchUp(L, win);
@@ -2393,6 +2402,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var pm = pmGet(), k;
     for (k in PMN.c) if (pm.c[k] == null) { pm.c[k] = PMN.c[k]; PMNEW++; }
     for (k in PMN.w) if (pm.w[k] == null) { pm.w[k] = WORTH[k] ? 1 : 0; PMNEW++; }   // what the page ended up doing (a chain that waits counts as no)
+    pm.l = pm.l || {}; for (k in LOCK) if (pm.l[k] == null) pm.l[k] = LOCK[k];   // chains left out
     ls.set('lr.plan', JSON.stringify(pm));
   }
   function pmClear() { PM = null; PMN = { c: {}, w: {} }; ls.set('lr.plan', ''); }
@@ -2494,7 +2504,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       }
       if (!cur && pmOn() && !v.near) {   // the answer given before for this part stays (where you stand always counts)
         var ck = c.idx + ':' + c.name, dec = pmGet().c[ck];   // (two parts can share a name)
-        if (dec == null) PMN.c[ck] = v.rank <= 2 ? 1 : 0;
+        if (dec == null) { PMN.c[ck] = v.rank <= 2 ? 1 : 0; if (!PMREC) return; }
         else if (dec && v.rank > 2) v.rank = 2;
         else if (!dec && v.rank > 0) return;
       }

@@ -1,15 +1,18 @@
 # Level route checks (Jun 27 Nov: one machine took ~8 h for all four). Runs the four route check scripts on every
-# base route, split by start zone and race into parallel jobs (~30-40 min in total). Any problem fails that job.
+# base route, split by start zone and race into parallel jobs (~30-40 min in total). A job fails on a problem the live site does not have.
 #   order   = scripts/check-level-route.cjs          nothing shown before its pickup, pre-quests or objectives
 #   buttons = scripts/check-level-route-buttons.cjs  every button in random order, nothing drifts
 #   follow  = scripts/check-level-route-follow.cjs   tick Done stop by stop and reload: the route keeps its order
 #   play    = the same with PLAY=1                   play without ticking (new game files each time)
+# A job with problems runs the same check on the live site (main) and fails only when this change is worse there
+# (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR).
 name: Level route checks
 on:
   pull_request:
     paths:
       - 'public/level-route/**'
       - 'scripts/check-level-route*.cjs'
+      - 'scripts/route-checks-compare.cjs'
       - '.github/workflows/route-checks.yml'
   workflow_dispatch:
 permissions:
@@ -40,10 +43,22 @@ jobs:
       - name: Run ${{ matrix.check }} on ${{ matrix.routes }}
         env:
           W: '4'
+          CHECK: ${{ matrix.check }}
+          ROUTES: ${{ matrix.routes }}
         run: |
-          case "${{ matrix.check }}" in
-            order)   node scripts/check-level-route.cjs "${{ matrix.routes }}" ;;
-            buttons) LVS=14,30,46 MAXA=30 node scripts/check-level-route-buttons.cjs "${{ matrix.routes }}" ;;
-            follow)  node scripts/check-level-route-follow.cjs "${{ matrix.routes }}" ;;
-            play)    PLAY=1 node scripts/check-level-route-follow.cjs "${{ matrix.routes }}" ;;
-          esac
+          run_check() {
+            case "$CHECK" in
+              order)   node scripts/check-level-route.cjs "$ROUTES" ;;
+              buttons) LVS=14,30,46 MAXA=30 node scripts/check-level-route-buttons.cjs "$ROUTES" ;;
+              follow)  node scripts/check-level-route-follow.cjs "$ROUTES" ;;
+              play)    PLAY=1 node scripts/check-level-route-follow.cjs "$ROUTES" ;;
+            esac
+          }
+          if OUTJ=/tmp/this.json run_check; then exit 0; fi
+          [ -f /tmp/this.json ] || exit 1
+          echo "::group::The same check on the live site (main)"
+          git fetch --depth=1 origin main && git worktree add /tmp/live FETCH_HEAD
+          PUB=/tmp/live/public OUTJ=/tmp/live.json run_check || true
+          echo "::endgroup::"
+          [ -f /tmp/live.json ] || exit 1
+          node scripts/route-checks-compare.cjs "$CHECK" /tmp/this.json /tmp/live.json

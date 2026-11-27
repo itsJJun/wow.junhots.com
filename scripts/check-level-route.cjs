@@ -15,7 +15,7 @@ const FILT = process.argv[2] || '';
 // SEED=n picks other random progress states; LVS=12,16,20 sets the levels (default 14,22,30,38,46,54)
 const SEED = +(process.env.SEED || 0), LVS = (process.env.LVS || '14,22,30,38,46,54').split(',').map(Number);
 const path = require('path'), http = require('http');
-const PUB = path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';
+const PUB = process.env.PUB || path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';   // PUB=<folder>: test another copy of the site (the live one, to compare)
 const META = JSON.parse(fs.readFileSync(D + 'route-meta.json'));
 const HOOK = `
   window.__lrT = {
@@ -126,5 +126,6 @@ let PORT;
   if (process.env.SHOWBAD) bad.slice(0, +process.env.SHOWBAD).forEach(x => console.log('  BAD', JSON.stringify(x)));
     console.log('PAGE ERRORS', errs.length, errs.slice(0, 5).join('\n'));
   await b.close(); srv.close();
+  if (process.env.OUTJ) fs.writeFileSync(process.env.OUTJ, JSON.stringify({ bad, errs }));   // for scripts/route-checks-compare.cjs
   process.exitCode = bad.length || errs.length ? 1 : 0;
 })();
