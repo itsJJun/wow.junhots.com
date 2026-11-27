@@ -22,7 +22,7 @@ const HOOK = `
     set: function (done, log, level) {
       logQ = new Map(); log.forEach(function (q) { logQ.set(q, { ready: false, obj: [], title: '' }); });
       snap = { name: 'T', level: level, where: null, hearth: '', cls: R.cls, done: done, n: log.length, folded: false, at: '' };
-      ticks = {}; ls.set('lr.skip', ''); $('char').innerHTML = '<option>T</option>'; applyQuests();
+      ticks = {}; ls.set('lr.skip', ''); if (typeof pmClear === 'function') pmClear(); $('char').innerHTML = '<option>T</option>'; applyQuests();
     },
     qa: function () { return !!QA && !!R && rows.length > 0; },   // quest data and the route both loaded
     cu: function () {

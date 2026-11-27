@@ -25,7 +25,7 @@ const HOOK = `
     set: function (done, log, level, keep) {
       logQ = new Map(); log.forEach(function (q) { logQ.set(q, { ready: false, obj: [], title: '' }); });
       snap = { name: 'T', level: level, where: null, hearth: '', cls: R.cls, done: done, n: log.length, folded: false, at: '' };
-      if (!keep) { ticks = {}; ls.set('lr.skip', ''); ls.set('lr.logoff', ''); saveTicks(); }
+      if (!keep) { ticks = {}; ls.set('lr.skip', ''); ls.set('lr.logoff', ''); saveTicks(); if (typeof pmClear === 'function') pmClear(); }   // (a new state: no answers left from the one before)
       $('char').innerHTML = '<option>T</option>'; applyQuests();
     },
     // a stop's place: its first route step (a line added from your log counts as just after the step before it)

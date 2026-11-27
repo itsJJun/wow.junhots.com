@@ -1978,7 +1978,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var ord = R.steps.map(function (s, k) { return k; }), from = ord.indexOf(hi) >= 0 ? ord.indexOf(hi) : 0;
     var fromN = hn && ord.indexOf(hn.i) >= 0 ? ord.indexOf(hn.i) : from;
     var behind = function (q) { return inR[q] && tinAt[q] != null && !cuT[q] && !hidden(R.steps[tinAt[q]]) && ord.indexOf(tinAt[q]) < fromN; };
-    var findZ = function (z, k0) { for (var k = k0; k < ord.length; k++) { var s = R.steps[ord[k]]; if (s.z === z && s.a && !hidden(s) && s.t !== 'section' && (k >= fromN || cuI[ord[k]] || k === from)) return k; } return -1; };   // (the place you stand counts too)
+    var findZ = function (z, k0) { for (var k = k0; k < ord.length; k++) { var s = R.steps[ord[k]]; if (s.z === z && s.a && !hidden(s) && s.t !== 'section' && (k >= fromN || cuI[ord[k]] || k === from || k === k0)) return k; } return -1; };   // (the place you stand counts too, and the place it starts from)
     // the last step of the stop that step k is in (same zone, same place)
     var endStop = function (k) {
       if (k < 0) return k;
