@@ -2515,6 +2515,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         else if (dec && v.rank > 2) v.rank = 2;
         else if (!dec && v.rank > 0) return;
       }
+      if (cur && pmOn() && !v.near && v.st) {   // (the part you are in: by the first stop it goes back to)
+        var r0 = v.st.rows.find(function (r) { return r.k === 'step' && r.i < R.n0 && !isDone(r); }), hk = 'h' + c.idx + ':' + (r0 ? r0.i : v.st.gi), hd = pmGet().c[hk];
+        if (hd == null && Object.keys(pmGet().c).some(function (k) { return k.indexOf('h' + c.idx + ':') === 0 && pmGet().c[k] === 1; })) hd = 1;   // (you said go back in this part: the next stop behind too)
+        if (hd == null) { PMN.c[hk] = v.rank <= 2 ? 1 : 0; if (!PMREC) return; }   // (a new question waits for your next file load)
+        else if (hd && v.rank > 2) v.rank = 2;
+        else if (!hd && v.rank > 0) return;
+      }
       if (v.rank > 2) return;
       if (skip.indexOf(c.name) >= 0) { skipped.push(c.name); return; }
       cands.push(v);
