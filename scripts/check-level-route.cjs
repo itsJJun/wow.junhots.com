@@ -23,6 +23,7 @@ const HOOK = `
       snap = { name: 'T', level: level, where: null, hearth: '', cls: R.cls, done: done, n: log.length, folded: false, at: '' };
       ticks = {}; ls.set('lr.skip', ''); $('char').innerHTML = '<option>T</option>'; applyQuests();
     },
+    qa: function () { return !!QA && !!R && rows.length > 0; },   // quest data and the route both loaded
     cu: function () {
       if (!pick || !skipStop) return null;
       var L = [hereStop].concat(catchNext()).filter(function (x) { return x !== skipStop; });
@@ -45,6 +46,7 @@ const srv = http.createServer((q, r) => {
   let f = path.join(PUB, decodeURIComponent(q.url.split('?')[0]));
   if (!f.startsWith(PUB)) { r.writeHead(403); return r.end(); }
   if (fs.existsSync(f) && fs.statSync(f).isDirectory()) f = path.join(f, 'index.html');
+  if (process.env.PAGE && f === path.join(PUB, 'level-route', 'index.html')) f = process.env.PAGE;   // test a saved copy
   if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); }
   r.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r);
 });
@@ -62,8 +64,8 @@ let PORT;
       const R = JSON.parse(fs.readFileSync(D + 'routes/' + id + '.json'));
       const p = await ctx.newPage(); p.on('pageerror', e => errs.push(id + ': ' + e.message));
       await p.addInitScript(([r, c]) => { localStorage.clear(); localStorage.setItem('lr.race', r); localStorage.setItem('lr.cls', c); }, [R.race, R.cls]);
-      await p.goto('http://127.0.0.1:' + PORT + '/level-route/', { waitUntil: 'networkidle' }); await p.waitForFunction(() => window.__lrT);
-      await p.waitForTimeout(800);
+      await p.goto('http://127.0.0.1:' + PORT + '/level-route/', { waitUntil: 'networkidle' }); await p.waitForFunction(() => window.__lrT && window.__lrT.qa(), null, { timeout: 60000 });   // the every-quest list is loaded
+      await p.waitForTimeout(300);
       const st = R.steps;
       const secs = []; st.forEach((s, i) => { if (s.t === 'section') secs.push(i); });
       for (const L of LVS) for (const mode of ['gaps', 'droplog', 'skippart']) {
