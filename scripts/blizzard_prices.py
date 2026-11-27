@@ -29,8 +29,15 @@ Blizzard's data (checked 25 Nov 2026):
   bonus_suffix.json, from wago.tools db2 build 1.60.1.71091). Bid-only auctions have no buyout and are skipped.
 
 Sold: a listing that is gone an hour later while it still had 2+ hours left (LONG or VERY_LONG) was bought or taken
-down by its seller; a commodity listing that shrank sold the difference. Taken-down listings count as sold, so the
-numbers run a little high. An hour is only compared with the hour just before it.
+down by its seller; a commodity listing that shrank sold the difference. Buyers take the cheapest first (a bulk buy
+clears the cheapest price, then the next), so a gone listing counts as sold only when no listing of that item that
+was cheaper an hour ago is still up. One that went while cheaper ones stayed was taken down (sellers cancel to
+undercut and list again); it is not counted. Nor is one whose same stack size shows up again, new, at or under
+its price in the same hour (a seller undercut within the hour who listed again). Before 27 Nov 2026 every taken-down listing counted as sold, many times
+too high on busy items, so those counts were cleared (SOLD_RULE). Checked on 4 hours of US 113 the same day: this
+cut the count a lot on undercut items (Small Radiant Shard 8x, Soul Dust 5x) but it still ran a median 4-6x TSM's
+region sold per day, so pages keep using TSM (site.js OWN_SALES) until the average over all houses matches TSM.
+An hour is only compared with the hour just before it.
 
 Prices section (text, one line each):
   #<snapshot unix time>,<house>,<items>
@@ -59,6 +66,7 @@ RULESET = 1
 SITE = 'https://wow.junhots.com/api/admin/bliz'
 HERE = os.path.dirname(os.path.abspath(__file__))
 DAYS = 14
+SOLD_RULE = 2   # 2 = cancelled listings no longer count (27 Nov 2026); older sold counts are cleared once
 TL = {'SHORT': 0, 'MEDIUM': 1, 'LONG': 2, 'VERY_LONG': 3}
 FACTION = {'Alliance': 'A', 'Horde': 'H', 'Blackwater': 'N'}
 
@@ -162,12 +170,23 @@ def prices_text(snap, house, cur, suffix_of):
 
 def sold_units(prev, cur):
     """units sold and units that ran out (expired) per item between two hourly snapshots of one house"""
-    sold, gone = {}, {}
+    sold, gone, kept, fresh = {}, {}, {}, {}
+    for aid, p in prev.items():   # the cheapest of last hour's listings that are still up, per item
+        if aid in cur and (p[0] not in kept or p[2] < kept[p[0]]):
+            kept[p[0]] = p[2]
+    for aid, c in cur.items():    # new listings this hour, by item and stack size
+        if aid not in prev:
+            fresh.setdefault((c[0], c[1]), []).append(c[2])
     for aid, p in prev.items():
         c = cur.get(aid)
         if c is None:
-            if p[3] >= 2:   # still had 2+ hours left: bought (or taken down)
-                sold[p[0]] = sold.get(p[0], 0) + p[1]
+            if p[3] >= 2:   # still had 2+ hours left: bought, unless a cheaper one stayed (then it was taken down)
+                if p[0] not in kept or p[2] <= kept[p[0]]:
+                    again = fresh.get((p[0], p[1]))
+                    if again and min(again) <= p[2]:   # the same stack listed again at or under its price: a repost
+                        again.remove(min(again))
+                        continue
+                    sold[p[0]] = sold.get(p[0], 0) + p[1]
             else:           # under 2 hours left: most of these ran out
                 gone[p[0]] = gone.get(p[0], 0) + p[1]
         elif c[1] < p[1]:   # a commodity listing that shrank
@@ -260,6 +279,13 @@ def run_region(tok, region, state_dir, out_dir, send, suffix_of):
         state = pickle.loads(gzip.decompress(open(path, 'rb').read()))
     except Exception:
         state = {'asOf': 0, 'prev': {}, 'hist': {}}
+    if state.get('soldRule') != SOLD_RULE:   # counts made the old way are cleared once
+        for hist in state['hist'].values():
+            for days in hist.values():
+                for d in days.values():
+                    d[3] = None
+                    if len(d) > 5: d[5] = None
+        state['soldRule'] = SOLD_RULE
     idx, _ = get(tok, region, '/data/wow/ruleset/%d/auctions/' % RULESET)
     houses = [(h['id'], FACTION.get(h['name'].split(' ')[0], '?')) for h in idx.get('auctions') or []]
 
