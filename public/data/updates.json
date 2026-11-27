@@ -17,6 +17,14 @@
   },
   {
     "date": "2026-11-27",
+    "title": "Profession leveling: maxed means done",
+    "text": "A profession at 300 now shows \"Done\" instead of \"299 → 300\". Skills from your game files are read up to 300.",
+    "image": "/assets/updates/2026-11-27-prof-done.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-27",
     "title": "Level route: going back only when it pays",
     "text": "The route sends you back to an earlier zone only when that gives more XP per minute than moving on, trip included. Quests that need a crafted or auction house item are left out. Vendor items get a \"buy\" tag.",
     "image": "/assets/updates/2026-11-27-route-goback.webp",

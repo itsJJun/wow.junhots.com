@@ -251,6 +251,7 @@ footer { font-size: 11px; color: var(--muted); }
 .bline .cmpc.best { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
 .bline .cmpc.best .bk { color: var(--good); font-weight: 600; }
 .prof .pill { margin-left: 4px; }
+main:has(#doneAns:not([hidden])) .wf-jump { display: none; }   /* maxed profession: nothing to jump to */
 .gin { position: relative; display: inline-block; }
 .tl-answer { grid-column: 1 / -1; margin: 0; }
 .gin input { padding-right: 18px !important; }
@@ -1057,6 +1058,7 @@ document.addEventListener('click', function (ev) { var b = ev.target.closest && 
 <div id="drop" aria-hidden="true" style="position:fixed;inset:0;z-index:50;display:none;place-items:center;background:color-mix(in srgb, var(--bg) 88%, transparent);border:3px dashed var(--accent);font:700 22px var(--body);color:var(--accent)">Drop Auctionator.lua (prices) or TradeSkillMaster.lua (bags)</div>
 
 <div class="profs" id="profs" role="group" aria-label="Profession"></div>
+<p class="wf-answer good" id="doneAns" hidden></p>
 
 <section class="card wf-off" id="fishSec" aria-labelledby="fishH">
   <h2 id="fishH">Where to go, skill by skill</h2>
@@ -1542,11 +1544,13 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   ALL.forEach(k => { if (!(+S.skill[k] >= 1)) S.skill[k] = 1; if (!(+S.goal[k] > S.skill[k])) S.goal[k] = 300; });
   if (!ALL.includes(S.prof)) S.prof = "tailoring";
   S.mine = (Array.isArray(S.mine) ? S.mine : []).filter(k => PRIMARY.includes(k)).slice(0, 2);
-  const mineBoth = () => S.mine.length === 2 && S.mine.every(k => PROFS[k]);   // "Spend it on both"
+  const isMax = k => +S.skill[k] >= 300;   // maxed: nothing left to level
+  let showSet = false;                       // "Not 300?" opens Your situation on a maxed profession
+  const mineBoth = () => S.mine.length === 2 && S.mine.every(k => PROFS[k] && !isMax(k));   // "Spend it on both"
   // plans worked out on each render: what you are viewing, your 2 professions, First Aid and Cooking (each plan can take a second)
-  const CK = () => [...new Set([S.prof].concat(S.mine, ["firstaid", "cooking"]))].filter(k => PROFS[k]);
+  const CK = () => [...new Set([S.prof].concat(S.mine, ["firstaid", "cooking"]))].filter(k => PROFS[k] && !isMax(k));
   { const CH = window.WFCHAR ? WFCHAR.get() : {};   // "My character" skills, shared with the other pages
-    ALL.forEach(k => { if (CH[k] >= 1) { S.skill[k] = Math.min(299, CH[k]); if (S.goal[k] <= S.skill[k]) S.goal[k] = Math.min(300, S.skill[k] + 1); } }); }
+    ALL.forEach(k => { if (CH[k] >= 1) { S.skill[k] = Math.min(300, CH[k]); if (S.goal[k] <= S.skill[k]) S.goal[k] = Math.min(300, S.skill[k] + 1); } }); }
   let market = store.market && store.market.scan >= DATA.scan ? store.market : null; // uploaded prices (ignored once the built-in scan is newer) {prices:{id:[m,qty,lo]}, vendor, scan, items}
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(Object.assign({}, S, { market: market || undefined }))); } catch (e) {}
@@ -1593,7 +1597,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   // Tailoring greens you disenchant give dust/essence/shards; the ones your Enchanting route needs save you buying them,
   // so they count at their full AH buy price instead of the "Disenchanted mats count as" share
   function deFullFor(prof) {
-    if (prof === "enchanting" || !PROFS[prof] || !(+S.deFactor > 0) || !(prof === "tailoring" || S.mine.includes("enchanting")) || !DATA.profs[prof].recipes.some(r => r.de)) return [];
+    if (prof === "enchanting" || isMax("enchanting") || !PROFS[prof] || !(+S.deFactor > 0) || !(prof === "tailoring" || S.mine.includes("enchanting")) || !DATA.profs[prof].recipes.some(r => r.de)) return [];
     return Object.keys(shopping(planFor("enchanting"), "enchanting")).filter(id => /Dust|Essence|Shard/.test(itemName(id))).sort();
   }
   function optsFor(prof, bans) {
@@ -1872,7 +1876,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const alloc = budgetAlloc(), cmp = profCompare(alloc);
     const card = k => {
       let sub;
-      if (isGuide(k)) sub = S.skill[k] + ' → 300 · where to go';
+      if (isMax(k)) sub = '300<span class="pill good">✓ Done</span>';
+      else if (isGuide(k)) sub = S.skill[k] + ' → 300 · where to go';
       else {
         const pl = planFor(k), tot = total(pl), a = alloc && alloc.res[k];
         sub = a ? S.skill[k] + ' → <b>' + a.reach + '</b> ' + (a.spent < -0.5 ? 'and ' : 'with ') + spendTxt(a.spent) + (a.done ? ' (goal reached)' : ' of your budget') + (cmp && cmp.best === k ? '<span class="pill good" title="Goes further with your gold than your other profession">best for your gold</span>' : '') : S.skill[k] + ' → ' + S.goal[k] + ' · about ' + coin(tot.net);
@@ -2420,12 +2425,18 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     document.querySelector("main").classList.add("busy");
     clearTimeout(pending);
     pending = setTimeout(() => {
-      const fish = isGuide(S.prof);
-      document.querySelectorAll("main > section, #bline, #tiles").forEach(el => off(el, (el.id === "fishSec" || el.id === "fishBuySec") ? !fish : fish));
-      off($("synH").closest("section"), fish || !PAIR.includes(S.prof));
+      const fish = isGuide(S.prof), done = !fish && isMax(S.prof), setSec = $("setH").closest("section");
+      document.querySelectorAll("main > section, #bline, #tiles").forEach(el => off(el, (el.id === "fishSec" || el.id === "fishBuySec") ? !fish : fish || (done && !(showSet && el === setSec))));
+      off($("synH").closest("section"), fish || done || !PAIR.includes(S.prof) || PAIR.some(isMax));
+      off($("doneAns"), !done);
       if (fish) $("sellLink").hidden = true;
       setTimeout(() => dispatchEvent(new Event("scroll")), 50);
       if (fish) { renderProfs(); renderGuide(S.prof); document.querySelector("main").classList.remove("busy"); return; }
+      if (done) {
+        $("doneAns").innerHTML = '<span><b>' + PROFS[S.prof].label + ' is done.</b> 300 is the max.</span>' + (showSet ? '' : '<button class="btn tiny" type="button" id="notMax">Not 300?</button>');
+        if ($("notMax")) $("notMax").onclick = () => { showSet = true; render(); };
+        renderProfs(); if (showSet) renderSettings(); document.querySelector("main").classList.remove("busy"); return;
+      }
       const alloc = budgetAlloc();
       const pl = viewFor(S.prof, alloc);
       cashView(pl);
@@ -2504,8 +2515,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   function skillFromFile(k) { const g = KNOWN.get(); return g && g.skills && +g.skills[LABEL(k)] || 0; }
   $("fskill").onchange = () => { S.skill[S.prof] = Math.max(1, Math.min(300, +$("fskill").value || 1)); save(); render(); };
 
-  $("skill").onchange = () => { S.skill[S.prof] = Math.max(1, Math.min(299, +$("skill").value || 1)); if (S.goal[S.prof] <= S.skill[S.prof]) S.goal[S.prof] = Math.min(300, S.skill[S.prof] + 1); save(); render(); };
-  $("goal").onchange = () => { S.goal[S.prof] = Math.max(S.skill[S.prof] + 1, Math.min(300, +$("goal").value || 300)); save(); render(); };
+  $("skill").onchange = () => { S.skill[S.prof] = Math.max(1, Math.min(300, +$("skill").value || 1)); if (S.goal[S.prof] <= S.skill[S.prof]) S.goal[S.prof] = Math.min(300, S.skill[S.prof] + 1); save(); render(); };
+  $("goal").onchange = () => { S.goal[S.prof] = Math.min(300, Math.max(S.skill[S.prof] + 1, +$("goal").value || 300)); save(); render(); };
   ["perCraft", "deFactor", "budgetMode"].forEach(k => $(k).onchange = () => { S[k] = $(k).value; save(); render(); });
   $("budget").oninput = () => { const v = $("budget").value.trim(); S.budget = v === "" ? "" : String(Math.max(0, +v || 0)); save(); render(); };
   ["sell", "patterns", "profit"].forEach(k => $(k).onchange = () => { S[k] = $(k).checked; save(); render(); });
@@ -2701,7 +2712,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const lab = {}; Object.keys(PROFS).forEach(k => lab[k] = PROFS[k].label); let ch = false;
     for (const k of Object.keys(lab)) {
       if (!KNOWN.prof(lab[k]) || !DATA.profs[k]) continue;
-      KNOWN.syncSkill(lab[k], "leveling", r => { S.skill[k] = Math.max(1, Math.min(299, r)); if (S.goal[k] <= S.skill[k]) S.goal[k] = Math.min(300, S.skill[k] + 1); ch = true; });
+      KNOWN.syncSkill(lab[k], "leveling", r => { S.skill[k] = Math.max(1, Math.min(300, r)); if (S.goal[k] <= S.skill[k]) S.goal[k] = Math.min(300, S.skill[k] + 1); ch = true; });
       for (const r of DATA.profs[k].recipes) if (r.src === "recipe" && !S.known.includes(r.id) && KNOWN.has(lab[k], r.id, r.n)) { S.known.push(r.id); ch = true; }
     }
     const g = KNOWN.get(), fk = "wf-skill-applied:leveling:skills";
