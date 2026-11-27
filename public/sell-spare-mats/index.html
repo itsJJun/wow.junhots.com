@@ -26,12 +26,18 @@ a { color: var(--accent); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 6px; align-items: start; }
 .sc { background: var(--raised); border: 1px solid var(--line); border-radius: 9px; padding: 6px 8px; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 1px 8px; align-items: center; }
 .sc .ic { width: 28px; height: 28px; border-radius: 5px; box-shadow: 0 0 0 1px var(--line2); grid-row: span 2; background: var(--sunken); }
+.sc.r3 .ic { grid-row: span 3; }
 .sc .nm { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sc .meta { font-size: 11.5px; color: var(--muted); }
-.sc .spd { display: block; width: fit-content; font-weight: 600; white-space: nowrap; cursor: help; }
-.sc .spd.fast { color: var(--good); }
-.sc .spd.slow { color: var(--bad); }
+.sc.r3 .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc .tl { display: flex; align-items: center; gap: 6px; min-height: 18px; font-size: 11.5px; color: var(--muted); }
+.sc .tl .tr24 { margin-left: 0; }
+.spd { font-size: 11.5px; font-weight: 600; white-space: nowrap; cursor: help; padding: 0 7px; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); line-height: 17px; }
+.spd.fast { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.spd.slow { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+.any { font-size: 11.5px; color: var(--muted); padding: 0 7px; border-radius: 999px; border: 1px dashed var(--line2); line-height: 17px; }
 .sc .rt { text-align: right; grid-row: span 2; display: grid; gap: 2px; justify-items: end; }
+.sc.r3 .rt { grid-row: span 3; gap: 3px; }
 .sc .det { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
 .sc .det b { color: var(--ink); font-weight: 600; }
 .sc:not(.wf-open):not(.wf-peek) .det { display: none; }
@@ -672,7 +678,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
 
 <section class="card" id="ahSec">
   <h2 data-wf-name="Auction house">Auction house <span class="muted" id="ahSum"></span></h2>
-  <div class="key"><span>When to list:</span><span class="mkt dear">Sell now</span><span class="muted">any time</span><span class="mkt">Low now</span><span class="mkt low">Hold</span><span>Hover or tap a tag for why. Click a card for the numbers.</span></div>
+  <div class="key"><span>Price:</span><span class="mkt dear">Sell now</span><span class="any">Any time</span><span class="mkt">Wait</span><span style="margin-left:8px">Speed:</span><span class="spd fast">Sells fast</span><span class="spd">~3 days</span><span class="spd slow">Slow ~9 days</span><span style="margin-left:8px">Hover a tag for why.</span></div>
   <div class="grid" id="ahGrid"></div>
 </section>
 
@@ -686,10 +692,9 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <p>Tailoring &amp; Enchanting leveling works out every material its routes still need, from your skill now to your goal, with its safety margin. Anything in your bags and bank beyond that is spare and shows up here. Rods, recipe tools, potions and elixirs are left out.</p>
   <ul>
     <li><b>Auction house or vendor:</b> the auction house wins when its lowest recent price, after the 5% cut, beats what a vendor pays by 10% or more.</li>
-    <li><b>Sell now:</b> fewer players are at the levels where it drops, or its price is high, so it is likely to get cheaper. List it soon.</li>
-    <li><b>Hold:</b> players are leaving its levels, so less gets farmed and it is getting dearer. Keep it a while if you can.</li>
-    <li><b>Low now:</b> lots of players farm it right now, so prices are at their lowest. Hold if you can wait.</li>
-    <li><b>Sells in ~N days:</b> what is listed at the cheapest price, plus yours, divided by how many sell a day. Green = fast, red = slow (over 7 days).</li>
+    <li><b>Sell now:</b> the price is likely to drop (more players are reaching the levels where it drops), or it is high right now.</li>
+    <li><b>Wait:</b> the price is low now or likely to rise (players are leaving its levels). Keep it a while if you can.</li>
+    <li><b>Sells fast / ~N days / Slow:</b> what is listed at the cheapest price, plus yours, divided by how many sell a day. Fast = 2 days or less, slow = over 7.</li>
     <li><b>List N now:</b> you have more than sells in a day, so list about a day's worth and the rest as those sell.</li>
     <li><b>Slow on AH:</b> while yours waits, listings that run out lose their deposit. When that leaves less than a vendor pays, it moves to Vendor.</li>
   </ul>
@@ -820,13 +825,13 @@ const MKT = (function () {
   document.addEventListener('click', e => { const a = e.target.closest('[data-go]'); if (!a) return; e.preventDefault(); try { window.parent.location.hash = '#' + a.dataset.go; } catch (x) {} });
 
   // Mat timing's buy-side signal turned around for selling. rank: lower = sell sooner
-  const T = { wait: [0, "dear", "Sell now", "getting cheaper"], dear: [0, "dear", "Sell now", "pricey now"], steady: [1, "", "any time", ""], low: [2, "", "Low now", "hold if you can"], buy: [3, "low", "Hold", "getting dearer"] };
+  const T = { wait: [0, "dear", "Sell now", "the price is likely to drop"], dear: [0, "dear", "Sell now", "the price is high now"], steady: [1, "", "Any time", ""], low: [2, "", "Wait", "the price is at its lowest now"], buy: [3, "", "Wait", "the price is likely to rise"] };
   function timing(r) {
     if (r.where !== "ah" || typeof MKT === "undefined" || !MKT.mat) return null;
     const m = MKT.mat(r.id);
-    if (!m) return { rank: 1, html: '<span class="muted" style="font-size:11.5px">any time</span>', why: "" };
+    if (!m) return { rank: 1, html: '<span class="any">Any time</span>', why: "" };
     const t = T[m.k] || T.steady;
-    const html = t[1] || t[2] !== "any time" ? '<span class="mkt ' + t[1] + '" title="' + esc((t[3] ? t[2] + ': ' + t[3] + '. ' : '') + (m.why || '')) + '">' + t[2] + '</span>' : '<span class="muted" style="font-size:11.5px">any time</span>';
+    const html = t[2] !== "Any time" ? '<span class="mkt ' + t[1] + '" title="' + esc((t[3] ? t[2] + ': ' + t[3] + '. ' : '') + (m.why || '')) + '">' + t[2] + '</span>' : '<span class="any" title="' + esc(m.why || '') + '">Any time</span>';
     return { rank: t[0], html, why: m.why || "" };
   }
   // vs usual (last 7 days) + 14-day trend: Blizzard's hourly prices for your auction house (site.js wsRaw / wsHist, /assets/trend.js)
@@ -858,7 +863,7 @@ const MKT = (function () {
     '~' + fmtN(s.spd) + ' sell a day' + (s.src === 'ours' ? ' on your auction house' : ' (TSM region average)') + '. ' + fmtN(s.ahead) + ' listed at the cheapest price sell before yours.';
   function spdTag(s) {
     if (!s) return '';
-    const txt = s.none ? 'no sales seen' : s.days < 1 ? 'sells in under a day' : 'sells in ~' + WSTREND.days(s.days);
+    const txt = s.none ? 'No sales' : s.k === 'fast' ? 'Sells fast' : (s.k === 'slow' ? 'Slow ~' : '~') + WSTREND.days(s.days);
     return '<span class="spd ' + s.k + '" title="' + esc((s.k === 'fast' ? 'Fast' : s.k === 'slow' ? 'Slow' : 'OK') + ': ' + spdWhy(s)) + '">' + txt + '</span>';
   }
   // Slow on the auction house: a 24-hour listing that doesn't sell loses its deposit (vendor price x 60% each).
@@ -881,10 +886,13 @@ const MKT = (function () {
     if (sp) det.push(spdWhy(sp) + (sp.listNow ? ' List about ' + fmtN(sp.listNow) + ' now, the rest as they sell.' : ''));
     if (r.slow) det.push(r.slow);
     if (tm && tm.why) det.push(esc(tm.why));
-    return '<div class="sc"' + (tm ? ' data-rank="' + tm.rank + '"' : '') + '>' + ic +
+    const ah = r.where === 'ah', r3 = ah || r.slow;
+    const chip = ah ? spdTag(sp) : r.slow ? '<span class="spd slow" title="' + esc(r.slow.replace(/<[^>]+>/g, '')) + '">Slow on AH</span>' : '';
+    return '<div class="sc' + (r3 ? ' r3' : '') + '"' + (tm ? ' data-rank="' + tm.rank + '"' : '') + '>' + ic +
       '<span class="nm" title="' + esc(r.n) + '">' + esc(r.n) + '</span>' +
-      '<span class="rt">' + (r.tot ? coin(r.tot) : '<span class="muted">—</span>') + (tm ? tm.html : '') + '</span>' +
-      '<span class="meta">' + (r.where === 'none' ? 'No buyer · ' : '') + (sp && sp.listNow ? 'List ' + fmtN(sp.listNow) + ' now, ' + fmtN(r.spare - sp.listNow) + ' later' : all ? 'Sell all ' + fmtN(r.spare) : 'Sell ' + fmtN(r.spare) + ' of ' + fmtN(r.h)) + (r.each ? ' · ' + coin(r.each) + ' each' : '') + (r.where === 'ah' && MKT.dealTag ? ' ' + MKT.dealTag(r.id, true) : '') + (r.where === 'ah' ? trend(r.id) : '') + spdTag(sp) + (r.slow ? '<span class="spd slow" title="' + esc(r.slow.replace(/<[^>]+>/g, '')) + '">slow on AH</span>' : '') + '</span>' +
+      '<span class="rt">' + (r.tot ? coin(r.tot) : '<span class="muted">—</span>') + (tm ? tm.html : '') + chip + '</span>' +
+      '<span class="meta">' + (r.where === 'none' ? 'No buyer · ' : '') + (sp && sp.listNow ? 'List ' + fmtN(sp.listNow) + ' now, ' + fmtN(r.spare - sp.listNow) + ' later' : all ? 'Sell all ' + fmtN(r.spare) : 'Sell ' + fmtN(r.spare) + ' of ' + fmtN(r.h)) + (r.each ? ' · ' + coin(r.each) + ' each' : '') + '</span>' +
+      (r3 ? '<span class="tl">' + (ah ? trend(r.id) + (MKT.dealTag ? MKT.dealTag(r.id, true) : '') : '') + '</span>' : '') +
       '<div class="det">' + det.map(x => '<span>' + x + '</span>').join('') + '</div></div>';
   }
   function read() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }

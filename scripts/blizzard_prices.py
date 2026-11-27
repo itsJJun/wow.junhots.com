@@ -32,7 +32,8 @@ Sold: a listing that is gone an hour later while it still had 2+ hours left (LON
 down by its seller; a commodity listing that shrank sold the difference. Buyers take the cheapest first (a bulk buy
 clears the cheapest price, then the next), so a gone listing counts as sold only when no listing of that item that
 was cheaper an hour ago is still up. One that went while cheaper ones stayed was taken down (sellers cancel to
-undercut and list again); it is not counted. Before 27 Nov 2026 every taken-down listing counted as sold, many times
+undercut and list again); it is not counted. Nor is one whose same stack size shows up again, new, at or under
+its price in the same hour (a seller undercut within the hour who listed again). Before 27 Nov 2026 every taken-down listing counted as sold, many times
 too high on busy items, so those counts were cleared (SOLD_RULE). Checked on 4 hours of US 113 the same day: this
 cut the count a lot on undercut items (Small Radiant Shard 8x, Soul Dust 5x) but it still ran a median 4-6x TSM's
 region sold per day, so pages keep using TSM (site.js OWN_SALES) until the average over all houses matches TSM.
@@ -169,15 +170,22 @@ def prices_text(snap, house, cur, suffix_of):
 
 def sold_units(prev, cur):
     """units sold and units that ran out (expired) per item between two hourly snapshots of one house"""
-    sold, gone, kept = {}, {}, {}
+    sold, gone, kept, fresh = {}, {}, {}, {}
     for aid, p in prev.items():   # the cheapest of last hour's listings that are still up, per item
         if aid in cur and (p[0] not in kept or p[2] < kept[p[0]]):
             kept[p[0]] = p[2]
+    for aid, c in cur.items():    # new listings this hour, by item and stack size
+        if aid not in prev:
+            fresh.setdefault((c[0], c[1]), []).append(c[2])
     for aid, p in prev.items():
         c = cur.get(aid)
         if c is None:
             if p[3] >= 2:   # still had 2+ hours left: bought, unless a cheaper one stayed (then it was taken down)
                 if p[0] not in kept or p[2] <= kept[p[0]]:
+                    again = fresh.get((p[0], p[1]))
+                    if again and min(again) <= p[2]:   # the same stack listed again at or under its price: a repost
+                        again.remove(min(again))
+                        continue
                     sold[p[0]] = sold.get(p[0], 0) + p[1]
             else:           # under 2 hours left: most of these ran out
                 gone[p[0]] = gone.get(p[0], 0) + p[1]
