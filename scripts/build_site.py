@@ -320,9 +320,11 @@ def own_page(path, title, desc, body, active_top=None, og=None, noindex=False):
             '<main class="ws-main">\n' + body + '\n</main>' + footer() + '</body>\n</html>\n')
 
 
-def card(href, icon, name, line, lazy):
-    return ('<a class="ws-card" href="%s"><img src="%s" alt="" width="40" height="40"%s><b>%s</b><span>%s</span></a>'
-            % (href, icon_url(icon), ' loading="lazy"' if lazy else '', esc(name), esc(line)))
+# Home tool list: a few plain words under each tool's name (the longer blurb is the hover title)
+HINT = {'crafted': 'Better gear for your level', 'talents': 'Plan your talents', 'route': 'Every quest in order', 'dungeons': 'Bosses, drops and quests',
+        'leveling': 'Cheapest way to 300', 'enchants': 'Which enchants to learn', 'macros': 'Macros for enchanting others',
+        'tailoring': 'Crafts that make gold', 'timing': 'Buy now or wait', 'sell': 'Sell, vendor or keep', 'flips': 'Buy cheap, sell for more',
+        'farm': 'Best gold per kill', 'warlock': 'Demonology guide', 'demons': 'Which demon books to buy'}
 
 
 def build_home(updates):
@@ -330,28 +332,37 @@ def build_home(updates):
     steps = [
         (path_of('crafted') if 'crafted' in TOOL else '/', 'Find gear upgrades', 'Better gear for your class, and where to get it'),
         ('/setup/', 'Set up once', 'Three addons, then load your files: your own gear, bags and prices'),
-        (path_of('leveling') if 'leveling' in TOOL else '/', 'Level your professions', 'Cheapest way, step by step, plus fishing'),
+        (path_of('route') if 'route' in TOOL else '/', 'Level 1 to 60', 'Every quest in order, with flights and dungeons'),
     ]
-    step_html = ''.join('<a class="ws-card" data-step="%s" href="%s"><b>%s</b><span>%s</span></a>' % (
-        k, h, esc(a), esc(b)) for k, (h, a, b) in zip(('gear', 'setup', 'prof'), steps))
-    secs, n = [], 0
+    step_ic = {'gear': icon_url(TOOL['crafted']['icon']) if 'crafted' in TOOL else '', 'setup': icon_url('inv_misc_bag_10'),
+               'route': icon_url(TOOL['route']['icon']) if 'route' in TOOL else ''}
+    step_html = ''.join('<a class="ws-card" data-step="%s" href="%s"><img src="%s" alt="" width="36" height="36"><span><b>%s</b><span>%s</span></span></a>' % (
+        k, h, step_ic[k], esc(a), esc(b)) for k, (h, a, b) in zip(('gear', 'setup', 'route'), steps))
+    # every tool once, as a compact list by category (the side menu has them too on computers)
+    cols, n = [], 0
     for c in CATS:
-        cards = []
+        rows = []
         for i in c['tools']:
             t = TOOL[i]; n += 1
-            cards.append(card(path_of(i), t['icon'], t['label'], t.get('short') or '', n > 6))
-        secs.append('<section class="ws-sec"><h2>%s</h2><div class="ws-grid">%s</div></section>' % (esc(c['label']), ''.join(cards)))
+            rows.append('<a class="ws-tool" href="%s" title="%s"><img src="%s" alt="" width="32" height="32"%s><span><b>%s</b><small>%s</small></span></a>' % (
+                path_of(i), esc(t.get('short') or ''), icon_url(t['icon']), ' loading="lazy"' if n > 8 else '', esc(t['label']), esc(HINT.get(i, ''))))
+        cols.append('<div class="ws-drow"><h3>%s</h3><div>%s</div></div>' % (esc(c['label']), ''.join(rows)))
+    secs = ['<section class="ws-sec"><h2>All tools</h2><div class="ws-dir">%s</div></section>' % ''.join(cols)]
     latest = ''
     if updates:
         latest = ('<section class="ws-sec"><h2>Latest updates</h2><div class="ws-ups">%s</div>'
                   '<a href="/updates/" style="color:var(--muted);font-size:13px">All updates</a></section>' % ''.join(update_html(u, True) for u in updates[:2]))
-    body = ('<div class="ws-hero"><h1>WoW Forever tools</h1>'
-            '<p>Free guides and planners that tell you what to do next: what gear to get, how to level professions and make gold, '
-            'and how to play your class. What you enter is saved in your own browser.</p></div>\n'
-            '<section class="ws-sec ws-start"><h2>New here? Start with these</h2><div class="ws-pick" hidden></div><div class="ws-grid ws-steps">%s</div></section>\n' % step_html +
+    # top: Kalimdor map art for new visitors; your own character in 3D once your game files are loaded (site.js homeTop)
+    body = ('<section class="ws-top"><div class="ws-top-bg" aria-hidden="true"></div>'
+            '<div class="ws-top-char" hidden><canvas role="img" aria-label="Your character wearing your gear. Drag to turn."></canvas><span class="ws-tag">Drag to turn</span></div>'
+            '<div class="ws-top-main"><div class="ws-eb">Free tools for WoW Forever</div>'
+            '<h1 class="ws-h">Know what to do next, from level 1 to 60</h1>'
+            '<p class="ws-lead">Quest route, gear upgrades, professions and gold, for your class. Saved in your browser.</p>'
+            '<div class="ws-pick" hidden></div></div></section>\n'
+            '<section class="ws-sec ws-start"><h2>Start here</h2><div class="ws-steps">%s</div></section>\n' % step_html +
             '\n'.join(secs) + latest +
             '')
-    desc = 'Free WoW Forever tools: gear upgrades for every class, cheapest profession leveling, enchanting and tailoring gold, class guides.'
+    desc = 'Free WoW Forever tools: gear upgrades for every class, a 1-60 quest route, cheapest profession leveling, gold making and class guides.'
     open(os.path.join(PUB, 'index.html'), 'w', encoding='utf-8').write(
         own_page('/', 'WoW Forever tools · junhots', desc, body, active_top='home'))
 
@@ -373,6 +384,7 @@ def build_updates(updates):
 
 
 CREDITS = [
+    ('Marcellus font', 'https://fonts.google.com/specimen/Marcellus', 'The heading font, by Astigmatic (SIL Open Font License).'),
     # (name, url or None, what it gives the tools)
     ('MythicSim Forever engine', 'https://github.com/sage3648/mythicsim-forever-engine', 'Combat sims (MIT license) behind our own leveling stat weights on Gear upgrades.'),
     ('Forever Leveling BiS addon', None, 'Gear rules (ported from its scoring) behind Gear upgrades, and the stat weights for the enchant ranking on Enchants.'),
