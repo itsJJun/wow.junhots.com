@@ -2058,7 +2058,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       var sa = R.steps[ord[a]], sb = R.steps[ord[b]], lv = Math.floor(sb.lv || 1);
       if ((x[1] || 0) <= greyAt(lv)) { LOGST[q] = { st: 'grey', lv: lv }; return; }
       if (!M.quests[q]) M.quests[q] = [x[0], x[1], x[2], x[4], x[8], '', '', 0, [], [x[10], x[11]]];
-      if (x[16] && !rd) add.push({ k: a, s: { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
+      var rdo = null; if (x[16] && !rd) for (var i4 = 0; i4 < n0 && !rdo; i4++) { var s4 = R.steps[i4]; if (s4.t === 'do' && s4.q === q && s4.w && s4.a && !hidden(s4)) rdo = s4; }
+      if (x[16] && !rd) add.push({ k: a, s: rdo ? { t: 'do', q: q, o: rdo.o, lv: sa.lv, a: rdo.a, z: rdo.z, w: rdo.w, ds: rdo.ds, dk: rdo.dk, dm: rdo.dm, lg: 1 } : { t: 'do', q: q, lv: sa.lv, a: [oz, x[16][0], x[16][1]], z: oz, w: x[16][2], lg: 1 } });
       else if (!v.ready && inR[q]) for (var i3 = 0; i3 < n0; i3++) { var s3 = R.steps[i3]; if (s3.t !== 'do' || s3.q !== q || hidden(s3) || inLogDone(s3) || ticks[i3 + ':do']) continue;
         var k3 = fz(s3.z); k3 = k3 >= 0 ? endStop(k3) : -1; if (k3 < 0 || k3 > b) k3 = startStop(b); if (k3 < (bh && pick && skipStop ? fromN : from)) k3 = b;   // (Goblin Sponsorship: not behind where you left off)
         add.push({ k: k3, s: { t: 'do', q: q, o: s3.o, lv: sa.lv, a: s3.a, z: s3.z, w: s3.w, ds: s3.ds, dk: s3.dk, dm: s3.dm, lg: 1 } }); }
