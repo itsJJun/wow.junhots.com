@@ -224,6 +224,7 @@ tr.covered td { opacity: .62; }
 #shop .ptree { color: var(--muted); }
 #shop .pok { color: var(--good); font-weight: 600; }
 #shop .spare { font-size: 10.5px; font-weight: 400; }
+#shop .spare, #shop .pmk, #shop .pok { white-space: nowrap; }
 .srcb { display: inline-block; font-size: 11px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
 .srcb.ah { color: var(--accent); } .srcb.vendor { color: var(--silver); } .srcb.est { color: var(--warn); } .srcb.you { color: var(--good); } .srcb.craft { color: var(--good); }
 
@@ -1883,6 +1884,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       const o = { own, pool: made, have: (i, q) => add(i, q, sg), raw: (i, q) => add(i, q, sg) };
       sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, o));
     });
+    // safe = need + the one spare for the whole list (same as the shopping list's Buy; "Sell spare mats" keeps this much)
+    for (const k in need) need[k].safe = need[k].q + 1.2816 * Math.sqrt(need[k].v || 0);
     return need;
   }
 
@@ -2149,14 +2152,15 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     segs.forEach(sg => {
       if (sg.none) return;
       const need = {}, add = (id, q) => { id = String(id); need[id] = (need[id] || 0) + q; }, k = sg.crafts > 0 ? sg.safe / sg.crafts : 1;
-      const mine = {};
-      sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, { own, pool: made, have: (i, q) => { mine[i] = (mine[i] || 0) + q; }, raw: add }));
+      const mine = {}, early = {};
+      sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, { own, pool: made, have: (i, q) => { mine[i] = (mine[i] || 0) + q; }, made: (i, q) => { early[i] = (early[i] || 0) + q; }, raw: add }));
       out.set(sg, Object.entries(need).map(([id, q]) => {
         const want = Math.ceil(q * k - 1e-6), have = Math.max(0, Math.min(own[id] || 0, want)); own[id] = (own[id] || 0) - have;
-        const u = price(id); return { id, want, have, buy: want - have, u, c: u ? u.c * (want - have) : 0 };
+        const u = price(id); return { id, want, have, buy: want - have, u, c: u ? u.c * (want - have) : 0, q, v: sg.crafts > 0 ? (q / sg.crafts) * (q / sg.crafts) * (sg.var || 0) : 0 };
       }).sort((a, b) => b.c - a.c)
         // bolts (and other made parts) from your bags or bank: nothing to buy, but the step says so
-        .concat(Object.entries(mine).map(([id, q]) => { const n = Math.ceil(q - 0.05); return { id, want: n, have: n, buy: 0, u: price(id), c: 0, part: true }; }).filter(x => x.have > 0)));
+        .concat(Object.entries(mine).map(([id, q]) => { const n = Math.ceil(q - 0.05); return { id, want: n, have: n, buy: 0, u: price(id), c: 0, part: true }; }).filter(x => x.have > 0))
+        .concat(Object.entries(early).map(([id, q]) => { const n = Math.ceil(q - 0.05); return { id, want: n, have: 0, buy: 0, u: price(id), c: 0, part: true, early: n }; }).filter(x => x.early > 0)));
     });
     return out;
   }
@@ -2170,6 +2174,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const pats = us.map(u => '<span class="mat" title="' + (u.rod ? 'Make this rod once before the step: ' + coinTxt(u.cost) + ' in materials' : 'Buy this ' + PROFS[S.prof].pat + ' once' + (patFromAH(u.rec) ? ' on the auction house' : '') + ': ' + coinTxt(u.cost)) + '">' + (u.rod ? esc(u.rod) : PROFS[S.prof].pat.replace(/^./, c => c.toUpperCase())) + ' <span class="srcb ' + (!u.rod && patFromAH(u.rec) ? 'ah">AH ' : 'vendor">') + coinTxt(u.cost) + '</span></span>').join("");
     return '<div class="buyrow' + (done ? ' done' : '') + '"><span class="lbl">Buy</span>' + pats +
       (toBuy.length ? chips : us.length ? '' : '<span class="none">Nothing to buy</span>') +
+      (rows.some(x => x.early) ? '<span class="have">Made earlier: ' + rows.filter(x => x.early).map(x => fmtN(x.early) + '× ' + esc(itemName(x.id))).join(', ') + '</span>' : '') +
       (covered.some(x => x.buy === 0) ? '<span class="have">You have: ' + covered.filter(x => x.buy === 0).sort((a, b) => (b.part ? 1 : 0) - (a.part ? 1 : 0)).map(x => fmtN(x.have) + '× ' + esc(itemName(x.id))).join(', ') + '</span>' : '') +
       '<span class="btot">' + (tot > 0.5 ? coin(tot) : '') + '<button class="btn tiny buyck" type="button" data-bought="' + esc(key) + '" title="Tick when you have bought this step\'s materials">' + (done ? '✓ Bought' : 'Bought?') + '</button></span></div>';
   }
@@ -2301,7 +2306,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const boltRow = id => { const b = bolts[id], from = bolts[id].from.map(([c]) => itemName(c)).join(', ');
       return '<tr class="partrow"><td><span class="pname"><span class="ptree" aria-hidden="true">↳</span>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span></td><td class="r num">' + fmtN(b.total) + '</td>' +
         '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td>' +
-        '<td class="r num">' + (b.make >= 0.5 ? '<span title="Make them from ' + esc(from) + ' (counted in the row above)">make ' + fmtN(b.make) + '</span>' : '<span class="pok">✓ enough</span>') + '</td><td colspan="4"></td></tr>'; };
+        '<td class="r num">' + (b.make >= 0.5 ? '<span title="Make them from ' + esc(from) + ' (counted in the row above)" class="pmk">make ' + fmtN(b.make) + '</span>' : '<span class="pok">✓ enough</span>') + '</td><td colspan="4"></td></tr>'; };
     let tot = 0, ownTot = 0;
     let h = '<thead><tr><th>Material</th><th class="r" title="Expected amount the route uses">Need</th><th class="r">I have</th><th class="r" title="Need plus a small spare for bad luck, minus what you have">Buy</th><th>Price from</th><th class="r">Each (copper)</th><th class="r">Cost</th><th title="Buy now or wait, from how many players are at the levels where it drops. Hover or tap a tag for why.">Timing</th></tr></thead><tbody>';
     rows.forEach(({ id, n, u, b, spare }) => {
@@ -2327,8 +2332,10 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     // the same list by skill range (review 16 Nov): buy one block at a time, vendor items marked
     const TIERS = [[1, 75], [75, 150], [150, 225], [225, 300]], blocks = [];
     TIERS.forEach(([lo, hi]) => {
-      const a = {}; let c = 0;
-      pl.segs.forEach(sg => { if (sg.from < lo || sg.from >= hi) return; (stepBuy.get(sg) || []).forEach(x => { if (x.buy > 0) { a[x.id] = (a[x.id] || 0) + x.buy; c += x.c || 0; } }); });
+      const g = {}, a = {}; let c = 0;
+      pl.segs.forEach(sg => { if (sg.from < lo || sg.from >= hi) return; (stepBuy.get(sg) || []).forEach(x => { if (x.part) return; const s = g[x.id] || (g[x.id] = { q: 0, v: 0, have: 0 }); s.q += x.q || 0; s.v += x.v || 0; s.have += x.have; }); });
+      // need in this block + one spare for the block, minus what you have
+      for (const id in g) { const s = g[id], n = Math.max(0, Math.ceil(s.q + 1.2816 * Math.sqrt(s.v) - 0.05) - s.have); if (n > 0) { a[id] = n; const u = price(id); c += u ? u.c * n : 0; } }
       const ids = Object.keys(a); if (!ids.length) return;
       blocks.push('<div class="rg"><div class="rgh"><b>Skill ' + Math.max(lo, pl.from) + '–' + Math.min(hi, pl.to) + '</b><span>' + coin(c) + '</span></div><ul>' +
         ids.sort((x, y) => a[y] - a[x]).map(id => { const u = price(id); return '<li>' + icon(itemIcon(id), "sm") + '<span>' + fmtN(a[id]) + '× ' + esc(itemName(id)) + '</span>' +
