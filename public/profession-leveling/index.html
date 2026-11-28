@@ -224,6 +224,9 @@ tr.covered td { opacity: .62; }
 #shop .ptree { color: var(--muted); }
 #shop .pok { color: var(--good); font-weight: 600; }
 #shop .spare { font-size: 10.5px; font-weight: 400; }
+.betip { font-weight: 600; font-size: 10.5px; cursor: help; } .betip .coin { font-size: inherit; }
+.mat .sub { display: inline-flex; gap: 4px; align-items: center; color: var(--ink); background: var(--panel2); border: 1px solid var(--line2); border-radius: 5px; padding: 1px 5px 1px 1px; }
+#shop .betip { margin-left: 6px; }
 #shop .spare, #shop .pmk, #shop .pok { white-space: nowrap; }
 .srcb { display: inline-block; font-size: 11px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
 .srcb.ah { color: var(--accent); } .srcb.vendor { color: var(--silver); } .srcb.est { color: var(--warn); } .srcb.you { color: var(--good); } .srcb.craft { color: var(--good); }
@@ -1728,6 +1731,24 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     o.make && o.make(id, q);
     pr.r.forEach(([i2, n2]) => breakDown(m, i2, q * n2 / (pr.cnt || 1), o, d + 1));
   }
+  // price limit for what you buy, when a part is made from ONE material (bolt <- 4 silk):
+  // silk: "max 2s 12 each, else bolts" (AH bolt price / 4); bolts bought on the AH: "max 6s 40 each, else make from silk"
+  function limitTip(m, id) {
+    id = String(id);
+    const P = m.P, parts = P.parts || {}, rec = rid => P.recipes.find(r => r.id === rid), one = pr => pr && pr.r.length === 1;
+    const short = i => itemName(i).replace(/ Cloth$/, "").toLowerCase();
+    let pid = null, pr = rec(parts[id]);
+    if (one(pr) && m.unit(id) && m.unit(id).src !== "craft") pid = id;   // a part you buy (bolts on the AH)
+    else for (const k in parts) { const r = rec(parts[k]); if (one(r) && String(r.r[0][0]) === id && m.unit(k) && m.unit(k).src === "craft") { pid = k; pr = r; break; } }
+    if (!pid) return "";
+    const [mid, n] = pr.r[0], cnt = pr.cnt || 1, bolt = /^Bolt of /.test(itemName(pid)), pn = bolt ? "bolts" : itemName(pid);
+    let max, alt, why;
+    if (pid === id) { const mu = m.unit(mid); if (!mu || mu.src === "est") return ""; max = Math.floor(mu.c * n / cnt); alt = "make from " + (bolt ? short(mid) : itemName(mid));
+      why = n + " " + itemName(mid) + " (" + coinTxt(mu.c) + " each) make " + (cnt > 1 ? cnt + " " : "one ") + itemName(pid) + ". Above " + coinTxt(max) + ", making them is cheaper."; }
+    else { const ah = price(pid); if (!ah || ah.src === "est") return ""; max = Math.floor(ah.c * cnt / n); alt = pn;
+      why = itemName(pid) + " on the auction house: " + coinTxt(ah.c) + ". One takes " + n + " " + itemName(mid) + ", so above " + coinTxt(max) + " each, buy " + pn + " instead."; }
+    return '<span class="pill mute betip" title="' + esc(why) + '">max ' + coin(max) + ' each, else ' + esc(alt) + '</span>';
+  }
   // take q units of a reagent from what you own (or made earlier: pool), parts from their materials too. Returns copper saved.
   function useOwn(own, m, id, q, pool) {
     let saved = 0;
@@ -2164,13 +2185,13 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     });
     return out;
   }
-  function buyRow(sg, r) {
+  function buyRow(sg, r, m) {
     const rows = stepBuy.get(sg); if (!rows) return "";
     const us = cashNow && cashNow.unl.get(sg) || [];
     const key = S.prof + ":" + sg.from + ":" + r.id, done = !!(S.bought || {})[key], toBuy = rows.filter(x => x.buy > 0), tot = toBuy.reduce((a, x) => a + x.c, 0) + us.reduce((a, u) => a + u.cost, 0);
     const covered = rows.filter(x => x.have > 0);
     const chips = toBuy.map(x => '<span class="mat">' + icon(itemIcon(x.id), "sm") + '<span class="num">' + fmtN(x.buy) + '×</span> ' + esc(itemName(x.id)) +
-      (x.u && x.u.src === "vendor" ? ' <span class="srcb vendor">' + GI('vendor') + 'Vendor</span>' : ' ' + MKT.pill(x.id)) + (x.have > 0 ? ' <span class="have">+' + fmtN(x.have) + ' in bags</span>' : '') + '</span>').join("");
+      (x.u && x.u.src === "vendor" ? ' <span class="srcb vendor">' + GI('vendor') + 'Vendor</span>' : ' ' + MKT.pill(x.id)) + (m ? limitTip(m, x.id) : '') + (x.have > 0 ? ' <span class="have">+' + fmtN(x.have) + ' in bags</span>' : '') + '</span>').join("");
     const pats = us.map(u => '<span class="mat" title="' + (u.rod ? 'Make this rod once before the step: ' + coinTxt(u.cost) + ' in materials' : 'Buy this ' + PROFS[S.prof].pat + ' once' + (patFromAH(u.rec) ? ' on the auction house' : '') + ': ' + coinTxt(u.cost)) + '">' + (u.rod ? esc(u.rod) : PROFS[S.prof].pat.replace(/^./, c => c.toUpperCase())) + ' <span class="srcb ' + (!u.rod && patFromAH(u.rec) ? 'ah">AH ' : 'vendor">') + coinTxt(u.cost) + '</span></span>').join("");
     return '<div class="buyrow' + (done ? ' done' : '') + '"><span class="lbl">Buy</span>' + pats +
       (toBuy.length ? chips : us.length ? '' : '<span class="none">Nothing to buy</span>') +
@@ -2236,9 +2257,11 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       let mats = r.r.map(([id, n]) => {
         const u = m.unit(id);
         const q = n * sg.crafts;
-        let via = "";
-        if (u && u.src === "craft") { const pr = DATA.profs[S.prof].recipes.find(z => z.id === u.via); via = ' <span class="muted">(' + pr.r.map(([i2, n2]) => fmtN(q * n2 / (pr.cnt || 1)) + " " + esc(itemName(i2))).join(", ") + ')</span>'; }
-        return '<span class="mat">' + icon(itemIcon(id), "sm") + '<span class="num">' + fmtN(q) + '×</span> ' + esc(itemName(id)) + via + (u ? ' <span class="muted">@ ' + coin(u.c) + '</span>' : "") + '</span>';
+        let via = "", each = u ? u.c : null;
+        if (u && u.src === "craft") { const pr = DATA.profs[S.prof].recipes.find(z => z.id === u.via), one = pr.r.length === 1 && m.unit(pr.r[0][0]);
+          if (one) each = one.c;   // the price is for what you buy: the silk, not the bolt
+          via = pr.r.map(([i2, n2]) => '<span class="sub">' + icon(itemIcon(i2), "sm") + '<span class="num">' + fmtN(q * n2 / (pr.cnt || 1)) + '×</span> ' + esc(itemName(i2)) + (one ? ' ' + coin(one.c) + ' each' : '') + '</span>').join(""); }
+        return '<span class="mat">' + icon(itemIcon(id), "sm") + '<span class="num">' + fmtN(q) + '×</span> ' + esc(itemName(id)) + (via ? ' <span class="muted">from</span>' + via : each !== null ? ' <span class="muted">' + coin(each) + ' each</span>' : '') + '</span>';
       }).join("");
       const notes = [];
       notes.push(learnText(r, pl));
@@ -2272,7 +2295,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
         (sg.back > 0.5 ? '<span>Money back <b>' + coin(sg.back) + '</b></span>' : "") +
         '</div>' +
         dbar(r, sg.from, sg.to) +
-        buyRow(sg, r) +
+        buyRow(sg, r, m) +
         '<div class="uses"><span>Materials:</span>' + mats + '</div>' +
         '<div class="stepnote">' + notes.map(n => "<span>" + n + "</span>").join("") + deHtml + '</div>' +
         (r.src === "recipe" ? '<div class="acts">' + (S.known.includes(r.id) ? "" : '<button class="btn tiny" data-known="' + r.id + '" type="button">I already know this</button>') + '<button class="btn tiny" data-ban="' + r.id + '" type="button">Can\'t get this ' + PROFS[S.prof].pat + '</button></div>' : "") +
@@ -2303,10 +2326,14 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const rows = Object.entries(need).map(([id, n]) => { const u = price(id), hv = S.useHave ? (+S.have[id] || 0) : 0, base = Math.ceil(n.q - 0.05), spare = n.q > 0.05 ? Math.max(0, Math.ceil(n.q + 1.2816 * Math.sqrt(n.v || 0) - 0.05) - base) : 0, buy = Math.max(0, base + spare - hv);
       return { id, n, u, spare, b: { buy, c: u ? u.c * buy : 0 } }; }).sort((a, b) => b.b.c - a.b.c || (b.u ? b.u.c * b.n.q : 0) - (a.u ? a.u.c * a.n.q : 0));
     // right under the cloth, same columns: "↳ Bolt of Silk Cloth | 114 | [130] | ✓ enough" (or "make 16")
-    const boltRow = id => { const b = bolts[id], from = bolts[id].from.map(([c]) => itemName(c)).join(', ');
+    // the cloth row's spare, turned into bolts: "324 / +72 spare" over "make 81 / +18 spare"
+    const spareB = id => { const b = bolts[id], [c, k] = b.from.find(([c]) => !bolts[c]) || b.from[0], r = rows.find(x => x.id === c);
+      if (!r || !r.spare || !r.b.buy || r.b.buy < r.spare || !(b.make > 0) || !(r.n.q > 0)) return 0;
+      return Math.floor(r.spare * Math.min(1, b.make * k / r.n.q) / k + 1e-6); };
+    const boltRow = id => { const b = bolts[id], from = bolts[id].from.map(([c]) => itemName(c)).join(', '), sp = spareB(id);
       return '<tr class="partrow"><td><span class="pname"><span class="ptree" aria-hidden="true">↳</span>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span></td><td class="r num">' + fmtN(b.total) + '</td>' +
         '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td>' +
-        '<td class="r num">' + (b.make >= 0.5 ? '<span title="Make them from ' + esc(from) + ' (counted in the row above)" class="pmk">make ' + fmtN(b.make) + '</span>' : '<span class="pok">✓ enough</span>') + '</td><td colspan="4"></td></tr>'; };
+        '<td class="r num">' + (b.make >= 0.5 ? '<span title="Make them from ' + esc(from) + ' (counted in the row above)" class="pmk">make ' + fmtN(b.make + sp) + '</span>' + (sp > 0 ? '<div class="muted spare" title="Make these only if you run short">+' + fmtN(sp) + ' spare</div>' : '') : '<span class="pok">✓ enough</span>') + '</td><td colspan="4"></td></tr>'; };
     let tot = 0, ownTot = 0;
     let h = '<thead><tr><th>Material</th><th class="r" title="Expected amount the route uses">Need</th><th class="r">I have</th><th class="r" title="Need plus a small spare for bad luck, minus what you have">Buy</th><th>Price from</th><th class="r">Each (copper)</th><th class="r">Cost</th><th title="Buy now or wait, from how many players are at the levels where it drops. Hover or tap a tag for why.">Timing</th></tr></thead><tbody>';
     rows.forEach(({ id, n, u, b, spare }) => {
@@ -2317,7 +2344,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       const allTxt = !all ? "" : all.got < buy ? '<div class="muted allnow" title="Listed on the auction house right now">only ' + fmtN(all.got) + ' listed</div>'
         : all.cost > c * 1.05 ? '<div class="muted allnow" title="Buying all ' + fmtN(buy) + ' right now, cheapest listings first. The cheap ones run out.">all now: ' + coin(all.cost) + '</div>' : "";
       (boltsOf[id] || []).forEach(bid => { const bu = price(bid); if (bu) ownTot += bu.c * bolts[bid].have; });
-      h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span></td><td class="r num">' + fmtN(n.q) + '</td>' +
+      h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span>' + (buy > 0 ? limitTip(pl.m, id) : '') + '</td><td class="r num">' + fmtN(n.q) + '</td>' +
         '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td><td class="r num">' + (buy ? fmtN(buy) + (spare > 0 && buy >= spare ? '<div class="muted spare" title="Extra for bad luck: with it, the whole list is enough 9 times out of 10">+' + fmtN(spare) + ' spare</div>' : '') : '<span class="muted">none</span>') + '</td>' +
         '<td>' + (u ? '<span class="srcb ' + u.src + '">' + ({ ah: GI('ah') + "AH", vendor: GI('vendor') + "Vendor", est: "est", you: "You", craft: "Craft" }[u.src]) + '</span>' : "") + '</td>' +
         '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + allTxt + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>' + (boltsOf[id] || []).map(boltRow).join('');

@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-28",
+    "title": "Profession leveling: buy silk or bolts?",
+    "text": "Silk Cloth now shows the most to pay, like \"max 2s 12 each, else bolts\", on each step and in the shopping list. Spare silk and the bolts to make from it now match.",
+    "image": "/assets/updates/2026-11-28-silk-limit.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
+    "date": "2026-11-28",
     "title": "Item hover cards open beside the name",
     "text": "An item's hover card now opens beside it, like in the game, and never blocks the mouse, so you can hover the next item in a list straight away.",
     "image": "/assets/updates/2026-11-28-item-hover.webp",
