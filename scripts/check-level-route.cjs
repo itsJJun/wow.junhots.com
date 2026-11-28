@@ -7,7 +7,8 @@
 // the log, a whole part skipped), it loads the page, then checks in order the going-back list and the route ahead
 // of where you left off: every objective / hand-in comes after its pickup (or the quest is in your log or done),
 // every pickup comes after its pre-quests are handed in, every hand-in of a quest with objectives comes after an
-// objective line (Jun 27 Nov: Screecher Spirits hand-in shown before its objectives), and every quest picked up is handed in later. A test hook is injected into the served copy only.
+// objective line (Jun 27 Nov: Screecher Spirits hand-in shown before its objectives), every quest picked up is handed in later,
+// and a ready quest whose hand-in is at the stop you're at (or the one you just marked done) is shown there (Jun 28 Nov). A test hook is injected into the served copy only.
 // Exits 1 on any problem or page error.
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -17,6 +18,7 @@ const SEED = +(process.env.SEED || 0), LVS = (process.env.LVS || '14,22,30,38,46
 const path = require('path'), http = require('http');
 const PUB = process.env.PUB || path.join(__dirname, '..', 'public'), D = PUB + '/level-route/data/';   // PUB=<folder>: test another copy of the site (the live one, to compare)
 const META = JSON.parse(fs.readFileSync(D + 'route-meta.json'));
+const QA = JSON.parse(fs.readFileSync(D + 'quests-all.json')).q;
 const HOOK = `
   window.__lrT = {
     set: function (done, log, level) {
@@ -25,6 +27,15 @@ const HOOK = `
       ticks = {}; ls.set('lr.skip', ''); if (typeof pmClear === 'function') pmClear(); $('char').innerHTML = '<option>T</option>'; applyQuests();
     },
     qa: function () { return !!QA && !!R && rows.length > 0; },   // quest data and the route both loaded
+    // ready hand-ins at the stop you're at (Jun 28 Nov): these quests ready, then what the stop you're at shows
+    rh: function (ready) { logQ.forEach(function (v, q) { v.ready = ready.indexOf(q) >= 0; }); render(); return window.__lrT.rhNow(); },
+    rhNow: function () {
+      if (!hereStop) return null;
+      var tin = []; hereStop.rows.forEach(function (r) { if (r.k === 'step' && !isDone(r)) stepsOf(r).forEach(function (s) { if (s.t === 'turnin') tin.push(s.q); }); });
+      return { w: hereStop.rows.map(function (r) { return r.s; }).filter(function (s) { return s && s.w; }).map(function (s) { return s.w; }), tin: tin,
+        rh: typeof readyHere === 'function' ? readyHere(hereStop).map(function (o) { return o.q; }) : [], tt: Object.keys(TT).map(Number) };
+    },
+    done: function () { sel = hereStop; $('doneBtn').click(); return window.__lrT.rhNow(); },
     cu: function () {
       if (!pick || !skipStop) return null;
       var L = [hereStop].concat(catchNext()).filter(function (x) { return x !== skipStop; });
@@ -56,7 +67,7 @@ let PORT;
   await new Promise(ok => srv.listen(0, '127.0.0.1', ok)); PORT = srv.address().port;
   const b = await chromium.launch();
   const ids = fs.readdirSync(D + 'routes').filter(f => !/-opt\.json$|-u[0-9a-f]{8}\.json$/.test(f) && f.includes(FILT)).map(f => f.replace('.json', ''));
-  let nFwd = 0, nScen = 0, nDet = 0, nStops = 0, bad = [], errs = [];
+  let nFwd = 0, nScen = 0, nDet = 0, nStops = 0, nRdy = 0, bad = [], errs = [];
   const worker = async (list) => {
     const ctx = await b.newContext({ viewport: { width: 1300, height: 900 } });
     await ctx.route('**/level-route/', async rt => { const r = await rt.fetch(); let s = await r.text();
@@ -110,6 +121,17 @@ let PORT;
         [...(cu ? cu.sts.map(s => s.steps.map(x => [x, 'going back'])).flat() : []), ...fwd.flat().map(x => [x, 'route ahead'])].forEach(([x, w]) => {
           if (!x.q) return; if (x.t === 'accept' && !x.done && !accd.has(x.q)) accd.set(x.q, w); if (x.t === 'turnin') tins.add(x.q); });
         accd.forEach((w, q) => { if (!tins.has(q)) bad.push([id, L, mode, w + ': picked up, never handed in', q, META.quests[q] && META.quests[q][0]]); });
+        // a quest in your log ready to hand in, with its hand-in at the stop you're at (or at the stop you just marked
+        // done): that stop shows its hand-in (Jun 28 Nov: Gadgetzan Water Survey, "it should still tell me to turn in")
+        const near = (w, ws) => ws.some(v => v[0] === w[0] && Math.hypot(v[1] - w[1], v[2] - w[2]) < 150);
+        const rdyList = [...log], tinOf = q => { const x = QA[q]; return x && x[18] && x[18][2] && !(x[3] && x[3] !== R.fac[0]) ? x[18][2] : null; };
+        const r1 = await p.evaluate(l => window.__lrT.rh(l), rdyList);
+        if (r1) {
+          rdyList.forEach(q => { const w = tinOf(q); if (w && near(w, r1.w) && !r1.tin.includes(q) && !r1.rh.includes(q)) bad.push([id, L, mode, 'ready hand-in at your stop not shown', q, META.quests[q] && META.quests[q][0] || QA[q][0]]); });
+          const r2 = await p.evaluate(() => window.__lrT.done());
+          if (r2) rdyList.forEach(q => { const w = tinOf(q); if (w && near(w, r1.w) && !r2.tt.includes(q) && !r2.tin.includes(q) && !r2.rh.includes(q)) bad.push([id, L, mode, 'ready hand-in at the stop you left not shown', q, META.quests[q] && META.quests[q][0] || QA[q][0]]); });
+          nRdy++;
+        }
       }
       await p.close();
       process.stdout.write(id + ' ');
@@ -118,7 +140,7 @@ let PORT;
   };
   const N = 4, parts = Array.from({ length: N }, (_, k) => ids.filter((_, i) => i % N === k));
   await Promise.all(parts.map(worker));
-  console.log('\nroutes', ids.length, 'scenarios', nScen, 'with a going-back list', nDet, 'going-back stops checked', nStops, 'route-ahead steps checked', nFwd);
+  console.log('\nroutes', ids.length, 'scenarios', nScen, 'with a going-back list', nDet, 'going-back stops checked', nStops, 'route-ahead steps checked', nFwd, 'ready-here states', nRdy);
   const kinds = {}; bad.forEach(x => kinds[x[3]] = (kinds[x[3]] || 0) + 1);
   console.log('PROBLEMS', bad.length, JSON.stringify(kinds));
   const byQ = {}; bad.forEach(x => { const k = x[3] + ' | ' + x[5] + ' (' + x[4] + ')'; byQ[k] = (byQ[k] || 0) + 1; });
