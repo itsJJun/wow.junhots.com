@@ -195,6 +195,10 @@ a { color: var(--accent); }
 .stop li input { margin: 2px 0 0; accent-color: var(--good); cursor: pointer; }
 .stop li.ck > span { text-decoration: line-through; opacity: .55; }
 .stop li.miss input { outline: 1px solid var(--bad); outline-offset: 1px; }
+.stop li.npch { display: block; margin: 5px 0 0; font-size: 11.5px; font-weight: 600; color: var(--muted); letter-spacing: .01em; }
+.stop li.npch:first-child { margin-top: 1px; }
+.stop li.npch span { border-bottom: 1px dotted transparent; cursor: default; }
+.stop li.npch span[data-npc]:hover { color: var(--ink); border-bottom-color: currentColor; }
 .stop li .xp { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .stop li small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
 .stop li small.at { color: #6f9cff; }
@@ -1057,7 +1061,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     <label title="Far-off quests with a gear upgrade for this spec are part of the route">Spec <select id="spec"></select></label> <span id="upSum" class="upsum"></span>
     <label id="startWrap">Start <select id="start"></select></label>
     <label id="charWrap" class="hidden">Character <select id="char"></select></label>
-    <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Optional quests <span class="oc" id="optCost"></span></label>
+    <label id="optWrap" class="optsw hidden" title="Dungeon quests that start far off the route. On: the route takes them and changes to fit."><input type="checkbox" id="optSw"> Far-off dungeon quests <span class="oc" id="optCost"></span></label>
     <label id="dunWrap" class="optsw dsw" title="Off: no dungeons or dungeon quests. On again: the route works out where you are."><input type="checkbox" id="dunSw"> Dungeons <span class="oc" id="dunCost"></span></label>
   </div>
   <div class="status">
@@ -1103,7 +1107,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
   <h2>How it works</h2>
   <ul>
     <li><b>Order:</b> TUGs' free Forever leveling guides, checked quest by quest against Questie's Forever data. Quests your race or class can't take are left out. Missing pick-ups, pre-quests, chain ends, dungeon and class quests are added.</li>
-    <li><b>Optional quests:</b> dungeon quests that start far off the route are left out. Turn on <b>Optional quests</b> to take them: the route changes to fit, and their lines are marked <span class="tag of">optional</span>.</li>
+    <li><b>Far-off dungeon quests:</b> dungeon quests that start far off the route are left out. Turn the switch on to take them: the route changes to fit.</li>
     <li><b>Gear upgrades:</b> far-off quests with an upgrade for your spec are in the route: <span class="tag up">item +1.3</span>.</li>
     <li><b>Dungeon quests</b> show their dungeon: <span class="tag dq">Wailing Caverns</span>. Steps that unlock one show <span class="tag fd">for Wailing Caverns</span>.</li>
     <li><b>Places:</b> steps at the same place share one numbered pin, like <i class="pn">2</i>. The numbers start again in each part. Tick a line when it's done, or press <b>Done ✓</b> for the whole place. Started mid-way? Pick your place (or search a quest) and press <b>I did everything before this</b>. On the map, the solid amber pin is where you are and the arrow points to the next one (amber rim). Dark pins come later, faint dots are done, and a skull is a dungeon door.</li>
@@ -2237,6 +2241,20 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     });
     chaps.forEach(function (c, k) { var nx = chaps[k + 1]; c.lv2 = nx ? nx.lv1 : (R.steps[R.steps.length - 1].lv || 60); });
   }
+  // the NPC you talk to for a line: [card key, name] (quests from an item have none)
+  function rowNpc(r) {
+    if (!r || r.k !== 'step' || !r.s) return null; var s = r.s, qd = M.quests[s.q] || [];
+    if (s.t === 'accept') return qd[3] && !qd[7] ? [qd[3], qd[3]] : null;
+    if (s.t === 'turnin') return qd[4] ? [qd[4], qd[4]] : null;
+    if (s.t === 'train') return M.npcs[s.npc] ? [s.npc, M.npcs[s.npc]] : null;
+    return null;
+  }
+  // a stop's place: the town of a flight master within 300 yards, else the zone
+  function placeName(st) {
+    var s = (st.rows.find(function (r) { return r.s && r.s.w; }) || {}).s; if (!s) return zn((st.rows[0].s || {}).z) || 'Stop';
+    var best = null; Object.keys(T.taxi).forEach(function (id) { var t = T.taxi[id], d = t.map === s.w[0] ? Math.hypot(t.x - s.w[1], t.y - s.w[2]) : 1e9; if (d < 300 && (!best || d < best[0])) best = [d, id]; });
+    return best ? T.town(best[1]) : zn(s.z) || 'Stop';
+  }
   function s0title(c) {
     c.stops.forEach(function (st) {
       var r = st.rows[0], s = r.s || {}, qd = M.quests[s.q] || [], t;
@@ -2251,6 +2269,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       else if (s.t === 'hearth') t = 'Hearth' + (s._to ? ' to ' + s._to : '');
       else if (s.t === 'grind') t = 'Grind to level ' + s.to;
       else t = zn(s.z) || 'Stop';
+      var nps = []; st.rows.forEach(function (r) { var n = rowNpc(r); if (n && nps.indexOf(n[1]) < 0) nps.push(n[1]); });
+      st.npcs = nps.length > 1 && !(st.loc && st.loc.dun) ? nps : null;
+      if (st.npcs) { t = placeName(st); st.npc = null; }
       st.title = t;
       st.lv = (st.rows.find(function (x) { return x.s && x.s.lv; }) || {}).s;
       st.lv = st.lv ? st.lv.lv : null;
@@ -2722,13 +2743,13 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // far-off journal quests the switch would add, under their dungeon (only while it is off)
   function farOf(name) {
     if (optOn || !R.far) return '';
-    return R.far.filter(function (f) { return f[1] === name; }).map(function (f) { return '<span class="ofq"><span class="tag of">optional</span> ' + esc(qn(f[0])) + (f[2] ? ' (starts in ' + esc(f[2]) + ')' : '') + '</span>'; }).join('');
+    return R.far.filter(function (f) { return f[1] === name; }).map(function (f) { return '<span class="ofq"><span class="tag of">far off</span> ' + esc(qn(f[0])) + (f[2] ? ' (starts in ' + esc(f[2]) + ')' : '') + '</span>'; }).join('');
   }
   function drawOpt() {
     var o = R.opt, w = $('optWrap');
     if (!o || !o.all) { w.classList.add('hidden'); return; }
     w.classList.remove('hidden'); w.classList.toggle('on', optOn); $('optSw').checked = optOn;
-    $('optCost').textContent = (optOn ? 'on: ' : '') + '+' + o.all + ' optional quests' + (o.s > 0 ? ' · +' + Math.round(o.s / 360) / 10 + ' h travel' : '');
+    $('optCost').textContent = (optOn ? 'on: ' : '') + '+' + o.all + ' quests' + (o.s > 0 ? ' · +' + Math.round(o.s / 360) / 10 + ' h travel' : '');
   }
   // what your spec adds: the gear upgrade quests and the travel they cost
   function drawUp() {
@@ -2989,8 +3010,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.ad === 'Class quest' && !s.of) tags += '<span class="tag add">class quest</span>';
       if (s.q && UPQ[s.q] && (s.t === 'accept' || s.t === 'turnin')) tags += '<span class="tag up" data-item="' + esc(UPQ[s.q].split(', ')[0]) + '" data-item-note="An upgrade for your spec" tabindex="0">' + esc(UPQ[s.q]) + '</span>';
       else if (s.q && upMine && upMine.byId[s.q] && (s.t === 'accept' || s.t === 'turnin') && !doneQ.has(s.q)) { var mu = upMine.byId[s.q]; tags += '<span class="tag up" data-item="' + esc(mu[0]) + '" data-item-note="Beats your ' + esc(String(mu[1]).toLowerCase()) + ' by +' + mu[2] + '" tabindex="0">' + esc(mu[0]) + ' +' + mu[2] + '</span>'; }
-      if (s.of) tags += '<span class="tag of" title="Optional quest: starts far off the route">optional</span>';
-      else if (s.op) tags += '<span class="tag">can skip</span>';
+      if (s.op && !s.of) tags += '<span class="tag">can skip</span>';
       if (s.dq && !s.in) tags += '<span class="tag dq">' + esc(dunShort(s.dq)) + '</span>';
       else if (s.fd) tags += '<span class="tag fd">for ' + esc(dunShort(s.fd)) + '</span>';
       if (s.el) tags += '<span class="tag el" title="Elite monsters: bring a group">elite</span>';
@@ -3026,7 +3046,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var it = st.ch.items, k = it.findIndex(function (x) { return x.st === st; }), leg = k > 0 && it[k - 1].k === 'leg' ? it[k - 1].r.tr : null;
     var xp = 0, qs = [];
     st.rows.forEach(function (r) { [r.s].concat((r.more || []).map(function (m) { return m.s; })).forEach(function (s) { if (!s || !s.of) return; if (s.t === 'turnin') xp += s.xp || 0; if (qs.indexOf(s.q) < 0) qs.push(s.q); }); });
-    return '<span class="optrip">Optional trip' + (leg ? ' · ' + mins(leg.secs) + ' travel' : '') + (xp ? ' · +' + xp.toLocaleString() + ' xp' : '') + '</span>';
+    return '<span class="optrip">Dungeon quest trip' + (leg ? ' · ' + mins(leg.secs) + ' travel' : '') + (xp ? ' · +' + xp.toLocaleString() + ' xp' : '') + '</span>';
   }
   // boss drops for your spec: item names in their quality colour, boss and drop chance on hover
   function bossGear(name, withBoss) {
@@ -3053,6 +3073,15 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     });
     return out.join('');
   }
+  // a stop's lines under small NPC headers (the lines keep the route's order)
+  function npcLines(st) {
+    var pv = null;
+    return st.rows.map(function (r) { var n = rowNpc(r), h = '';
+      if (n && n[1] !== pv) h = '<li class="npch"><span data-npc="' + esc(n[0]) + '" data-card-pass tabindex="0">' + esc(n[1]) + '</span></li>';
+      else if (!n && pv && r.k === 'step') h = '<li class="npch"><span>Nearby</span></li>';
+      pv = n ? n[1] : r.k === 'step' ? null : pv;
+      return h + line(r); }).join('');
+  }
   function stopHtml(st, c, rdy) {
     var dn = stopDone(st), cls = 'stop';
       if (dn) cls += ' done';
@@ -3066,7 +3095,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? '<p class="dglk"><a href="' + DGURL + '#' + dgSlug(st.loc.dun) + '">' + wi('skull') + 'Map and bosses of ' + esc(st.loc.dun) + ' ›</a></p>' : '') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) && bossGear(st.loc.dun) ? '<p class="bgear">' + wi('skull') + ' Upgrades for you: ' + bossGear(st.loc.dun, true) + '</p>' : '') +
-        '<ul>' + st.rows.map(line).join('') + '</ul>' +
+        '<ul>' + (st.npcs ? npcLines(st) : st.rows.map(line).join('')) + '</ul>' +
         bgLines(st) +
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
         '</div>');
