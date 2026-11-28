@@ -320,6 +320,13 @@ def own_page(path, title, desc, body, active_top=None, og=None, noindex=False):
             '<main class="ws-main">\n' + body + '\n</main>' + footer() + '</body>\n</html>\n')
 
 
+# Home tool list: a few plain words under each tool's name (the longer blurb is the hover title)
+HINT = {'crafted': 'Better gear for your level', 'talents': 'Plan your talents', 'route': 'Every quest in order', 'dungeons': 'Bosses, drops and quests',
+        'leveling': 'Cheapest way to 300', 'enchants': 'Which enchants to learn', 'macros': 'Macros for enchanting others',
+        'tailoring': 'Crafts that make gold', 'timing': 'Buy now or wait', 'sell': 'Sell, vendor or keep', 'flips': 'Buy cheap, sell for more',
+        'farm': 'Best gold per kill', 'warlock': 'Demonology guide', 'demons': 'Which demon books to buy'}
+
+
 def build_home(updates):
     first = CATS[0]['tools'][0] if CATS else None
     steps = [
@@ -335,8 +342,8 @@ def build_home(updates):
         rows = []
         for i in c['tools']:
             t = TOOL[i]; n += 1
-            rows.append('<a class="ws-tool" href="%s" title="%s"><img src="%s" alt="" width="26" height="26"%s>%s</a>' % (
-                path_of(i), esc(t.get('short') or ''), icon_url(t['icon']), ' loading="lazy"' if n > 8 else '', esc(t['label'])))
+            rows.append('<a class="ws-tool" href="%s" title="%s"><img src="%s" alt="" width="32" height="32"%s><span><b>%s</b><small>%s</small></span></a>' % (
+                path_of(i), esc(t.get('short') or ''), icon_url(t['icon']), ' loading="lazy"' if n > 8 else '', esc(t['label']), esc(HINT.get(i, ''))))
         cols.append('<div class="ws-drow"><h3>%s</h3><div>%s</div></div>' % (esc(c['label']), ''.join(rows)))
     secs = ['<section class="ws-sec"><h2>All tools</h2><div class="ws-dir">%s</div></section>' % ''.join(cols)]
     latest = ''
