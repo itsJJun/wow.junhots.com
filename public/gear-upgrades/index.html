@@ -2842,8 +2842,13 @@ if (typeof module !== 'undefined') module.exports = KNOWN;
   }
   function loadGearText(text) {
     try {
-      const vars = parseLua(text);
-      const g = gearFromSnap(vars.GearSnapshotDB);
+      const vars = parseLua(text), db0 = vars.GearSnapshotDB;
+      // a save made during a loading screen or logout: no gear, no talents, blank realm. Keep what we had.
+      if (db0 && db0.gear && !Object.keys(db0.gear).length && (db0.realm === "" || !db0.talents)) {
+        gearMsg('This file was saved while the game was still loading, so it has no gear. Type <code>/reload</code> in game, then load it again.' + (S.gear && S.gear.count ? ' Still using your gear from <b>' + esc(S.gear.date) + '</b>.' : ''), true);
+        return;
+      }
+      const g = gearFromSnap(db0);
       try { KNOWN.fromText(text); } catch (e) {} // share skills + recipes with the other tabs
       S.gear = g; S.got = {};
       if (g.cls) { S.cls = g.cls; if (g.race) S.race = g.race; if (g.spec) S.spec = g.spec; else if (S.cls !== g.cls) S.spec = null; }

@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-28",
+    "title": "Home: your character's frame, and blank saves skipped",
+    "text": "The frame around your 3D character is whole again, with your spec's background. If the Gear Snapshot addon saved during a loading screen (no gear in the file), Home and Gear upgrades skip that file and ask you to /reload in game.",
+    "image": "/assets/updates/2026-11-28-home-frame.webp",
+    "link": "/",
+    "linkText": "Open Home"
+  },
+  {
+    "date": "2026-11-28",
     "title": "Home: a new look",
     "text": "New visitors see a map banner with the class picker. Once your game files are loaded, Home shows your own character in 3D in your gear, with your next steps beside it. Page titles use a new game-style font.",
     "image": "/assets/updates/2026-11-28-home-look.webp",
