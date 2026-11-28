@@ -805,6 +805,11 @@
     }
     pick.hidden = true;
     var steps = [['/gear-upgrades/', 'Gear for your level ' + lvl + ' ' + cls, 'Upgrades you can wear now, and where to get them']];
+    if (lvl < 60) {   // still leveling: the quest route comes first ("Continue" once a stop on it is ticked)
+      var went = false;
+      try { for (var i = 0; i < localStorage.length && !went; i++) { var k = localStorage.key(i); if (/^lr\.ticks\./.test(k) && /:/.test(localStorage.getItem(k) || '')) went = true; } } catch (e) {}
+      steps.unshift(went ? ['/level-route/', 'Continue your route', 'Pick up at your next stop'] : ['/level-route/', 'Level ' + lvl + ' to 60', 'Every quest in order, with flights and dungeons']);
+    }
     if (!Object.keys(meta()).length && !ls.get('ws.dir')) steps.push(['/setup/', 'Set up once', 'Load your game files: your own gear, bags and prices']);
     var known = {}; try { known = (JSON.parse(ls.get('wf-known') || '{}') || {}).profs || {}; } catch (e) {}
     var prof = Object.keys(known).filter(function (k) { return !/first aid|cooking|fishing/i.test(k) && known[k].rank < known[k].max; })[0];
