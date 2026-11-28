@@ -1,0 +1,69 @@
+# Level route checks (Jun 27 Nov: one machine took ~8 h for all four). Runs the four route check scripts on every
+# base route, split by start zone and race into parallel jobs (~30-40 min in total). A job fails on a problem the live site does not have.
+#   order   = scripts/check-level-route.cjs          nothing shown before its pickup, pre-quests or objectives
+#   buttons = scripts/check-level-route-buttons.cjs  every button in random order, nothing drifts
+#   follow  = scripts/check-level-route-follow.cjs   tick Done stop by stop and reload: the route keeps its order
+#   play    = the same with PLAY=1                   play without ticking (new game files each time)
+# A job with problems runs the same check on the live site (main) and fails only when this change has more problems
+# in all (Jun 27 Nov: problems the live site already has are listed, and fixed in a later PR). play runs 3 random
+# rounds on both.
+name: Level route checks
+on:
+  pull_request:
+    paths:
+      - 'public/level-route/**'
+      - 'scripts/check-level-route*.cjs'
+      - 'scripts/route-checks-compare.cjs'
+      - '.github/workflows/route-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: route-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [order, buttons, follow, play]
+        routes: [durotar-Orc, durotar-Troll, mulgore-Tauren, tirisfal-Undead, skyH-SkyborneH,
+                 dunmorogh-Dwarf, dunmorogh-Gnome, elwynn-Human, teldrassil-NightElf, skyA-SkyborneA]
+    name: ${{ matrix.check }} · ${{ matrix.routes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright + Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Run ${{ matrix.check }} on ${{ matrix.routes }}
+        env:
+          W: '4'
+          CHECK: ${{ matrix.check }}
+          ROUTES: ${{ matrix.routes }}
+        run: |
+          run_check() {
+            case "$CHECK" in
+              order)   node scripts/check-level-route.cjs "$ROUTES" ;;
+              buttons) LVS=14,30,46 MAXA=30 node scripts/check-level-route-buttons.cjs "$ROUTES" ;;
+              follow)  node scripts/check-level-route-follow.cjs "$ROUTES" ;;
+              play)    PLAY=1 node scripts/check-level-route-follow.cjs "$ROUTES" ;;
+            esac
+          }
+          # play presses at random: 3 rounds (SEED), so one unlucky round decides nothing (follow: 1, it takes ~30 min a round)
+          case "$CHECK" in play) SEEDS="0 1 2" ;; *) SEEDS="0" ;; esac
+          ok=1; T=""; L=""
+          for s in $SEEDS; do SEED=$s OUTJ=/tmp/this-$s.json run_check || ok=0; T="$T,/tmp/this-$s.json"; L="$L,/tmp/live-$s.json"; done
+          [ $ok = 1 ] && exit 0
+          for s in $SEEDS; do [ -f /tmp/this-$s.json ] || exit 1; done
+          echo "::group::The same check on the live site (main)"
+          git fetch --depth=1 origin main && git worktree add /tmp/live FETCH_HEAD
+          for s in $SEEDS; do SEED=$s PUB=/tmp/live/public OUTJ=/tmp/live-$s.json run_check || true; done
+          echo "::endgroup::"
+          for s in $SEEDS; do [ -f /tmp/live-$s.json ] || exit 1; done
+          node scripts/route-checks-compare.cjs "$CHECK" "${T#,}" "${L#,}"
