@@ -326,7 +326,7 @@ html.ws-site main h1 { font-family: var(--head) !important; font-weight: 400 !im
 /* ---- Home top: map art for new visitors; your character once your game files are loaded (site.js homeTop) ---- */
 .ws-top { position: relative; display: grid; gap: 34px; align-items: center; min-height: 300px; padding: 44px 36px 34px;
   overflow: hidden; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--gold-line); }
-.ws-top.has-char { box-shadow: none; padding: 8px 0 0; }
+.ws-top.has-char { box-shadow: none; padding: 8px 0 0; overflow: visible; }
 .ws-top-bg { position: absolute; inset: 0; background: url(/assets/home-map.webp) 70% 40% / cover; filter: saturate(.75) brightness(.55); }
 .ws-top-bg::after { content: ""; position: absolute; inset: 0;
   background: linear-gradient(90deg, rgba(18,17,16,.94) 0%, rgba(18,17,16,.6) 55%, rgba(18,17,16,.15)), linear-gradient(0deg, rgba(18,17,16,.9) 0%, transparent 50%); }
@@ -341,8 +341,11 @@ html.ws-site main h1 { font-family: var(--head) !important; font-weight: 400 !im
 .ws-top .ws-start > h2 { font: 600 12px var(--body) !important; letter-spacing: .08em; text-transform: uppercase; color: var(--gold) !important; }
 .ws-top.has-char { grid-template-columns: minmax(260px, 380px) 1fr; }
 .ws-top.has-char .ws-top-bg { display: none; }
-.ws-top-char { position: relative; height: 430px; border-radius: 10px; background: #141313 center / cover;
-  box-shadow: 0 0 0 1px #000, 0 0 0 3px #6b5a2e, 0 18px 40px -18px rgba(0,0,0,.8); overflow: hidden; }
+.ws-top-char { position: relative; height: 430px; border-radius: 12px; border: 1px solid #6b5a2e; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #2a2620 0%, #141313 70%) center / cover;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.85), inset 0 0 0 2px rgba(233,205,140,.12), 0 18px 40px -18px rgba(0,0,0,.8); }
+.ws-top-char::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.85), inset 0 0 0 2px rgba(233,205,140,.12), inset 0 -60px 50px -40px rgba(0,0,0,.6); }
 .ws-top-char canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
 .ws-tag { position: absolute; left: 12px; bottom: 10px; font: 600 12px var(--body); color: #e9dcb8; background: rgba(10,9,8,.7);
   padding: 4px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px #5b4b26; pointer-events: none; }

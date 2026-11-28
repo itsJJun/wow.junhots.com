@@ -104,6 +104,7 @@
     '.ws-npc{position:fixed;z-index:9999;width:360px;max-width:calc(100vw - 16px);background:var(--panel,#1c1b19);color:var(--ink,#eee);border:1px solid var(--line,#3a3733);' +
     'border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.35);font:13px/1.4 Inter,system-ui,sans-serif;overflow:hidden;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;pointer-events:auto}' +
     '.ws-npc.in{opacity:1;transform:none}' +
+    '.ws-npc.ws-it{pointer-events:none}' +   /* item cards are only text: never in the way of the next name under the mouse */
     '.ws-npc-top{display:flex;gap:10px;padding:10px 12px}' +
     '.ws-npc-pic{flex:0 0 76px;height:96px;border-radius:7px;overflow:hidden;background:#141413;position:relative}' +
     '.ws-npc-pic img{position:absolute;width:190px;height:190px;left:-57px;top:-26px;max-width:none}' +
@@ -209,6 +210,12 @@
     if (host) {
       var hr = host.getBoundingClientRect(), hx = hr.right + 8 + w <= innerWidth - 8 ? hr.right + 8 : hr.left - 8 - w >= 8 ? hr.left - 8 - w : null;
       if (hx !== null) { card.style.left = hx + 'px'; card.style.top = Math.max(8, Math.min(r.top - 8, innerHeight - h - 8)) + 'px'; return; }
+    }
+    // an item card goes beside its name, like the game's tooltips, so the list under it stays in view
+    if (card.classList.contains('ws-it')) {
+      var rl = (el.closest('li') || el).getBoundingClientRect().left;   // left of the row, past its icon
+      var ix = r.right + 12 + w <= innerWidth - 8 ? r.right + 12 : rl - 12 - w >= 8 ? rl - 12 - w : null;
+      if (ix !== null) { card.style.left = ix + 'px'; card.style.top = Math.max(8, Math.min(r.top - 8, innerHeight - h - 8)) + 'px'; return; }
     }
     var x = Math.min(Math.max(8, r.left), innerWidth - w - 8);
     var y = r.bottom + 6;
