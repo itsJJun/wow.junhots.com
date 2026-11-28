@@ -830,32 +830,19 @@
   // ---- Home top: your own character in 3D (the Gear page's renderer), once your Gear Snapshot file is loaded ----
   var C3_SLOT = { 1: 0, 3: 0, 15: 0, 5: 0, 9: 0, 10: 0, 6: 0, 7: 0, 8: 0, 16: 'main', 17: 'off', 18: 'ranged' };
   var C3_RACE = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 95: 1 };
-  // the file's top-level values (level, class, race, spec, time) and worn item ids, without a full Lua parser
+  // talent tabs in the game's order, as the file names of /assets/char/bg/<class>-<spec>.webp
+  var C3_TABS = { WARRIOR: ['arms', 'fury', 'protection'], PALADIN: ['holy', 'protection', 'retribution'], HUNTER: ['beastmastery', 'marksmanship', 'survival'],
+    ROGUE: ['assassination', 'combat', 'subtlety'], PRIEST: ['discipline', 'holy', 'shadow'], SHAMAN: ['elemental', 'enhancement', 'restoration'],
+    MAGE: ['arcane', 'fire', 'frost'], WARLOCK: ['affliction', 'demonology', 'destruction'], DRUID: ['balance', 'feral', 'restoration'] };
+  // your level, class, race, spec and worn items from GearSnapshot.lua (spec: Forever Leveling BiS's pick, else the talent tab with most points)
   function snapLook(t) {
     var m = /GearSnapshotDB\s*=\s*\{/.exec(t); if (!m) return null;
-    var top = {}, gear = [], d = 1, i = m.index + m[0].length, n = t.length, gearAt = -1, slot = 0, ent = -1;
-    var key = /\[("([A-Za-z_]+)"|(\d+))\]\s*=\s*/y;
-    while (i < n && d > 0) {
-      var ch = t[i];
-      if (ch === '"') { i++; while (i < n && t[i] !== '"') i += t[i] === '\\' ? 2 : 1; i++; continue; }
-      if (ch === '-' && t[i + 1] === '-') { while (i < n && t[i] !== '\n') i++; continue; }
-      if (ch === '[' && (d === 1 || d === 2 && gearAt >= 0 || d === 3 && ent >= 0)) {
-        key.lastIndex = i; var k = key.exec(t);
-        if (k) {
-          i = key.lastIndex;
-          var v = /^("((?:[^"\\]|\\.)*)"|-?[\d.]+|true|false|\{)/.exec(t.slice(i, i + 200));
-          if (!v) continue;
-          if (d === 1) { if (k[2] === 'gear' && v[0] === '{') { gearAt = i; d++; i++; continue; } if (v[0] !== '{') top[k[2]] = v[2] !== undefined ? v[2] : v[0]; }
-          else if (d === 2 && k[3] && v[0] === '{') { slot = +k[3]; ent = slot; d++; i++; continue; }
-          else if (d === 3 && k[2] === 'id' && ent > 0 && C3_SLOT.hasOwnProperty(ent)) { var it = { item: +v[0] }; if (C3_SLOT[ent]) it.slot = C3_SLOT[ent]; gear.push(it); ent = 0; }
-          i += v[0] === '{' ? 0 : v[0].length; continue;
-        }
-      }
-      if (ch === '{') d++;
-      else if (ch === '}') { d--; if (d === 2) ent = -1; if (d === 1) gearAt = -1; }
-      i++;
-    }
-    return { top: top, gear: gear };
+    var db; try { db = luaTable(t, m.index); } catch (e) { return null; }
+    var gear = [], g = db.gear || {};
+    Object.keys(g).forEach(function (k) { var e = g[k], id = e && +e.id; if (!id || !C3_SLOT.hasOwnProperty(k)) return; var it = { item: id }; if (C3_SLOT[k]) it.slot = C3_SLOT[k]; gear.push(it); });
+    var tabs = C3_TABS[db['class']] || [], spec = typeof db.spec === 'string' ? db.spec : '', best = 0;
+    if (!spec && db.talents) Object.keys(db.talents).forEach(function (k) { var pts = +(db.talents[k] && db.talents[k].points) || 0; if (pts > best && tabs[+k - 1]) { best = pts; spec = tabs[+k - 1]; } });
+    return { top: { level: db.level, 'class': db['class'], race: db.race, raceId: db.raceId, spec: spec, time: db.time }, gear: gear };
   }
   var homeSig = null;
   function homeTop() {
