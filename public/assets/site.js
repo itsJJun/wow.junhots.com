@@ -949,5 +949,17 @@
   // after the tool has set itself up
   var start = function () { setTimeout(function () { syncFolder(true).then(autoFeed, autoFeed); }, 250); };
   if (document.readyState === 'complete') start(); else addEventListener('load', start);
-  addEventListener('storage', function (e) { if (e.key === 'ws.files') drawDots(); });
+  // game files loaded in another tab: this page takes the new ones right away (no refresh), once per new file
+  var seen = meta();
+  addEventListener('storage', function (e) {
+    if (e.key !== 'ws.files') return;
+    drawDots();
+    var m = meta(), fresh = KINDS.filter(function (k) { return m[k.key] && (!seen[k.key] || seen[k.key].at !== m[k.key].at); });
+    seen = m;
+    var here = fresh.filter(function (k) { return targetsHere(k).length; });
+    if (!here.length) return;
+    Promise.all(here.map(function (k) {
+      return k.key === 'ah' ? feedAh() : getRec(k.key).then(function (rec) { if (rec) feed(k, rec); });
+    })).then(function () { toast('Updated with the game files you just loaded.'); });
+  });
 })();
