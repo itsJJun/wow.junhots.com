@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-11-28",
+    "title": "Home: a new look",
+    "text": "New visitors see a map banner with the class picker. Once your game files are loaded, Home shows your own character in 3D in your gear, with your next steps beside it. Page titles use a new game-style font.",
+    "image": "/assets/updates/2026-11-28-home-look.webp",
+    "link": "/",
+    "linkText": "Open Home"
+  },
+  {
+    "date": "2026-11-28",
     "title": "Home: your next steps and every tool at a glance",
     "text": "Under level 60, your first step is now the Level 1-60 route (\"Continue your route\" once you have started). Every tool is listed once, by category, with a few words on what it does.",
     "image": "/assets/updates/2026-11-28-home-steps.webp",
