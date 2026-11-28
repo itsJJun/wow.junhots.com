@@ -320,27 +320,25 @@ def own_page(path, title, desc, body, active_top=None, og=None, noindex=False):
             '<main class="ws-main">\n' + body + '\n</main>' + footer() + '</body>\n</html>\n')
 
 
-def card(href, icon, name, line, lazy):
-    return ('<a class="ws-card" href="%s"><img src="%s" alt="" width="40" height="40"%s><b>%s</b><span>%s</span></a>'
-            % (href, icon_url(icon), ' loading="lazy"' if lazy else '', esc(name), esc(line)))
-
-
 def build_home(updates):
     first = CATS[0]['tools'][0] if CATS else None
     steps = [
         (path_of('crafted') if 'crafted' in TOOL else '/', 'Find gear upgrades', 'Better gear for your class, and where to get it'),
         ('/setup/', 'Set up once', 'Three addons, then load your files: your own gear, bags and prices'),
-        (path_of('leveling') if 'leveling' in TOOL else '/', 'Level your professions', 'Cheapest way, step by step, plus fishing'),
+        (path_of('route') if 'route' in TOOL else '/', 'Level 1 to 60', 'Every quest in order, with flights and dungeons'),
     ]
     step_html = ''.join('<a class="ws-card" data-step="%s" href="%s"><b>%s</b><span>%s</span></a>' % (
-        k, h, esc(a), esc(b)) for k, (h, a, b) in zip(('gear', 'setup', 'prof'), steps))
-    secs, n = [], 0
+        k, h, esc(a), esc(b)) for k, (h, a, b) in zip(('gear', 'setup', 'route'), steps))
+    # every tool once, as a compact list by category (the side menu has them too on computers)
+    cols, n = [], 0
     for c in CATS:
-        cards = []
+        rows = []
         for i in c['tools']:
             t = TOOL[i]; n += 1
-            cards.append(card(path_of(i), t['icon'], t['label'], t.get('short') or '', n > 6))
-        secs.append('<section class="ws-sec"><h2>%s</h2><div class="ws-grid">%s</div></section>' % (esc(c['label']), ''.join(cards)))
+            rows.append('<a class="ws-tool" href="%s" title="%s"><img src="%s" alt="" width="26" height="26"%s>%s</a>' % (
+                path_of(i), esc(t.get('short') or ''), icon_url(t['icon']), ' loading="lazy"' if n > 8 else '', esc(t['label'])))
+        cols.append('<div class="ws-drow"><h3>%s</h3><div>%s</div></div>' % (esc(c['label']), ''.join(rows)))
+    secs = ['<section class="ws-sec"><h2>All tools</h2><div class="ws-dir">%s</div></section>' % ''.join(cols)]
     latest = ''
     if updates:
         latest = ('<section class="ws-sec"><h2>Latest updates</h2><div class="ws-ups">%s</div>'
@@ -351,7 +349,7 @@ def build_home(updates):
             '<section class="ws-sec ws-start"><h2>New here? Start with these</h2><div class="ws-pick" hidden></div><div class="ws-grid ws-steps">%s</div></section>\n' % step_html +
             '\n'.join(secs) + latest +
             '')
-    desc = 'Free WoW Forever tools: gear upgrades for every class, cheapest profession leveling, enchanting and tailoring gold, class guides.'
+    desc = 'Free WoW Forever tools: gear upgrades for every class, a 1-60 quest route, cheapest profession leveling, gold making and class guides.'
     open(os.path.join(PUB, 'index.html'), 'w', encoding='utf-8').write(
         own_page('/', 'WoW Forever tools · junhots', desc, body, active_top='home'))
 
