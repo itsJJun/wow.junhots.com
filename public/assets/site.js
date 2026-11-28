@@ -590,7 +590,7 @@
       d.innerHTML = KINDS.map(function (k) { return '<i class="' + (m[k.key] ? 'on' : '') + '"></i>'; }).join('');
     });
     document.querySelectorAll('[data-ws-files]').forEach(function (b) { b.title = n + ' of ' + KINDS.length + ' game files loaded'; });
-    if (document.readyState !== 'loading') { factionNote(); startHere(); }   // both depend on which files are loaded
+    if (document.readyState !== 'loading') { factionNote(); startHere(); homeTop(); }   // all depend on which files are loaded
     // side panel: one line per file. Backups (TSM, Questie, Shortest Path) only when Gear Snapshot is not loaded.
     // AH prices: the age of the prices the pages use: Blizzard's hourly prices for your auction house, or your own scan
     // when it is newer (same rule as feedAh).
@@ -790,7 +790,7 @@
   function startHere() {
     var sec = $('.ws-start'); if (!sec) return;
     var c = myChar(), cls = (CLASSES.filter(function (x) { return x[0] === c.cls; })[0] || [])[1], lvl = +c.level || 0;
-    var pick = $('.ws-pick', sec), cards = sec.querySelectorAll('.ws-steps .ws-card');
+    var pick = $('.ws-pick'), cards = sec.querySelectorAll('.ws-steps .ws-card');
     if (!cls || !lvl) {   // ask once: class + level (saved to My character, which every tool reads)
       pick.hidden = false;
       pick.innerHTML = '<label>Your class <select data-c><option value="">Pick</option>' + CLASSES.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === c.cls ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') +
@@ -820,7 +820,70 @@
       ['/vendor-flips/', 'Make some gold', 'Buy cheap on the auction house, sell to a vendor for more']);
     $('h2', sec).innerHTML = 'Your next steps <button type="button" class="ws-chg" title="Change class or level">' + esc(cls) + ' ' + lvl + '</button>';
     $('.ws-chg', sec).onclick = function () { var x = myChar(); delete x.level; ls.set('wf-char', JSON.stringify(x)); startHere(); $('[data-l]', sec).value = lvl; };
-    steps.slice(0, 3).forEach(function (st, i) { var a = cards[i]; if (!a) return; a.href = st[0]; a.innerHTML = '<b>' + esc(st[1]) + '</b><span>' + esc(st[2]) + '</span>'; });
+    steps.slice(0, 3).forEach(function (st, i) {
+      var a = cards[i]; if (!a) return;
+      var ic = st[0] === '/setup/' ? '/assets/icons/inv_misc_bag_10.webp' : ($('.ws-tool[href="' + st[0] + '"] img') || {}).src || '';
+      a.href = st[0]; a.innerHTML = '<img src="' + esc(ic) + '" alt="" width="36" height="36"><span><b>' + esc(st[1]) + '</b><span>' + esc(st[2]) + '</span></span>';
+    });
+  }
+
+  // ---- Home top: your own character in 3D (the Gear page's renderer), once your Gear Snapshot file is loaded ----
+  var C3_SLOT = { 1: 0, 3: 0, 15: 0, 5: 0, 9: 0, 10: 0, 6: 0, 7: 0, 8: 0, 16: 'main', 17: 'off', 18: 'ranged' };
+  var C3_RACE = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 95: 1 };
+  // the file's top-level values (level, class, race, spec, time) and worn item ids, without a full Lua parser
+  function snapLook(t) {
+    var m = /GearSnapshotDB\s*=\s*\{/.exec(t); if (!m) return null;
+    var top = {}, gear = [], d = 1, i = m.index + m[0].length, n = t.length, gearAt = -1, slot = 0, ent = -1;
+    var key = /\[("([A-Za-z_]+)"|(\d+))\]\s*=\s*/y;
+    while (i < n && d > 0) {
+      var ch = t[i];
+      if (ch === '"') { i++; while (i < n && t[i] !== '"') i += t[i] === '\\' ? 2 : 1; i++; continue; }
+      if (ch === '-' && t[i + 1] === '-') { while (i < n && t[i] !== '\n') i++; continue; }
+      if (ch === '[' && (d === 1 || d === 2 && gearAt >= 0 || d === 3 && ent >= 0)) {
+        key.lastIndex = i; var k = key.exec(t);
+        if (k) {
+          i = key.lastIndex;
+          var v = /^("((?:[^"\\]|\\.)*)"|-?[\d.]+|true|false|\{)/.exec(t.slice(i, i + 200));
+          if (!v) continue;
+          if (d === 1) { if (k[2] === 'gear' && v[0] === '{') { gearAt = i; d++; i++; continue; } if (v[0] !== '{') top[k[2]] = v[2] !== undefined ? v[2] : v[0]; }
+          else if (d === 2 && k[3] && v[0] === '{') { slot = +k[3]; ent = slot; d++; i++; continue; }
+          else if (d === 3 && k[2] === 'id' && ent > 0 && C3_SLOT.hasOwnProperty(ent)) { var it = { item: +v[0] }; if (C3_SLOT[ent]) it.slot = C3_SLOT[ent]; gear.push(it); ent = 0; }
+          i += v[0] === '{' ? 0 : v[0].length; continue;
+        }
+      }
+      if (ch === '{') d++;
+      else if (ch === '}') { d--; if (d === 2) ent = -1; if (d === 1) gearAt = -1; }
+      i++;
+    }
+    return { top: top, gear: gear };
+  }
+  var homeSig = null;
+  function homeTop() {
+    var top = $('.ws-top'), m = meta().snap, sig = m ? String(m.mod || m.at) : '';
+    if (!top || !window.TextDecoder || !sig || sig === homeSig) return;
+    homeSig = sig;
+    getRec('snap').then(function (rec) {
+      if (!rec || !rec.data) return;
+      var me = snapLook(new TextDecoder('utf-8').decode(rec.data)); if (!me || !me.gear.length) return;
+      var v = me.top, race = +v.raceId === 96 ? 95 : +v.raceId, cls = (CLASSES.filter(function (x) { return x[0] === v['class']; })[0] || [])[1];
+      if (!C3_RACE[race] || !cls) return;
+      var s = document.createElement('script'); s.src = '/assets/char/char3d.js';
+      var go = function () {
+        var box = $('.ws-top-char', top), c = top.c3 || (top.c3 = window.WFChar3D && WFChar3D.mount($('canvas', box), '/assets/char/')); if (!c) return;
+        var gs = {}; try { gs = JSON.parse(ls.get('crafted-upgrades-v1') || '{}') || {}; } catch (e) {}
+        c.set({ race: race, sex: +gs.sex || 0, gear: me.gear });
+        var sp = String(v.spec || ''), spn = ({ beastmastery: 'Beast Mastery', survivalmelee: 'Survival', bear: 'Bear' })[sp] || sp.charAt(0).toUpperCase() + sp.slice(1);
+        if (sp) box.style.backgroundImage = 'url(/assets/char/bg/' + v['class'].toLowerCase() + '-' + sp + '.webp)';
+        var rn = ({ Scourge: 'Undead' })[v.race] || String(v.race || '').replace(/([a-z])([A-Z])/g, '$1 $2');
+        var when = +v.time ? new Date(v.time * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '';
+        $('.ws-eb', top).textContent = 'Your character';
+        $('.ws-h', top).textContent = (+v.level ? 'Level ' + v.level + ' ' : '') + (rn ? rn + ' ' : '') + cls;
+        $('.ws-lead', top).textContent = [spn, when && 'gear from your game files, ' + when].filter(Boolean).join(' · ');
+        box.hidden = false; top.classList.add('has-char');
+        var st = $('.ws-start'); if (st) $('.ws-top-main', top).appendChild(st);
+      };
+      if (window.WFChar3D) go(); else { s.onload = go; document.head.appendChild(s); }
+    });
   }
 
   // ---- the site owner's reminder (browsers that logged in on /admin/ once): Blizzard prices stopped, new reports ----

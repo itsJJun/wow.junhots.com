@@ -313,3 +313,51 @@ ul.ws-steps { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
 .wf-i-p-mining { background-image: url(/assets/ui/p-mining.webp); }
 .wf-i-p-herbalism { background-image: url(/assets/ui/p-herbalism.webp); }
 .wf-i-p-skinning { background-image: url(/assets/ui/p-skinning.webp); }
+
+/* ---- look: a game-style heading font (Marcellus, SIL Open Font License) and thin gold lines ---- */
+@font-face { font-family: "Marcellus"; src: url(/assets/fonts/marcellus.woff2) format("woff2"); font-display: swap; }
+:root { --gold: #c9a85a; --gold-line: color-mix(in srgb, #8a7440 70%, transparent); --head: "Marcellus", Georgia, serif; }
+html.ws-site main h1 { font-family: var(--head) !important; font-weight: 400 !important; letter-spacing: .005em; }
+.ws-main > .ws-sec > h2 { font-family: var(--head) !important; font-size: 20px !important; font-weight: 400 !important; color: var(--ink) !important;
+  display: flex; align-items: center; gap: 12px; }
+.ws-main > .ws-sec > h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-line), transparent); }
+.ws-drow h3 { color: color-mix(in srgb, var(--gold) 70%, var(--muted)) !important; }
+
+/* ---- Home top: map art for new visitors; your character once your game files are loaded (site.js homeTop) ---- */
+.ws-top { position: relative; display: grid; gap: 34px; align-items: center; min-height: 300px; padding: 44px 36px 34px;
+  overflow: hidden; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--gold-line); }
+.ws-top.has-char { box-shadow: none; padding: 8px 0 0; }
+.ws-top-bg { position: absolute; inset: 0; background: url(/assets/home-map.webp) 70% 40% / cover; filter: saturate(.75) brightness(.55); }
+.ws-top-bg::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(18,17,16,.94) 0%, rgba(18,17,16,.6) 55%, rgba(18,17,16,.15)), linear-gradient(0deg, rgba(18,17,16,.9) 0%, transparent 50%); }
+/* the map banner stays dark in the light theme too */
+.ws-top:not(.has-char) { color-scheme: dark; --ink: #ece6d8; --muted: #a8a090; --panel: #1f1d1a; --raised: #2a2723; --line: #3d382f; --line2: #4d463a; color: var(--ink); background: #121110; }
+.ws-top > :not(.ws-top-bg) { position: relative; }
+.ws-eb { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.ws-top h1.ws-h { margin: 6px 0 8px; font-size: 46px !important; line-height: 1.05; max-width: 680px; color: #f3ead2 !important; }
+.ws-lead { margin: 0; max-width: 560px; font-size: 16px; color: color-mix(in srgb, var(--ink) 85%, var(--muted)); }
+.ws-top .ws-pick { margin-top: 20px; }
+.ws-top .ws-start { margin-top: 22px; }
+.ws-top .ws-start > h2 { font: 600 12px var(--body) !important; letter-spacing: .08em; text-transform: uppercase; color: var(--gold) !important; }
+.ws-top.has-char { grid-template-columns: minmax(260px, 380px) 1fr; }
+.ws-top.has-char .ws-top-bg { display: none; }
+.ws-top-char { position: relative; height: 430px; border-radius: 10px; background: #141313 center / cover;
+  box-shadow: 0 0 0 1px #000, 0 0 0 3px #6b5a2e, 0 18px 40px -18px rgba(0,0,0,.8); overflow: hidden; }
+.ws-top-char canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.ws-tag { position: absolute; left: 12px; bottom: 10px; font: 600 12px var(--body); color: #e9dcb8; background: rgba(10,9,8,.7);
+  padding: 4px 9px; border-radius: 999px; box-shadow: inset 0 0 0 1px #5b4b26; pointer-events: none; }
+
+/* next steps: an open numbered list with icons (no boxes); three across under the map, one column beside your character */
+.ws-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 18px; counter-reset: s; }
+.ws-top .ws-steps { grid-template-columns: 1fr; max-width: 620px; }
+.ws-steps .ws-card { display: grid; grid-template-columns: 26px 36px 1fr; gap: 0 12px; align-items: center; padding: 10px 12px; margin: 0 -12px;
+  background: none; border: 0; box-shadow: none; border-radius: 10px; }
+.ws-steps .ws-card:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.ws-steps .ws-card::before { grid-row: auto; box-shadow: inset 0 0 0 1px var(--gold-line); }
+.ws-steps .ws-card:first-child::before { background: linear-gradient(#f0c36a, #c9932f); color: #1b1407; }
+.ws-steps .ws-card img { width: 36px; height: 36px; border-radius: 8px; box-shadow: 0 0 0 1px #000, 0 0 0 2px #5b4b26; }
+.ws-steps .ws-card > span { display: grid; gap: 1px; }
+.ws-steps .ws-card b { font-size: 15px; }
+@media (max-width: 1000px) { .ws-steps { grid-template-columns: 1fr; } .ws-top.has-char { grid-template-columns: 1fr; } .ws-top-char { height: 340px; } }
+@media (max-width: 900px) { .ws-top { padding: 28px 18px 22px; } .ws-top h1.ws-h { font-size: 32px !important; } }
+html[data-theme="light"] .ws-top.has-char h1.ws-h { color: var(--ink) !important; }
