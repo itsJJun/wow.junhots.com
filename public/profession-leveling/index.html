@@ -216,6 +216,14 @@ td.r, th.r { text-align: right; }
 .havebar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 2px 0 6px; }
 #bagOld::before { background: var(--warn); } #bagOld[hidden] { display: none; }
 tr.covered td { opacity: .62; }
+/* a bolt's row sits under its cloth: one group, no stripe or line between them */
+#shop tbody td { background-color: transparent; }
+#shop tbody tr:has(+ tr.partrow) > td { border-bottom-color: transparent; }
+#shop tr.partrow > td { padding-top: 0; }
+#shop .pname { display: inline-flex; gap: 6px; align-items: center; padding-left: 6px; }
+#shop .ptree { color: var(--muted); }
+#shop .pok { color: var(--good); font-weight: 600; }
+#shop .spare { font-size: 10.5px; font-weight: 400; }
 .srcb { display: inline-block; font-size: 11px; font-weight: 700; padding: 0 4px; border-radius: 4px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
 .srcb.ah { color: var(--accent); } .srcb.vendor { color: var(--silver); } .srcb.est { color: var(--warn); } .srcb.you { color: var(--good); } .srcb.craft { color: var(--good); }
 
@@ -1339,7 +1347,7 @@ const ENGINE = (function () {
       memo[id] = null;
       let best = opts.price(id); // {c, src}
       const pr = parts[id];
-      if (pr) { let c = 0; for (const [rid, n] of pr.r) { const u = unit(rid); if (!u) { c = null; break; } c += u.c * n; } if (c !== null && (!best || c < best.c)) best = { c, src: "craft", via: pr.id }; }
+      if (pr) { let c = 0; for (const [rid, n] of pr.r) { const u = unit(rid); if (!u) { c = null; break; } c += u.c * n; } if (c !== null) c /= pr.cnt || 1; if (c !== null && (!best || c < best.c)) best = { c, src: "craft", via: pr.id }; }
       return memo[id] = best;
     }
     function matCost(r) { let c = 0; for (const [id, n] of r.r) { const u = unit(id); if (!u) return null; c += u.c * n; } return c; }
@@ -1703,12 +1711,27 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   // ---------- materials you already own ----------
   // copy of what you own (used up step by step, earliest skill first)
   function ownCopy() { const h = {}; if (!S.useHave) return h; for (const k in S.have) if (S.have[k] > 0) h[k] = +S.have[k]; return h; }
-  // take q units of a reagent from what you own; a bolt you don't own can come from owned cloth. Returns copper saved.
-  function useOwn(own, m, id, q, depth) {
-    id = String(id); let saved = 0;
-    const u = m.unit(id);
-    if (own[id] > 0) { const t = Math.min(own[id], q); own[id] -= t; q -= t; saved += t * (u ? u.c : 0); }
-    if (q > 1e-9 && u && u.src === "craft" && !depth) { const pr = m.P.recipes.find(r => r.id === u.via); if (pr) pr.r.forEach(([i2, n2]) => { saved += useOwn(own, m, i2, q * n2, 1); }); }
+  // one reagent, broken down. A made part (bolt, bar, tube, cured hide) comes from parts made earlier for skill
+  // points (o.pool), then parts you own (o.own), then you make the rest from its own materials, at any depth
+  // (Copper Modulator -> Handful of Copper Bolts -> Copper Bar); a recipe that makes 2-5 needs fewer crafts.
+  // Callbacks: use (every part needed), made (from the pool), have (yours), make (you craft them), raw (everything else).
+  function breakDown(m, id, q, o, d) {
+    id = String(id); d = d || 0;
+    const u = m.unit(id), pr = u && u.src === "craft" && d < 6 ? m.P.recipes.find(r => r.id === u.via) : null;
+    const inPool = o.pool && o.pool[id] > 0;
+    if (!pr && !inPool) { o.raw && o.raw(id, q); return; }
+    o.use && o.use(id, q);
+    if (inPool) { const t = Math.min(o.pool[id], q); o.pool[id] -= t; q -= t; o.made && o.made(id, t); if (q <= 1e-9) return; }
+    if (!pr) { o.raw && o.raw(id, q); return; }
+    if (o.own && o.own[id] > 0) { const t = Math.min(o.own[id], q); o.own[id] -= t; q -= t; o.have && o.have(id, t); if (q <= 1e-9) return; }
+    o.make && o.make(id, q);
+    pr.r.forEach(([i2, n2]) => breakDown(m, i2, q * n2 / (pr.cnt || 1), o, d + 1));
+  }
+  // take q units of a reagent from what you own (or made earlier: pool), parts from their materials too. Returns copper saved.
+  function useOwn(own, m, id, q, pool) {
+    let saved = 0;
+    const val = (i, t) => { const u = m.unit(i); saved += t * (u ? u.c : 0); };
+    breakDown(m, id, q, { own, pool, made: val, have: val, raw: (i, t) => { if (own[i] > 0) { const k = Math.min(own[i], t); own[i] -= k; val(i, k); } } });
     return saved;
   }
 
@@ -1722,10 +1745,10 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       if (st.none) { out.push(Infinity); outs.push(Infinity); backs.push(0); continue; }
       const x = st.x, r = x.r, cnt = r.cnt || 1;
       let cash, pay, got = 0;
-      if (st.free) { pool[x.bolt] = (pool[x.bolt] || 0) + cnt / st.p; cash = x.cost / st.p; r.r.forEach(([id, n]) => { cash -= useOwn(own, m, id, n / st.p); }); cash = Math.max(0, cash); pay = cash; }
+      if (st.free) { pool[x.bolt] = (pool[x.bolt] || 0) + cnt / st.p; cash = x.cost / st.p; r.r.forEach(([id, n]) => { cash -= useOwn(own, m, id, n / st.p, pool); }); cash = Math.max(0, cash); pay = cash; }
       else {
         let mat = x.cost / st.p, back = 0;
-        r.r.forEach(([id, n]) => { let need = n / st.p; if (pool[id] > 0) { const take = Math.min(pool[id], need); pool[id] -= take; need -= take; const u = m.unit(id); mat -= take * (u ? u.c : 0); } if (need > 1e-9) mat -= useOwn(own, m, id, need); });
+        r.r.forEach(([id, n]) => { mat -= useOwn(own, m, id, n / st.p, pool); });
         if (S.sell && r.sell) { const v = r.sell * cnt; if (v >= x.cred - 0.5) back = (S.profit ? v : Math.min(v, x.cost)) / st.p; }
         cash = Math.max(0, mat) - back; pay = Math.max(0, mat); got = back;
       }
@@ -1851,20 +1874,14 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
   function shopping(pl, prof) {
     prof = prof || S.prof;
     const m = pl.m, need = {}, made = {}, own = ownCopy();
-    const add = (id, q, seg) => { const k = String(id); if (!need[k]) need[k] = { q: 0, safe: 0 }; need[k].q += q; need[k].safe += q * seg.safe / seg.crafts; };
-    const recOf = id => m.P.recipes.find(r => r.id === id);
-    pl.segs.forEach(sg => { if (!sg.none && sg.free) { made[sg.x.bolt] = (made[sg.x.bolt] || 0) + sg.crafts * (sg.x.r.cnt || 1); sg.x.r.r.forEach(([id, n]) => add(id, n * sg.crafts, sg)); } });
+    // v: variance of the amount (bad luck), summed over steps for one spare for the whole list
+    const add = (id, q, seg) => { const k = String(id); if (!need[k]) need[k] = { q: 0, safe: 0, v: 0 }; need[k].q += q; need[k].safe += q * seg.safe / seg.crafts; if (seg.crafts > 0) need[k].v += (q / seg.crafts) * (q / seg.crafts) * (seg.var || 0); };
+    pl.segs.forEach(sg => { if (!sg.none && sg.free) made[sg.x.bolt] = (made[sg.x.bolt] || 0) + sg.crafts * (sg.x.r.cnt || 1); });
     pl.segs.forEach(sg => {
-      if (sg.none || sg.free) return;
-      sg.x.r.r.forEach(([id, n]) => {
-        let q = n * sg.crafts;
-        if (made[id] > 0) { const take = Math.min(made[id], q); made[id] -= take; q -= take; }
-        if (q <= 1e-9) return;
-        const u = m.unit(id);
-        if (u && u.src === "craft" && own[id] > 0) { const take = Math.min(own[id], q); own[id] -= take; add(id, take, sg); q -= take; if (q <= 1e-9) return; }
-        if (u && u.src === "craft") recOf(u.via).r.forEach(([id2, n2]) => add(id2, q * n2, sg));
-        else add(id, q, sg);
-      });
+      if (sg.none) return;
+      // parts you own count as needed (so they show as "have"); parts you make become their materials
+      const o = { own, pool: made, have: (i, q) => add(i, q, sg), raw: (i, q) => add(i, q, sg) };
+      sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, o));
     });
     return need;
   }
@@ -1875,14 +1892,9 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const get = id => out[id] || (out[id] = { total: 0, have: 0, make: 0 });
     pl.segs.forEach(sg => { if (!sg.none && sg.free) { const k = String(sg.x.bolt), q = sg.crafts * (sg.x.r.cnt || 1); get(k).make += q; pool[k] = (pool[k] || 0) + q; } });
     pl.segs.forEach(sg => {
-      if (sg.none || sg.free) return;
-      sg.x.r.r.forEach(([id, n]) => {
-        const u = m.unit(id); if (!u || u.src !== "craft") return;
-        id = String(id); let q = n * sg.crafts; const b = get(id); b.total += q;
-        const t1 = Math.min(pool[id] || 0, q); pool[id] = (pool[id] || 0) - t1; q -= t1;
-        const t2 = Math.min(own[id] || 0, q); own[id] = (own[id] || 0) - t2; b.have += t2; q -= t2;
-        b.make += q;
-      });
+      if (sg.none) return;
+      const o = { own, pool: pool, use: (i, q) => { get(i).total += q; }, have: (i, q) => { get(i).have += q; }, make: (i, q) => { get(i).make += q; } };
+      sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, o));
     });
     for (const id in out) {
       const u = m.unit(id), rec = u && u.via && m.P.recipes.find(r => r.id === u.via);
@@ -2137,21 +2149,14 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     segs.forEach(sg => {
       if (sg.none) return;
       const need = {}, add = (id, q) => { id = String(id); need[id] = (need[id] || 0) + q; }, k = sg.crafts > 0 ? sg.safe / sg.crafts : 1;
-      sg.x.r.r.forEach(([id, n]) => {
-        let q = n * sg.crafts;
-        if (!sg.free && made[id] > 0) { const tk = Math.min(made[id], q); made[id] -= tk; q -= tk; }
-        if (q <= 1e-9) return;
-        const u = m.unit(id);
-        if (u && u.src === "craft") {
-          if (own[id] > 0) { const tk = Math.min(own[id], q); own[id] -= tk; q -= tk; }
-          const pr = m.P.recipes.find(z => z.id === u.via);
-          if (q > 1e-9 && pr) pr.r.forEach(([i2, n2]) => add(i2, q * n2));
-        } else add(id, q);
-      });
+      const mine = {};
+      sg.x.r.r.forEach(([id, n]) => breakDown(m, id, n * sg.crafts, { own, pool: made, have: (i, q) => { mine[i] = (mine[i] || 0) + q; }, raw: add }));
       out.set(sg, Object.entries(need).map(([id, q]) => {
         const want = Math.ceil(q * k - 1e-6), have = Math.max(0, Math.min(own[id] || 0, want)); own[id] = (own[id] || 0) - have;
         const u = price(id); return { id, want, have, buy: want - have, u, c: u ? u.c * (want - have) : 0 };
-      }).sort((a, b) => b.c - a.c));
+      }).sort((a, b) => b.c - a.c)
+        // bolts (and other made parts) from your bags or bank: nothing to buy, but the step says so
+        .concat(Object.entries(mine).map(([id, q]) => { const n = Math.ceil(q - 0.05); return { id, want: n, have: n, buy: 0, u: price(id), c: 0, part: true }; }).filter(x => x.have > 0)));
     });
     return out;
   }
@@ -2164,8 +2169,8 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       (x.u && x.u.src === "vendor" ? ' <span class="srcb vendor">' + GI('vendor') + 'Vendor</span>' : ' ' + MKT.pill(x.id)) + (x.have > 0 ? ' <span class="have">+' + fmtN(x.have) + ' in bags</span>' : '') + '</span>').join("");
     const pats = us.map(u => '<span class="mat" title="' + (u.rod ? 'Make this rod once before the step: ' + coinTxt(u.cost) + ' in materials' : 'Buy this ' + PROFS[S.prof].pat + ' once' + (patFromAH(u.rec) ? ' on the auction house' : '') + ': ' + coinTxt(u.cost)) + '">' + (u.rod ? esc(u.rod) : PROFS[S.prof].pat.replace(/^./, c => c.toUpperCase())) + ' <span class="srcb ' + (!u.rod && patFromAH(u.rec) ? 'ah">AH ' : 'vendor">') + coinTxt(u.cost) + '</span></span>').join("");
     return '<div class="buyrow' + (done ? ' done' : '') + '"><span class="lbl">Buy</span>' + pats +
-      (toBuy.length ? chips : us.length ? '' : '<span class="none">Nothing to buy: your bags cover this step</span>') +
-      (!toBuy.length || !covered.length || covered.every(x => x.buy > 0) ? '' : '<span class="have">' + covered.filter(x => x.buy === 0).map(x => esc(itemName(x.id)) + ' from bags').join(', ') + '</span>') +
+      (toBuy.length ? chips : us.length ? '' : '<span class="none">Nothing to buy</span>') +
+      (covered.some(x => x.buy === 0) ? '<span class="have">You have: ' + covered.filter(x => x.buy === 0).sort((a, b) => (b.part ? 1 : 0) - (a.part ? 1 : 0)).map(x => fmtN(x.have) + '× ' + esc(itemName(x.id))).join(', ') + '</span>' : '') +
       '<span class="btot">' + (tot > 0.5 ? coin(tot) : '') + '<button class="btn tiny buyck" type="button" data-bought="' + esc(key) + '" title="Tick when you have bought this step\'s materials">' + (done ? '✓ Bought' : 'Bought?') + '</button></span></div>';
   }
   function cashView(v) {
@@ -2227,7 +2232,7 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
         const u = m.unit(id);
         const q = n * sg.crafts;
         let via = "";
-        if (u && u.src === "craft") { const pr = DATA.profs[S.prof].recipes.find(z => z.id === u.via); via = ' <span class="muted">(' + pr.r.map(([i2, n2]) => fmtN(q * n2) + " " + esc(itemName(i2))).join(", ") + ')</span>'; }
+        if (u && u.src === "craft") { const pr = DATA.profs[S.prof].recipes.find(z => z.id === u.via); via = ' <span class="muted">(' + pr.r.map(([i2, n2]) => fmtN(q * n2 / (pr.cnt || 1)) + " " + esc(itemName(i2))).join(", ") + ')</span>'; }
         return '<span class="mat">' + icon(itemIcon(id), "sm") + '<span class="num">' + fmtN(q) + '×</span> ' + esc(itemName(id)) + via + (u ? ' <span class="muted">@ ' + coin(u.c) + '</span>' : "") + '</span>';
       }).join("");
       const notes = [];
@@ -2286,15 +2291,20 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
     const bolts = boltInfo(pl);
     // a bolt has no row of its own: it is a line under the cloth it is made from
     const boltsOf = {};
-    for (const id in bolts) { delete need[id]; const c0 = bolts[id].from[0][0]; (boltsOf[c0] || (boltsOf[c0] = [])).push(id); if (!need[c0]) need[c0] = { q: 0, safe: 0 };
-      bolts[id].from.forEach(([c, k]) => { if (need[c]) need[c].q += (bolts[id].make - bolts[id].raw) * k; }); }
-    const rows = Object.entries(need).map(([id, n]) => ({ id, n, u: price(id), b: agg[id] || { buy: 0, have: 0, c: 0 } })).sort((a, b) => b.b.c - a.b.c || (b.u ? b.u.c * b.n.q : 0) - (a.u ? a.u.c * a.n.q : 0));
-    // under the cloth: "[bolt] 99 Bolt of Silk Cloth · have [51] · make 48"
-    const boltLine = id => { const b = bolts[id];
-      return '<div class="bsub">' + icon(itemIcon(id), "sm") + '<span>' + fmtN(b.total) + ' ' + esc(itemName(id)) + '</span><span>· have</span><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '><span>· ' + (b.make >= 0.5 ? 'make ' + fmtN(b.make) : 'bags cover them') + '</span></div>'; };
+    for (const id in bolts) delete need[id];
+    for (const id in bolts) { const fr = bolts[id].from, c0 = (fr.find(([c]) => !bolts[c]) || fr[0])[0]; (boltsOf[c0] || (boltsOf[c0] = [])).push(id); if (!need[c0] && !bolts[c0]) need[c0] = { q: 0, safe: 0 };
+      fr.forEach(([c, k]) => { if (need[c] && !bolts[c]) need[c].q += (bolts[id].make - bolts[id].raw) * k; }); }
+    // Buy = need + one spare for the whole list (enough 9 times out of 10) - what you have
+    const rows = Object.entries(need).map(([id, n]) => { const u = price(id), hv = S.useHave ? (+S.have[id] || 0) : 0, base = Math.ceil(n.q - 0.05), spare = n.q > 0.05 ? Math.max(0, Math.ceil(n.q + 1.2816 * Math.sqrt(n.v || 0) - 0.05) - base) : 0, buy = Math.max(0, base + spare - hv);
+      return { id, n, u, spare, b: { buy, c: u ? u.c * buy : 0 } }; }).sort((a, b) => b.b.c - a.b.c || (b.u ? b.u.c * b.n.q : 0) - (a.u ? a.u.c * a.n.q : 0));
+    // right under the cloth, same columns: "↳ Bolt of Silk Cloth | 114 | [130] | ✓ enough" (or "make 16")
+    const boltRow = id => { const b = bolts[id], from = bolts[id].from.map(([c]) => itemName(c)).join(', ');
+      return '<tr class="partrow"><td><span class="pname"><span class="ptree" aria-hidden="true">↳</span>' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span></td><td class="r num">' + fmtN(b.total) + '</td>' +
+        '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td>' +
+        '<td class="r num">' + (b.make >= 0.5 ? '<span title="Make them from ' + esc(from) + ' (counted in the row above)">make ' + fmtN(b.make) + '</span>' : '<span class="pok">✓ enough</span>') + '</td><td colspan="4"></td></tr>'; };
     let tot = 0, ownTot = 0;
-    let h = '<thead><tr><th>Material</th><th class="r" title="Expected amount the route uses">Need</th><th class="r">I have</th><th class="r" title="The BUY lines of your steps added up: need with a safety margin for bad luck, minus what you have">Buy</th><th>Price from</th><th class="r">Each (copper)</th><th class="r">Cost</th><th title="Buy now or wait, from how many players are at the levels where it drops. Hover or tap a tag for why.">Timing</th></tr></thead><tbody>';
-    rows.forEach(({ id, n, u, b }) => {
+    let h = '<thead><tr><th>Material</th><th class="r" title="Expected amount the route uses">Need</th><th class="r">I have</th><th class="r" title="Need plus a small spare for bad luck, minus what you have">Buy</th><th>Price from</th><th class="r">Each (copper)</th><th class="r">Cost</th><th title="Buy now or wait, from how many players are at the levels where it drops. Hover or tap a tag for why.">Timing</th></tr></thead><tbody>';
+    rows.forEach(({ id, n, u, b, spare }) => {
       const hv = S.useHave ? (+S.have[id] || 0) : 0, used = Math.min(hv, n.q), buy = b.buy;
       const c = u ? b.c : null; if (c) tot += c; if (u) ownTot += u.c * used;
       // what buying them all right now costs, cheapest listings first (site.js wsBuy, Blizzard's hourly data)
@@ -2302,10 +2312,10 @@ const ICONS = {"10prof_table_tailoring01":"/assets/i/9f0b43ca0e8f4f.jpg","inv_10
       const allTxt = !all ? "" : all.got < buy ? '<div class="muted allnow" title="Listed on the auction house right now">only ' + fmtN(all.got) + ' listed</div>'
         : all.cost > c * 1.05 ? '<div class="muted allnow" title="Buying all ' + fmtN(buy) + ' right now, cheapest listings first. The cheap ones run out.">all now: ' + coin(all.cost) + '</div>' : "";
       (boltsOf[id] || []).forEach(bid => { const bu = price(bid); if (bu) ownTot += bu.c * bolts[bid].have; });
-      h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span>' + (boltsOf[id] || []).map(boltLine).join('') + '</td><td class="r num">' + fmtN(n.q) + '</td>' +
-        '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td><td class="r num">' + (buy ? fmtN(buy) : '<span class="muted">none</span>') + '</td>' +
+      h += '<tr' + (buy === 0 ? ' class="covered"' : '') + '><td><span style="display:inline-flex;gap:8px;align-items:center">' + icon(itemIcon(id), "sm") + esc(itemName(id)) + '</span></td><td class="r num">' + fmtN(n.q) + '</td>' +
+        '<td class="r"><input class="price-in have-in' + (S.have[id] > 0 ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (S.have[id] > 0 ? S.have[id] : "") + '" placeholder="0" aria-label="How many ' + esc(itemName(id)) + ' you have"' + (S.useHave ? "" : " disabled") + '></td><td class="r num">' + (buy ? fmtN(buy) + (spare > 0 && buy >= spare ? '<div class="muted spare" title="Extra for bad luck: with it, the whole list is enough 9 times out of 10">+' + fmtN(spare) + ' spare</div>' : '') : '<span class="muted">none</span>') + '</td>' +
         '<td>' + (u ? '<span class="srcb ' + u.src + '">' + ({ ah: GI('ah') + "AH", vendor: GI('vendor') + "Vendor", est: "est", you: "You", craft: "Craft" }[u.src]) + '</span>' : "") + '</td>' +
-        '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + allTxt + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>';
+        '<td class="r"><input class="price-in' + (S.over[id] !== undefined ? " set" : "") + '" type="number" min="0" step="1" data-id="' + id + '" value="' + (u ? Math.round(u.c) : "") + '" aria-label="Price of ' + esc(itemName(id)) + ' in copper"></td><td class="r">' + coin(c) + allTxt + '</td><td>' + (u && u.src === 'vendor' ? '' : MKT.pill(id)) + '</td></tr>' + (boltsOf[id] || []).map(boltRow).join('');
     });
     const t = total(pl);
     const nBuy = rows.filter(({ b }) => b.buy > 0).length;

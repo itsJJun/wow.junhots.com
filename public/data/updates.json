@@ -1,5 +1,13 @@
 [
   {
+    "date": "2026-11-28",
+    "title": "Profession leveling: bolts you already have",
+    "text": "Each step says which bolts it takes from your bags or bank, bolts get their own row, and the shopping list buys one small spare for the whole route instead of one per step. Engineering and Alchemy parts are counted right.",
+    "image": "/assets/updates/2026-11-28-prof-bolts.webp",
+    "link": "/profession-leveling/",
+    "linkText": "Open Profession leveling"
+  },
+  {
     "date": "2026-11-27",
     "title": "Level route: exact NPC spots",
     "text": "Zoom in on the map to see every quest giver with its ! or ? and name, plus where the quest monsters and items are.",
