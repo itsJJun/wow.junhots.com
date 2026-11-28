@@ -341,6 +341,7 @@ a { color: var(--accent); }
 .leg .ar { color: var(--good); }
 .leg .mn { margin-left: auto; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
 .rdy { background: color-mix(in srgb, var(--good) 11%, transparent); border: 1px solid color-mix(in srgb, var(--good) 55%, var(--line)); border-radius: 6px; padding: 4px 8px; margin-top: 5px; font-size: 12.5px; }
+.rh { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 6px 0 0 20px; padding: 5px 8px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 13px; cursor: pointer; } .rh .wi { width: 15px; height: 15px; } .rh input { margin: 0 2px 0 0; }
 .alsoh { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); } .alsoh b { color: var(--ink); } .alsoh .wi { width: 15px; height: 15px; margin-right: 4px; vertical-align: -3px; }
 .tag.by { background: color-mix(in srgb, var(--accent, #e0a84a) 18%, transparent); }
 .tag.dk { background: color-mix(in srgb, var(--muted) 14%, transparent); }
@@ -3018,6 +3019,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (s.t === 'turnin' && !doneQ.has(s.q) && logQ.get(s.q) && logQ.get(s.q).ready) tags += '<span class="tag rd" title="Your quest log says this quest is ready to turn in">ready</span>';
       else if (s.t === 'do' && !dn) { var pg = progress(s); if (pg) tags += '<span class="tag pg" title="Your progress, from your quest log">' + pg + '</span>'; }
       if (s.t === 'do' && s.by && !dn) tags += '<span class="tag by" title="Sold by vendors">buy ' + esc(s.by.join(', ')) + '</span>';
+      if (s.t === 'do' && s.ah && !dn) tags += '<span class="tag by" title="Crafted: buy it at the Auction House (or make it)">buy at the AH: ' + esc(s.ah.join(', ')) + '</span>';
       if (s.t === 'do' && s.dk && !dn) tags += '<span class="tag dk" title="From Classic drop chances. Forever may differ.">about ' + Math.abs(s.dk) + (s.dk > 0 ? ' kills' : ' loots') + '</span>';
       var names = all.map(function (x) { return '<b>' + esc(qn(x.q)) + '</b>' + ptag(x.q) + (x.t === 'accept' && !doneQ.has(x.q) && logQ.has(x.q) ? ' <span class="have" title="Already in your quest log">✓ have it</span>' : ''); }).join(', '), qd = M.quests[s.q] || [];
       if (s.t === 'accept') txt = wi('q_accept') + 'Accept ' + names + (qd[7] && qd[3] ? '<small>Starts from the item ' + esc(qd[3]) + ' (you loot it)</small>' : '');
@@ -3082,6 +3084,35 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       pv = n ? n[1] : r.k === 'step' ? null : pv;
       return h + line(r); }).join('');
   }
+  // quests in your log ready to hand in at the stop you're at, or at the place you just were, that the stop doesn't
+  // already hand in (Jun 28 Nov: Gadgetzan Water Survey and Scarab Shells ready right there, the route said nothing;
+  // "even if I don't pick up the follow up quest, it should still tell me to turn in")
+  // the place of the stop you last marked done (Done or its box): you are most likely still standing there
+  function markAt(st) { var w = st.rows.map(function (r) { return r.s; }).filter(function (s) { return s && s.w; }).map(function (s) { return s.w; }); if (w.length) ls.set('lr.at.' + R.id, JSON.stringify({ t: st.title, w: w })); }
+  function readyHere(st) {
+    if (!QA || !logQ.size || st !== hereStop) return [];
+    var spots = function (x) { return x.rows.map(function (r) { return r.s; }).filter(function (s) { return s && s.w; }); };
+    var prev = null, at = null; try { at = JSON.parse(ls.get('lr.at.' + R.id) || 'null'); } catch (e) {}
+    if (at && at.w) prev = { title: at.t, rows: at.w.map(function (w) { return { s: { w: w } }; }) };
+    else for (var j = st.gi - 1; j >= 0 && !prev; j--) if (stopDone(stops[j]) && spots(stops[j]).length) prev = stops[j];
+    var here = {}; st.rows.forEach(function (r) { if (r.k === 'step' && !isDone(r)) stepsOf(r).forEach(function (s) { if (s.t === 'turnin') here[s.q] = 1; }); });
+    var near = function (w, l) { return l.some(function (s) { return s.w[0] === w[0] && Math.hypot(s.w[1] - w[1], s.w[2] - w[2]) < 150; }); };
+    var out = [];
+    logQ.forEach(function (v, q) {
+      var x = QA.q[q];
+      if (!v.ready || !x || !x[18] || !x[18][2] || doneQ.has(q) || TT[q] || here[q] || (x[3] && x[3] !== R.fac[0])) return;
+      if (near(x[18][2], spots(st))) out.push({ q: q, x: x, at: null });
+      else if (prev && near(x[18][2], spots(prev))) out.push({ q: q, x: x, at: prev });
+    });
+    return out;
+  }
+  function rhLines(st, before) {
+    return readyHere(st).filter(function (o) { return !!o.at === before; }).map(function (o) {
+      return '<label class="rh"><input type="checkbox" data-rh="' + o.q + '" aria-label="turned in">' + wi('q_turnin') +
+        (o.at ? 'Before you leave ' + esc(o.at.title) + ': turn in ' : 'Also turn in here: ') + '<b>' + esc(o.x[0]) + '</b>' +
+        (o.x[8] ? ' <span class="muted">(' + esc(o.x[8]) + ')</span>' : '') + '<span class="tag rd">ready</span></label>';
+    }).join('');
+  }
   function stopHtml(st, c, rdy) {
     var dn = stopDone(st), cls = 'stop';
       if (dn) cls += ' done';
@@ -3095,8 +3126,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         st.notes.map(function (x) { return '<p class="intro">' + esc(x) + '</p>'; }).join('') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) ? '<p class="dglk"><a href="' + DGURL + '#' + dgSlug(st.loc.dun) + '">' + wi('skull') + 'Map and bosses of ' + esc(st.loc.dun) + ' ›</a></p>' : '') +
         (st.loc && st.loc.dun && duns.some(function (d) { return d.name === st.loc.dun && d.stop === st; }) && bossGear(st.loc.dun) ? '<p class="bgear">' + wi('skull') + ' Upgrades for you: ' + bossGear(st.loc.dun, true) + '</p>' : '') +
-        '<ul>' + (st.npcs ? npcLines(st) : st.rows.map(line).join('')) + '</ul>' +
-        bgLines(st) +
+        rhLines(st, true) + '<ul>' + (st.npcs ? npcLines(st) : st.rows.map(line).join('')) + '</ul>' +
+        bgLines(st) + rhLines(st, false) +
         (rdy[st.gi] || []).map(function (d) { return '<div class="rdy"><b>' + wi('skull') + ' ' + esc(d.name) + ' is ready: all ' + d.qs.length + ' quests in your log</b><br>' + d.qs.map(function (q) { return '<span>' + esc(qn(q)) + '</span>'; }).join('') + '</div>'; }).join('') +
         '</div>');
   }
@@ -3244,7 +3275,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   }
   $('nbody').addEventListener('click', function (e) {
     var cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
-    if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
+    if (cb.dataset.rh != null) { if (cb.checked) ticks['q' + cb.dataset.rh + ':turnin'] = 1; else delete ticks['q' + cb.dataset.rh + ':turnin']; }
+    else if (cb.dataset.stop != null) { stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); }); if (cb.checked) markAt(stops[+cb.dataset.stop]); }
     else setTick(rows[+cb.dataset.r], cb.checked);
     saveTicks();
     if (sel && sel !== hereStop) { var g = sel.gi; jumped = true; render(); select(g, false); } else follow();
@@ -3253,7 +3285,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   function follow() { jumped = false; var keep = $('side').scrollTop; render(); if (hereStop) select(hereStop.gi, true); else $('side').scrollTop = keep; }
   $('doneBtn').onclick = function () {
     var st = sel || hereStop; if (!st) return; undoTicks = null; var h = remember();
-    st.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); saveTicks(); h.a = JSON.stringify(ticks);
+    st.rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, true); }); markAt(st); saveTicks(); h.a = JSON.stringify(ticks);
     if (st === hereStop) return follow();
     var nx = stops.slice(st.gi + 1).find(function (x) { return !stopDone(x); });
     var keep = $('side').scrollTop; render(); if (nx) select(nx.gi, true); else $('side').scrollTop = keep;
@@ -3723,7 +3755,8 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     if (b) { cur = +b.dataset.ch; curZone = null; sel = firstOpen(chaps[cur]); drawTabs(); drawChapter(); drawNext(); $('side').scrollTop = 0; $('split').scrollIntoView({ block: 'start' }); return; }
     var cb = e.target.closest('input[type=checkbox]');
     if (cb) {
-      if (cb.dataset.stop != null) stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); });
+      if (cb.dataset.rh != null) { if (cb.checked) ticks['q' + cb.dataset.rh + ':turnin'] = 1; else delete ticks['q' + cb.dataset.rh + ':turnin']; }
+      else if (cb.dataset.stop != null) { stops[+cb.dataset.stop].rows.forEach(function (r) { if (r.k !== 'travel') setTick(r, cb.checked); }); if (cb.checked) markAt(stops[+cb.dataset.stop]); }
       else setTick(rows[+cb.dataset.r], cb.checked);
       saveTicks();
       var keep = $('side').scrollTop; render(); $('side').scrollTop = keep;
@@ -3810,7 +3843,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return (x[15] ? 'Do it in ' + (QA.z[w.oz] || zn(w.oz)) + ' (route gets there at level ' + Math.floor(w.lv || 1) + '). ' : '') + 'Turn in at ' + (x[8] || '?') + (tz ? ', ' + tz : '') + '.';
   }
   function whyNot(q) {
-    var x = QA && QA.q[q]; if (!x) return 'The guide skips it for your race and class.';
+    var x = QA && QA.q[q]; if (!x) return logQ.has(+q) ? 'In your log. Turn it in when you pass its NPC.' : 'Not in our quest list.';   // (no data: never claim a reason we don't know)
     if (x[3] && x[3] !== R.fac[0]) return (x[3] === 'A' ? 'Alliance' : 'Horde') + ' quest.';
     if (x[13] && !hasBit(x[13], CBIT[R.cls] || 0)) return 'Class quest, not for ' + R.cls + '.';
     if (x[14] && !hasBit(x[14], RBIT[R.race] || 0)) return 'Not for your race.';
