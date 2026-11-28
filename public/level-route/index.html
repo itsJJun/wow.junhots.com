@@ -202,6 +202,9 @@ a { color: var(--accent); }
 .stop li .xp { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .stop li small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
 .stop li small.at { color: #6f9cff; }
+.stop li small.sq b { font-weight: 600; color: var(--text); }
+.stop li small.sq b.sq-go { color: var(--good); font-weight: 600; }
+.stop li small.sq b.sq-no { color: var(--muted); font-weight: 600; }
 :root[data-theme="light"] .stop li small.at { color: #2f62d6; }
 .stop li small.at::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3d7bff; opacity: .7; margin-right: 5px; vertical-align: 1px; }
 .ac { font-weight: 700; margin-right: 3px; }
@@ -1177,6 +1180,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     this.walkMaps = new Set(Object.values(data.places).map(p => p[0]));
     // zones you can't cross in a straight line (travel.json noWalk; place zones in pz, from the game's zone outlines)
     this.noWalk = new Set((data.noWalk || []).flatMap(([x, y]) => [x + '|' + y, y + '|' + x]));
+    this.detour = data.detour || {};   // zone name -> real walk / straight line (walkfactor.js)
     this.walls = data.walls || [];   // ridges you can't walk over (travel.json walls, placezones.py)
     for (const k in data.pz || {}) { const pk = this.walkKey[k]; if (pk && P[pk]) P[pk].zone = data.pz[k]; }
     this.routes = data.routes;
@@ -1241,7 +1245,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
       for (let i = 0; i < nodes.length; i++) if (!done[i] && dist[i] < best) { best = dist[i]; u = i; }
       if (u < 0 || u === 1) break;
       done[u] = true;
-      const n = nodes[u];
+      const n = nodes[u], fz = this.detour[this.zoneAt(n.map, n.x, n.y)];
       // walking
       for (let v = 1; v < nodes.length; v++) {
         if (v === u || done[v]) continue;
@@ -1260,7 +1264,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
           const near = (u === 0 && nearS.has(v)) || (v === 1 && nearT.has(u)) || (u === 0 && v === 1);
           if (d > MAXDIRECT && !near) continue;
           if (!o.loose && this.walled(n, m)) continue;   // never a straight walk over a ridge you can't cross (Jun, 27 Nov)
-          c = d * DETOUR;
+          c = d * (fz || (v === 1 && this.detour[this.zoneAt(m.map, m.x, m.y)]) || DETOUR);
         }
         if (swim) { if (Math.hypot(m.x - n.x, m.y - n.y) > 3000) continue; relax(u, v, c * 2.5 / speed, { k: 'walk', swim: true }); }
         else relax(u, v, c / speed, { k: 'walk' });
@@ -1361,17 +1365,24 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
     (Travel.START_FP[o.race] || []).forEach(x => known.add(x));
     const res = { travel: {}, fp: {}, warn: [], skip: {}, total: 0 };
     let pos = null, bind = null, posZone = null, hearthAt = -1, prePos = null, prePosZone = null;
+    let ob = o.bind || null, tm = 0, lastH = -1e9, lastH0 = -1e9;   // (o.bind: your own hearth, from step o.bindAt on; tm: route time so far)
+    // the hearthstone's cooldown is 1 hour (Forever game data: spell 8690, 3,600,000 ms). Our route time leaves out
+    // fights and looting, so only a hearth under 30 minutes of route time after the last one counts as not ready.
+    const HEARTH_CD = 1800;
     const lvl = s => Math.floor(s.lv || 1);
     for (let i = 0; i < steps.length; i++) {
       const s = steps[i];
       if (s.t === 'section' || s.t === 'fly') continue;
+      if (ob && pos && i >= (o.bindAt || 0)) { bind = ob; ob = null; }
+      if (s.t === 'do') tm += s.ds != null ? s.ds : 60; else if (s.t === 'accept' || s.t === 'turnin') tm += 10;
       if (s.t === 'hearth') {
-        if (bind) { prePos = pos; prePosZone = posZone; pos = bind.w; posZone = bind.z; hearthAt = i; }
+        if (bind && tm - lastH < HEARTH_CD) { res.warn.push({ i, k: 'hearth-cd', m: 'hearthstone not ready yet (used ' + Math.round((tm - lastH) / 60) + ' min ago): skipped' }); res.skip[i] = true; continue; }
+        if (bind) { prePos = pos; prePosZone = posZone; pos = bind.w; posZone = bind.z; hearthAt = i; lastH0 = lastH; lastH = tm; }
         else if (pos) res.warn.push({ i, k: 'no-bind', m: 'hearth before any bind point' });
         continue;
       }
       if (s.t === 'fp' && s.nd) {
-        if (known.has(s.nd)) s._have = true;
+        s._have = known.has(s.nd);
         known.add(s.nd);
       }
       if (!s.w) continue;
@@ -1385,7 +1396,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         if (a && b && a.secs > b.secs + 60) {
           // skip it: going on is faster (e.g. your hearth is still set somewhere else)
           res.warn.push({ i: hearthAt, k: 'hearth-slow', m: `hearth is slower (${Math.round(a.secs / 60)} min) than going on (${Math.round(b.secs / 60)} min): skipped` });
-          res.skip[hearthAt] = true; pos = prePos; posZone = prePosZone;
+          res.skip[hearthAt] = true; pos = prePos; posZone = prePosZone; lastH = lastH0;
         }
         hearthAt = -1;
       }
@@ -1397,7 +1408,7 @@ window.WF_SNAPZIP = "/downloads/GearSnapshot.zip";
         else {
           const ride = r.legs.some(l => l.k !== 'walk');
           if (ride || s.z !== posZone || this.walled(pos, w)) res.travel[i] = { secs: Math.round(r.secs), text: this.describe(r, pos, dest), legs: r.legs, from: pos, to: dest };
-          res.total += r.secs;
+          res.total += r.secs; tm += r.secs;
           // flight masters you pass on the way
           for (const l of r.all) if (l.k === 'fly') { known.add(l.a); known.add(l.b); }
         }
@@ -2041,7 +2052,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
             lq(y, { t: 'turnin', xp: Math.round(z[17] * xpf(lvy - z[1])), a: [z[9], z[18][0], z[18][1]], z: z[9], w: z[18][2] }); });
           LOGST[q] = { st: 'on' }; return;
         }
-        LOGST[q] = { st: 'far', xp: sd ? sd.xp : null, cx: sd ? sd.cx : 0, secs: sd ? sd.secs : null, nd: sd && sd.nd }; return;
+        LOGST[q] = { st: 'far', xp: sd ? sd.xp : null, cx: sd ? sd.cx : 0, al: sd && sd.al, secs: sd ? sd.secs : null, nd: sd && sd.nd }; return;
       }
       if (b < 0 || !x[18]) { LOGST[q] = { st: 'far' }; return; }
       var sa = R.steps[ord[a]], sb = R.steps[ord[b]], lv = Math.floor(sb.lv || 1);
@@ -2080,7 +2091,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
   // the quest after q in its chain for your race and class (chainOf's rule)
   function nextQ(q) {
     var x = QA.q[q]; if (!x) return 0;
-    var u = QUNL[q] || [], n = x[12] && QA.q[x[12]] ? x[12] : u.length === 1 ? u[0] : 0;
+    var u = QUNL[q] || [], n = x[12] && QA.q[x[12]] && !(QA.q[x[12]][21] & 8) ? x[12] : u.length === 1 ? u[0] : 0;
     if (!(n && forMe(n))) { var m2 = u.filter(forMe); n = m2.length === 1 ? m2[0] : 0; }
     return n;
   }
@@ -2122,25 +2133,49 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         cx += Math.round(y[17] * xpf(lv - y[1])); ch.push(nq); n++;
         var c = { secs: t + rt(cur, A), cx: cx + free, n: n }; if (rate(c) > rate(top)) top = c;
       }
+      // quests along the trip: giver, objectives and hand-in within 200 yd of the trip's spots, each paying by itself
+      var sp = [O, E].concat(ch.slice(0, top.n).reduce(function (a, y) { var z = QA.q[y]; return a.concat([P(z[19]), z[16] ? P(z[16]) : null, P(z[18])]); }, [])).filter(function (p) { return p && p.map === A.map; });
+      var nearT = function (p) { var b = null; sp.forEach(function (s) { var d = Math.hypot(s.x - p.x, s.y - p.y); if (d <= 200 && (!b || d < b.d)) b = { d: d }; }); return b; };
+      var onR = {}, al = [], pace = lvPace(lv), dn2 = function (z) { return doneQ.has(z); }; R.steps.slice(0, R.n0).forEach(function (s) { if (s.q) onR[s.q] = 1; });
+      Object.keys(QA.q).forEach(function (id) {
+        var y = QA.q[id], yq = +id; if (al.length >= 6 || onR[yq] || had(yq) || logQ.has(yq) || y[21] || !forMe(yq)) return;
+        if ((y[2] || 0) > lv || (y[1] || 0) > lv + 3 || (y[1] || 0) <= greyAt(lv) || y[20] == null || (!y[16] && y[20] > 0)) return;
+        if (!y[10].every(dn2) || (y[11].length && !y[11].some(dn2))) return;
+        var G = P(y[19]), O2 = y[16] ? P(y[16]) : null, E2 = P(y[18]); if (!G || !E2 || G.map !== A.map || E2.map !== A.map) return;
+        var ng = nearT(G), no = O2 ? (O2.map === A.map ? nearT(O2) : null) : { d: 0 }, ne = nearT(E2); if (!ng || !no || !ne) return;
+        var sec = 20 + y[20] + 2 * (ng.d + no.d + ne.d) * 1.4 / 7, gx = Math.round(y[17] * xpf(lv - y[1]));
+        if (gx / sec < pace) return;
+        al.push(yq); top.cx += gx; top.secs += sec;
+      });
     } catch (e) { return null; }
-    return { ok: rate(top) >= lvPace(lv), k: best.k, xp: xp, cx: top.cx, secs: top.secs, lv: best.s.lv, ch: ch.slice(0, top.n), nd: top.n === n ? nd : null };
+    return { ok: rate(top) >= lvPace(lv), k: best.k, xp: xp, cx: top.cx, secs: top.secs, lv: best.s.lv, ch: ch.slice(0, top.n).concat(al), al: al.length, nd: top.n === n ? nd : null };
   }
   // ---- rows: steps in order, plus travel legs and flight paths picked up on the way
+  // the inn your hearthstone is set at (the game's name for it, from your game files): only when one inn has that name
+  var INNS = null;
+  function myInn() {
+    if (!INNS || !snap || !snap.hearth) return null;
+    var h = String(snap.hearth).toLowerCase().replace(/\u2019/g, "'").trim().replace(/^the /, ''), m = INNS.filter(function (x) { return x.k.indexOf(h) >= 0; });
+    return m.length === 1 ? { w: { map: m[0].w[0], x: m[0].w[1], y: m[0].w[2] }, z: m[0].z } : null;
+  }
   function build() {
     var vis = [], ord = ORDER || R.steps.map(function (s, i) { return i; });
     ord.forEach(function (i) { if (!hidden(R.steps[i])) vis.push(i); });
-    var p = T.plan(vis.map(function (i) { return R.steps[i]; }), { race: R.race, cls: R.cls, fac: R.fac[0], known: known }, zn);
+    var inn = myInn(), hi0 = inn && rows && rows[here] ? rows[here].i : -1, bAt = hi0 >= 0 ? vis.indexOf(hi0) : 0;   // (your hearth: from where you are on)
+    var p = T.plan(vis.map(function (i) { return R.steps[i]; }), { race: R.race, cls: R.cls, fac: R.fac[0], known: known, bind: inn, bindAt: bAt < 0 ? 0 : bAt }, zn);
     plan = { total: p.total, travel: {}, fp: {}, skip: {}, warn: p.warn };
     ['travel', 'fp', 'skip'].forEach(function (k) { for (var j in p[k]) plan[k][vis[j]] = p[k][j]; });
     rows = [];
-    var bindZone = null;
+    var bindZone = inn && hi0 < 0 ? zn(inn.z) : null;
     ord.forEach(function (i) {
       var s = R.steps[i];
+      if (inn && i === hi0) bindZone = zn(inn.z);   // (your hearth from where you are on)
       if (s.t === 'fly' || (s.t === 'grind' && s.sko) || plan.skip[i] || hidden(s)) return;
       if (s.t === 'bind') bindZone = zn(s.z);
       if (s.t === 'hearth') s._to = bindZone;
       if (plan.travel[i]) rows.push({ k: 'travel', i: i, tr: plan.travel[i] });
       if (s.t === 'section') { rows.push({ k: 'sec', i: i, s: s }); return; }
+      if (s.t === 'fp' && s._have) return;
       var prev = rows[rows.length - 1], who = s.t === 'accept' ? 3 : s.t === 'turnin' ? 4 : -1;
       if (s.t === 'do' && prev && prev.k === 'step' && prev.s.t === 'do' && prev.s.q === s.q && !plan.travel[i] && !s.pl && !prev.s.pl) { (prev.more = prev.more || []).push({ i: i, s: s }); return; }
       if (who > 0 && prev && prev.k === 'step' && prev.s.t === s.t && !prev.s.ad === !s.ad && !prev.s.of === !s.of && !prev.s.el === !s.el && prev.s.dq === s.dq && prev.s.fd === s.fd && !UPQ[prev.s.q] && !UPQ[s.q] && !(upMine && (upMine.byId[prev.s.q] || upMine.byId[s.q])) && !plan.travel[i] && !prev.s.nl && !s.nl &&
@@ -2210,7 +2245,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!ch) newChap(null);
       ch.rows.push(r);
       if (r.k === 'travel') { ch.items.push({ k: 'leg', r: r }); st = null; return; }
-      if (r.k === 'step' && r.s.t === 'note') { if (r.s.tx) { if (ahNote(r.s.tx) || ahRun && /^(Chapter \d|Stranglethorn pages)/.test(r.s.tx)) { ahWait.push(r.s.tx); ahRun = true; } else { notes.push(r.s.tx); ahRun = false; } } return; }
+      if (r.k === 'step' && r.s.t === 'note') { if (r.s.tx) { if (r.s.bq && st && atAH(st.loc)) st.notes.push(r.s.tx); else if (ahNote(r.s.tx) || ahRun && /^(Chapter \d|Stranglethorn pages)/.test(r.s.tx)) { ahWait.push(r.s.tx); ahRun = true; } else { notes.push(r.s.tx); ahRun = false; } } return; }
       ahRun = false;
       var loc = r.k === 'fp' ? worldToZone([T.taxi[r.nd].map, T.taxi[r.nd].x, T.taxi[r.nd].y]) : stepLoc(r.s);
       var t = r.k === 'step' ? r.s.t : 'fp';
@@ -2849,8 +2884,9 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         return gOn.push(row(nm(q), (tx && tx.xp ? '+' + kxp(tx.xp) + ' xp' : 'On your route') + lgBtn(q, 1), lr0)); }
       if (g.st === 'off') return gOff.push(row(nm(q), lgBtn(q, 0).replace(/^ /, '')));
       if (g.st === 'grey') { var gx = lxp(q, g.lv); return gAb.push(row(nm(q), 'Grey when the route gets there (level ' + Math.floor(g.lv) + ')' + (gx != null ? ' · ' + kxp(gx) + ' xp' : ''))); }
+      if (g.st === 'far' && g.xp == null && QA && QA.q[q] && QA.q[q][21] & 20) return gYou.push(row(nm(q), (QA.q[q][21] & 4 ? 'Dungeon quest' : 'Repeatable quest') + ', not on your route'));   // (repeatable: Craftsman's Writ)
       var w = logWhere(q);
-      if (g.st === 'far' || w && !w.a) return gAb.push(row(nm(q), g.xp != null && g.secs ? 'Off your route: +' + kxp(g.xp + (g.cx || 0)) + ' xp' + (g.cx ? ' with the quests it opens' : '') + ' for a ' + mins(g.secs) + ' trip' + (g.nd ? ' (no time data for ' + esc(g.nd) + ')' : '') : g.nd ? 'Off your route (no time data for ' + esc(g.nd) + ')' : 'The route never goes there'));
+      if (g.st === 'far' || w && !w.a) return gAb.push(row(nm(q), g.xp != null && g.secs ? 'Off your route: +' + kxp(g.xp + (g.cx || 0)) + ' xp' + (g.cx ? (g.al ? ' with quests on the way' : ' with the quests it opens') : '') + ' for a ' + mins(g.secs) + ' trip' + (g.nd ? ' (no time data for ' + esc(g.nd) + ')' : '') : g.nd ? 'Off your route (no time data for ' + esc(g.nd) + ')' : 'The route never goes there'));
       if (w) return gOn.push(row(nm(q), esc(logText(w)), w.st));
       gYou.push(row(nm(q), 'Not in our quest data'));
     });
@@ -3029,7 +3065,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
         var obs = qd[8] || [], one = !s.pl && obs.length === 1 && obs[0][1].length === 1 && obs[0][1][0].length === 3 ? obs[0] : null;
         var lab = s.pl && !/^Spot \d/.test(s.pl) ? s.pl : one ? one[0] : '', at = (s.pl || one) && s.a && s.a[1] != null ? (+s.a[1]).toFixed(1) + ', ' + (+s.a[2]).toFixed(1) : '';
         txt = wi(DOI[qd[6]] || 'do') + '<b>' + esc(qn(s.q)) + '</b>' + ptag(s.q) + tags + (lab || at ? '<small class="at">' + esc(lab) + (lab && at ? ' · ' : '') + at + '</small>' : '') +
-          (qd[5] && !s.pl ? '<small>' + esc(qd[5].length > 130 ? qd[5].slice(0, 127) + '…' : qd[5]) + '</small>' : '');
+          (qd[5] && (!s.pl || firstDo(r, s.q)) ? '<small>' + esc(objShort(qd[5])) + '</small>' : '') + (dn ? '' : sqLines(s));
       }
       else if (s.t === 'train') { txt = wi('c_' + String(R.cls).toLowerCase()) + 'Train ' + s.sp.length + ' spells' + (s.trip ? ' <span class="tag lv">trip</span>' : '') + '<small>' + s.sp.map(function (x) { return esc(M.spells[x[0]] || x[0]) + (x[2] > 1 ? ' ' + x[2] : ''); }).join(', ') + '</small>'; xp = coin(s.cost); }
       else if (s.t === 'fp') txt = wi(fly()) + 'Get the flight path';
@@ -3041,6 +3077,25 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     return '<li class="' + (dn ? 'ck' : '') + (miss ? ' miss' : '') + '"><input type="checkbox" data-r="' + r.n + '"' + (dn ? ' checked' : '') + ' aria-label="done"><span>' + txt + '</span><span class="xp">' + xp + '</span></li>';
   }
 
+  // quests a drop here starts (dropstart.js): [quest, item, Classic chance %, xp, secs, worth it 1 / 0 / null = no time data]
+  function sqLines(s) {
+    return (s.sq || []).filter(function (h) { return !logQ.has(h[0]) && !doneQ.has(h[0]); }).map(function (h) {
+      var qn2 = QA && QA.q[h[0]] ? QA.q[h[0]][0] : '', k = h[3] >= 1000 ? (Math.round(h[3] / 100) / 10) + 'k' : h[3];
+      var v = h[5] === 1 ? '<b class="sq-go">take it</b> · +' + k + ' xp, ~' + mins(h[4]) : h[5] === 0 ? '<b class="sq-no">skip it</b> · +' + k + ' xp is slow for ~' + mins(h[4]) : 'your call · no time data';
+      return '<small class="sq" title="Drop chance from Classic. Forever may differ.">If <b>' + esc(h[1]) + '</b> drops' + (h[2] ? ' (about ' + (h[2] >= 1 ? Math.round(h[2]) : h[2].toFixed(1)) + '%)' : '') + (qn2 && qn2 !== h[1] ? ', it starts <b>' + esc(qn2) + '</b>' : ', it starts a quest') + ': ' + v + '</small>';
+    }).join('');
+  }
+  // the game's objective sentence without its last "then return to X" part (the hand-in line says that)
+  function objShort(t) {
+    var s = t.replace(/(?:,| and)?\s*(?:then )?(?:return|report back|go back)\b[^.]*\.?\s*$/i, '').replace(/[\s,;]+$/, '');
+    s = s && s !== t && !/[.!?]$/.test(s) ? s + '.' : s || t;
+    return s.length > 130 ? s.slice(0, 127) + '…' : s;
+  }
+  // the quest's first objective line in the list (worked out once per list)
+  function firstDo(r, q) {
+    if (firstDo.rows !== rows) { firstDo.rows = rows; firstDo.m = {}; rows.forEach(function (x) { if (x.k === 'step') stepsOf(x).forEach(function (y) { if (y.t === 'do' && y.q && firstDo.m[y.q] == null) firstDo.m[y.q] = x.n; }); }); }
+    return firstDo.m[q] === r.n;
+  }
   // a stop with optional steps: one plain line saying so, with the trip there and the XP
   var optStop = function (st) { var q = st.rows.filter(function (r) { return r.s && r.s.q; }); return q.length && q.every(function (r) { return r.s.of; }); };
   function optTrip(st) {
@@ -3820,7 +3875,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       if (!p || out.indexOf(p) >= 0) break; out.unshift(p); cur = p;
     }
     for (cur = +q, k = 0; k < 4 && (x = QA.q[cur]); k++) {
-      var u = QUNL[cur] || [], n = x[12] && QA.q[x[12]] ? x[12] : u.length === 1 ? u[0] : 0;
+      var u = QUNL[cur] || [], n = x[12] && QA.q[x[12]] && !(QA.q[x[12]][21] & 8) ? x[12] : u.length === 1 ? u[0] : 0;
       if (me && !(n && forMe(n))) { var m2 = u.filter(forMe); n = m2.length === 1 ? m2[0] : 0; }
       if (!n || out.indexOf(n) >= 0) break; out.push(n); cur = n;
     }
@@ -3867,7 +3922,7 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
     var seen = {}, hits = [];
     var add = function (id) { var n = qaName(id), lv = (QA && QA.q[id] || M.quests[id] || [])[1]; if (seen[id]) return; seen[id] = 1; hits.push({ id: +id, n: n, lv: lv || 0 }); };
     Object.keys(M.quests).forEach(function (id) { if (M.quests[id][0].toLowerCase().indexOf(v) >= 0) add(id); });
-    if (QA) Object.keys(QA.q).forEach(function (id) { if (QA.q[id][0] && QA.q[id][0].toLowerCase().indexOf(v) >= 0) add(id); });
+    if (QA) Object.keys(QA.q).forEach(function (id) { if (QA.q[id][0] && !(QA.q[id][21] & 8 && !logQ.has(+id) && !doneQ.has(+id)) && QA.q[id][0].toLowerCase().indexOf(v) >= 0) add(id); });
     var mine = function (h) { var x = QA && QA.q[h.id]; return !x || !x[3] || x[3] === R.fac[0] ? 1 : 0; };
     hits.sort(function (a, b) { return (at[b.id] ? 1 : 0) - (at[a.id] ? 1 : 0) || mine(b) - mine(a) || a.lv - b.lv; });
     // same name and level: the one on your route (Questie keeps a copy per race for some quests)
@@ -3976,9 +4031,10 @@ var WI = {"boat": "/assets/i/065ab8af1f72fe.webp", "c_druid": "/assets/i/077a453
       MINI = a[3]; for (var mk in MINI.t) MINIS[mk] = new Set(MINI.t[mk]);
       a[1].zones.forEach(function (z) { if (AREA2UM[z[7]] == null) AREA2UM[z[7]] = z[0]; UMZ[z[0]] = z; });
       fillPick();
+      fetch(BASE + 'inns.json').then(function (r) { return r.json(); }).then(function (j) { INNS = j; if (R && hereStop && snap && snap.hearth) render(); }).catch(function () {});
       fetch(BASE + 'quests-all.json').then(function (r) { return r.json(); }).then(function (j) {
         QA = j;
-        for (var k in j.q) j.q[k][10].concat(j.q[k][11]).forEach(function (p) { (QUNL[p] = QUNL[p] || []).push(+k); });
+        for (var k in j.q) if (!(j.q[k][21] & 8)) j.q[k][10].concat(j.q[k][11]).forEach(function (p) { (QUNL[p] = QUNL[p] || []).push(+k); });
         if (R) { search(); if (hereStop) { var keep = $('side').scrollTop; render(); $('side').scrollTop = keep; } }
       }).catch(function () {});
     })
